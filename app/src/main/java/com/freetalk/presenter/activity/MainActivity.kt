@@ -6,10 +6,12 @@ import androidx.fragment.app.Fragment
 import com.freetalk.R
 import com.freetalk.databinding.ActivityMainBinding
 import com.freetalk.presenter.fragment.LoginMainFragment
+import com.freetalk.presenter.fragment.SignUpFragment
 import kotlin.math.log
 
 sealed class EndPoint {
     data class LoginMain(val token: Int) : EndPoint()
+    data class SignUp(val token: Int): EndPoint()
     object Error : EndPoint()
 }
 
@@ -41,6 +43,10 @@ class MainActivity() : AppCompatActivity(), MainActivityNavigation {
             when (endPoint) {
                 is EndPoint.LoginMain -> {
                     val fragment = LoginMainFragment()
+                    setFragment(fragment)
+                }
+                is EndPoint.SignUp -> {
+                    val fragment = SignUpFragment()
                     setFragment(fragment)
                 }
                 is EndPoint.Error -> {
