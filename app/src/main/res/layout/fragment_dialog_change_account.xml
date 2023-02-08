@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,20 +12,29 @@
         android:layout_height="40dp"
         android:text="계정 찾기"
         android:textSize="25dp"
-        app:layout_constraintBottom_toTopOf="@+id/id_edit_text"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"/>
 
-    <EditText
-        android:id="@+id/id_edit_text"
-        android:layout_width="280dp"
-        android:layout_height="50dp"
-        android:hint="이메일을 입력하세요"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_text_input"
+        android:layout_width="230dp"
+        android:layout_height="70dp"
+        android:layout_margin="4dp"
+        android:hint="@string/shr_hint_email"
         app:layout_constraintTop_toBottomOf="@+id/title_text"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginLeft="20dp"/>
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:id="@+id/complete_text"
         android:layout_width="300dp"
@@ -41,7 +51,7 @@
         android:layout_width="100dp"
         android:layout_height="40dp"
         android:text="찾기"
-        app:layout_constraintTop_toBottomOf="@+id/id_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/email_text_input"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginLeft="20dp"

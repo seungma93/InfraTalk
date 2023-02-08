@@ -3,6 +3,7 @@ package com.freetalk.presenter.fragment
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,9 +50,10 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
         // 레이아웃 배경을 투명하게 해줌, 필수 아님
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         binding.btnFindPassword.setOnClickListener {
-            inputId = binding.idEditText.text.toString()
+            inputId = binding.emailTextInput.editText!!.text.toString()
                 lifecycleScope.launch{
                     val userData = UserEntity(inputId, "")
+                    Log.v("ChangeAccountFragment", inputId)
                     loginViewModel.resetPassword(userData)
                 }
         }
@@ -67,13 +69,13 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
             loginViewModel.resetPasswordEvent.collect {
                     when {
                         it.message.contains("메일발송 성공") -> {
-                            binding.idEditText.visibility = View.GONE
+                            binding.emailTextInput.visibility = View.GONE
                             binding.btnFindPassword.visibility = View.GONE
                             binding.completeText.text = "이메일로 재설정 링크를 보냈습니다"
                             binding.completeText.visibility = View.VISIBLE
                         }
                         else -> {
-                            binding.idEditText.visibility = View.GONE
+                            binding.emailTextInput.visibility = View.GONE
                             binding.btnFindPassword.visibility = View.GONE
                             binding.completeText.text = "이메일이 틀렸습니다 확인해 주세요"
                             binding.completeText.visibility = View.VISIBLE

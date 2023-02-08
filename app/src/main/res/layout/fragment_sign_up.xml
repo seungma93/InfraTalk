@@ -17,14 +17,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4"/>
+        app:layout_constraintGuide_percent="0.3"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9"/>
+        app:layout_constraintGuide_percent="0.8"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_right"
@@ -35,36 +35,56 @@
 
 
 
-    <EditText
-        android:id="@+id/id_edit_text"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:hint="이메일"
-        android:textSize="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_text_input"
+        android:layout_width="230dp"
+        android:layout_height="70dp"
+        android:layout_margin="4dp"
+        android:hint="@string/shr_hint_email"
         app:layout_constraintTop_toTopOf="@id/guideline_top"
-        app:layout_constraintLeft_toRightOf="@+id/guideline_left"
-        />
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_text_input"
+        android:layout_width="230dp"
+        android:layout_height="70dp"
+        android:layout_margin="4dp"
+        android:hint="@string/shr_hint_password"
+        app:layout_constraintTop_toBottomOf="@id/email_text_input"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_check_text_input"
+        android:layout_width="230dp"
+        android:layout_height="70dp"
+        android:layout_margin="4dp"
+        android:hint="@string/shr_hint_check_password"
+        app:layout_constraintTop_toBottomOf="@+id/password_text_input"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_check_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
 
 
-    <EditText
-        android:id="@+id/password_edit_text"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:hint="비밀번호"
-        android:textSize="15dp"
-        app:layout_constraintTop_toBottomOf="@+id/id_edit_text"
-        app:layout_constraintLeft_toRightOf="@id/guideline_left"
-        />
-    <EditText
-        android:id="@+id/password_check_edit_text"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:hint="비밀번호 확인"
-        android:textSize="15dp"
-        app:layout_constraintTop_toBottomOf="@+id/password_edit_text"
-        app:layout_constraintLeft_toRightOf="@id/guideline_left"
-        />
+
 
     <Button
         android:id="@+id/btn_sign_up"

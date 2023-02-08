@@ -50,8 +50,8 @@ class LoginMainFragment: Fragment() {
                 (requireActivity() as? MainActivityNavigation)?.navigateFragment(signUpEndPoint)
             }
             btnLogin.setOnClickListener {
-                inputId = binding.idEditText.text.toString()
-                inputPassword = binding.passwordEditText.text.toString()
+                inputId = binding.emailTextInput.editText!!.text.toString()
+                inputPassword = binding.passwordTextInput.editText!!.text.toString()
 
                 when {
                     inputId.isNullOrEmpty() -> Toast.makeText(

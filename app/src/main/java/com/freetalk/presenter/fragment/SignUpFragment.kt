@@ -49,9 +49,9 @@ class SignUpFragment : Fragment() {
         binding.let {
 
             it.btnSignUp.setOnClickListener {
-                inputId = binding.idEditText.text.toString()
-                inputPassword = binding.passwordEditText.text.toString()
-                inputPasswordCheck = binding.passwordCheckEditText.text.toString()
+                inputId = binding.emailTextInput.editText!!.text.toString()
+                inputPassword = binding.passwordTextInput.editText!!.text.toString()
+                inputPasswordCheck = binding.passwordCheckTextInput.editText!!.text.toString()
 
                 when {
                     inputId.isNullOrEmpty() -> Toast.makeText(
