@@ -103,7 +103,7 @@ class SignUpFragment : Fragment() {
                     ).show()
                     it.message.contains("회원가입 성공") -> {
                         Toast.makeText(
-                            requireActivity(), "회원가입 성공",
+                            requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
                             Toast.LENGTH_SHORT
                         ).show()
                         val endPoint = EndPoint.LoginMain(1)

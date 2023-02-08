@@ -25,13 +25,19 @@ data class AuthData(
 
 class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
     private val auth = Firebase.auth
-
+    private val currentUser = auth.currentUser
     override suspend fun signUp(userData: UserEntity) =
         suspendCoroutine<AuthData> { continuation ->
             auth.createUserWithEmailAndPassword(userData.email, userData.password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        continuation.resume(AuthData(it, "회원가입 성공"))
+                        currentUser!!.sendEmailVerification().addOnCompleteListener { task ->
+                            if(it.isSuccessful) {
+                                continuation.resume(AuthData(it, "회원가입 성공 이메일 확인 해주세요"))
+                            }else {
+                                continuation.resume(AuthData(it, task.exception!!.toString()))
+                            }
+                        }
                     } else  {
                         Log.v("DataSource", it.exception!!.toString())
                         continuation.resume(AuthData(it, it.exception!!.toString()))
@@ -44,7 +50,12 @@ class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
             auth.signInWithEmailAndPassword(userData.email, userData.password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        continuation.resume(AuthData(it, "로그인 성공"))
+                        if (currentUser!!.isEmailVerified){
+                            continuation.resume(AuthData(it, "로그인 성공"))
+                        }else {
+                            continuation.resume(AuthData(it, "이메일 인증이 필요합니다"))
+                        }
+
                     } else  {
                         Log.v("DataSource", it.exception!!.toString())
                         continuation.resume(AuthData(it, it.exception!!.toString()))

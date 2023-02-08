@@ -90,6 +90,14 @@ class LoginMainFragment: Fragment() {
                         requireActivity(), "이메일이나 패스워드가 틀렸습니다",
                         Toast.LENGTH_SHORT
                     ).show()
+                    it.message.contains("이메일 인증이 필요합니다") -> Toast.makeText(
+                        requireActivity(), "이메일 인증이 필요합니다",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    it.message.contains("We have blocked all requests from this device due to unusual activity") -> Toast.makeText(
+                        requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     it.message.contains("로그인 성공") -> {
                         Toast.makeText(
                             requireActivity(), "로그인 성공",
