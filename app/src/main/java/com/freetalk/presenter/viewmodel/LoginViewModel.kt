@@ -14,6 +14,8 @@ class LoginViewModel(private val useCase: UserUseCase): ViewModel() {
     val signUpEvent: SharedFlow<AuthData> = _signUpEvent.asSharedFlow()
     private val _logInEvent = MutableSharedFlow<AuthData>()
     val logInEvent: SharedFlow<AuthData> = _logInEvent.asSharedFlow()
+    private val _resetPasswordEvent = MutableSharedFlow<AuthData>()
+    val resetPasswordEvent: SharedFlow<AuthData> = _resetPasswordEvent.asSharedFlow()
 
     suspend fun signUp(userData: UserEntity) {
         kotlin.runCatching {
@@ -29,5 +31,9 @@ class LoginViewModel(private val useCase: UserUseCase): ViewModel() {
         kotlin.runCatching {
             _logInEvent.emit(useCase.logIn(userData))
         }
+    }
+
+    suspend fun resetPassword(userData: UserEntity) {
+        _resetPasswordEvent.emit(useCase.resetPassword(userData))
     }
 }

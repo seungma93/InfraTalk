@@ -7,6 +7,7 @@ import com.freetalk.repository.UserDataRepository
 interface UserUseCase {
     suspend fun signUp(userData: UserEntity): AuthData
     suspend fun logIn(userData: UserEntity): AuthData
+    suspend fun resetPassword(userData: UserEntity): AuthData
 }
 
 class UserUseCaseImpl(private val userDataRepository: UserDataRepository): UserUseCase {
@@ -16,6 +17,10 @@ class UserUseCaseImpl(private val userDataRepository: UserDataRepository): UserU
 
     override suspend fun logIn(userData: UserEntity): AuthData {
         return userDataRepository.logIn(userData)
+    }
+
+    override suspend fun resetPassword(userData: UserEntity): AuthData {
+        return userDataRepository.resetPassword(userData)
     }
 
 }

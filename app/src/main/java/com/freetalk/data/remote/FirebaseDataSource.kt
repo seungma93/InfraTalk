@@ -16,10 +16,11 @@ import kotlin.coroutines.suspendCoroutine
 interface UserDataSource<T> {
     suspend fun signUp(userData: UserEntity): T
     suspend fun logIn(userData: UserEntity): T
+    suspend fun resetPssword(userData: UserEntity): T
 }
 
 data class AuthData(
-    val task: Task<AuthResult>,
+    val task: Task<AuthResult>?,
     val message: String
 )
 
@@ -32,35 +33,47 @@ class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         currentUser!!.sendEmailVerification().addOnCompleteListener { task ->
-                            if(it.isSuccessful) {
+                            if (it.isSuccessful) {
                                 continuation.resume(AuthData(it, "회원가입 성공 이메일 확인 해주세요"))
-                            }else {
+                            } else {
                                 continuation.resume(AuthData(it, task.exception!!.toString()))
                             }
                         }
-                    } else  {
+                    } else {
                         Log.v("DataSource", it.exception!!.toString())
                         continuation.resume(AuthData(it, it.exception!!.toString()))
                     }
                 }
         }
 
-    override suspend fun logIn(userData: UserEntity)=
+    override suspend fun logIn(userData: UserEntity) =
         suspendCoroutine<AuthData> { continuation ->
             auth.signInWithEmailAndPassword(userData.email, userData.password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        if (currentUser!!.isEmailVerified){
+                        if (currentUser!!.isEmailVerified) {
                             continuation.resume(AuthData(it, "로그인 성공"))
-                        }else {
+                        } else {
                             continuation.resume(AuthData(it, "이메일 인증이 필요합니다"))
                         }
 
-                    } else  {
+                    } else {
                         Log.v("DataSource", it.exception!!.toString())
                         continuation.resume(AuthData(it, it.exception!!.toString()))
                     }
                 }
+        }
+
+    override suspend fun resetPssword(userData: UserEntity) =
+        suspendCoroutine<AuthData> { continuation ->
+            auth.sendPasswordResetEmail(userData.email).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    continuation.resume(AuthData(null, "메일발송 성공"))
+                }else {
+                    continuation.resume(AuthData(null, "메일발송 실패"))
+                }
+            }
+
         }
 
 }

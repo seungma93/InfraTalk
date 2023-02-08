@@ -48,9 +48,6 @@ class SignUpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.let {
 
-            it.btnCheckId.setOnClickListener {
-
-            }
             it.btnSignUp.setOnClickListener {
                 inputId = binding.idEditText.text.toString()
                 inputPassword = binding.passwordEditText.text.toString()

@@ -70,6 +70,10 @@ class LoginMainFragment: Fragment() {
                     }
                 }
             }
+            btnFindAccount.setOnClickListener {
+                val dialogFragment = ChangeAccountFragment()
+                dialogFragment.show(requireActivity().supportFragmentManager, "CustomDialog")
+            }
         }
         subsribe()
     }

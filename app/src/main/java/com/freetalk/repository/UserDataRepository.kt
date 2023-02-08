@@ -7,6 +7,7 @@ import com.freetalk.data.remote.UserDataSource
 interface UserDataRepository {
     suspend fun signUp(userData: UserEntity): AuthData
     suspend fun logIn(userData: UserEntity): AuthData
+    suspend fun resetPassword(userData: UserEntity): AuthData
 }
 
 class FirebaseUserDataRepositoryImpl(private val dataSource: UserDataSource<AuthData>): UserDataRepository{
@@ -17,5 +18,9 @@ class FirebaseUserDataRepositoryImpl(private val dataSource: UserDataSource<Auth
 
     override suspend fun logIn(userData: UserEntity): AuthData {
         return dataSource.logIn(userData)
+    }
+
+    override suspend fun resetPassword(userData: UserEntity): AuthData {
+        return dataSource.resetPssword(userData)
     }
 }

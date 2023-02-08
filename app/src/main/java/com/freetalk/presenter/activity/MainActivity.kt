@@ -40,6 +40,12 @@ class MainActivity() : AppCompatActivity(), MainActivityNavigation {
             .commit()
     }
 
+    private fun setFragmentNonBackStack(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.frame_layout, fragment)
+            .commit()
+    }
+
     override fun navigateFragment(endPoint: EndPoint) {
         Bundle().let {
             when (endPoint) {
@@ -53,7 +59,7 @@ class MainActivity() : AppCompatActivity(), MainActivityNavigation {
                 }
                 is EndPoint.Main -> {
                     val fragment = MainFragment()
-                    setFragment(fragment)
+                    setFragmentNonBackStack(fragment)
                 }
                 is EndPoint.Error -> {
                 }

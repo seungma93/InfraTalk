@@ -25,9 +25,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.8"/>
 
-
-
-
     <EditText
         android:id="@+id/id_edit_text"
         android:layout_width="230dp"
@@ -38,7 +35,6 @@
         app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
         app:layout_constraintTop_toTopOf="@id/guideline_top"
         />
-
 
     <EditText
         android:id="@+id/password_edit_text"
