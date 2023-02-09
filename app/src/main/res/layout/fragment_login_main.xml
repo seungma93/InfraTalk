@@ -31,6 +31,7 @@
         android:layout_height="70dp"
         android:layout_margin="4dp"
         android:hint="@string/shr_hint_email"
+        style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toTopOf="@id/guideline_top"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
 
@@ -47,6 +48,7 @@
         android:layout_height="70dp"
         android:layout_margin="4dp"
         android:hint="@string/shr_hint_password"
+        style="@style/Widget.FreeTalk.TextInputLayout"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@+id/email_text_input"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left"
@@ -60,6 +62,7 @@
 
     <Button
         android:id="@+id/btn_login"
+        style="@style/Widget.FreeTalk.Button"
         android:layout_width="230dp"
         android:layout_height="50dp"
         android:text="로그인"
@@ -70,6 +73,7 @@
         />
     <Button
         android:id="@+id/btn_sign_up"
+        style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="110dp"
         android:layout_height="40dp"
         android:text="회원가입"
@@ -80,6 +84,7 @@
 
     <Button
         android:id="@+id/btn_find_account"
+        style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="110dp"
         android:layout_height="40dp"
         android:text="계정찾기"
