@@ -2,10 +2,10 @@ package com.freetalk.presenter.fragment
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.freetalk.R
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.databinding.FragmentMainBinding
 
@@ -19,6 +19,7 @@ class MainFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+        (activity as AppCompatActivity).setSupportActionBar(binding.appBar)
         return binding.root
     }
 
@@ -30,6 +31,16 @@ class MainFragment: Fragment() {
                 isFabOpen = toggleFab(isFabOpen)
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        super.onCreateOptionsMenu(menu, menuInflater)
     }
 
     private fun toggleFab(isFabOpen: Boolean): Boolean {

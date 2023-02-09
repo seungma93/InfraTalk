@@ -71,7 +71,6 @@ class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
                     continuation.resume(AuthData(null, "메일발송 성공"))
                 }else {
                     Log.v("DataSource",it.exception.toString())
-
                     continuation.resume(AuthData(null, "메일발송 실패"))
                 }
             }
