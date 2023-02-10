@@ -5,6 +5,7 @@ import android.util.Log
 import com.freetalk.data.entity.UserEntity
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
 import com.google.firebase.auth.ktx.auth
@@ -16,7 +17,7 @@ import kotlin.coroutines.suspendCoroutine
 interface UserDataSource<T> {
     suspend fun signUp(userData: UserEntity): T
     suspend fun logIn(userData: UserEntity): T
-    suspend fun resetPssword(userData: UserEntity): T
+    suspend fun resetPassword(userData: UserEntity): T
 }
 
 data class AuthData(
@@ -24,24 +25,23 @@ data class AuthData(
     val message: String
 )
 
-class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
-    private val auth = Firebase.auth
+class FirebaseRemoteDataSourceImpl(private val auth: FirebaseAuth) : UserDataSource<AuthData> {
     private val currentUser = auth.currentUser
     override suspend fun signUp(userData: UserEntity) =
         suspendCoroutine<AuthData> { continuation ->
             auth.createUserWithEmailAndPassword(userData.email, userData.password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        currentUser!!.sendEmailVerification().addOnCompleteListener { task ->
+                        currentUser?.sendEmailVerification()?.addOnCompleteListener { task ->
                             if (it.isSuccessful) {
                                 continuation.resume(AuthData(it, "회원가입 성공 이메일 확인 해주세요"))
                             } else {
-                                continuation.resume(AuthData(it, task.exception!!.toString()))
+                                continuation.resume(AuthData(it, task.exception.toString()))
                             }
                         }
                     } else {
-                        Log.v("DataSource", it.exception!!.toString())
-                        continuation.resume(AuthData(it, it.exception!!.toString()))
+                        Log.v("DataSource", it.exception.toString())
+                        continuation.resume(AuthData(it, it.exception.toString()))
                     }
                 }
         }
@@ -64,7 +64,7 @@ class FirebaseRemoteDataSourceImpl : UserDataSource<AuthData> {
                 }
         }
 
-    override suspend fun resetPssword(userData: UserEntity) =
+    override suspend fun resetPassword(userData: UserEntity) =
         suspendCoroutine<AuthData> { continuation ->
             auth.sendPasswordResetEmail(userData.email).addOnCompleteListener {
                 if (it.isSuccessful) {

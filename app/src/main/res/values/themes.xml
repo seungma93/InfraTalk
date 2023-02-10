@@ -57,5 +57,9 @@
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
+    <style name="Widget.FreeTalk.Backdrop" parent="">
+        <item name="android:background">?attr/colorAccent</item>
+    </style>
+
 
 </resources>
