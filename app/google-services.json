@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "793117663788",
+    "project_id": "freetalk-de478",
+    "storage_bucket": "freetalk-de478.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793117663788:android:b562f8ff4c8e538926a789",
+        "android_client_info": {
+          "package_name": "com.freetalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793117663788-2qhpju8i1pb91fa344uauerbnjb5f13t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.freetalk",
+            "certificate_hash": "3e1804a49a5396628b52e3970fd28b8c7738b8bb"
+          }
+        },
+        {
+          "client_id": "793117663788-uh6pqk02k6pcfu5lh86q5l0m23fsq3rf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793117663788-uh6pqk02k6pcfu5lh86q5l0m23fsq3rf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
