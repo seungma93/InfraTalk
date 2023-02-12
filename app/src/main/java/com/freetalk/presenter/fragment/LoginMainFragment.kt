@@ -9,23 +9,25 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
+import com.freetalk.data.remote.AuthRespond
 import com.freetalk.data.remote.FirebaseRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.MainActivityNavigation
+import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.LoginViewModel
 import com.freetalk.presenter.viewmodel.LoginViewModelFactory
+import com.freetalk.presenter.viewmodel.ViewEvent
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.UserUseCaseImpl
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
-class LoginMainFragment: Fragment() {
+class LoginMainFragment : Fragment() {
     private var _binding: FragmentLoginMainBinding? = null
     private val binding get() = _binding!!
-    private var inputId: String = ""
-    private var inputPassword: String = ""
     private val loginViewModel: LoginViewModel by lazy {
-        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl()
+        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl(Firebase.auth)
         val firebaseUserDataRepositoryImpl =
             FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
         val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
@@ -47,11 +49,11 @@ class LoginMainFragment: Fragment() {
         binding.apply {
             btnSignUp.setOnClickListener {
                 val signUpEndPoint = EndPoint.SignUp(1)
-                (requireActivity() as? MainActivityNavigation)?.navigateFragment(signUpEndPoint)
+                (requireActivity() as? Navigable)?.navigateFragment(signUpEndPoint)
             }
             btnLogin.setOnClickListener {
-                inputId = binding.emailTextInput.editText!!.text.toString()
-                inputPassword = binding.passwordTextInput.editText!!.text.toString()
+                val inputId = binding.emailTextInput.editText!!.text.toString()
+                val inputPassword = binding.passwordTextInput.editText!!.text.toString()
 
                 when {
                     inputId.isNullOrEmpty() -> Toast.makeText(
@@ -64,7 +66,7 @@ class LoginMainFragment: Fragment() {
                     ).show()
                     else -> {
                         val userData = UserEntity(inputId, inputPassword)
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             val logInInfo = loginViewModel.logIn(userData)
                         }
                     }
@@ -78,40 +80,51 @@ class LoginMainFragment: Fragment() {
         subsribe()
     }
 
-    fun subsribe() {
-        lifecycleScope.launchWhenStarted {
-            loginViewModel.logInEvent.collect {
-                when {
-                    it.message.contains("There is no user record corresponding to this identifier. The user may have been deleted") -> Toast.makeText(
-                        requireActivity(), "등록된 이메일이 없습니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("The email address is badly formatted") -> Toast.makeText(
-                        requireActivity(), "이메일을 확인하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("The password is invalid or the user does not have a password") -> Toast.makeText(
-                        requireActivity(), "이메일이나 패스워드가 틀렸습니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("이메일 인증이 필요합니다") -> Toast.makeText(
-                        requireActivity(), "이메일 인증이 필요합니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("We have blocked all requests from this device due to unusual activity") -> Toast.makeText(
-                        requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("로그인 성공") -> {
-                        Toast.makeText(
-                            requireActivity(), "로그인 성공",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val endPoint = EndPoint.Main(1)
-                        (requireActivity() as? MainActivityNavigation)?.navigateFragment(endPoint)
+
+    private fun subsribe() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            loginViewModel.viewEvent.collect {
+                when(it){
+                    is ViewEvent.LogIn -> {
+                        when (it.authData.respond) {
+                            is AuthRespond.NotExistEmail -> Toast.makeText(
+                                requireActivity(), "등록된 이메일이 없습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.InvalidEmail -> Toast.makeText(
+                                requireActivity(), "이메일을 확인하세요",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.WrongPassword -> Toast.makeText(
+                                requireActivity(), "이메일이나 패스워드가 틀렸습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.RequireEmail -> Toast.makeText(
+                                requireActivity(), "이메일 인증이 필요합니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.BlockedRequest -> Toast.makeText(
+                                requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.SuccessLogIn -> {
+                                Toast.makeText(
+                                    requireActivity(), "로그인 성공",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
+                            }
+                            else -> {
+                                error("구독 에러")
+                            }
+                        }
                     }
+                    else -> {}
                 }
+
             }
         }
     }
+
+
 }

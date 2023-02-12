@@ -5,23 +5,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
 import com.freetalk.databinding.ActivityMainBinding
-import com.freetalk.presenter.fragment.LoginMainFragment
-import com.freetalk.presenter.fragment.MainFragment
-import com.freetalk.presenter.fragment.SignUpFragment
+import com.freetalk.presenter.fragment.*
 import kotlin.math.log
 
 sealed class EndPoint {
     data class LoginMain(val token: Int) : EndPoint()
     data class SignUp(val token: Int): EndPoint()
     data class Main(val token: Int): EndPoint()
+    data class Home(val token: Int): EndPoint()
+    data class Board(val token: Int): EndPoint()
+    data class Chat(val token: Int): EndPoint()
+    data class MyPage(val token: Int): EndPoint()
     object Error : EndPoint()
 }
 
-interface MainActivityNavigation {
+interface Navigable {
     fun navigateFragment(endPoint: EndPoint)
 }
 
-class MainActivity() : AppCompatActivity(), MainActivityNavigation {
+class MainActivity() : AppCompatActivity(), Navigable {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
 
@@ -29,41 +31,57 @@ class MainActivity() : AppCompatActivity(), MainActivityNavigation {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val endPointLoginMain = EndPoint.LoginMain(1)
-        navigateFragment(endPointLoginMain)
+        navigateFragment(EndPoint.LoginMain(1))
     }
 
-    private fun setFragment(fragment: Fragment) {
+    private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.frame_layout, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
+        when(backStackToken){
+            true -> {
+                transaction.replace(viewId, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            false -> {
+                transaction.replace(viewId, fragment)
+                    .commit()
+            }
+        }
 
-    private fun setFragmentNonBackStack(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.frame_layout, fragment)
-            .commit()
     }
 
     override fun navigateFragment(endPoint: EndPoint) {
-        Bundle().let {
             when (endPoint) {
                 is EndPoint.LoginMain -> {
                     val fragment = LoginMainFragment()
-                    setFragment(fragment)
+                    setFragment(fragment, R.id.activity_frame_layout, true)
                 }
                 is EndPoint.SignUp -> {
                     val fragment = SignUpFragment()
-                    setFragment(fragment)
+                    setFragment(fragment, R.id.activity_frame_layout,true)
                 }
                 is EndPoint.Main -> {
                     val fragment = MainFragment()
-                    setFragmentNonBackStack(fragment)
+                    setFragment(fragment, R.id.activity_frame_layout, false)
+                }
+                is EndPoint.Home -> {
+                    val fragment = HomeFragment()
+                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                }
+                is EndPoint.Board -> {
+                    val fragment = BoardFragment()
+                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                }
+                is EndPoint.Chat -> {
+                    val fragment = ChatFragment()
+                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                }
+                is EndPoint.MyPage -> {
+                    val fragment = MyPageFragment()
+                    setFragment(fragment, R.id.fragment_frame_layout, false)
                 }
                 is EndPoint.Error -> {
                 }
             }
-        }
     }
 }

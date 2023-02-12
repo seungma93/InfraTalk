@@ -1,18 +1,18 @@
 package com.freetalk.presenter.fragment
 
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
-import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
-import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.databinding.FragmentMainBinding
-import com.google.codelabs.mdc.kotlin.shrine.NavigationIconClickListener
+import com.freetalk.presenter.activity.EndPoint
+import com.freetalk.presenter.activity.Navigable
 
-class MainFragment: Fragment() {
+class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
@@ -22,11 +22,7 @@ class MainFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-        (activity as AppCompatActivity).setSupportActionBar(binding.appBar)
-        binding.appBar.setNavigationOnClickListener(NavigationIconClickListener(requireActivity(), binding.productGrid, AccelerateDecelerateInterpolator()))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            binding.productGrid.background = context?.getDrawable(R.drawable.freetalk_product_grid_background_shape)
-        }
+
         return binding.root
     }
 
@@ -36,6 +32,24 @@ class MainFragment: Fragment() {
             var isFabOpen = false
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
+            }
+            navigation.setOnItemSelectedListener {
+                when(it.itemId) {
+                    R.id.home_fragment -> {
+                        Log.v("MainFragment", "홈 버튼 클릭")
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Home(1))
+                    }
+                    R.id.board_fragment -> {
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                    }
+                    R.id.chat_fragment -> {
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Chat(1))
+                    }
+                    R.id.my_page_fragment -> {
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.MyPage(1))
+                    }
+                }
+                true
             }
         }
     }
@@ -50,16 +64,25 @@ class MainFragment: Fragment() {
         super.onCreateOptionsMenu(menu, menuInflater)
     }
 
+
     private fun toggleFab(isFabOpen: Boolean): Boolean {
         return if (isFabOpen) {
-            ObjectAnimator.ofFloat(binding.btnFabList, "translationY", 0f).apply { start() }
-            ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", 0f).apply { start() }
-            ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f).apply { start() }
+            AnimatorSet().apply {
+                this.playTogether(
+                    ObjectAnimator.ofFloat(binding.btnFabList, "translationY", 0f),
+                    ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", 0f),
+                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f)
+                )
+            }.start()
             false
         } else {
-            ObjectAnimator.ofFloat(binding.btnFabList, "translationY", -600f).apply { start() }
-            ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", -400f).apply { start() }
-            ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f).apply { start() }
+            AnimatorSet().apply {
+                this.playTogether(
+                    ObjectAnimator.ofFloat(binding.btnFabList, "translationY", -600f),
+                    ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", -400f),
+                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f)
+                )
+            }.start()
             true
         }
     }

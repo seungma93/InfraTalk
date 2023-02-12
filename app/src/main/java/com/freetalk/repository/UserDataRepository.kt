@@ -21,6 +21,6 @@ class FirebaseUserDataRepositoryImpl(private val dataSource: UserDataSource<Auth
     }
 
     override suspend fun resetPassword(userData: UserEntity): AuthData {
-        return dataSource.resetPssword(userData)
+        return dataSource.resetPassword(userData)
     }
 }

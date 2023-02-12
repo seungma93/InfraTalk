@@ -1,7 +1,6 @@
 package com.freetalk.presenter.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,30 +9,31 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
+import com.freetalk.data.remote.AuthRespond
 import com.freetalk.data.remote.FirebaseRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentSignUpBinding
 import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.MainActivityNavigation
+import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.LoginViewModel
 import com.freetalk.presenter.viewmodel.LoginViewModelFactory
+import com.freetalk.presenter.viewmodel.ViewEvent
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.UserUseCaseImpl
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
     private val loginViewModel: LoginViewModel by lazy {
-        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl()
+        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl(Firebase.auth)
         val firebaseUserDataRepositoryImpl =
             FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
         val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
         val factory = LoginViewModelFactory(firebaseUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)
     }
-    private var inputId: String = ""
-    private var inputPassword: String = ""
-    private var inputPasswordCheck: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,9 +49,9 @@ class SignUpFragment : Fragment() {
         binding.let {
 
             it.btnSignUp.setOnClickListener {
-                inputId = binding.emailTextInput.editText!!.text.toString()
-                inputPassword = binding.passwordTextInput.editText!!.text.toString()
-                inputPasswordCheck = binding.passwordCheckTextInput.editText!!.text.toString()
+                val inputId = binding.emailTextInput.editText!!.text.toString()
+                val inputPassword = binding.passwordTextInput.editText!!.text.toString()
+                val inputPasswordCheck = binding.passwordCheckTextInput.editText!!.text.toString()
 
                 when {
                     inputId.isNullOrEmpty() -> Toast.makeText(
@@ -72,7 +72,7 @@ class SignUpFragment : Fragment() {
                     ).show()
                     else -> {
                         val userData = UserEntity(inputId, inputPassword)
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             val signUpInfo = loginViewModel.signUp(userData)
                         }
                     }
@@ -82,33 +82,43 @@ class SignUpFragment : Fragment() {
         subsribe()
     }
 
-    fun subsribe() {
-        lifecycleScope.launchWhenStarted {
-            loginViewModel.signUpEvent.collect {
-                when {
-                    it.message.contains("FirebaseAuthWeakPasswordException") -> Toast.makeText(
-                        requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("The email address is badly formatted") -> Toast.makeText(
-                        requireActivity(), "이메일 형식을 확인 하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("The email address is already in use by another account") -> Toast.makeText(
-                        requireActivity(), "존재하는 이메일 입니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    it.message.contains("회원가입 성공") -> {
-                        Toast.makeText(
-                            requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val endPoint = EndPoint.LoginMain(1)
-                        (requireActivity() as? MainActivityNavigation)?.navigateFragment(endPoint)
-                    }
 
+    private fun subsribe() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            loginViewModel.viewEvent.collect {
+
+                when(it)
+                {
+                    is ViewEvent.SignUp -> {
+                        when(it.authData.respond) {
+                            is AuthRespond.InvalidPassword -> Toast.makeText(
+                                requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.InvalidEmail -> Toast.makeText(
+                                requireActivity(), "이메일 형식을 확인 하세요",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.ExistEmail -> Toast.makeText(
+                                requireActivity(), "존재하는 이메일 입니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is AuthRespond.SuccessSignUp -> {
+                                Toast.makeText(
+                                    requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain(1))
+                            }
+                            else -> {
+                                error("구독 에러")
+                            }
+                        }
+                    }
+                    else -> {}
                 }
             }
         }
     }
+
 }
