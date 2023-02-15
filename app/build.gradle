@@ -71,5 +71,9 @@ dependencies {
     // glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    // Firebase DataBase
+    implementation 'com.google.firebase:firebase-database:20.1.0'
+    // Firebase Storage
+    implementation 'com.google.firebase:firebase-storage:20.1.0'
 
 }
