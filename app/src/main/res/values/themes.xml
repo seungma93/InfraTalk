@@ -61,5 +61,16 @@
         <item name="android:background">?attr/colorAccent</item>
     </style>
 
+    <style name="Widget.FreeTalk.TextTitle"  parent="@android:style/Widget.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:textSize">35dp</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+    </style>
+
+
 
 </resources>

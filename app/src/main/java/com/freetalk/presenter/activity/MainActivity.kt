@@ -1,6 +1,9 @@
 package com.freetalk.presenter.activity
 
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
@@ -16,6 +19,7 @@ sealed class EndPoint {
     data class Board(val token: Int): EndPoint()
     data class Chat(val token: Int): EndPoint()
     data class MyPage(val token: Int): EndPoint()
+    data class BoardWrite(val token: Int): EndPoint()
     object Error : EndPoint()
 }
 
@@ -79,6 +83,10 @@ class MainActivity() : AppCompatActivity(), Navigable {
                 is EndPoint.MyPage -> {
                     val fragment = MyPageFragment()
                     setFragment(fragment, R.id.fragment_frame_layout, false)
+                }
+                is EndPoint.BoardWrite -> {
+                    val fragment = BoardWriteFragment()
+                    setFragment(fragment, R.id.fragment_board_frame_layout, false)
                 }
                 is EndPoint.Error -> {
                 }

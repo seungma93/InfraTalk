@@ -14,11 +14,11 @@
     <item
         android:id="@+id/chat_fragment"
         android:title="채팅"
-        android:icon="@drawable/ic_baseline_create_24"/>
+        android:icon="@drawable/chat_icon"/>
 
     <item
         android:id="@+id/my_page_fragment"
         android:title="마이페이지"
-        android:icon="@drawable/chat_icon"/>
+        android:icon="@drawable/ic_baseline_person_24"/>
 
 </menu>

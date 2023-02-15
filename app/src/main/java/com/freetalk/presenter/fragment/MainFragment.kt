@@ -29,10 +29,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            var isFabOpen = false
-            btnFabMenu.setOnClickListener {
-                isFabOpen = toggleFab(isFabOpen)
-            }
+
             navigation.setOnItemSelectedListener {
                 when(it.itemId) {
                     R.id.home_fragment -> {
@@ -65,25 +62,4 @@ class MainFragment : Fragment() {
     }
 
 
-    private fun toggleFab(isFabOpen: Boolean): Boolean {
-        return if (isFabOpen) {
-            AnimatorSet().apply {
-                this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabList, "translationY", 0f),
-                    ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", 0f),
-                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f)
-                )
-            }.start()
-            false
-        } else {
-            AnimatorSet().apply {
-                this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabList, "translationY", -600f),
-                    ObjectAnimator.ofFloat(binding.btnFabMessege, "translationY", -400f),
-                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f)
-                )
-            }.start()
-            true
-        }
-    }
 }
