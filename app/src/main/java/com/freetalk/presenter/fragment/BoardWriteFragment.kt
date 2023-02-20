@@ -18,14 +18,36 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.remote.BoardRespond
+import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
+import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.databinding.FragmentBoardWriteBinding
 import com.freetalk.databinding.FragmentHomeBinding
+import com.freetalk.presenter.activity.EndPoint
+import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardWriteAdapter
+import com.freetalk.presenter.viewmodel.*
+import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
+import com.freetalk.repository.FirebaseUserDataRepositoryImpl
+import com.freetalk.usecase.BoardUseCaseImpl
+import com.freetalk.usecase.UserUseCaseImpl
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.util.*
 
 class BoardWriteFragment : Fragment() {
     private var _binding: FragmentBoardWriteBinding? = null
@@ -34,6 +56,14 @@ class BoardWriteFragment : Fragment() {
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var imgList = mutableListOf<Uri>()
     private var adapter: BoardWriteAdapter? = null
+    private val boardViewModel: BoardViewModel by lazy {
+        val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore, FirebaseStorage.getInstance())
+        val firebaseBoardDataRepositoryImpl =
+            FirebaseBoardDataRepositoryImpl(firebaseBoardRemoteDataSourceImpl)
+        val firebaseBoardCaseImpl = BoardUseCaseImpl(firebaseBoardDataRepositoryImpl)
+        val factory = BoardViewModelFactory(firebaseBoardCaseImpl)
+        ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
+    }
 
 
     override fun onAttach(context: Context) {
@@ -72,7 +102,7 @@ class BoardWriteFragment : Fragment() {
                         imgList.add(it.data?.data!!)
                     }
                 }
-                adapter?.setItems(imgList.toList())
+                adapter?.setItems(imgList)
             }
         }
     }
@@ -91,7 +121,7 @@ class BoardWriteFragment : Fragment() {
 
         adapter = BoardWriteAdapter {
             imgList.remove(it)
-            adapter?.setItems(imgList.toList())
+            adapter?.setItems(imgList)
         }
         binding.apply {
             btnUploadImage.setOnClickListener {
@@ -117,7 +147,55 @@ class BoardWriteFragment : Fragment() {
                     }
                 }
             }
+            btnInsert.setOnClickListener {
+                Log.v("BoardWriteFragment", "등록 버튼 클릭")
+                when {
+                    binding.titleEditText.text.isNullOrEmpty() -> {
+                        Toast.makeText(
+                            requireActivity(),
+                            "제목을 입력하세요.",
+                            Toast.LENGTH_LONG
+                        ).show();
+                    }
+                    binding.contextEditText.text.isNullOrEmpty() -> {
+                        Toast.makeText(
+                            requireActivity(),
+                            "내용을 입력하세요.",
+                            Toast.LENGTH_LONG
+                        ).show();
+                    }
+                    else -> {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val boardEntity = BoardEntity(author = "테스트 계정",
+                                title = binding.titleEditText.text.toString(),
+                                context = binding.contextEditText.text.toString(),
+                                image = imgList,
+                                createTime = Date(System.currentTimeMillis()),
+                                editTime = null
+                            )
+                            boardViewModel.insert(boardEntity)
+                        }
+                    }
+                }
+            }
             recyclerviewImage.adapter = adapter
+            subscribe()
+        }
+    }
+
+    private fun subscribe() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    boardViewModel.viewEvent.collect {
+                        when(it) {
+                            is BoardViewEvent.Insert -> {
+                                when(it.respond.respond) {
+                                    is BoardRespond.InsertSuccess -> {
+                                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                                    }
+                                }
+                            }
+                        }
+                    }
         }
     }
 

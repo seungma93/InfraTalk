@@ -75,7 +75,7 @@
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
             <Button
-                android:id="@+id/btn_login"
+                android:id="@+id/btn_insert"
                 style="@style/Widget.FreeTalk.Button"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"

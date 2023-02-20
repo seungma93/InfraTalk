@@ -34,7 +34,7 @@ sealed class AuthRespond {
     data class Error(val code: String) : AuthRespond()
 }
 
-class FirebaseRemoteDataSourceImpl(private val auth: FirebaseAuth) : UserDataSource<AuthData> {
+class FirebaseUserRemoteDataSourceImpl(private val auth: FirebaseAuth) : UserDataSource<AuthData> {
     private val currentUser = auth.currentUser
     override suspend fun signUp(userData: UserEntity) =
         suspendCoroutine<AuthData> { continuation ->
