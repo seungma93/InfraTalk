@@ -1,13 +1,15 @@
 package com.freetalk.data.entity
 
 import android.net.Uri
+import java.io.Serializable
+import java.text.SimpleDateFormat
 import java.util.Date
 
 data class BoardEntity (
-    val author: String,
-    val title: String,
-    val context:String,
-    val image: List<Uri>,
-    val createTime: Date,
-    val editTime: Date?,
+    val author: String = "",
+    val title: String = "",
+    val context:String = "",
+    val image: List<Uri> = emptyList(),
+    val createTime: Date = Date(),
+    val editTime: Date? = null,
     )

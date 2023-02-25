@@ -5,6 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,12 +16,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -64,7 +68,6 @@ class BoardWriteFragment : Fragment() {
         val factory = BoardViewModelFactory(firebaseBoardCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
     }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -173,6 +176,7 @@ class BoardWriteFragment : Fragment() {
                                 createTime = Date(System.currentTimeMillis()),
                                 editTime = null
                             )
+                            showProgressBar()
                             boardViewModel.insert(boardEntity)
                         }
                     }
@@ -183,6 +187,24 @@ class BoardWriteFragment : Fragment() {
         }
     }
 
+    private fun showProgressBar() {
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun hideProgressBar() {
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     boardViewModel.viewEvent.collect {
@@ -191,9 +213,12 @@ class BoardWriteFragment : Fragment() {
                                 when(it.respond.respond) {
                                     is BoardRespond.InsertSuccess -> {
                                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                                        hideProgressBar()
                                     }
+                                    else -> {}
                                 }
                             }
+                            else -> {}
                         }
                     }
         }
