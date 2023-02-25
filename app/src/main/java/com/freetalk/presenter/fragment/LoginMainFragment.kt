@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthRespond
-import com.freetalk.data.remote.FirebaseRemoteDataSourceImpl
+import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
@@ -27,9 +27,9 @@ class LoginMainFragment : Fragment() {
     private var _binding: FragmentLoginMainBinding? = null
     private val binding get() = _binding!!
     private val loginViewModel: LoginViewModel by lazy {
-        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl(Firebase.auth)
+        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth)
         val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
+            FirebaseUserDataRepositoryImpl(firebaseUserRemoteDataSourceImpl)
         val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
         val factory = LoginViewModelFactory(firebaseUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)
