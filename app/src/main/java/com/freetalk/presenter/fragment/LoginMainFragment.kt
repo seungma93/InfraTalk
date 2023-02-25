@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
+import com.freetalk.data.remote.AuthData
 import com.freetalk.data.remote.AuthRespond
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentLoginMainBinding
@@ -112,6 +113,7 @@ class LoginMainFragment : Fragment() {
                                     requireActivity(), "로그인 성공",
                                     Toast.LENGTH_SHORT
                                 ).show()
+
                                 (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
                             }
                             else -> {
