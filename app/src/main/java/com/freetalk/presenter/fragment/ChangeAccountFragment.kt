@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthRespond
-import com.freetalk.data.remote.FirebaseRemoteDataSourceImpl
+import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.viewmodel.LoginViewModel
@@ -31,9 +31,9 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
     private var _binding: FragmentDialogChangeAccountBinding? = null
     private val binding get() = _binding!!
     private val loginViewModel: LoginViewModel by lazy {
-        val firebaseRemoteDataSourceImpl = FirebaseRemoteDataSourceImpl(Firebase.auth)
+        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth)
         val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
+            FirebaseUserDataRepositoryImpl(firebaseUserRemoteDataSourceImpl)
         val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
         val factory = LoginViewModelFactory(firebaseUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)

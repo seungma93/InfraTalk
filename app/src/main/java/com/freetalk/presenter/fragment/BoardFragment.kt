@@ -12,7 +12,7 @@ import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 
-class BoardFragment: Fragment() {
+class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
 
