@@ -27,7 +27,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 
-class BoardFragment: Fragment() {
+class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
     private var adapter: BoardListAdapter? = null
