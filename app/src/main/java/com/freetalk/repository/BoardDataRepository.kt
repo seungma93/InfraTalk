@@ -18,5 +18,4 @@ class FirebaseBoardDataRepositoryImpl(private val dataSource: BoardDataSource): 
         return dataSource.select()
     }
 
-
 }

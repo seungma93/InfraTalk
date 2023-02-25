@@ -78,6 +78,9 @@ class SignUpFragment : Fragment() {
                     }
                 }
             }
+            it.profileImage.setOnClickListener {
+
+            }
         }
         subsribe()
     }

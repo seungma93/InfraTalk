@@ -7,6 +7,9 @@ import com.freetalk.presenter.activity.EndPoint
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.tasks.await
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
@@ -91,9 +94,16 @@ class FirebaseBoardRemoteDataSourceImpl(
         }
     }
 
-    private suspend fun uploadImage(fileName: String, uri: Uri): Uri {
+    @Throws(IllegalStateException::class)
+    private suspend fun uploadImage(fileName: String, uri: Uri): Uri = coroutineScope {
+        val storageRef = storage.reference.child("images").child(fileName)
+        val res = async { storageRef.putFile(uri).await() }
+
+
+
         return suspendCoroutine { continuation ->
             val storageRef = storage.reference.child("images").child(fileName)
+
             storageRef.putFile(uri).addOnCompleteListener {
                 Log.v("FirebaseBoardDataSource", "이미지 업로드 성공")
                 it.result.metadata?.reference?.downloadUrl?.addOnCompleteListener { task ->
