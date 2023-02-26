@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.freetalk.data.entity.BoardEntity
-import com.freetalk.data.remote.BoardRespond
+import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
@@ -211,7 +211,7 @@ class BoardWriteFragment : Fragment() {
                         when(it) {
                             is BoardViewEvent.Insert -> {
                                 when(it.respond.respond) {
-                                    is BoardRespond.InsertSuccess -> {
+                                    is BoardResponse.InsertSuccess -> {
                                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
                                         hideProgressBar()
                                     }
