@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthData
-import com.freetalk.data.remote.AuthRespond
+import com.freetalk.data.remote.AuthResponse
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.activity.EndPoint
@@ -88,27 +88,27 @@ class LoginMainFragment : Fragment() {
                 when(it){
                     is ViewEvent.LogIn -> {
                         when (it.authData.respond) {
-                            is AuthRespond.NotExistEmail -> Toast.makeText(
+                            is AuthResponse.NotExistEmail -> Toast.makeText(
                                 requireActivity(), "등록된 이메일이 없습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.InvalidEmail -> Toast.makeText(
+                            is AuthResponse.InvalidEmail -> Toast.makeText(
                                 requireActivity(), "이메일을 확인하세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.WrongPassword -> Toast.makeText(
+                            is AuthResponse.WrongPassword -> Toast.makeText(
                                 requireActivity(), "이메일이나 패스워드가 틀렸습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.RequireEmail -> Toast.makeText(
+                            is AuthResponse.RequireEmail -> Toast.makeText(
                                 requireActivity(), "이메일 인증이 필요합니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.BlockedRequest -> Toast.makeText(
+                            is AuthResponse.BlockedRequest -> Toast.makeText(
                                 requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.SuccessLogIn -> {
+                            is AuthResponse.SuccessLogIn -> {
                                 Toast.makeText(
                                     requireActivity(), "로그인 성공",
                                     Toast.LENGTH_SHORT

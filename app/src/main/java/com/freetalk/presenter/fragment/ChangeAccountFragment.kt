@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthRespond
+import com.freetalk.data.remote.AuthResponse
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
 import com.freetalk.databinding.FragmentLoginMainBinding
@@ -55,7 +55,7 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
         binding.btnFindPassword.setOnClickListener {
             val inputId = binding.emailTextInput.editText!!.text.toString()
                 viewLifecycleOwner.lifecycleScope.launch{
-                    val userData = UserEntity(inputId, "")
+                    val userData = UserEntity(inputId, "", )
                     Log.v("ChangeAccountFragment", inputId)
                     loginViewModel.resetPassword(userData)
                 }
@@ -73,13 +73,13 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
                 when(it) {
                     is ViewEvent.ResetPassword -> {
                         when(it.authData.respond){
-                            is AuthRespond.SuccessSendMail -> {
+                            is AuthResponse.SuccessSendMail -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE
                                 binding.completeText.text = "이메일로 재설정 링크를 보냈습니다"
                                 binding.completeText.visibility = View.VISIBLE
                             }
-                            is AuthRespond.FailSendMail -> {
+                            is AuthResponse.FailSendMail -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE
                                 binding.completeText.text = "이메일이 틀렸습니다 확인해 주세요"

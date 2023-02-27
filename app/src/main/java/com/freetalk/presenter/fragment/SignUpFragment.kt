@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthRespond
+import com.freetalk.data.remote.AuthResponse
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentSignUpBinding
 import com.freetalk.presenter.activity.EndPoint
@@ -94,19 +94,19 @@ class SignUpFragment : Fragment() {
                 {
                     is ViewEvent.SignUp -> {
                         when(it.authData.respond) {
-                            is AuthRespond.InvalidPassword -> Toast.makeText(
+                            is AuthResponse.InvalidPassword -> Toast.makeText(
                                 requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.InvalidEmail -> Toast.makeText(
+                            is AuthResponse.InvalidEmail -> Toast.makeText(
                                 requireActivity(), "이메일 형식을 확인 하세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.ExistEmail -> Toast.makeText(
+                            is AuthResponse.ExistEmail -> Toast.makeText(
                                 requireActivity(), "존재하는 이메일 입니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthRespond.SuccessSignUp -> {
+                            is AuthResponse.SuccessSignUp -> {
                                 Toast.makeText(
                                     requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
                                     Toast.LENGTH_SHORT

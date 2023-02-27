@@ -75,11 +75,11 @@ class BoardFragment : Fragment() {
             boardViewModel.viewState.collect {
                 when(it) {
                     is BoardViewState.Select -> {
-                        when(it.boardData?.respond) {
+                        when(it.boardSelectData?.respond) {
                             is BoardResponse.SelectSuccess -> {
                                 Log.v("BoardFragment", "셀렉트 성공")
                                 //Log.v("BoardFragment", it.boardData.boardList[0].title)
-                                adapter?.setItems(it.boardData.boardList)
+                                //adapter?.setItems(it.boardSelectData.boardList)
                             }
                             else -> {}
                         }
