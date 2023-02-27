@@ -55,7 +55,7 @@ class BoardListAdapter(
             binding.apply {
                 Log.v("BoardListAdpater", "셀렉트 바인딩")
                 title.text = boardEntity.title
-                context.text = boardEntity.context
+                context.text = boardEntity.content
                 date.text = boardEntity.createTime.toString()
                 //Glide.with(itemView.context).load(imgUri).into(image)
             }

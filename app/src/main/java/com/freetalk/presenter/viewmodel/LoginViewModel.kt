@@ -29,6 +29,7 @@ class LoginViewModel(private val useCase: UserUseCase): ViewModel() {
             Log.v("LoginVieModel", "에러 캐치")
         }
     }
+
     suspend fun logIn(userData: UserEntity) {
         kotlin.runCatching {
             _viewEvent.emit(ViewEvent.LogIn(useCase.logIn(userData)))
