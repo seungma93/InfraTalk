@@ -7,6 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.freetalk.databinding.BoardWriteImageItemBinding
 
+
+data class BoardWriteItem (
+    val uri: Uri
+    )
+
 class BoardWriteAdapter(
     private val itemClick: (Uri) -> Unit
 ) : RecyclerView.Adapter<BoardWriteAdapter.ViewHolder>() {
@@ -18,7 +23,8 @@ class BoardWriteAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(datalist[position])
+
+        holder.bind(BoardWriteItem(datalist[position]))
     }
 
     override fun getItemCount(): Int {
@@ -47,10 +53,10 @@ class BoardWriteAdapter(
                 }
             }
         }
-        fun bind(imgUri: Uri) {
-            this.imgUri = imgUri
+        fun bind(boardWriteItem: BoardWriteItem) {
+            this.imgUri = boardWriteItem.uri
             binding.apply {
-                Glide.with(itemView.context).load(imgUri).into(image)
+                Glide.with(itemView.context).load(boardWriteItem.uri).into(image)
             }
         }
     }

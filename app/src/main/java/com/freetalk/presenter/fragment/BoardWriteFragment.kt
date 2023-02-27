@@ -58,8 +58,8 @@ class BoardWriteFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
-    private var imgList = mutableListOf<Uri>()
     private var adapter: BoardWriteAdapter? = null
+    private val imgList = mutableListOf<Uri>()
     private val boardViewModel: BoardViewModel by lazy {
         val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore, FirebaseStorage.getInstance())
         val firebaseBoardDataRepositoryImpl =
@@ -71,6 +71,7 @@ class BoardWriteFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 Log.v("BoardWriteFragment", "퍼미션 체크 실행")
@@ -81,12 +82,14 @@ class BoardWriteFragment : Fragment() {
                     Log.v("BoardWriteFragment", "퍼미션 허용 안됨 ")
                 }
             }
+
         activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+
             if (it.resultCode == RESULT_OK) {
                 imgList.clear()
-                when {
-                    it.data?.clipData != null -> {
-                        val count = it.data?.clipData?.itemCount ?: 0
+                it.data?.let {
+                    it.clipData?.let { clipData ->
+                        val count = clipData.itemCount
                         if (count > 10) {
                             Toast.makeText(
                                 requireActivity(),
@@ -94,21 +97,18 @@ class BoardWriteFragment : Fragment() {
                                 Toast.LENGTH_LONG
                             ).show();
                         } else {
-                            for (i in 0 until count) {
-                                val imgUri = it.data?.clipData?.getItemAt(i)!!.uri
-                                //Log.v("BoardWriteFragment", imgUri.toString())
-                                imgList.add(imgUri)
+                            (0..count).forEach {
+                                val uri = clipData.getItemAt(it).uri
+                                imgList.add(uri)
                             }
                         }
-                    }
-                    else -> {
-                        imgList.add(it.data?.data!!)
-                    }
+                    } ?: it.data?.let { uri -> imgList.add(uri) }
                 }
                 adapter?.setItems(imgList)
             }
         }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -123,8 +123,6 @@ class BoardWriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = BoardWriteAdapter {
-            imgList.remove(it)
-            adapter?.setItems(imgList)
         }
         binding.apply {
             btnUploadImage.setOnClickListener {
@@ -153,14 +151,14 @@ class BoardWriteFragment : Fragment() {
             btnInsert.setOnClickListener {
                 Log.v("BoardWriteFragment", "등록 버튼 클릭")
                 when {
-                    binding.titleEditText.text.isNullOrEmpty() -> {
+                    titleEditText.text.isNullOrEmpty() -> {
                         Toast.makeText(
                             requireActivity(),
                             "제목을 입력하세요.",
                             Toast.LENGTH_LONG
                         ).show();
                     }
-                    binding.contextEditText.text.isNullOrEmpty() -> {
+                    contextEditText.text.isNullOrEmpty() -> {
                         Toast.makeText(
                             requireActivity(),
                             "내용을 입력하세요.",
@@ -171,7 +169,7 @@ class BoardWriteFragment : Fragment() {
                         viewLifecycleOwner.lifecycleScope.launch {
                             val boardEntity = BoardEntity(author = "테스트 계정",
                                 title = binding.titleEditText.text.toString(),
-                                context = binding.contextEditText.text.toString(),
+                                content = binding.contextEditText.text.toString(),
                                 image = imgList,
                                 createTime = Date(System.currentTimeMillis()),
                                 editTime = null
@@ -210,7 +208,7 @@ class BoardWriteFragment : Fragment() {
                     boardViewModel.viewEvent.collect {
                         when(it) {
                             is BoardViewEvent.Insert -> {
-                                when(it.respond.respond) {
+                                when(it.boardInsertData.respond) {
                                     is BoardResponse.InsertSuccess -> {
                                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
                                         hideProgressBar()
