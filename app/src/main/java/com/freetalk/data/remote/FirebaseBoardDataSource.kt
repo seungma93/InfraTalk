@@ -46,6 +46,7 @@ class FirebaseBoardRemoteDataSourceImpl(
     private val database: FirebaseFirestore,
     private val storage: FirebaseStorage
 ) : BoardDataSource {
+    private val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
 
     override suspend fun insert(boardEntity: BoardEntity): BoardInsertData {
         //val model = hashMapOf<String, Any?>()
@@ -68,7 +69,7 @@ class FirebaseBoardRemoteDataSourceImpl(
                     val boardEntity = BoardEntity(
                         author,
                         title,
-                        context,
+                        content,
                         imageUris.outputList.filterNotNull(),
                         createTime,
                         editTime
@@ -94,7 +95,6 @@ class FirebaseBoardRemoteDataSourceImpl(
     private suspend fun uploadImages(inputList: List<Uri>): ImageUris = coroutineScope {
 
         val outputList = inputList.mapIndexed { i, uri ->
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
             val imgFileName = "IMAGE_" + (i + 1) + "_" + timeStamp + "_.png"
             async { uploadImage(imgFileName, uri) }
         }.awaitAll()
