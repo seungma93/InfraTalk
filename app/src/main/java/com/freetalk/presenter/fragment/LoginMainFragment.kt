@@ -21,14 +21,16 @@ import com.freetalk.presenter.viewmodel.ViewEvent
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.UserUseCaseImpl
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 
 class LoginMainFragment : Fragment() {
     private var _binding: FragmentLoginMainBinding? = null
     private val binding get() = _binding!!
     private val loginViewModel: LoginViewModel by lazy {
-        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth)
+        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore, FirebaseStorage.getInstance())
         val firebaseUserDataRepositoryImpl =
             FirebaseUserDataRepositoryImpl(firebaseUserRemoteDataSourceImpl)
         val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
@@ -66,7 +68,7 @@ class LoginMainFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     else -> {
-                        val userData = UserEntity(inputId, inputPassword)
+                        val userData = UserEntity(inputId, inputPassword, "", null)
                         viewLifecycleOwner.lifecycleScope.launch {
                             val logInInfo = loginViewModel.logIn(userData)
                         }
@@ -87,7 +89,7 @@ class LoginMainFragment : Fragment() {
             loginViewModel.viewEvent.collect {
                 when(it){
                     is ViewEvent.LogIn -> {
-                        when (it.authData.respond) {
+                        when (it.authData.response) {
                             is AuthResponse.NotExistEmail -> Toast.makeText(
                                 requireActivity(), "등록된 이메일이 없습니다",
                                 Toast.LENGTH_SHORT
