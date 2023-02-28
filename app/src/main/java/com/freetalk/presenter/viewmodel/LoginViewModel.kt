@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthData
+import com.freetalk.data.remote.LoginData
 import com.freetalk.usecase.UserUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 sealed class ViewEvent{
     data class SignUp(val authData: AuthData): ViewEvent()
-    data class LogIn(val authData: AuthData): ViewEvent()
+    data class LogIn(val loginData: LoginData): ViewEvent()
     data class ResetPassword(val authData: AuthData): ViewEvent()
 }
 

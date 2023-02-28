@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.compose.runtime.DisposableEffect
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.UserEntity
+import com.freetalk.presenter.viewmodel.ViewEvent
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -22,10 +24,10 @@ import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-interface UserDataSource<T> {
-    suspend fun signUp(userData: UserEntity): T
-    suspend fun logIn(userData: UserEntity): T
-    suspend fun resetPassword(userData: UserEntity): T
+interface UserDataSource {
+    suspend fun signUp(userData: UserEntity): AuthData
+    suspend fun logIn(userData: UserEntity): LoginData
+    suspend fun resetPassword(userData: UserEntity): AuthData
 }
 
 data class AuthData(
@@ -38,13 +40,19 @@ data class ImageData(
     val response: AuthResponse
 )
 
+data class LoginData(
+    val userEntity: UserEntity?,
+    val response: AuthResponse
+)
+
 sealed class AuthResponse {
     data class SuccessSignUp(val code: String) : AuthResponse()
     data class SuccessAuth(val code: String) : AuthResponse()
     data class SuccessLogIn(val code: String) : AuthResponse()
     data class SuccessSendMail(val code: String) : AuthResponse()
     data class SuccessUploadImage(val code: String) : AuthResponse()
-    data class FailDatabase(val code: String) : AuthResponse()
+    data class FailSelect(val code: String) : AuthResponse()
+    data class FailInsert(val code: String) : AuthResponse()
     data class FailUploadImage(val code: String) : AuthResponse()
     data class FailSendMail(val code: String) : AuthResponse()
     data class RequireEmail(val code: String) : AuthResponse()
@@ -60,7 +68,7 @@ sealed class AuthResponse {
 class FirebaseUserRemoteDataSourceImpl(
     private val auth: FirebaseAuth, private val database: FirebaseFirestore,
     private val storage: FirebaseStorage
-) : UserDataSource<AuthData> {
+) : UserDataSource {
     private val currentUser = auth.currentUser
     private val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
 
@@ -121,7 +129,7 @@ class FirebaseUserRemoteDataSourceImpl(
             database.collection("User").add(userData).await()
             AuthResponse.SuccessSignUp("회원가입 성공")
         }.getOrElse {
-            AuthResponse.FailDatabase("인서트 실패")
+            AuthResponse.FailInsert("인서트 실패")
         }
 
     }
@@ -140,7 +148,7 @@ class FirebaseUserRemoteDataSourceImpl(
                 ImageData(userEntity, AuthResponse.SuccessUploadImage("이미지 업로드 성공"))
             } ?: run {
                 ImageData(userData, AuthResponse.FailUploadImage("이미지 업로드 실패"))
-                }
+            }
         }.getOrElse {
             ImageData(userData, AuthResponse.FailUploadImage("이미지 업로드 실패"))
         }
@@ -148,15 +156,15 @@ class FirebaseUserRemoteDataSourceImpl(
 
     private suspend fun uploadImage(uri: Uri): Uri? {
 
-           return kotlin.runCatching {
+        return kotlin.runCatching {
 
-                val imgFileName = "IMAGE_" + "_" + timeStamp + "_.png"
-                val storageRef = storage.reference.child("images").child(imgFileName)
-                val res = storageRef.putFile(uri).await()
-                val downloadUri = res.storage.downloadUrl.await()
-                downloadUri
+            val imgFileName = "IMAGE_" + "_" + timeStamp + "_.png"
+            val storageRef = storage.reference.child("images").child(imgFileName)
+            val res = storageRef.putFile(uri).await()
+            val downloadUri = res.storage.downloadUrl.await()
+            downloadUri
 
-            }.getOrNull()
+        }.getOrNull()
     }
 
     private suspend fun sendEmail(): AuthResponse {
@@ -206,14 +214,14 @@ class FirebaseUserRemoteDataSourceImpl(
         }
     }
 
-    override suspend fun logIn(userData: UserEntity): AuthData {
+    suspend fun signInAuth(userData: UserEntity): AuthData {
 
         return kotlin.runCatching {
             val signInResult =
                 auth.signInWithEmailAndPassword(userData.email, userData.password).await()
             currentUser?.let {
                 val authData = when (it.isEmailVerified) {
-                    true -> AuthData(signInResult, AuthResponse.SuccessLogIn("로그인 성공"))
+                    true -> AuthData(signInResult, AuthResponse.SuccessAuth("인증 성공"))
                     false -> AuthData(null, AuthResponse.RequireEmail("이메일 인증이 필요 합니다"))
                 }
                 authData
@@ -222,6 +230,37 @@ class FirebaseUserRemoteDataSourceImpl(
             when (it) {
                 is FirebaseAuthException -> AuthData(null, separatedErrorCode(it.errorCode))
                 else -> AuthData(null, AuthResponse.Error("예상외의 에러 발생"))
+            }
+        }
+    }
+
+
+    override suspend fun logIn(userData: UserEntity): LoginData {
+
+        val signInAuthResult = signInAuth(userData)
+        return when (signInAuthResult.response) {
+            is AuthResponse.SuccessAuth -> {
+                kotlin.runCatching {
+                    val snapshot =
+                        database.collection("User")
+                            .whereEqualTo("email", signInAuthResult.result?.user?.email).get()
+                            .await()
+                        Log.v("signUp", signInAuthResult.result?.user?.email.toString())
+                    val userEntity = UserEntity(
+                        snapshot.documents[0].data?.get("email") as String,
+                        snapshot.documents[0].data?.get("password") as String,
+                        snapshot.documents[0].data?.get("nickname") as String,
+                        Uri.parse(snapshot.documents[0].data?.get("image") as String)
+                    )
+                    Log.v("signUp", userEntity.email)
+
+                    LoginData(userEntity, AuthResponse.SuccessLogIn("로그인 성공"))
+                }.getOrElse {
+                    LoginData(null, AuthResponse.FailSelect("셀렉트 실패"))
+                }
+            }
+            else -> {
+                LoginData(null, signInAuthResult.response)
             }
         }
 

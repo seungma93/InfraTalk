@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthData
 import com.freetalk.data.remote.AuthResponse
@@ -89,7 +90,7 @@ class LoginMainFragment : Fragment() {
             loginViewModel.viewEvent.collect {
                 when(it){
                     is ViewEvent.LogIn -> {
-                        when (it.authData.response) {
+                        when (it.loginData.response) {
                             is AuthResponse.NotExistEmail -> Toast.makeText(
                                 requireActivity(), "등록된 이메일이 없습니다",
                                 Toast.LENGTH_SHORT
@@ -110,12 +111,20 @@ class LoginMainFragment : Fragment() {
                                 requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            is AuthResponse.FailSelect -> Toast.makeText(
+                                requireActivity(), "데이터베이스로부터 정보를 못 얻었습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             is AuthResponse.SuccessLogIn -> {
                                 Toast.makeText(
                                     requireActivity(), "로그인 성공",
                                     Toast.LENGTH_SHORT
                                 ).show()
-
+                                it.loginData.userEntity?.let {
+                                    UserSingleton.email = it.email
+                                    UserSingleton.nickname = it.nickname
+                                    UserSingleton.profileImage = it.image
+                                }
                                 (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
                             }
                             else -> {
