@@ -4,18 +4,18 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.AuthData
-import com.freetalk.data.remote.BoardData
-import com.freetalk.data.remote.Respond
+import com.freetalk.data.remote.BoardInsertData
+import com.freetalk.data.remote.BoardSelectData
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.usecase.BoardUseCase
 import kotlinx.coroutines.flow.*
 
 sealed class BoardViewEvent{
-    data class Insert(val respond: Respond): BoardViewEvent()
+    data class Insert(val boardInsertData: BoardInsertData): BoardViewEvent()
 }
 
 sealed class BoardViewState{
-    data class Select(val boardData: BoardData?): BoardViewState()
+    data class Select(val boardSelectData: BoardSelectData?): BoardViewState()
 }
 
 

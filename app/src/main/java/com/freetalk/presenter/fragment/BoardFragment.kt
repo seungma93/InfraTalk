@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.remote.BoardRespond
+import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.databinding.FragmentHomeBinding
@@ -75,11 +75,11 @@ class BoardFragment : Fragment() {
             boardViewModel.viewState.collect {
                 when(it) {
                     is BoardViewState.Select -> {
-                        when(it.boardData?.respond) {
-                            is BoardRespond.SelectSuccess -> {
+                        when(it.boardSelectData?.respond) {
+                            is BoardResponse.SelectSuccess -> {
                                 Log.v("BoardFragment", "셀렉트 성공")
                                 //Log.v("BoardFragment", it.boardData.boardList[0].title)
-                                adapter?.setItems(it.boardData.boardList)
+                                //adapter?.setItems(it.boardSelectData.boardList)
                             }
                             else -> {}
                         }
