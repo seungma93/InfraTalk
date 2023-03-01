@@ -97,7 +97,7 @@ class BoardWriteFragment : Fragment() {
                                 Toast.LENGTH_LONG
                             ).show();
                         } else {
-                            (0..count).forEach {
+                            (0 until count).forEach {
                                 val uri = clipData.getItemAt(it).uri
                                 imgList.add(uri)
                             }
