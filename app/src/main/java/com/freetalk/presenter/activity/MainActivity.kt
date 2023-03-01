@@ -1,15 +1,18 @@
 package com.freetalk.presenter.activity
 
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
 import com.freetalk.databinding.ActivityMainBinding
 import com.freetalk.presenter.fragment.*
-import kotlin.math.log
+import com.freetalk.presenter.fragment.Sign.LoginMainFragment
+import com.freetalk.presenter.fragment.Sign.SignUpFragment
+import com.freetalk.presenter.fragment.board.BoardFragment
+import com.freetalk.presenter.fragment.board.BoardWriteFragment
+import com.freetalk.presenter.fragment.chat.ChatFragment
+import com.freetalk.presenter.fragment.home.HomeFragment
+import com.freetalk.presenter.fragment.mypage.MyPageFragment
 
 sealed class EndPoint {
     data class LoginMain(val token: Int) : EndPoint()

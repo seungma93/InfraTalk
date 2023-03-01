@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment
+package com.freetalk.presenter.fragment.board
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
