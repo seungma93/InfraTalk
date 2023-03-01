@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment
+package com.freetalk.presenter.fragment.Sign
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthData
 import com.freetalk.data.remote.AuthResponse
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentLoginMainBinding

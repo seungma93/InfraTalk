@@ -1,15 +1,15 @@
-package com.freetalk.presenter.fragment
+package com.freetalk.presenter.fragment.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.freetalk.databinding.FragmentChatBinding
 import com.freetalk.databinding.FragmentHomeBinding
 
-class ChatFragment: Fragment() {
-    private var _binding: FragmentChatBinding? = null
+class HomeFragment: Fragment() {
+    private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -17,7 +17,8 @@ class ChatFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentChatBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        (activity as AppCompatActivity).setSupportActionBar(binding.appBar)
         return binding.root
     }
 }

@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment
+package com.freetalk.presenter.fragment.board
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -13,11 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
-import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
-import com.freetalk.presenter.viewmodel.BoardViewEvent
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModelFactory
 import com.freetalk.presenter.viewmodel.BoardViewState
@@ -63,10 +61,13 @@ class BoardFragment : Fragment() {
             }
             recyclerviewBoardList.adapter = adapter
         }
+
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.select()
         }
         subscribe()
+
+
 
     }
 

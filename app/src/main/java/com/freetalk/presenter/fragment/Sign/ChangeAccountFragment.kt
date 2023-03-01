@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment
+package com.freetalk.presenter.fragment.Sign
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,12 +10,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthResponse
 import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
-import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.viewmodel.LoginViewModel
 import com.freetalk.presenter.viewmodel.LoginViewModelFactory
 import com.freetalk.presenter.viewmodel.ViewEvent
@@ -25,9 +23,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
     private var _binding: FragmentDialogChangeAccountBinding? = null
