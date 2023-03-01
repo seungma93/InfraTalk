@@ -73,23 +73,23 @@ class MainActivity() : AppCompatActivity(), Navigable {
                 }
                 is EndPoint.Home -> {
                     val fragment = HomeFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.Board -> {
                     val fragment = BoardFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.Chat -> {
                     val fragment = ChatFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.MyPage -> {
                     val fragment = MyPageFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, false)
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.BoardWrite -> {
                     val fragment = BoardWriteFragment()
-                    setFragment(fragment, R.id.fragment_board_frame_layout, false)
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.Error -> {
                 }
