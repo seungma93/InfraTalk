@@ -3,4 +3,5 @@
     <string name="shr_hint_email">Email</string>
     <string name="shr_hint_password">Password</string>
     <string name="shr_hint_check_password">Check Password</string>
+    <string name="shr_hint_nickname">Nickname</string>
 </resources>

@@ -2,11 +2,12 @@ package com.freetalk.usecase
 
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.AuthData
+import com.freetalk.data.remote.LoginData
 import com.freetalk.repository.UserDataRepository
 
 interface UserUseCase {
     suspend fun signUp(userData: UserEntity): AuthData
-    suspend fun logIn(userData: UserEntity): AuthData
+    suspend fun logIn(userData: UserEntity): LoginData
     suspend fun resetPassword(userData: UserEntity): AuthData
 }
 
@@ -15,7 +16,7 @@ class UserUseCaseImpl(private val userDataRepository: UserDataRepository): UserU
         return userDataRepository.signUp(userData)
     }
 
-    override suspend fun logIn(userData: UserEntity): AuthData {
+    override suspend fun logIn(userData: UserEntity): LoginData {
         return userDataRepository.logIn(userData)
     }
 

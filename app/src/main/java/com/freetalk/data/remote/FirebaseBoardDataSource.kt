@@ -3,154 +3,133 @@ package com.freetalk.data.remote
 import android.net.Uri
 import android.util.Log
 import com.freetalk.data.entity.BoardEntity
-import com.freetalk.presenter.activity.EndPoint
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.net.URI
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 
 interface BoardDataSource {
-    suspend fun insert(boardEntity: BoardEntity): Respond
-    suspend fun select(): BoardData
+    suspend fun insert(boardEntity: BoardEntity): BoardInsertData
+    suspend fun select(): BoardSelectData
     suspend fun delete()
     suspend fun update()
 }
 
-data class Respond(
-    val respond: BoardRespond
+data class BoardInsertData(
+    val failedImageList: List<Uri>?,
+    val respond: BoardResponse
 )
 
-data class BoardData(
-    val boardList: List<BoardEntity>,
-    val respond: BoardRespond
+data class BoardSelectData(
+    val boardList: List<BoardEntity>?,
+    val respond: BoardResponse
 )
 
-sealed class BoardRespond() {
-    data class InsertSuccess(val code: String) : BoardRespond()
-    data class SelectSuccess(val code: String) : BoardRespond()
+data class ImageUris(
+    val inputList: List<Uri>,
+    val outputList: List<Uri?>
+)
+
+sealed class BoardResponse() {
+    data class InsertSuccess(val code: String) : BoardResponse()
+    data class InsertFail(val code: String) : BoardResponse()
+    data class SelectSuccess(val code: String) : BoardResponse()
+    data class SelectFail(val code: String) : BoardResponse()
 }
 
 class FirebaseBoardRemoteDataSourceImpl(
     private val database: FirebaseFirestore,
     private val storage: FirebaseStorage
 ) : BoardDataSource {
+    private val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
 
-    override suspend fun insert(boardEntity: BoardEntity): Respond {
-        val model = hashMapOf<String, Any?>()
+    override suspend fun insert(boardEntity: BoardEntity): BoardInsertData {
+        //val model = hashMapOf<String, Any?>()
         boardEntity.apply {
-            when (image.isEmpty()) {
+
+            return when (image.isEmpty()) {
                 true -> {
                     Log.v("FirebaseBoardDataSource", "이미지 없음")
-                    model["author"] = author
-                    model["title"] = title
-                    model["context"] = context
-                    model["image"] = null
-                    model["createTime"] = createTime
-                    model["editTime"] = editTime
+                    insertData(boardEntity, null)
                 }
                 false -> {
+                    val imageUris = uploadImages(image)
+                    val failedImageList = mutableListOf<Uri>()
+                    imageUris.outputList.mapIndexed { i, uri ->
+                        if (uri == null) {
+                            failedImageList.add(imageUris.inputList[i])
+                        }
+                    }
                     Log.v("FirebaseBoardDataSource", "이미지 있음")
-                    model["author"] = author
-                    model["title"] = title
-                    model["context"] = context
-                    model["image"] = uploadImages(image)
-                    model["createTime"] = createTime
-                    model["editTime"] = editTime
-                }
-            }
-            return insertData(model)
-        }
-    }
-
-    private suspend fun insertData(model: Map<String, Any?>) = suspendCoroutine {
-        database.collection("Board").add(model)
-            .addOnCompleteListener { task ->
-                Log.v("FirebaseBoardDataSource", "인서트 성공")
-                it.resume(Respond(BoardRespond.InsertSuccess("인서트 성공")))
-            }.addOnFailureListener { e ->
-                Log.v(
-                    "FirebaseBoardDataSource",
-                    "Error writing document",
-                    e
-                )
-                it.resumeWithException(e)
-            }
-    }
-
-    private suspend fun uploadImages(uri: List<Uri>): List<Uri> {
-        return uri.mapIndexed { i, uri ->
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-            val imgFileName = "IMAGE_" + (i + 1) + "_" + timeStamp + "_.png"
-            uploadImage(imgFileName, uri)
-        }
-    }
-
-    private suspend fun uploadImage(fileName: String, uri: Uri): Uri {
-        return suspendCoroutine { continuation ->
-            val storageRef = storage.reference.child("images").child(fileName)
-            storageRef.putFile(uri).addOnCompleteListener {
-                Log.v("FirebaseBoardDataSource", "이미지 업로드 성공")
-                it.result.metadata?.reference?.downloadUrl?.addOnCompleteListener { task ->
-                    continuation.resume(task.result)
-                }?.addOnFailureListener { e ->
-                    storageRef.delete().addOnCompleteListener {
-
-                    }
-                    Log.v(
-                        "FirebaseBoardDataSource",
-                        "Error writing document",
-                        e
+                    val boardEntity = BoardEntity(
+                        author,
+                        title,
+                        content,
+                        imageUris.outputList.filterNotNull(),
+                        createTime,
+                        editTime
                     )
-                    continuation.resumeWithException(e)
+                    insertData(boardEntity, failedImageList)
                 }
-            }.addOnFailureListener { e ->
-                Log.v(
-                    "FirebaseBoardDataSource",
-                    "Error writing document",
-                    e
-                )
-                continuation.resumeWithException(e)
             }
         }
     }
 
-    override suspend fun select(): BoardData {
+    private suspend fun insertData(
+        model: BoardEntity,
+        failedImageList: List<Uri>?
+    ): BoardInsertData {
+        return kotlin.runCatching {
+            database.collection("Board").add(model).await()
+            BoardInsertData(failedImageList, BoardResponse.InsertSuccess("인서트 성공"))
+        }.getOrElse {
+            BoardInsertData(failedImageList, BoardResponse.InsertFail("인서트 실패"))
+        }
+    }
+
+    private suspend fun uploadImages(inputList: List<Uri>): ImageUris = coroutineScope {
+
+        val outputList = inputList.mapIndexed { i, uri ->
+            val imgFileName = "IMAGE_" + (i + 1) + "_" + timeStamp + "_.png"
+            async { uploadImage(imgFileName, uri) }
+        }.awaitAll()
+        ImageUris(inputList, outputList)
+    }
+
+    private suspend fun uploadImage(fileName: String, uri: Uri): Uri? {
+        return kotlin.runCatching {
+            val storageRef = storage.reference.child("images").child(fileName)
+            val res = storageRef.putFile(uri).await()
+            res.storage.downloadUrl.result
+        }.getOrNull()
+    }
+
+    override suspend fun select(): BoardSelectData {
         val boardList = mutableListOf<BoardEntity>()
-        return suspendCoroutine { continuation ->
-            database.collection("Board").orderBy("createTime").limit(10)
-                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    boardList.clear()
-                    if(querySnapshot == null) {
-                        Log.v("FirebaseBoardDataSource", "셀렉트 실패")
-                    }
-                    for (snapshot in querySnapshot!!.documents) {
-                        val a = BoardEntity(
-                            snapshot.data?.get("author") as String,
-                            snapshot.data?.get("title") as String,
-                            snapshot.data?.get("context") as String,
-                            (snapshot.data?.get("image") as List<String>).map {
-                                Uri.parse(it)
-                            } as List<Uri>,
-                            (snapshot.data?.get("createTime") as Timestamp).toDate(),
-                            (snapshot.data?.get("editTIme") as? Timestamp)?.toDate(),
-
-                        )
-
-
-                        //var item = snapshot.toObject(BoardEntity::class.java)
-                        boardList.add(a)
-                        Log.v("FirebaseBoardDataSource", a.title)
-                    }
-                    Log.v("FirebaseBoardDataSource", "셀렉트 성공")
-                    continuation.resume(BoardData(boardList, BoardRespond.SelectSuccess("셀렉트 성공") ))
-                }
-
+        return kotlin.runCatching {
+            val snapshot =
+                database.collection("Board").orderBy("createTime").limit(10).get().await()
+            snapshot.documents.map {
+                val boardEntity = BoardEntity(
+                    it.data?.get("author") as String,
+                    it.data?.get("title") as String,
+                    it.data?.get("context") as String,
+                    (it.data?.get("image") as List<String>).map {
+                        Uri.parse(it)
+                    } as List<Uri>,
+                    (it.data?.get("createTime") as Timestamp).toDate(),
+                    (it.data?.get("editTIme") as? Timestamp)?.toDate()
+                )
+                boardList.add(boardEntity)
+            }
+            BoardSelectData(boardList, BoardResponse.SelectSuccess("셀릭트 성공"))
+        }.getOrElse {
+            BoardSelectData(null, BoardResponse.SelectFail("셀릭트 실패"))
         }
     }
 
@@ -161,5 +140,4 @@ class FirebaseBoardRemoteDataSourceImpl(
     override suspend fun update() {
         TODO("Not yet implemented")
     }
-
 }
