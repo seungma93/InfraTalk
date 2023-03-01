@@ -1,56 +1,41 @@
 package com.freetalk.presenter.fragment
 
 import android.Manifest
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.saveable.autoSaver
-import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
+import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
-import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
-import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.databinding.FragmentBoardWriteBinding
-import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardWriteAdapter
 import com.freetalk.presenter.viewmodel.*
 import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
-import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.BoardUseCaseImpl
-import com.freetalk.usecase.UserUseCaseImpl
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.util.*
 
 class BoardWriteFragment : Fragment() {
@@ -167,7 +152,7 @@ class BoardWriteFragment : Fragment() {
                     }
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            val boardEntity = BoardEntity(author = "테스트 계정",
+                            val boardEntity = BoardEntity(author = UserSingleton,
                                 title = binding.titleEditText.text.toString(),
                                 content = binding.contextEditText.text.toString(),
                                 image = imgList,

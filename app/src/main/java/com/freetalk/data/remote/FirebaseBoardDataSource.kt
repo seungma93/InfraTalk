@@ -2,6 +2,7 @@ package com.freetalk.data.remote
 
 import android.net.Uri
 import android.util.Log
+import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.BoardEntity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -105,7 +106,8 @@ class FirebaseBoardRemoteDataSourceImpl(
         return kotlin.runCatching {
             val storageRef = storage.reference.child("images").child(fileName)
             val res = storageRef.putFile(uri).await()
-            res.storage.downloadUrl.result
+            val downloadUri = res.storage.downloadUrl.await()
+            downloadUri
         }.getOrNull()
     }
 
@@ -116,7 +118,7 @@ class FirebaseBoardRemoteDataSourceImpl(
                 database.collection("Board").orderBy("createTime").limit(10).get().await()
             snapshot.documents.map {
                 val boardEntity = BoardEntity(
-                    it.data?.get("author") as String,
+                    it.data?.get("author") as UserSingleton,
                     it.data?.get("title") as String,
                     it.data?.get("context") as String,
                     (it.data?.get("image") as List<String>).map {
