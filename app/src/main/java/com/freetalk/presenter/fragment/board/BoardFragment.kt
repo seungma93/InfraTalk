@@ -66,9 +66,6 @@ class BoardFragment : Fragment() {
             boardViewModel.select()
         }
         subscribe()
-
-
-
     }
 
     private fun subscribe() {
@@ -76,13 +73,17 @@ class BoardFragment : Fragment() {
             boardViewModel.viewState.collect {
                 when(it) {
                     is BoardViewState.Select -> {
-                        when(it.boardSelectData?.respond) {
+                        when(it.boardSelectData?.response) {
                             is BoardResponse.SelectSuccess -> {
                                 Log.v("BoardFragment", "셀렉트 성공")
                                 //Log.v("BoardFragment", it.boardData.boardList[0].title)
-                                //adapter?.setItems(it.boardSelectData.boardList)
+                                it.boardSelectData.boardList?.let {
+                                    adapter?.setItems(it)
+                                }
                             }
-                            else -> {}
+                            else -> {
+                                Log.v("BoardFragment", it.boardSelectData?.response.toString())
+                            }
                         }
                     }
                     else -> {}

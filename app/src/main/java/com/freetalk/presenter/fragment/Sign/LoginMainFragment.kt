@@ -88,6 +88,9 @@ class LoginMainFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             loginViewModel.viewEvent.collect {
                 when(it){
+                }
+
+                when(it){
                     is ViewEvent.LogIn -> {
                         when (it.loginData.response) {
                             is AuthResponse.NotExistEmail -> Toast.makeText(

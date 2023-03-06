@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 
 
@@ -23,12 +24,12 @@ interface BoardDataSource {
 
 data class BoardInsertData(
     val failedImageList: List<Uri>?,
-    val respond: BoardResponse
+    val response: BoardResponse
 )
 
 data class BoardSelectData(
     val boardList: List<BoardEntity>?,
-    val respond: BoardResponse
+    val response: BoardResponse
 )
 
 data class ImageUris(
@@ -118,7 +119,8 @@ class FirebaseBoardRemoteDataSourceImpl(
                 database.collection("Board").orderBy("createTime").limit(10).get().await()
             snapshot.documents.map {
                 val boardEntity = BoardEntity(
-                    it.data?.get("author") as UserSingleton,
+                    (it.data?.get("author") as HashMap<String, Any>).
+                            ,
                     it.data?.get("title") as String,
                     it.data?.get("context") as String,
                     (it.data?.get("image") as List<String>).map {
@@ -131,7 +133,7 @@ class FirebaseBoardRemoteDataSourceImpl(
             }
             BoardSelectData(boardList, BoardResponse.SelectSuccess("셀릭트 성공"))
         }.getOrElse {
-            BoardSelectData(null, BoardResponse.SelectFail("셀릭트 실패"))
+            BoardSelectData(null, BoardResponse.SelectFail("셀릭트 실패" + it.printStackTrace()))
         }
     }
 

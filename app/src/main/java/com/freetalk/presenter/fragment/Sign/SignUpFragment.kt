@@ -22,16 +22,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthResponse
-import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
+import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentSignUpBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.viewmodel.LoginViewModel
-import com.freetalk.presenter.viewmodel.LoginViewModelFactory
-import com.freetalk.presenter.viewmodel.ViewEvent
+import com.freetalk.presenter.viewmodel.*
+import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
-import com.freetalk.usecase.UserUseCaseImpl
+import com.freetalk.usecase.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -44,13 +42,35 @@ class SignUpFragment : Fragment() {
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var inputProfileImage: Uri? = null
-    private val loginViewModel: LoginViewModel by lazy {
-        val firebaseRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore, FirebaseStorage.getInstance())
+    private val signViewModel: SignViewModel by lazy {
+        // dataSource
+        val firebaseRemoteDataSourceImpl =
+            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
+        val firebaseImageDataSourceImpl =
+            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
+        // repository
         val firebaseUserDataRepositoryImpl =
             FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
-        val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val factory = LoginViewModelFactory(firebaseUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)
+        val firebaseImageDataRepositoryImpl =
+            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
+        // useCase
+        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
+        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val updateProfileImageUseCaseImpl =
+            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
+        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
+        // factory
+        val factory = SignViewModelFactory(
+            signUpUseCaseImpl,
+            sendEmailUseCaseImpl,
+            updateProfileImageUseCaseImpl,
+            logInUseCaseImpl,
+            resetPasswordUseCaseImpl
+        )
+        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
     }
 
     override fun onAttach(context: Context) {
@@ -67,18 +87,14 @@ class SignUpFragment : Fragment() {
                 }
             }
 
-        activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-
-            if (it.resultCode == Activity.RESULT_OK) {
-
-                it.data?.let { intent -> inputProfileImage =  intent.data  }
+        activityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == Activity.RESULT_OK) {
+                    it.data?.let { intent -> inputProfileImage = intent.data }
+                }
+                binding.profileImage.setImageURI(inputProfileImage)
             }
-            binding.profileImage.setImageURI(inputProfileImage)
-
-        }
-
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -121,10 +137,17 @@ class SignUpFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     else -> {
-                        val userData = UserEntity(inputId, inputPassword, inputNickname, inputProfileImage )
                         viewLifecycleOwner.lifecycleScope.launch {
-                            showProgressBar()
-                            val signUpInfo = loginViewModel.signUp(userData)
+                            when(inputProfileImage) {
+                                null -> signViewModel.signUp(
+                                    SignUpForm(inputId, inputPassword, inputNickname), null
+                                )
+                                else -> signViewModel.signUp(
+                                    SignUpForm(inputId, inputPassword, inputNickname), ImagesRequest(listOf(inputProfileImage!!)
+                                    )
+                                )
+                            }
+
                         }
                     }
                 }
@@ -176,49 +199,51 @@ class SignUpFragment : Fragment() {
 
     private fun subsribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            loginViewModel.viewEvent.collect {
+            signViewModel.viewEvent.collect {
 
-                when(it)
-                {
+                when (it) {
                     is ViewEvent.SignUp -> {
-                        hideProgressBar()
-                        when(it.authData.response) {
-                            is AuthResponse.InvalidPassword -> {
+                        Toast.makeText(
+                            requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain(1))
+                    }
+                    is ViewEvent.Error -> {
+                        when (it.errorCode) {
+                            is InvalidPasswordException ->
                                 Toast.makeText(
                                     requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                            }
-                            is AuthResponse.InvalidEmail -> Toast.makeText(
+                            is InvalidEmailException -> Toast.makeText(
                                 requireActivity(), "이메일 형식을 확인 하세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.ExistEmail -> Toast.makeText(
+                            is ExistEmailException -> Toast.makeText(
                                 requireActivity(), "존재하는 이메일 입니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.SuccessSignUp -> {
-                                Toast.makeText(
-                                    requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain(1))
-                            }
-                            is AuthResponse.FailUploadImage -> {
-                                Toast.makeText(
-                                    requireActivity(), "이미지 업로드 실패",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            is AuthResponse.FailSendMail -> {
-                                Toast.makeText(
-                                    requireActivity(), "인증 이메일 전송 실패",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            else -> {
-                                error("구독 에러")
-                            }
+                            is BlockedRequestException -> Toast.makeText(
+                                requireActivity(), "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is FailInsertException -> Toast.makeText(
+                                requireActivity(), "인서트에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is NoImageException -> Toast.makeText(
+                                requireActivity(), "업로드할 이미지가 없습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is FailUpdatetException -> Toast.makeText(
+                                requireActivity(), "업데이트에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is FailSendEmailException -> Toast.makeText(
+                                requireActivity(), "메일 전송에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                     else -> {}
@@ -227,23 +252,26 @@ class SignUpFragment : Fragment() {
         }
     }
 
-    private fun showProgressBar() {
-        blockLayoutTouch()
-        binding.progressBar.isVisible = true
-    }
-    private fun blockLayoutTouch() {
-        requireActivity().window?.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-    }
 
-    private fun hideProgressBar() {
-        clearBlockLayoutTouch()
-        binding.progressBar.isVisible = false
-    }
+private fun showProgressBar() {
+    blockLayoutTouch()
+    binding.progressBar.isVisible = true
+}
 
-    private fun clearBlockLayoutTouch() {
-        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-    }
+private fun blockLayoutTouch() {
+    requireActivity().window?.setFlags(
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+    )
+}
+
+private fun hideProgressBar() {
+    clearBlockLayoutTouch()
+    binding.progressBar.isVisible = false
+}
+
+private fun clearBlockLayoutTouch() {
+    requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+}
 
 }

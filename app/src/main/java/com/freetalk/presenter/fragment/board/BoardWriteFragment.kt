@@ -193,7 +193,7 @@ class BoardWriteFragment : Fragment() {
                     boardViewModel.viewEvent.collect {
                         when(it) {
                             is BoardViewEvent.Insert -> {
-                                when(it.boardInsertData.respond) {
+                                when(it.boardInsertData.response) {
                                     is BoardResponse.InsertSuccess -> {
                                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
                                         hideProgressBar()
