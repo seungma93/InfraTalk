@@ -2,15 +2,24 @@ package com.freetalk.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.freetalk.usecase.BoardUseCase
-import com.freetalk.usecase.UserUseCase
+import com.freetalk.usecase.*
 
 
-class LoginViewModelFactory(private val useCase: UserUseCase) : ViewModelProvider.Factory {
+class SignViewModelFactory(
+    private val signUpUseCase: SignUpUseCase, private val sendEmailUseCase: SendEmailUseCase,
+    private val updateProfileImageUseCase: UpdateProfileImageUseCase,
+    private val logInUseCase: LogInUseCase,
+    private val resetPasswordUseCase: ResetPasswordUseCase
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
-        return LoginViewModel(useCase) as T
+        return SignViewModel(
+            signUpUseCase,
+            sendEmailUseCase,
+            updateProfileImageUseCase,
+            logInUseCase,
+            resetPasswordUseCase
+        ) as T
     }
 }
 

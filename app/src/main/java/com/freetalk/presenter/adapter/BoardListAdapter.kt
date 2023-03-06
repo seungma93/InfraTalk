@@ -57,6 +57,7 @@ class BoardListAdapter(
                 title.text = boardEntity.title
                 context.text = boardEntity.content
                 date.text = boardEntity.createTime.toString()
+                author.text = boardEntity.author.nickname
                 //Glide.with(itemView.context).load(imgUri).into(image)
             }
         }
