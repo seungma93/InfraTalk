@@ -11,30 +11,50 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthResponse
-import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
+import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
-import com.freetalk.presenter.viewmodel.LoginViewModel
-import com.freetalk.presenter.viewmodel.LoginViewModelFactory
-import com.freetalk.presenter.viewmodel.ViewEvent
+import com.freetalk.presenter.viewmodel.*
+import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
-import com.freetalk.usecase.UserUseCaseImpl
+import com.freetalk.usecase.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 
-class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
+class ResetPasswordFragment: DialogFragment(), View.OnClickListener {
     private var _binding: FragmentDialogChangeAccountBinding? = null
     private val binding get() = _binding!!
-    private val loginViewModel: LoginViewModel by lazy {
-        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore, FirebaseStorage.getInstance())
+    private val signViewModel: SignViewModel by lazy {
+        // dataSource
+        val firebaseRemoteDataSourceImpl =
+            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
+        val firebaseImageDataSourceImpl =
+            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
+        // repository
         val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseUserRemoteDataSourceImpl)
-        val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val factory = LoginViewModelFactory(firebaseUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)
+            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
+        val firebaseImageDataRepositoryImpl =
+            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
+        // useCase
+        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
+        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val updateProfileImageUseCaseImpl =
+            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
+        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
+        // factory
+        val factory = SignViewModelFactory(
+            signUpUseCaseImpl,
+            sendEmailUseCaseImpl,
+            updateProfileImageUseCaseImpl,
+            logInUseCaseImpl,
+            resetPasswordUseCaseImpl
+        )
+        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -53,9 +73,8 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
         binding.btnFindPassword.setOnClickListener {
             val inputId = binding.emailTextInput.editText!!.text.toString()
                 viewLifecycleOwner.lifecycleScope.launch{
-                    val userData = UserEntity(inputId, "", "", null)
                     Log.v("ChangeAccountFragment", inputId)
-                    loginViewModel.resetPassword(userData)
+                    signViewModel.resetPassword(ResetPasswordForm(inputId))
                 }
         }
         subscribe()
@@ -67,24 +86,21 @@ class ChangeAccountFragment: DialogFragment(), View.OnClickListener {
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            loginViewModel.viewEvent.collect {
+            signViewModel.viewEvent.collect {
                 when(it) {
                     is ViewEvent.ResetPassword -> {
-                        when(it.authData.response){
-                            is AuthResponse.SuccessSendMail -> {
-                                binding.emailTextInput.visibility = View.GONE
-                                binding.btnFindPassword.visibility = View.GONE
-                                binding.completeText.text = "이메일로 재설정 링크를 보냈습니다"
-                                binding.completeText.visibility = View.VISIBLE
-                            }
-                            is AuthResponse.FailSendMail -> {
+                        binding.emailTextInput.visibility = View.GONE
+                        binding.btnFindPassword.visibility = View.GONE
+                        binding.completeText.text = "이메일로 재설정 링크를 보냈습니다"
+                        binding.completeText.visibility = View.VISIBLE
+                    }
+                    is ViewEvent.Error -> {
+                        when(it.errorCode){
+                            is FailSendEmailException -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE
                                 binding.completeText.text = "이메일이 틀렸습니다 확인해 주세요"
                                 binding.completeText.visibility = View.VISIBLE
-                            }
-                            else -> {
-                                error("구독 에러")
                             }
                         }
                     }

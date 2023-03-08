@@ -4,6 +4,8 @@ import android.net.Uri
 import android.util.Log
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.entity.ImagesEntity
+import com.freetalk.data.entity.UserEntity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -16,102 +18,68 @@ import kotlin.coroutines.resume
 
 
 interface BoardDataSource {
-    suspend fun insert(boardEntity: BoardEntity): BoardInsertData
-    suspend fun select(): BoardSelectData
+    suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse
+    //suspend fun select(): BoardSelectData
     suspend fun delete()
-    suspend fun update()
+    suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
 }
 
-data class BoardInsertData(
-    val failedImageList: List<Uri>?,
-    val response: BoardResponse
+data class BoardInsetForm(
+    val author: UserEntity,
+    val title: String,
+    val content: String,
+    val createTime: Date,
+    val editTime: Date?
 )
+
+data class BoardUpdateForm(
+    val author: UserEntity,
+    val title: String,
+    val content: String?,
+    val images: List<Uri>,
+    val createTime: Date,
+    val editTime: Date?
+)
+
 
 data class BoardSelectData(
     val boardList: List<BoardEntity>?,
     val response: BoardResponse
 )
 
-data class ImageUris(
-    val inputList: List<Uri>,
-    val outputList: List<Uri?>
+
+data class BoardResponse(
+    val author: UserEntity? = null,
+    val title: String? = null,
+    val content: String? = null,
+    val images: ImagesEntity? = null,
+    val createTime: Date? = null,
+    val editTime: Date? = null
 )
 
-sealed class BoardResponse() {
-    data class InsertSuccess(val code: String) : BoardResponse()
-    data class InsertFail(val code: String) : BoardResponse()
-    data class SelectSuccess(val code: String) : BoardResponse()
-    data class SelectFail(val code: String) : BoardResponse()
-}
 
 class FirebaseBoardRemoteDataSourceImpl(
-    private val database: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val database: FirebaseFirestore
 ) : BoardDataSource {
-    private val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
 
-    override suspend fun insert(boardEntity: BoardEntity): BoardInsertData {
-        //val model = hashMapOf<String, Any?>()
-        boardEntity.apply {
+    override suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse {
 
-            return when (image.isEmpty()) {
-                true -> {
-                    Log.v("FirebaseBoardDataSource", "이미지 없음")
-                    insertData(boardEntity, null)
-                }
-                false -> {
-                    val imageUris = uploadImages(image)
-                    val failedImageList = mutableListOf<Uri>()
-                    imageUris.outputList.mapIndexed { i, uri ->
-                        if (uri == null) {
-                            failedImageList.add(imageUris.inputList[i])
-                        }
-                    }
-                    Log.v("FirebaseBoardDataSource", "이미지 있음")
-                    val boardEntity = BoardEntity(
-                        author,
-                        title,
-                        content,
-                        imageUris.outputList.filterNotNull(),
-                        createTime,
-                        editTime
-                    )
-                    insertData(boardEntity, failedImageList)
-                }
-            }
-        }
-    }
-
-    private suspend fun insertData(
-        model: BoardEntity,
-        failedImageList: List<Uri>?
-    ): BoardInsertData {
         return kotlin.runCatching {
-            database.collection("Board").add(model).await()
-            BoardInsertData(failedImageList, BoardResponse.InsertSuccess("인서트 성공"))
-        }.getOrElse {
-            BoardInsertData(failedImageList, BoardResponse.InsertFail("인서트 실패"))
-        }
+            database.collection("Board").add(boardInsertForm).await()
+            BoardResponse(
+                boardInsertForm.author,
+                boardInsertForm.title,
+                boardInsertForm.content,
+                null,
+                boardInsertForm.createTime,
+                null
+            )
+        }.onFailure {
+            throw FailInsertException("인서트에 실패 했습니다")
+        }.getOrThrow()
     }
 
-    private suspend fun uploadImages(inputList: List<Uri>): ImageUris = coroutineScope {
-
-        val outputList = inputList.mapIndexed { i, uri ->
-            val imgFileName = "IMAGE_" + (i + 1) + "_" + timeStamp + "_.png"
-            async { uploadImage(imgFileName, uri) }
-        }.awaitAll()
-        ImageUris(inputList, outputList)
-    }
-
-    private suspend fun uploadImage(fileName: String, uri: Uri): Uri? {
-        return kotlin.runCatching {
-            val storageRef = storage.reference.child("images").child(fileName)
-            val res = storageRef.putFile(uri).await()
-            val downloadUri = res.storage.downloadUrl.await()
-            downloadUri
-        }.getOrNull()
-    }
-
+/*
     override suspend fun select(): BoardSelectData {
         val boardList = mutableListOf<BoardEntity>()
         return kotlin.runCatching {
@@ -119,8 +87,7 @@ class FirebaseBoardRemoteDataSourceImpl(
                 database.collection("Board").orderBy("createTime").limit(10).get().await()
             snapshot.documents.map {
                 val boardEntity = BoardEntity(
-                    (it.data?.get("author") as HashMap<String, Any>).
-                            ,
+                    (it.data?.get("author") as HashMap<String, Any>).,
                     it.data?.get("title") as String,
                     it.data?.get("context") as String,
                     (it.data?.get("image") as List<String>).map {
@@ -137,11 +104,68 @@ class FirebaseBoardRemoteDataSourceImpl(
         }
     }
 
-    override suspend fun delete() {
-        TODO("Not yet implemented")
+ */
+
+    override suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse {
+        return kotlin.runCatching {
+            FirebaseFirestore.getInstance().collection("Board")
+                .whereEqualTo("author.email", boardUpdateForm.author.email)
+                .whereEqualTo("createTime", boardUpdateForm.createTime).get().await().let {
+
+                    boardUpdateForm.images?.let { images ->
+
+                        boardUpdateForm.editTime?.let { date ->
+
+                            when (boardUpdateForm.content) {
+                                null -> {
+                                    val updates = mapOf(
+                                        "images" to boardUpdateForm.images,
+                                        "editTime" to boardUpdateForm.editTime
+                                    )
+                                    it.documents[0].reference.update(updates).await()
+                                }
+                                else -> {
+                                    val updates = mapOf(
+                                        "content" to boardUpdateForm.content,
+                                        "images" to boardUpdateForm.images,
+                                        "editTime" to boardUpdateForm.editTime
+                                    )
+                                    it.documents[0].reference.update(updates).await()
+                                }
+                            }
+
+                        } ?: run {
+                            val updates = mapOf(
+                                "images" to boardUpdateForm.images
+                            )
+                            it.documents[0].reference.update(updates).await()
+
+                        }
+
+                    } ?: run {
+                        val updates = mapOf(
+                            "content" to boardUpdateForm.content,
+                            "editTime" to boardUpdateForm.editTime
+                        )
+                        it.documents[0].reference.update(updates).await()
+
+                    }
+                }
+            BoardResponse(
+                boardUpdateForm.author,
+                boardUpdateForm.title,
+                boardUpdateForm.content,
+                null,
+                boardUpdateForm.createTime,
+                boardUpdateForm.editTime
+            )
+
+        }.onFailure {
+            throw FailUpdatetException("업데이트 실패")
+        }.getOrThrow()
     }
 
-    override suspend fun update() {
+    override suspend fun delete() {
         TODO("Not yet implemented")
     }
 }

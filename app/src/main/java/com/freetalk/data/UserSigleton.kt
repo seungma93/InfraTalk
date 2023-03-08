@@ -1,9 +1,8 @@
 package com.freetalk.data
 
 import android.net.Uri
+import com.freetalk.data.entity.UserEntity
 
 object UserSingleton {
-    var email: String = ""
-    var nickname: String = ""
-    var profileImage: Uri? = null
+    var userEntity: UserEntity = UserEntity("", "", Uri.parse(""))
 }

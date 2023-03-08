@@ -1,5 +1,6 @@
 package com.freetalk.usecase
 
+import android.util.Log
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.repository.UserDataRepository
 
@@ -9,7 +10,8 @@ interface SendEmailUseCase {
 
 class SendEmailUseCaseImpl(private val repository: UserDataRepository): SendEmailUseCase {
     override suspend fun sendVerifiedEmail(): UserEntity {
-        return sendVerifiedEmail()
+        Log.d("SendEmailUseCase", "유즈케이스")
+        return repository.sendVerifiedEmail()
     }
 
 }
