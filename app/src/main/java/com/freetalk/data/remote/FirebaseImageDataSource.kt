@@ -31,7 +31,6 @@ class FirebaseImageRemoteDataSourceImpl(
     override suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResponse = coroutineScope {
         val successImages = mutableListOf<Uri>()
         val failImages = mutableListOf<Uri>()
-
             imagesRequest.imageUris.mapIndexed { i, uri ->
                 val imgFileName = "Image" + "_" + (i + 1) + "_" + timeStamp + "_.png"
                 async {

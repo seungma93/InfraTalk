@@ -2,6 +2,7 @@ package com.freetalk.data.remote
 
 
 import android.net.Uri
+import android.util.Log
 import com.freetalk.data.entity.UserEntity
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
@@ -13,8 +14,8 @@ import java.util.*
 
 interface UserDataSource {
     suspend fun signUp(signUpForm: SignUpForm): UserResponse
-    suspend fun logIn(userEntity: UserEntity): UserEntity
-    suspend fun resetPassword(userEntity: UserEntity): UserEntity
+    suspend fun logIn(logInForm: LogInForm): UserResponse
+    suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
 }
@@ -23,7 +24,7 @@ class InvalidEmailException(
     val _message: String
 ) : Exception(_message)
 
-class RequireEmailException(
+class VerifiedEmailException(
     val _message: String
 ) : Exception(_message)
 
@@ -67,11 +68,12 @@ class NoImageException(
     val _message: String
 ) : Exception(_message)
 
-data class UserResponse(
-    val email: String? = null,
-    val nickname: String? = null,
-    val image: Uri? = null
-)
+class FailSelectException(
+    val _message: String
+) : Exception(_message)
+
+
+
 
 private fun separatedFirebaseErrorCode(errorCode: String): Exception {
     return when (errorCode) {
@@ -85,16 +87,31 @@ private fun separatedFirebaseErrorCode(errorCode: String): Exception {
     }
 }
 
+data class UserResponse(
+    val email: String? = null,
+    val nickname: String? = null,
+    val image: Uri? = null
+)
+
 data class SignUpForm(
     val email: String,
     val password: String,
     val nickname: String
 )
 
+data class LogInForm(
+    val email: String,
+    val password: String
+)
+
 data class UpdateForm(
     val email: String,
     val nickname: String?,
     val image: Uri?
+)
+
+data class ResetPasswordForm(
+    val email: String
 )
 
 class FirebaseUserRemoteDataSourceImpl(
@@ -123,13 +140,18 @@ class FirebaseUserRemoteDataSourceImpl(
     override suspend fun sendVerifiedEmail(): UserResponse {
         return kotlin.runCatching {
             currentUser?.let {
+                Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
                 UserResponse(currentUser.email, null, null)
-            } ?: throw UnKnownException("알 수 없는 에러")
+            } ?: run {Log.d("UserDataSource" ,"알 수 없는1")
+                throw UnKnownException("알 수 없는 에러")
+            }
         }.onFailure {
             when (it) {
                 is FirebaseAuthException -> throw FailSendEmailException("메일 발송 실패")
-                else -> throw UnKnownException("알 수 없는 에러")
+                else -> {Log.d("UserDataSource" ,"알 수 없는2")
+                    throw UnKnownException("알 수 없는 에러")
+                }
             }
         }.getOrThrow()
     }
@@ -158,50 +180,61 @@ class FirebaseUserRemoteDataSourceImpl(
 
 
 
-    override suspend fun logIn(userEntity: UserEntity): UserResponse {
+    override suspend fun logIn(logInForm: LogInForm): UserResponse {
 
-        LogInAuth(userEntity)
-        return kotlin.runCatching {
+        val logInAuthResult = logInAuth(logInForm)
+         return kotlin.runCatching {
             val snapshot =
                 database.collection("User")
-                    .whereEqualTo("email", userEntity).get()
+                    .whereEqualTo("email", logInAuthResult).get()
                     .await()
-            UserEntity(
+            UserResponse(
                 snapshot.documents[0].data?.get("email") as String,
-                snapshot.documents[0].data?.get("password") as String,
                 snapshot.documents[0].data?.get("nickname") as String,
                 Uri.parse(snapshot.documents[0].data?.get("image") as String)
             )
         }.onFailure {
-            throw error(UserResponse.FailSelect("셀렉트 실패"))
+            throw FailSelectException("셀렉트 실패")
         }.getOrThrow()
     }
 
-    suspend fun LogInAuth(userData: UserEntity): UserResponse {
 
-        return kotlin.runCatching {
-            auth.signInWithEmailAndPassword(userData.email, userData.password).await()
+    private suspend fun logInAuth(logInForm: LogInForm): String {
+
+         return kotlin.runCatching {
+            auth.signInWithEmailAndPassword(logInForm.email, logInForm.password).await()
+             Log.d("UserDataSource" ,currentUser?.email.toString())
             currentUser?.let {
                 when (it.isEmailVerified) {
-                    true -> UserResponse.SuccessLogInAuth("인증 성공")
-                    false -> throw error(UserResponse.RequireEmail("이메일 인증이 필요 합니다"))
+                    true -> it.email
+                    false -> {
+                        Log.d("UserDataSource" ,"로그인 1")
+                        throw VerifiedEmailException("이메일 인증이 필요 합니다")
+                    }
                 }
-            } ?: throw error(UserResponse.Error("예상외의 에러 발생"))
+            } ?: run {Log.d("UserDataSource" ,"로그인 2")
+                throw UnKnownException("알 수 없는 에러")
+            }
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw error(separatedFirebaseErrorCode(it.errorCode))
-                else -> throw error(UserResponse.Error("예상외의 에러 발생"))
+                is VerifiedEmailException -> throw VerifiedEmailException("이메일 인증이 필요 합니다")
+                else -> {
+                    Log.d("UserDataSource" ,"로그인 3")
+                    throw UnKnownException("알 수 없는 에러")
+                }
             }
         }.getOrThrow()
     }
 
-    override suspend fun resetPassword(userEntity: UserEntity): UserResponse {
+
+
+    override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse {
 
         return kotlin.runCatching {
-            auth.sendPasswordResetEmail(userEntity.email).await()
-            userEntity
+            auth.sendPasswordResetEmail(resetPasswordForm.email).await()
+            UserResponse(resetPasswordForm.email, null, null)
         }.onFailure {
-            throw error(UserResponse.FailSendMail("메일발송 실패"))
+            throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
     }
 

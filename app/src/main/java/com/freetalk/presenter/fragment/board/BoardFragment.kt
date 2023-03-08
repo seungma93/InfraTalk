@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
+import com.freetalk.data.remote.FirebaseImageRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
@@ -20,7 +21,8 @@ import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModelFactory
 import com.freetalk.presenter.viewmodel.BoardViewState
 import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
-import com.freetalk.usecase.BoardUseCaseImpl
+import com.freetalk.repository.FirebaseImageDataRepositoryImpl
+import com.freetalk.usecase.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -30,11 +32,20 @@ class BoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var adapter: BoardListAdapter? = null
     private val boardViewModel: BoardViewModel by lazy {
-        val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore, FirebaseStorage.getInstance())
+
+        // dataSource
+        val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore)
+        val firebaseImageDataSourceImpl = FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
+        // repository
         val firebaseBoardDataRepositoryImpl =
             FirebaseBoardDataRepositoryImpl(firebaseBoardRemoteDataSourceImpl)
-        val firebaseBoardCaseImpl = BoardUseCaseImpl(firebaseBoardDataRepositoryImpl)
-        val factory = BoardViewModelFactory(firebaseBoardCaseImpl)
+        val firebaseImageDataRepositoryImpl = FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
+        // usecase
+        val writeContentUseCaseImpl = WriteContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
+        val uploadImagesUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
+        val updateContentUseCaseImpl = UpdateContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
+        val updateImagesContentUseCaseImpl = UpdateImageContentUseCaseImpl(updateContentUseCaseImpl, uploadImagesUseCaseImpl)
+        val factory = BoardViewModelFactory(writeContentUseCaseImpl, updateImagesContentUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
     }
 
@@ -63,11 +74,11 @@ class BoardFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select()
+           // boardViewModel.select()
         }
-        subscribe()
+        //subscribe()
     }
-
+/*
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
@@ -91,6 +102,8 @@ class BoardFragment : Fragment() {
             }
         }
     }
+
+ */
 
     private fun toggleFab(isFabOpen: Boolean): Boolean {
         return if (isFabOpen) {

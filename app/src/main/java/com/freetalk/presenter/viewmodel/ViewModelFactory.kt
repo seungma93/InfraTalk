@@ -23,10 +23,11 @@ class SignViewModelFactory(
     }
 }
 
-class BoardViewModelFactory(private val useCase: BoardUseCase) : ViewModelProvider.Factory {
+class BoardViewModelFactory(private val writeContentUseCase: WriteContentUseCase,
+                            private val updateImageContentUseCase: UpdateImageContentUseCase) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-        return BoardViewModel(useCase) as T
+        return BoardViewModel(writeContentUseCase, updateImageContentUseCase) as T
     }
 }

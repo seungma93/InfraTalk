@@ -9,17 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.UserSingleton
-import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.AuthResponse
-import com.freetalk.data.remote.FirebaseUserRemoteDataSourceImpl
+import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.viewmodel.LoginViewModel
-import com.freetalk.presenter.viewmodel.LoginViewModelFactory
-import com.freetalk.presenter.viewmodel.ViewEvent
+import com.freetalk.presenter.viewmodel.*
+import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
-import com.freetalk.usecase.UserUseCaseImpl
+import com.freetalk.usecase.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -29,13 +26,35 @@ import kotlinx.coroutines.launch
 class LoginMainFragment : Fragment() {
     private var _binding: FragmentLoginMainBinding? = null
     private val binding get() = _binding!!
-    private val loginViewModel: LoginViewModel by lazy {
-        val firebaseUserRemoteDataSourceImpl = FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore, FirebaseStorage.getInstance())
+    private val signViewModel: SignViewModel by lazy {
+        // dataSource
+        val firebaseRemoteDataSourceImpl =
+            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
+        val firebaseImageDataSourceImpl =
+            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
+        // repository
         val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseUserRemoteDataSourceImpl)
-        val firebaseUseCaseImpl = UserUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val factory = LoginViewModelFactory(firebaseUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(LoginViewModel::class.java)
+            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
+        val firebaseImageDataRepositoryImpl =
+            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
+        // useCase
+        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
+        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val updateProfileImageUseCaseImpl =
+            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
+        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
+        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
+        // factory
+        val factory = SignViewModelFactory(
+            signUpUseCaseImpl,
+            sendEmailUseCaseImpl,
+            updateProfileImageUseCaseImpl,
+            logInUseCaseImpl,
+            resetPasswordUseCaseImpl
+        )
+        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -68,15 +87,14 @@ class LoginMainFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     else -> {
-                        val userData = UserEntity(inputId, inputPassword, "", null)
                         viewLifecycleOwner.lifecycleScope.launch {
-                            val logInInfo = loginViewModel.logIn(userData)
+                            signViewModel.logIn(LogInForm(inputId, inputPassword))
                         }
                     }
                 }
             }
             btnFindAccount.setOnClickListener {
-                val dialogFragment = ChangeAccountFragment()
+                val dialogFragment = ResetPasswordFragment()
                 dialogFragment.show(requireActivity().supportFragmentManager, "CustomDialog")
             }
         }
@@ -86,60 +104,49 @@ class LoginMainFragment : Fragment() {
 
     private fun subsribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            loginViewModel.viewEvent.collect {
-                when(it){
-                }
-
-                when(it){
+            signViewModel.viewEvent.collect {
+                when(it) {
                     is ViewEvent.LogIn -> {
-                        when (it.loginData.response) {
-                            is AuthResponse.NotExistEmail -> Toast.makeText(
+                        it.userEntity?.let { userEntity ->
+                            UserSingleton.userEntity = userEntity
+                        }
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
+                    }
+                    is ViewEvent.Error -> {
+                        when(it.errorCode) {
+                            is NotExistEmailException -> Toast.makeText(
                                 requireActivity(), "등록된 이메일이 없습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.InvalidEmail -> Toast.makeText(
+                            is InvalidEmailException -> Toast.makeText(
                                 requireActivity(), "이메일을 확인하세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.WrongPassword -> Toast.makeText(
-                                requireActivity(), "이메일이나 패스워드가 틀렸습니다",
+                            is WrongPasswordException -> Toast.makeText(
+                                requireActivity(), "암호가 틀렸습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.RequireEmail -> Toast.makeText(
-                                requireActivity(), "이메일 인증이 필요합니다",
+                            is VerifiedEmailException -> Toast.makeText(
+                                requireActivity(), "이메일 인증이 필요 합니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.BlockedRequest -> Toast.makeText(
-                                requireActivity(), "여러번 요청으로 인해 잠시 후 시도해 주세요",
+                            is BlockedRequestException -> Toast.makeText(
+                                requireActivity(), "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.FailSelect -> Toast.makeText(
-                                requireActivity(), "데이터베이스로부터 정보를 못 얻었습니다.",
+                            is FailSendEmailException -> Toast.makeText(
+                                requireActivity(), "셀렉트에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            is AuthResponse.SuccessLogIn -> {
-                                Toast.makeText(
-                                    requireActivity(), "로그인 성공",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                it.loginData.userEntity?.let {
-                                    UserSingleton.email = it.email
-                                    UserSingleton.nickname = it.nickname
-                                    UserSingleton.profileImage = it.image
-                                }
-                                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
-                            }
-                            else -> {
-                                error("구독 에러")
-                            }
+                            is UnKnownException -> Toast.makeText(
+                                requireActivity(), "알 수 없는 에러가 발생했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
-                    else -> {}
+                else -> {}
                 }
-
             }
         }
     }
-
-
 }

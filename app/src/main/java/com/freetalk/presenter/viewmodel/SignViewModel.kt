@@ -2,9 +2,7 @@ package com.freetalk.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.ImagesRequest
-import com.freetalk.data.remote.SignUpForm
-import com.freetalk.data.remote.UpdateForm
+import com.freetalk.data.remote.*
 import com.freetalk.usecase.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,24 +28,47 @@ class SignViewModel(
     suspend fun signUp(signUpForm: SignUpForm, imagesRequest: ImagesRequest?) {
         kotlin.runCatching {
             val signUpResult = signUpUseCase.signUp(signUpForm)
+
             val updateProfileResult = updateProfileImageUseCase.updateProfileImage(
                 imagesRequest,
                 UpdateForm(signUpResult.email, signUpForm.nickname, null)
             )
+
             sendEmailUseCase.sendVerifiedEmail()
-            _viewEvent.emit(ViewEvent.SignUp(UserEntity(signUpResult.email, signUpResult.nickname, updateProfileResult.image)))
+
+            _viewEvent.emit(
+                ViewEvent.SignUp(
+                    UserEntity(
+                        signUpResult.email,
+                        signUpResult.nickname,
+                        updateProfileResult.image
+                    )
+                )
+            )
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))
         }
     }
 
-    suspend fun logIn(userEntity: UserEntity) {
+    suspend fun logIn(logInForm: LogInForm) {
         kotlin.runCatching {
-            _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(userEntity)))
+            _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(logInForm)))
+        }.onFailure {
+            _viewEvent.emit(ViewEvent.Error(it))
         }
     }
 
-    suspend fun resetPassword(userEntity: UserEntity) {
-        _viewEvent.emit(ViewEvent.ResetPassword(resetPasswordUseCase.resetPassword(userEntity)))
+    suspend fun resetPassword(resetPasswordForm: ResetPasswordForm) {
+        kotlin.runCatching {
+            _viewEvent.emit(
+                ViewEvent.ResetPassword(
+                    resetPasswordUseCase.resetPassword(
+                        resetPasswordForm
+                    )
+                )
+            )
+        }.onFailure {
+            _viewEvent.emit(ViewEvent.Error(it))
+        }
     }
 }
