@@ -1,20 +1,13 @@
 package com.freetalk.data.remote
 
 import android.net.Uri
-import android.util.Log
-import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.BoardEntity
-import com.freetalk.data.entity.ImagesEntity
+import com.freetalk.data.entity.ImagesResultEntity
 import com.freetalk.data.entity.UserEntity
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.coroutines.resume
+import javax.inject.Inject
 
 
 interface BoardDataSource {
@@ -41,24 +34,17 @@ data class BoardUpdateForm(
     val editTime: Date?
 )
 
-
-data class BoardSelectData(
-    val boardList: List<BoardEntity>?,
-    val response: BoardResponse
-)
-
-
 data class BoardResponse(
     val author: UserEntity? = null,
     val title: String? = null,
     val content: String? = null,
-    val images: ImagesEntity? = null,
+    val images: ImagesResultEntity? = null,
     val createTime: Date? = null,
     val editTime: Date? = null
 )
 
 
-class FirebaseBoardRemoteDataSourceImpl(
+class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : BoardDataSource {
 
@@ -108,7 +94,7 @@ class FirebaseBoardRemoteDataSourceImpl(
 
     override suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse {
         return kotlin.runCatching {
-            FirebaseFirestore.getInstance().collection("Board")
+            database.collection("Board")
                 .whereEqualTo("author.email", boardUpdateForm.author.email)
                 .whereEqualTo("createTime", boardUpdateForm.createTime).get().await().let {
 

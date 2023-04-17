@@ -4,6 +4,7 @@ import android.util.Log
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.entity.toEntity
 import com.freetalk.data.remote.*
+import javax.inject.Inject
 
 interface UserDataRepository {
     suspend fun signUp(signUpForm: SignUpForm): UserEntity
@@ -13,7 +14,7 @@ interface UserDataRepository {
     suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity
 }
 
-class FirebaseUserDataRepositoryImpl(private val dataSource: UserDataSource): UserDataRepository{
+class FirebaseUserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource): UserDataRepository{
 
     override suspend fun signUp(signUpForm: SignUpForm): UserEntity {
         return dataSource.signUp(signUpForm).toEntity()

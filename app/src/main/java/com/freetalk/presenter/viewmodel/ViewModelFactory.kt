@@ -3,6 +3,17 @@ package com.freetalk.presenter.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.freetalk.usecase.*
+import javax.inject.Inject
+import javax.inject.Provider
+
+
+class ViewModelFactory @Inject constructor(
+    val viewModelMap: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return viewModelMap[modelClass]?.get() as T
+    }
+}
 
 
 class SignViewModelFactory(
@@ -23,11 +34,15 @@ class SignViewModelFactory(
     }
 }
 
-class BoardViewModelFactory(private val writeContentUseCase: WriteContentUseCase,
-                            private val updateImageContentUseCase: UpdateImageContentUseCase) : ViewModelProvider.Factory {
+class BoardViewModelFactory(
+    private val writeContentUseCase: WriteContentUseCase,
+    private val updateImageContentUseCase: UpdateImageContentUseCase
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
         return BoardViewModel(writeContentUseCase, updateImageContentUseCase) as T
     }
 }
+
+

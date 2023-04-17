@@ -19,14 +19,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentSignUpBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.viewmodel.*
+import com.freetalk.presenter.viewmodel.SignViewModel
+import com.freetalk.presenter.viewmodel.SignViewModelFactory
+import com.freetalk.presenter.viewmodel.ViewEvent
 import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.*
@@ -35,13 +37,19 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
-    private var inputProfileImage: Uri? = null
+
+    @Inject
+    lateinit var signViewModelFactory: ViewModelProvider.Factory
+    private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
+
+    /*
     private val signViewModel: SignViewModel by lazy {
         // dataSource
         val firebaseRemoteDataSourceImpl =
@@ -73,26 +81,30 @@ class SignUpFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
     }
 
+     */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                Log.v("BoardWriteFragment", "퍼미션 체크 실행")
+                Log.d("BoardWriteFragment", "퍼미션 체크 실행")
                 if (isGranted) {
                     // 권한이 필요한 작업 수행
                     navigateImage()
                 } else {
-                    Log.v("BoardWriteFragment", "퍼미션 허용 안됨 ")
+                    Log.d("BoardWriteFragment", "퍼미션 허용 안됨 ")
                 }
             }
 
         activityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == Activity.RESULT_OK) {
-                    it.data?.let { intent -> inputProfileImage = intent.data }
+                    it.data?.let { intent ->
+                        binding.profileImage.setImageURI(intent.data)
+                        binding.profileImage.tag = intent.data
+                    }
                 }
-                binding.profileImage.setImageURI(inputProfileImage)
             }
     }
 
@@ -138,12 +150,15 @@ class SignUpFragment : Fragment() {
                     ).show()
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            when(inputProfileImage) {
+
+                            when (binding.profileImage.tag) {
                                 null -> signViewModel.signUp(
                                     SignUpForm(inputId, inputPassword, inputNickname), null
                                 )
                                 else -> signViewModel.signUp(
-                                    SignUpForm(inputId, inputPassword, inputNickname), ImagesRequest(listOf(inputProfileImage!!)
+                                    SignUpForm(inputId, inputPassword, inputNickname),
+                                    ImagesRequest(
+                                        listOf(it.profileImage.tag as Uri)
                                     )
                                 )
                             }
@@ -159,24 +174,24 @@ class SignUpFragment : Fragment() {
                         Manifest.permission.READ_EXTERNAL_STORAGE
                     ) == PackageManager.PERMISSION_GRANTED
                     -> {
-                        Log.v("BoardWriteFragment", "권한 있음")
+                        Log.d("BoardWriteFragment", "권한 있음")
                         // 권한이 존재하는 경우
                         navigateImage()
                     }
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
                         // 권한이 거부 되어 있는 경우
-                        Log.v("BoardWriteFragment", "권한 없음")
+                        Log.d("BoardWriteFragment", "권한 없음")
                         showPermissionContextPopup()
                     }
                     else -> {
                         // 처음 권한을 시도했을 때 띄움
-                        Log.v("BoardWriteFragment", "처음 시도")
+                        Log.d("BoardWriteFragment", "처음 시도")
                         activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
                 }
             }
         }
-        subsribe()
+        subscribe()
     }
 
     private fun navigateImage() {
@@ -197,7 +212,7 @@ class SignUpFragment : Fragment() {
             .show()
     }
 
-    private fun subsribe() {
+    private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             signViewModel.viewEvent.collect {
 
@@ -253,25 +268,25 @@ class SignUpFragment : Fragment() {
     }
 
 
-private fun showProgressBar() {
-    blockLayoutTouch()
-    binding.progressBar.isVisible = true
-}
+    private fun showProgressBar() {
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
 
-private fun blockLayoutTouch() {
-    requireActivity().window?.setFlags(
-        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-    )
-}
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
 
-private fun hideProgressBar() {
-    clearBlockLayoutTouch()
-    binding.progressBar.isVisible = false
-}
+    private fun hideProgressBar() {
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
 
-private fun clearBlockLayoutTouch() {
-    requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-}
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
 
 }

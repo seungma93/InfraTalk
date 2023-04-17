@@ -7,10 +7,8 @@ import com.freetalk.data.entity.UserEntity
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.*
+import javax.inject.Inject
 
 interface UserDataSource {
     suspend fun signUp(signUpForm: SignUpForm): UserResponse
@@ -73,20 +71,6 @@ class FailSelectException(
 ) : Exception(_message)
 
 
-
-
-private fun separatedFirebaseErrorCode(errorCode: String): Exception {
-    return when (errorCode) {
-        "ERROR_INVALID_EMAIL" -> InvalidEmailException("유효하지 않은 이메일")
-        "ERROR_WRONG_PASSWORD" -> WrongPasswordException("잘못된 비밀번호")
-        "ERROR_USER_NOT_FOUND" -> NotExistEmailException("존재하지 않는 이메일")
-        "ERROR_EMAIL_ALREADY_IN_USE" -> ExistEmailException("존재하는 이메일")
-        "ERROR_WEAK_PASSWORD" -> InvalidPasswordException("잘못된 형식의 비밀번호")
-        "ERROR_TOO_MANY_REQUESTS" -> BlockedRequestException("블락된 요청")
-        else -> UnKnownException("알 수 없는 에러")
-    }
-}
-
 data class UserResponse(
     val email: String? = null,
     val nickname: String? = null,
@@ -114,10 +98,31 @@ data class ResetPasswordForm(
     val email: String
 )
 
-class FirebaseUserRemoteDataSourceImpl(
-    private val auth: FirebaseAuth, private val database: FirebaseFirestore
+class FirebaseUserRemoteDataSourceImpl @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val database: FirebaseFirestore
 ) : UserDataSource {
     private val currentUser = auth.currentUser
+    companion object {
+        const val ERROR_INVALID_EMAIL = "ERROR_INVALID_EMAIL"
+        const val ERROR_WRONG_PASSWORD = "ERROR_WRONG_PASSWORD"
+        const val ERROR_USER_NOT_FOUND = "ERROR_USER_NOT_FOUND"
+        const val ERROR_EMAIL_ALREADY_IN_USE = "ERROR_EMAIL_ALREADY_IN_USE"
+        const val ERROR_WEAK_PASSWORD = "ERROR_WEAK_PASSWORD"
+        const val ERROR_TOO_MANY_REQUESTS = "ERROR_TOO_MANY_REQUESTS"
+    }
+
+    private fun separatedFirebaseErrorCode(errorCode: String): Exception {
+        return when (errorCode) {
+            ERROR_INVALID_EMAIL -> InvalidEmailException("유효하지 않은 이메일")
+            ERROR_WRONG_PASSWORD -> WrongPasswordException("잘못된 비밀번호")
+            ERROR_USER_NOT_FOUND -> NotExistEmailException("존재하지 않는 이메일")
+            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException("존재하는 이메일")
+            ERROR_WEAK_PASSWORD -> InvalidPasswordException("잘못된 형식의 비밀번호")
+            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException("블락된 요청")
+            else -> UnKnownException("알 수 없는 에러")
+        }
+    }
 
     override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
         insertData(UserEntity(signUpForm.email, signUpForm.nickname, null))
@@ -127,9 +132,9 @@ class FirebaseUserRemoteDataSourceImpl(
 
     override suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse {
         return kotlin.runCatching {
-            FirebaseFirestore.getInstance().collection("User")
+            database.collection("User")
                 .whereEqualTo("email", updateForm.email).get().await().let {
-                it.documents[0].reference.set(updateForm).await()
+                it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
             }
             UserResponse(updateForm.email, updateForm.nickname, updateForm.image)
         }.onFailure {
@@ -156,7 +161,7 @@ class FirebaseUserRemoteDataSourceImpl(
         }.getOrThrow()
     }
 
-    private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
+     private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
         return kotlin.runCatching {
             auth.createUserWithEmailAndPassword(
                 signUpForm.email,
@@ -170,15 +175,13 @@ class FirebaseUserRemoteDataSourceImpl(
         }.getOrThrow()
     }
 
-    private suspend fun insertData(userEntity: UserEntity): DocumentReference {
+     private suspend fun insertData(userEntity: UserEntity): DocumentReference {
         return kotlin.runCatching {
             database.collection("User").add(userEntity).await()
         }.onFailure {
             throw FailInsertException("인서트에 실패 했습니다")
         }.getOrThrow()
     }
-
-
 
     override suspend fun logIn(logInForm: LogInForm): UserResponse {
 
@@ -188,16 +191,17 @@ class FirebaseUserRemoteDataSourceImpl(
                 database.collection("User")
                     .whereEqualTo("email", logInAuthResult).get()
                     .await()
-            UserResponse(
-                snapshot.documents[0].data?.get("email") as String,
-                snapshot.documents[0].data?.get("nickname") as String,
-                Uri.parse(snapshot.documents[0].data?.get("image") as String)
-            )
+             snapshot.documents.firstOrNull().let {
+                 UserResponse(
+                     it?.data?.get("email") as String,
+                     it.data?.get("nickname") as String,
+                     Uri.parse(it.data?.get("image") as String)
+                 )
+             }
         }.onFailure {
             throw FailSelectException("셀렉트 실패")
         }.getOrThrow()
     }
-
 
     private suspend fun logInAuth(logInForm: LogInForm): String {
 
@@ -226,8 +230,6 @@ class FirebaseUserRemoteDataSourceImpl(
         }.getOrThrow()
     }
 
-
-
     override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse {
 
         return kotlin.runCatching {
@@ -237,8 +239,6 @@ class FirebaseUserRemoteDataSourceImpl(
             throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
     }
-
-
 
 }
 

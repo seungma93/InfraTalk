@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
@@ -22,10 +23,16 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class ResetPasswordFragment: DialogFragment(), View.OnClickListener {
     private var _binding: FragmentDialogChangeAccountBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var signViewModelFactory: ViewModelProvider.Factory
+    private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
+    /*
     private val signViewModel: SignViewModel by lazy {
         // dataSource
         val firebaseRemoteDataSourceImpl =
@@ -56,6 +63,8 @@ class ResetPasswordFragment: DialogFragment(), View.OnClickListener {
         )
         ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
     }
+
+     */
 
     override fun onCreateView(
         inflater: LayoutInflater,

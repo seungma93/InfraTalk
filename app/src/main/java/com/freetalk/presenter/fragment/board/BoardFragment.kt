@@ -2,35 +2,47 @@ package com.freetalk.presenter.fragment.board
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.remote.BoardResponse
 import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
 import com.freetalk.data.remote.FirebaseImageRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
+import com.freetalk.di.component.DaggerBoardFragmentComponent
+import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModelFactory
 import com.freetalk.presenter.viewmodel.BoardViewState
+import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
 import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.usecase.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import javax.inject.Inject
 
 class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
     private var adapter: BoardListAdapter? = null
+
+    @Inject
+    lateinit var boardViewModelFactory: ViewModelProvider.Factory
+    private val boardViewModel: SignViewModel by viewModels { boardViewModelFactory }
+
+    /*
     private val boardViewModel: BoardViewModel by lazy {
 
         // dataSource
@@ -47,6 +59,12 @@ class BoardFragment : Fragment() {
         val updateImagesContentUseCaseImpl = UpdateImageContentUseCaseImpl(updateContentUseCaseImpl, uploadImagesUseCaseImpl)
         val factory = BoardViewModelFactory(writeContentUseCaseImpl, updateImagesContentUseCaseImpl)
         ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
+    }
+
+     */
+    override fun onAttach(context: Context) {
+        DaggerBoardFragmentComponent.factory().create(context).inject(this)
+        super.onAttach(context)
     }
 
     override fun onCreateView(

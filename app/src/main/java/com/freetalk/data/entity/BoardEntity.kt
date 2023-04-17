@@ -11,7 +11,7 @@ data class BoardEntity (
     val author: UserEntity = UserEntity("", "", Uri.parse("")),
     val title: String = "",
     val content: String = "",
-    val images: ImagesEntity? = null,
+    val images: ImagesResultEntity? = null,
     val createTime: Date = Date(),
     val editTime: Date? = null,
     )
@@ -21,7 +21,7 @@ fun BoardResponse.toEntity(): BoardEntity {
         author = author ?: UserEntity("", "", Uri.parse("")),
         title = title.orEmpty(),
         content = content.orEmpty(),
-        images = images ?: ImagesEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
+        images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
         createTime = createTime ?: Date(),
         editTime = editTime ?: Date()
 
