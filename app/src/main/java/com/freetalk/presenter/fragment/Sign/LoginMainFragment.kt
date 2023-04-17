@@ -1,31 +1,34 @@
 package com.freetalk.presenter.fragment.Sign
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentLoginMainBinding
+import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.*
-import com.freetalk.repository.FirebaseImageDataRepositoryImpl
-import com.freetalk.repository.FirebaseUserDataRepositoryImpl
 import com.freetalk.usecase.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class LoginMainFragment : Fragment() {
     private var _binding: FragmentLoginMainBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var signViewModelFactory: ViewModelProvider.Factory
+    private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
+/*
     private val signViewModel: SignViewModel by lazy {
         // dataSource
         val firebaseRemoteDataSourceImpl =
@@ -55,6 +58,12 @@ class LoginMainFragment : Fragment() {
             resetPasswordUseCaseImpl
         )
         ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
+    }
+ */
+
+    override fun onAttach(context: Context) {
+        DaggerSignFragmentComponent.factory().create(context).inject(this)
+        super.onAttach(context)
     }
 
     override fun onCreateView(

@@ -7,6 +7,7 @@ import com.freetalk.usecase.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import javax.inject.Inject
 
 sealed class ViewEvent {
     data class SignUp(val userEntity: UserEntity) : ViewEvent()
@@ -15,7 +16,7 @@ sealed class ViewEvent {
     data class Error(val errorCode: Throwable) : ViewEvent()
 }
 
-class SignViewModel(
+class SignViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,

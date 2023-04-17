@@ -1,16 +1,16 @@
 package com.freetalk.usecase
 
-import com.freetalk.data.entity.ImagesEntity
+import com.freetalk.data.entity.ImagesResultEntity
 import com.freetalk.data.remote.ImagesRequest
 import com.freetalk.repository.ImageDataRepository
-import java.security.PrivilegedAction
+import javax.inject.Inject
 
 interface UploadImagesUseCase {
-    suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesEntity
+    suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResultEntity
 }
 
-class UploadImagesUseCaseImpl(val repository: ImageDataRepository): UploadImagesUseCase{
-    override suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesEntity {
+class UploadImagesUseCaseImpl @Inject constructor(val repository: ImageDataRepository): UploadImagesUseCase{
+    override suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResultEntity {
         return repository.uploadImages(imagesRequest)
     }
 

@@ -3,12 +3,12 @@ package com.freetalk.presenter.viewmodel
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.BoardInsetForm
-import com.freetalk.data.remote.BoardSelectData
 import com.freetalk.data.remote.BoardUpdateForm
 import com.freetalk.data.remote.ImagesRequest
 import com.freetalk.usecase.UpdateImageContentUseCase
 import com.freetalk.usecase.WriteContentUseCase
 import kotlinx.coroutines.flow.*
+import javax.inject.Inject
 
 sealed class BoardViewEvent {
     data class Insert(val boardEntity: BoardEntity) : BoardViewEvent()
@@ -16,12 +16,12 @@ sealed class BoardViewEvent {
 }
 
 sealed class BoardViewState {
-    data class Select(val boardSelectData: BoardSelectData?) : BoardViewState()
+    //data class Select(val boardSelectData: BoardSelectData?) : BoardViewState()
     data class Error(val errorCode: Throwable) : BoardViewState()
 }
 
 
-class BoardViewModel(
+class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
     private val updateImageContentUseCase: UpdateImageContentUseCase
 ) : ViewModel() {

@@ -19,12 +19,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardWriteBinding
+import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardWriteAdapter
@@ -37,6 +39,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 class BoardWriteFragment : Fragment() {
     private var _binding: FragmentBoardWriteBinding? = null
@@ -45,6 +48,12 @@ class BoardWriteFragment : Fragment() {
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var adapter: BoardWriteAdapter? = null
     private val imgList = mutableListOf<Uri>()
+
+    @Inject
+    lateinit var boardViewModelFactory: ViewModelProvider.Factory
+    private val boardViewModel: BoardViewModel by viewModels { boardViewModelFactory }
+
+/*
     private val boardViewModel: BoardViewModel by lazy {
 
         // dataSource
@@ -63,9 +72,11 @@ class BoardWriteFragment : Fragment() {
         ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
     }
 
+ */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
+        DaggerBoardFragmentComponent.factory().create(context).inject(this)
         activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 Log.v("BoardWriteFragment", "퍼미션 체크 실행")

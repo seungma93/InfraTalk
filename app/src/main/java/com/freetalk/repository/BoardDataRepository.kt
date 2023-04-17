@@ -4,6 +4,7 @@ import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.entity.toEntity
 import com.freetalk.data.remote.*
+import javax.inject.Inject
 
 interface BoardDataRepository {
     suspend fun insert(boardInsertForm: BoardInsetForm): BoardEntity
@@ -11,7 +12,7 @@ interface BoardDataRepository {
     suspend fun update(boardUpdateForm: BoardUpdateForm): BoardEntity
 }
 
-class FirebaseBoardDataRepositoryImpl(private val dataSource: BoardDataSource): BoardDataRepository{
+class FirebaseBoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource): BoardDataRepository{
     override suspend fun insert(boardInsertForm: BoardInsetForm): BoardEntity {
         return dataSource.insertContent(boardInsertForm).toEntity()
     }

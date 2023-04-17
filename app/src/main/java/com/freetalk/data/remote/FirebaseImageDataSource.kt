@@ -9,6 +9,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 interface ImageDataSource {
     suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResponse
@@ -23,7 +24,7 @@ data class ImagesResponse(
     val failUris: List<Uri>
 )
 
-class FirebaseImageRemoteDataSourceImpl(
+class FirebaseImageRemoteDataSourceImpl @Inject constructor(
     private val storage: FirebaseStorage
 ) : ImageDataSource {
     private val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())

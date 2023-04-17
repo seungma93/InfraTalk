@@ -7,12 +7,13 @@ import com.freetalk.data.remote.BoardUpdateForm
 import com.freetalk.data.remote.ImagesRequest
 import com.freetalk.repository.BoardDataRepository
 import com.freetalk.repository.ImageDataRepository
+import javax.inject.Inject
 
 interface UpdateImageContentUseCase {
     suspend fun updateImageContent(boardUpdateForm: BoardUpdateForm): BoardEntity
 }
 
-class UpdateImageContentUseCaseImpl(
+class UpdateImageContentUseCaseImpl @Inject constructor(
     private val updateContentUseCase: UpdateContentUseCase,
     private val uploadImagesUseCase: UploadImagesUseCase
 ): UpdateImageContentUseCase{
