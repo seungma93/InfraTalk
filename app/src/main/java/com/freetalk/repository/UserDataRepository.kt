@@ -17,6 +17,7 @@ interface UserDataRepository {
 class FirebaseUserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource): UserDataRepository{
 
     override suspend fun signUp(signUpForm: SignUpForm): UserEntity {
+        Log.d("UserDataR", "시작")
         return dataSource.signUp(signUpForm).toEntity()
     }
 

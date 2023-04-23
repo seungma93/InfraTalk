@@ -125,6 +125,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
+        Log.d("FirebaseUserData", "시작")
         insertData(UserEntity(signUpForm.email, signUpForm.nickname, null))
         val createAuthResult = createAuth(signUpForm)
         return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
@@ -177,6 +178,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
      private suspend fun insertData(userEntity: UserEntity): DocumentReference {
         return kotlin.runCatching {
+            Log.d("insertData", "시작")
             database.collection("User").add(userEntity).await()
         }.onFailure {
             throw FailInsertException("인서트에 실패 했습니다")

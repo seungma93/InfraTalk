@@ -19,9 +19,9 @@ class UpdateImageContentUseCaseImpl @Inject constructor(
 ): UpdateImageContentUseCase{
     override suspend fun updateImageContent(boardUpdateForm: BoardUpdateForm): BoardEntity {
 
-        return when(boardUpdateForm.images.isEmpty()){
-            true -> updateContentUseCase.updateContent(boardUpdateForm)
-            false -> {
+        return when(boardUpdateForm.images){
+            null -> updateContentUseCase.updateContent(boardUpdateForm)
+            else -> {
                 val uploadImagesResult = uploadImagesUseCase.uploadImages(ImagesRequest(boardUpdateForm.images))
 
                 val boardImageUpdateForm = BoardUpdateForm(
