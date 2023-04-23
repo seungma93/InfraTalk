@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentSignUpBinding
+import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.SignViewModel
@@ -84,6 +85,7 @@ class SignUpFragment : Fragment() {
      */
 
     override fun onAttach(context: Context) {
+        DaggerSignFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
         activityResultLauncher =
@@ -150,23 +152,30 @@ class SignUpFragment : Fragment() {
                     ).show()
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-
+                            showProgressBar()
                             when (binding.profileImage.tag) {
-                                null -> signViewModel.signUp(
-                                    SignUpForm(inputId, inputPassword, inputNickname), null
-                                )
-                                else -> signViewModel.signUp(
-                                    SignUpForm(inputId, inputPassword, inputNickname),
-                                    ImagesRequest(
-                                        listOf(it.profileImage.tag as Uri)
+                                null -> {
+                                    Log.d("SignUpF", "사진 x")
+                                    signViewModel.signUp(
+                                        SignUpForm(inputId, inputPassword, inputNickname), null
                                     )
-                                )
+                                }
+                                else -> {
+                                    Log.d("SignUpF", "사진 o")
+                                    signViewModel.signUp(
+                                        SignUpForm(inputId, inputPassword, inputNickname),
+                                        ImagesRequest(
+                                            listOf(it.profileImage.tag as Uri)
+                                        )
+                                    )
+                                }
                             }
 
                         }
                     }
                 }
             }
+
             it.profileImage.setOnClickListener {
                 when {
                     ContextCompat.checkSelfPermission(
@@ -191,6 +200,7 @@ class SignUpFragment : Fragment() {
                 }
             }
         }
+
         subscribe()
     }
 
@@ -218,6 +228,7 @@ class SignUpFragment : Fragment() {
 
                 when (it) {
                     is ViewEvent.SignUp -> {
+                        hideProgressBar()
                         Toast.makeText(
                             requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
                             Toast.LENGTH_SHORT
@@ -225,6 +236,7 @@ class SignUpFragment : Fragment() {
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain(1))
                     }
                     is ViewEvent.Error -> {
+                        hideProgressBar()
                         when (it.errorCode) {
                             is InvalidPasswordException ->
                                 Toast.makeText(

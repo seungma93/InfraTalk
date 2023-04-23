@@ -40,6 +40,10 @@ class BoardWriteAdapter(
         notifyDataSetChanged()
     }
 
+    fun getItems(): List<Uri> {
+        return datalist
+    }
+
 
     class ViewHolder(private val binding: BoardWriteImageItemBinding,
                      private val itemClick: (Uri) -> Unit) :

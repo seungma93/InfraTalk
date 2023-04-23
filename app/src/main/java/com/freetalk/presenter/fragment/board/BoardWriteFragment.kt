@@ -47,7 +47,7 @@ class BoardWriteFragment : Fragment() {
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var adapter: BoardWriteAdapter? = null
-    private val imgList = mutableListOf<Uri>()
+
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
@@ -88,30 +88,32 @@ class BoardWriteFragment : Fragment() {
                 }
             }
 
-        activityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        activityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
-            if (it.resultCode == RESULT_OK) {
-                imgList.clear()
-                it.data?.let {
-                    it.clipData?.let { clipData ->
-                        val count = clipData.itemCount
-                        if (count > 10) {
-                            Toast.makeText(
-                                requireActivity(),
-                                "사진은 10장까지만 가능합니다.",
-                                Toast.LENGTH_LONG
-                            ).show();
-                        } else {
-                            (0 until count).forEach {
-                                val uri = clipData.getItemAt(it).uri
-                                imgList.add(uri)
+                if (it.resultCode == RESULT_OK) {
+                    val imgList = mutableListOf<Uri>()
+                    it.data?.let {
+                        it.clipData?.let { clipData ->
+                            val count = clipData.itemCount
+                            if (count > 10) {
+                                Toast.makeText(
+                                    requireActivity(),
+                                    "사진은 10장까지만 가능합니다.",
+                                    Toast.LENGTH_LONG
+                                ).show();
+                            } else {
+
+                                (0 until count).forEach {
+                                    val uri = clipData.getItemAt(it).uri
+                                    imgList.add(uri)
+                                }
                             }
-                        }
-                    } ?: it.data?.let { uri -> imgList.add(uri) }
+                        } ?: it.data?.let { uri -> imgList.add(uri) }
+                    }
+                    adapter?.setItems(imgList)
                 }
-                adapter?.setItems(imgList)
             }
-        }
     }
 
 
@@ -127,8 +129,8 @@ class BoardWriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = BoardWriteAdapter {
-        }
+        adapter = BoardWriteAdapter {}
+
         binding.apply {
             btnUploadImage.setOnClickListener {
                 when {
@@ -172,19 +174,44 @@ class BoardWriteFragment : Fragment() {
                     }
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            val boardInsertForm = BoardInsetForm(author = UserSingleton.userEntity,
-                                title = binding.titleEditText.text.toString(),
-                                content = binding.contextEditText.text.toString(),
-                                createTime = Date(System.currentTimeMillis()),
-                                editTime = null
-                            )
-                            Log.d("boardWriteFragment", boardInsertForm.createTime.toString())
-                            boardViewModel.insert(boardInsertForm, ImagesRequest(imgList))
-                        }
-
+                            showProgressBar()
+                            when (adapter!!.getItems().isEmpty()) {
+                                true -> {
+                                    val boardInsertForm = BoardInsetForm(
+                                        author = UserSingleton.userEntity,
+                                        title = binding.titleEditText.text.toString(),
+                                        content = binding.contextEditText.text.toString(),
+                                        createTime = Date(System.currentTimeMillis()),
+                                        editTime = null
+                                    )
+                                    Log.d(
+                                        "boardWriteFragment",
+                                        boardInsertForm.createTime.toString()
+                                    )
+                                    boardViewModel.insert(boardInsertForm, null)
+                                }
+                                false -> {
+                                    val boardInsertForm = BoardInsetForm(
+                                        author = UserSingleton.userEntity,
+                                        title = binding.titleEditText.text.toString(),
+                                        content = binding.contextEditText.text.toString(),
+                                        createTime = Date(System.currentTimeMillis()),
+                                        editTime = null
+                                    )
+                                    Log.d(
+                                        "boardWriteFragment",
+                                        boardInsertForm.createTime.toString()
+                                    )
+                                    boardViewModel.insert(
+                                        boardInsertForm,
+                                        ImagesRequest(adapter!!.getItems())
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+            }
 
             recyclerviewImage.adapter = adapter
             subscribe()
@@ -195,9 +222,12 @@ class BoardWriteFragment : Fragment() {
         blockLayoutTouch()
         binding.progressBar.isVisible = true
     }
+
     private fun blockLayoutTouch() {
-        requireActivity().window?.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
     }
 
     private fun hideProgressBar() {
@@ -211,21 +241,23 @@ class BoardWriteFragment : Fragment() {
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    boardViewModel.viewEvent.collect {
-                        when(it) {
-                            is BoardViewEvent.Insert -> {
-                                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
-                                }
-                            is BoardViewEvent.Error -> {
-                                when(it.errorCode) {
-                                    is FailInsertException -> Toast.makeText(
-                                        requireActivity(), "인서트에 실패 했습니다",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
+            boardViewModel.viewEvent.collect {
+                when (it) {
+                    is BoardViewEvent.Insert -> {
+                        hideProgressBar()
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                    }
+                    is BoardViewEvent.Error -> {
+                        hideProgressBar()
+                        when (it.errorCode) {
+                            is FailInsertException -> Toast.makeText(
+                                requireActivity(), "인서트에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
+                }
+            }
         }
     }
 

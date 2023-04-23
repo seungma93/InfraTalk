@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -96,6 +98,7 @@ class LoginMainFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     else -> {
+                        showProgressBar()
                         viewLifecycleOwner.lifecycleScope.launch {
                             signViewModel.logIn(LogInForm(inputId, inputPassword))
                         }
@@ -110,18 +113,40 @@ class LoginMainFragment : Fragment() {
         subsribe()
     }
 
+    private fun showProgressBar() {
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideProgressBar() {
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
 
     private fun subsribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             signViewModel.viewEvent.collect {
                 when(it) {
                     is ViewEvent.LogIn -> {
+                        hideProgressBar()
                         it.userEntity?.let { userEntity ->
                             UserSingleton.userEntity = userEntity
                         }
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
                     }
                     is ViewEvent.Error -> {
+                        hideProgressBar()
                         when(it.errorCode) {
                             is NotExistEmailException -> Toast.makeText(
                                 requireActivity(), "등록된 이메일이 없습니다",

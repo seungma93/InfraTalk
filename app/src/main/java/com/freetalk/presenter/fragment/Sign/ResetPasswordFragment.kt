@@ -1,5 +1,6 @@
 package com.freetalk.presenter.fragment.Sign
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
+import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.viewmodel.*
 import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.repository.FirebaseUserDataRepositoryImpl
@@ -65,6 +67,11 @@ class ResetPasswordFragment: DialogFragment(), View.OnClickListener {
     }
 
      */
+
+    override fun onAttach(context: Context) {
+        DaggerSignFragmentComponent.factory().create(context).inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

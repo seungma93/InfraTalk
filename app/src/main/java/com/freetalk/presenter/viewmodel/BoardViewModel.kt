@@ -30,14 +30,14 @@ class BoardViewModel @Inject constructor(
     private val _viewState = MutableStateFlow<BoardViewState?>(null)
     val viewState: StateFlow<BoardViewState?> = _viewState.asStateFlow()
 
-    suspend fun insert(boardInsertForm: BoardInsetForm, imagesRequest: ImagesRequest) {
+    suspend fun insert(boardInsertForm: BoardInsetForm, imagesRequest: ImagesRequest?) {
         kotlin.runCatching {
             val writeContentUseCaseResult = writeContentUseCase.insert(boardInsertForm)
             val boardUpdateForm = BoardUpdateForm(
                 writeContentUseCaseResult.author,
                 writeContentUseCaseResult.title,
                 writeContentUseCaseResult.content,
-                imagesRequest.imageUris,
+                imagesRequest?.imageUris,
                 writeContentUseCaseResult.createTime,
                 null
             )

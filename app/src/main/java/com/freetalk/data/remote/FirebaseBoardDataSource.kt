@@ -29,7 +29,7 @@ data class BoardUpdateForm(
     val author: UserEntity,
     val title: String,
     val content: String?,
-    val images: List<Uri>,
+    val images: List<Uri>?,
     val createTime: Date,
     val editTime: Date?
 )

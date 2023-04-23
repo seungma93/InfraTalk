@@ -29,7 +29,6 @@ class SignViewModel @Inject constructor(
     suspend fun signUp(signUpForm: SignUpForm, imagesRequest: ImagesRequest?) {
         kotlin.runCatching {
             val signUpResult = signUpUseCase.signUp(signUpForm)
-
             val updateProfileResult = updateProfileImageUseCase.updateProfileImage(
                 imagesRequest,
                 UpdateForm(signUpResult.email, signUpForm.nickname, null)
