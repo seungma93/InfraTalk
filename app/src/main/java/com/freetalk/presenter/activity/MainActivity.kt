@@ -15,14 +15,14 @@ import com.freetalk.presenter.fragment.home.HomeFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
 
 sealed class EndPoint {
-    data class LoginMain(val token: Int) : EndPoint()
-    data class SignUp(val token: Int): EndPoint()
-    data class Main(val token: Int): EndPoint()
-    data class Home(val token: Int): EndPoint()
-    data class Board(val token: Int): EndPoint()
-    data class Chat(val token: Int): EndPoint()
-    data class MyPage(val token: Int): EndPoint()
-    data class BoardWrite(val token: Int): EndPoint()
+    object LoginMain : EndPoint()
+    object SignUp : EndPoint()
+    object Main: EndPoint()
+    object Home : EndPoint()
+    object Board : EndPoint()
+    object Chat : EndPoint()
+    object MyPage : EndPoint()
+    object BoardWrite : EndPoint()
     object Error : EndPoint()
 }
 
@@ -38,7 +38,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        navigateFragment(EndPoint.LoginMain(1))
+        navigateFragment(EndPoint.LoginMain)
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {

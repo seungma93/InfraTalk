@@ -28,15 +28,7 @@ import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.SignViewModel
-import com.freetalk.presenter.viewmodel.SignViewModelFactory
 import com.freetalk.presenter.viewmodel.ViewEvent
-import com.freetalk.repository.FirebaseImageDataRepositoryImpl
-import com.freetalk.repository.FirebaseUserDataRepositoryImpl
-import com.freetalk.usecase.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -233,7 +225,7 @@ class SignUpFragment : Fragment() {
                             requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
                             Toast.LENGTH_SHORT
                         ).show()
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain)
                     }
                     is ViewEvent.Error -> {
                         hideProgressBar()

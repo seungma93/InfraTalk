@@ -71,26 +71,26 @@ class Modules {
     }
 
     @Module
-    class FirebaseBoardDataRepositoryModule {
+    class BoardDataRepositoryModule {
         @Provides
         fun providesFirebaseBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
-            return FirebaseBoardDataRepositoryImpl(dataSource)
+            return BoardDataRepositoryImpl(dataSource)
         }
     }
 
     @Module
-    class FirebaseImageDataRepositoryModule {
+    class ImageDataRepositoryModule {
         @Provides
         fun providesFirebaseImageDataRepository(dataSource: ImageDataSource): ImageDataRepository {
-            return FirebaseImageDataRepositoryImpl(dataSource)
+            return ImageDataRepositoryImpl(dataSource)
         }
     }
 
     @Module
-    class FirebaseUserDataRepositoryModule {
+    class UserDataRepositoryModule {
         @Provides
         fun providesFirebaseUserDataRepository(dataSource: UserDataSource): UserDataRepository {
-            return FirebaseUserDataRepositoryImpl(dataSource)
+            return UserDataRepositoryImpl(dataSource)
         }
     }
 

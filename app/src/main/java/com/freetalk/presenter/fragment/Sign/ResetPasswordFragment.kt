@@ -12,18 +12,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.*
+import com.freetalk.data.remote.FailSendEmailException
+import com.freetalk.data.remote.ResetPasswordForm
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
 import com.freetalk.di.component.DaggerSignFragmentComponent
-import com.freetalk.presenter.viewmodel.*
-import com.freetalk.repository.FirebaseImageDataRepositoryImpl
-import com.freetalk.repository.FirebaseUserDataRepositoryImpl
-import com.freetalk.usecase.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
+import com.freetalk.presenter.viewmodel.SignViewModel
+import com.freetalk.presenter.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

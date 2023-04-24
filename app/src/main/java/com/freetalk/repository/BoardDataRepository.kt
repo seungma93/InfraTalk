@@ -12,7 +12,7 @@ interface BoardDataRepository {
     suspend fun update(boardUpdateForm: BoardUpdateForm): BoardEntity
 }
 
-class FirebaseBoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource): BoardDataRepository{
+class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource): BoardDataRepository{
     override suspend fun insert(boardInsertForm: BoardInsetForm): BoardEntity {
         return dataSource.insertContent(boardInsertForm).toEntity()
     }
