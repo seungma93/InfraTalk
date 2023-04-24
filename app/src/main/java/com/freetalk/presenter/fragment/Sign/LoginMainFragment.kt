@@ -81,7 +81,7 @@ class LoginMainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
             btnSignUp.setOnClickListener {
-                val signUpEndPoint = EndPoint.SignUp(1)
+                val signUpEndPoint = EndPoint.SignUp
                 (requireActivity() as? Navigable)?.navigateFragment(signUpEndPoint)
             }
             btnLogin.setOnClickListener {
@@ -107,7 +107,7 @@ class LoginMainFragment : Fragment() {
             }
             btnFindAccount.setOnClickListener {
                 val dialogFragment = ResetPasswordFragment()
-                dialogFragment.show(requireActivity().supportFragmentManager, "CustomDialog")
+                dialogFragment.show(childFragmentManager, "CustomDialog")
             }
         }
         subsribe()
@@ -143,7 +143,7 @@ class LoginMainFragment : Fragment() {
                         it.userEntity?.let { userEntity ->
                             UserSingleton.userEntity = userEntity
                         }
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }
                     is ViewEvent.Error -> {
                         hideProgressBar()

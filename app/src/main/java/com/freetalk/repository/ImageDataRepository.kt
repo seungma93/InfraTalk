@@ -13,7 +13,7 @@ interface ImageDataRepository {
     suspend fun deleteImage()
 }
 
-class FirebaseImageDataRepositoryImpl @Inject constructor(private val dataSource: ImageDataSource): ImageDataRepository {
+class ImageDataRepositoryImpl @Inject constructor(private val dataSource: ImageDataSource): ImageDataRepository {
     override suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResultEntity {
         return dataSource.uploadImages(imagesRequest).toEntity()
     }
