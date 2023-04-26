@@ -16,6 +16,7 @@ interface UserDataSource {
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
+    suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
 }
 
 class InvalidEmailException(
@@ -70,6 +71,9 @@ class FailSelectException(
     val _message: String
 ) : Exception(_message)
 
+class FailDeleteException(
+    val _message: String
+) : Exception(_message)
 
 data class UserResponse(
     val email: String? = null,
@@ -103,6 +107,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : UserDataSource {
     private val currentUser = auth.currentUser
+
     companion object {
         const val ERROR_INVALID_EMAIL = "ERROR_INVALID_EMAIL"
         const val ERROR_WRONG_PASSWORD = "ERROR_WRONG_PASSWORD"
@@ -135,8 +140,8 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         return kotlin.runCatching {
             database.collection("User")
                 .whereEqualTo("email", updateForm.email).get().await().let {
-                it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
-            }
+                    it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
+                }
             UserResponse(updateForm.email, updateForm.nickname, updateForm.image)
         }.onFailure {
             throw FailUpdatetException("업데이트 실패")
@@ -149,20 +154,35 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
                 UserResponse(currentUser.email, null, null)
-            } ?: run {Log.d("UserDataSource" ,"알 수 없는1")
+            } ?: run {
+                Log.d("UserDataSource", "알 수 없는1")
                 throw UnKnownException("알 수 없는 에러")
             }
         }.onFailure {
             when (it) {
                 is FirebaseAuthException -> throw FailSendEmailException("메일 발송 실패")
-                else -> {Log.d("UserDataSource" ,"알 수 없는2")
+                else -> {
+                    Log.d("UserDataSource", "알 수 없는2")
                     throw UnKnownException("알 수 없는 에러")
                 }
             }
         }.getOrThrow()
     }
 
-     private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
+    override suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse {
+        return kotlin.runCatching {
+            Log.d("insertData", "시작")
+            database.collection("User")
+                .whereEqualTo("email", signUpForm.email).get().await().let {
+                    it.documents.firstOrNull()?.reference?.delete()?.await()
+                }
+            UserResponse(signUpForm.email, null, null)
+        }.onFailure {
+            throw FailDeleteException("딜리트에 실패 했습니다")
+        }.getOrThrow()
+    }
+
+    private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
         return kotlin.runCatching {
             auth.createUserWithEmailAndPassword(
                 signUpForm.email,
@@ -176,7 +196,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-     private suspend fun insertData(userEntity: UserEntity): DocumentReference {
+    private suspend fun insertData(userEntity: UserEntity): DocumentReference {
         return kotlin.runCatching {
             Log.d("insertData", "시작")
             database.collection("User").add(userEntity).await()
@@ -188,18 +208,18 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     override suspend fun logIn(logInForm: LogInForm): UserResponse {
 
         val logInAuthResult = logInAuth(logInForm)
-         return kotlin.runCatching {
+        return kotlin.runCatching {
             val snapshot =
                 database.collection("User")
                     .whereEqualTo("email", logInAuthResult).get()
                     .await()
-             snapshot.documents.firstOrNull().let {
-                 UserResponse(
-                     it?.data?.get("email") as String,
-                     it.data?.get("nickname") as String,
-                     Uri.parse(it.data?.get("image") as String)
-                 )
-             }
+            snapshot.documents.firstOrNull().let {
+                UserResponse(
+                    it?.data?.get("email") as String,
+                    it.data?.get("nickname") as String,
+                    Uri.parse(it.data?.get("image") as String)
+                )
+            }
         }.onFailure {
             throw FailSelectException("셀렉트 실패")
         }.getOrThrow()
@@ -207,25 +227,26 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     private suspend fun logInAuth(logInForm: LogInForm): String {
 
-         return kotlin.runCatching {
+        return kotlin.runCatching {
             auth.signInWithEmailAndPassword(logInForm.email, logInForm.password).await()
-             Log.d("UserDataSource" ,currentUser?.email.toString())
+            Log.d("UserDataSource", currentUser?.email.toString())
             currentUser?.let {
                 when (it.isEmailVerified) {
                     true -> it.email
                     false -> {
-                        Log.d("UserDataSource" ,"로그인 1")
+                        Log.d("UserDataSource", "로그인 1")
                         throw VerifiedEmailException("이메일 인증이 필요 합니다")
                     }
                 }
-            } ?: run {Log.d("UserDataSource" ,"로그인 2")
+            } ?: run {
+                Log.d("UserDataSource", "로그인 2")
                 throw UnKnownException("알 수 없는 에러")
             }
         }.onFailure {
             when (it) {
                 is VerifiedEmailException -> throw VerifiedEmailException("이메일 인증이 필요 합니다")
                 else -> {
-                    Log.d("UserDataSource" ,"로그인 3")
+                    Log.d("UserDataSource", "로그인 3")
                     throw UnKnownException("알 수 없는 에러")
                 }
             }

@@ -21,7 +21,8 @@ class SignViewModel @Inject constructor(
     private val sendEmailUseCase: SendEmailUseCase,
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val logInUseCase: LogInUseCase,
-    private val resetPasswordUseCase: ResetPasswordUseCase
+    private val resetPasswordUseCase: ResetPasswordUseCase,
+    private val deleteUserInfoUseCase: DeleteUserInfoUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ViewEvent>()
     val viewEvent: SharedFlow<ViewEvent> = _viewEvent.asSharedFlow()
@@ -46,6 +47,7 @@ class SignViewModel @Inject constructor(
                 )
             )
         }.onFailure {
+            deleteUserInfoUseCase.deleteUserInfo(signUpForm)
             _viewEvent.emit(ViewEvent.Error(it))
         }
     }

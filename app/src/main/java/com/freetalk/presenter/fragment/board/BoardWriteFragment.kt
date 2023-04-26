@@ -23,7 +23,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.UserSingleton
-import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardWriteBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
@@ -31,12 +30,7 @@ import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardWriteAdapter
 import com.freetalk.presenter.viewmodel.*
-import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
-import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.usecase.*
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -245,7 +239,7 @@ class BoardWriteFragment : Fragment() {
                 when (it) {
                     is BoardViewEvent.Insert -> {
                         hideProgressBar()
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board)
                     }
                     is BoardViewEvent.Error -> {
                         hideProgressBar()

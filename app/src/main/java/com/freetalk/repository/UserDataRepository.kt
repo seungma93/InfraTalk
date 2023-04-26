@@ -5,6 +5,7 @@ import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.entity.toEntity
 import com.freetalk.data.remote.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface UserDataRepository {
     suspend fun signUp(signUpForm: SignUpForm): UserEntity
@@ -12,6 +13,7 @@ interface UserDataRepository {
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserEntity
     suspend fun sendVerifiedEmail(): UserEntity
     suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity
+    suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity
 }
 
 class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource): UserDataRepository{
@@ -36,5 +38,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
 
     override suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity {
         return dataSource.updateUserInfo(updateForm).toEntity()
+    }
+
+    override suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity {
+        return dataSource.deleteUserInfo(signUpForm).toEntity()
     }
 }

@@ -4,7 +4,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,25 +11,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.remote.BoardResponse
-import com.freetalk.data.remote.FirebaseBoardRemoteDataSourceImpl
-import com.freetalk.data.remote.FirebaseImageRemoteDataSourceImpl
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
-import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
-import com.freetalk.presenter.viewmodel.BoardViewModel
-import com.freetalk.presenter.viewmodel.BoardViewModelFactory
-import com.freetalk.presenter.viewmodel.BoardViewState
 import com.freetalk.presenter.viewmodel.SignViewModel
-import com.freetalk.repository.FirebaseBoardDataRepositoryImpl
-import com.freetalk.repository.FirebaseImageDataRepositoryImpl
 import com.freetalk.usecase.*
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import javax.inject.Inject
 
 class BoardFragment : Fragment() {
@@ -85,7 +72,7 @@ class BoardFragment : Fragment() {
                 isFabOpen = toggleFab(isFabOpen)
             }
             btnFabWrite.setOnClickListener {
-                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.BoardWrite(1))
+                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.BoardWrite)
                 toggleFab(true)
             }
             recyclerviewBoardList.adapter = adapter
