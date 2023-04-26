@@ -181,9 +181,17 @@ class Modules {
     }
 
     @Module
+    class DeleteUserInfoUseCaseModule {
+        @Provides
+        fun providesDeleteUserInfoUseCase(repository: UserDataRepository): DeleteUserInfoUseCase {
+            return DeleteUserInfoUseCaseImpl(repository)
+        }
+    }
+
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
-        abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory) : ViewModelProvider.Factory
+        abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
     }
 
     @Module
@@ -209,9 +217,17 @@ class Modules {
             sendEmailUseCase: SendEmailUseCase,
             updateProfileImageUseCase: UpdateProfileImageUseCase,
             logInUseCase: LogInUseCase,
-            resetPasswordUseCase: ResetPasswordUseCase
+            resetPasswordUseCase: ResetPasswordUseCase,
+            deleteUserInfoUseCase: DeleteUserInfoUseCase
         ): ViewModel {
-            return SignViewModel(signUpUseCase, sendEmailUseCase, updateProfileImageUseCase, logInUseCase, resetPasswordUseCase)
+            return SignViewModel(
+                signUpUseCase,
+                sendEmailUseCase,
+                updateProfileImageUseCase,
+                logInUseCase,
+                resetPasswordUseCase,
+                deleteUserInfoUseCase
+            )
         }
     }
 }

@@ -20,7 +20,8 @@ class SignViewModelFactory(
     private val signUpUseCase: SignUpUseCase, private val sendEmailUseCase: SendEmailUseCase,
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val logInUseCase: LogInUseCase,
-    private val resetPasswordUseCase: ResetPasswordUseCase
+    private val resetPasswordUseCase: ResetPasswordUseCase,
+    private val deleteUserInfoUseCase: DeleteUserInfoUseCase
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -29,7 +30,8 @@ class SignViewModelFactory(
             sendEmailUseCase,
             updateProfileImageUseCase,
             logInUseCase,
-            resetPasswordUseCase
+            resetPasswordUseCase,
+            deleteUserInfoUseCase
         ) as T
     }
 }

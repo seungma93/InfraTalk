@@ -34,16 +34,16 @@ class MainFragment : Fragment() {
                 when(it.itemId) {
                     R.id.home_fragment -> {
                         Log.v("MainFragment", "홈 버튼 클릭")
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Home(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Home)
                     }
                     R.id.board_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board)
                     }
                     R.id.chat_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Chat(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Chat)
                     }
                     R.id.my_page_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.MyPage(1))
+                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.MyPage)
                     }
                 }
                 true
