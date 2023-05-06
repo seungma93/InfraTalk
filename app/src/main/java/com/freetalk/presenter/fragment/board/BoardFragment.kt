@@ -4,30 +4,38 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
+import com.freetalk.presenter.viewmodel.BoardViewModel
+import com.freetalk.presenter.viewmodel.BoardViewState
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.usecase.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
     private var adapter: BoardListAdapter? = null
+    private val onScrollListener: RecyclerView.OnScrollListener = OnScrollListener()
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
-    private val boardViewModel: SignViewModel by viewModels { boardViewModelFactory }
+    private val boardViewModel: BoardViewModel by viewModels { boardViewModelFactory }
 
     /*
     private val boardViewModel: BoardViewModel by lazy {
@@ -66,7 +74,7 @@ class BoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var isFabOpen = false
-        adapter = BoardListAdapter {  }
+        adapter = BoardListAdapter {}
         binding.apply {
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
@@ -79,26 +87,28 @@ class BoardFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-           // boardViewModel.select()
+            boardViewModel.select(null)
         }
-        //subscribe()
+        subscribe()
+        initScrollListener()
     }
-/*
+
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
-                when(it) {
+                when (it) {
                     is BoardViewState.Select -> {
-                        when(it.boardSelectData?.response) {
-                            is BoardResponse.SelectSuccess -> {
-                                Log.v("BoardFragment", "셀렉트 성공")
-                                //Log.v("BoardFragment", it.boardData.boardList[0].title)
-                                it.boardSelectData.boardList?.let {
-                                    adapter?.setItems(it)
-                                }
+                        when (it.boardListEntity) {
+                            null -> {
+
                             }
                             else -> {
-                                Log.v("BoardFragment", it.boardSelectData?.response.toString())
+                                Log.d("BoardFragment", "셀렉트 성공")
+                                it.boardListEntity.boardList?.let {
+                                    adapter?.setItems(it)
+                                }
+
+
                             }
                         }
                     }
@@ -108,7 +118,38 @@ class BoardFragment : Fragment() {
         }
     }
 
- */
+    private fun initScrollListener() {
+        binding.recyclerviewBoardList.addOnScrollListener(onScrollListener)
+    }
+
+    private inner class OnScrollListener : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val lastVisibleItemPosition =
+                (recyclerView.layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition()
+            val itemCount = (adapter?.itemCount?.minus(1) ?: 10)
+                Log.d("BoardFragment", lastVisibleItemPosition.toString() +"  " + itemCount.toString())
+            if (!binding.recyclerviewBoardList.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
+                Log.d("BoardFragment", "onScrolled")
+                if ((adapter?.itemCount)?.rem(10) == 0) {
+                    moreItems()
+                } else {
+                    Toast.makeText(requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
+                    //binding.bookList.post {
+                      //  adapter?.unsetLoading()
+                    //}
+                }
+
+            }
+        }
+    }
+
+    private fun moreItems() {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            boardViewModel.select(adapter?.getItems()?.lastDocument)
+        }
+    }
+
 
     private fun toggleFab(isFabOpen: Boolean): Boolean {
         return if (isFabOpen) {

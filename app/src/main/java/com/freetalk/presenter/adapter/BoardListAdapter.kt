@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.entity.BoardListEntity
 import com.freetalk.databinding.BoardListItemBinding
 import com.freetalk.databinding.BoardWriteImageItemBinding
 
@@ -14,6 +15,7 @@ class BoardListAdapter(
     private val itemClick: (BoardEntity) -> Unit
 ) : RecyclerView.Adapter<BoardListAdapter.ViewHolder>() {
     private val datalist = mutableListOf<BoardEntity>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,12 +32,19 @@ class BoardListAdapter(
 
     fun setItems(newItems: List<BoardEntity>) {
         // data 초기화
-        datalist.clear()
+        //datalist.clear()
         // 모든 데이터 add
-        datalist.addAll(newItems)
+        newItems.let {
+            datalist.addAll(it)
+        }
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
+
+    fun getItems(): BoardEntity {
+        return datalist.first()
+    }
+
 
 
     class ViewHolder(private val binding: BoardListItemBinding,

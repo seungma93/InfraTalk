@@ -1,10 +1,16 @@
 package com.freetalk.data.remote
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.saveable.autoSaver
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.ImagesResultEntity
 import com.freetalk.data.entity.UserEntity
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
@@ -12,7 +18,7 @@ import javax.inject.Inject
 
 interface BoardDataSource {
     suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse
-    //suspend fun select(): BoardSelectData
+    suspend fun selectContents(lastDocument: DocumentSnapshot?): BoardListResponse
     suspend fun delete()
     suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
 }
@@ -40,7 +46,12 @@ data class BoardResponse(
     val content: String? = null,
     val images: ImagesResultEntity? = null,
     val createTime: Date? = null,
-    val editTime: Date? = null
+    val editTime: Date? = null,
+    val lastDocument: DocumentSnapshot? = null
+)
+
+data class BoardListResponse(
+    val boardList: List<BoardResponse>? = null
 )
 
 
@@ -65,32 +76,67 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-/*
-    override suspend fun select(): BoardSelectData {
-        val boardList = mutableListOf<BoardEntity>()
-        return kotlin.runCatching {
-            val snapshot =
-                database.collection("Board").orderBy("createTime").limit(10).get().await()
-            snapshot.documents.map {
-                val boardEntity = BoardEntity(
-                    (it.data?.get("author") as HashMap<String, Any>).,
-                    it.data?.get("title") as String,
-                    it.data?.get("context") as String,
-                    (it.data?.get("image") as List<String>).map {
-                        Uri.parse(it)
-                    } as List<Uri>,
-                    (it.data?.get("createTime") as Timestamp).toDate(),
-                    (it.data?.get("editTIme") as? Timestamp)?.toDate()
-                )
-                boardList.add(boardEntity)
-            }
-            BoardSelectData(boardList, BoardResponse.SelectSuccess("셀릭트 성공"))
-        }.getOrElse {
-            BoardSelectData(null, BoardResponse.SelectFail("셀릭트 실패" + it.printStackTrace()))
+    private suspend fun getBoardDocuments(
+        limit: Long,
+        startAfter: DocumentSnapshot?
+    ): QuerySnapshot {
+        Log.d("BoardDataSource", "겟보드다큐먼트")
+        val query = database.collection("Board").orderBy("createTime", Query.Direction.DESCENDING)
+            .limit(limit)
+        return if (startAfter != null) {
+            Log.d("getBoardDocument", startAfter.data?.get("title").toString())
+            query.startAfter(startAfter).get().await()
+        } else {
+            query.get().await()
         }
+
+
     }
 
- */
+    override suspend fun selectContents(lastDocument: DocumentSnapshot?): BoardListResponse {
+
+        val boardList = mutableListOf<BoardResponse>()
+        Log.d("slectContents", "들어온 변수" + lastDocument?.data?.get("title"))
+        return kotlin.runCatching {
+            Log.d("BoardDataSource", "셀렉트콘텐츠")
+            val snapshot = getBoardDocuments(10, lastDocument)
+
+            val newLastDocument = snapshot.documents.lastOrNull()
+            Log.d("BoardDataSource", newLastDocument?.data?.get("title").toString())
+            snapshot.documents.map {
+
+                val author = it.data?.get("author") as HashMap<String, Any>
+                val email = author["email"] as String
+                val nickname = author["nickname"] as String
+                val image = (author["image"] as? String)?.let {
+                    Uri.parse(it)
+                } ?: null
+                val title = it.data?.get("title") as String
+                val content = it.data?.get("content") as String
+                val images = (it.data?.get("image") as? List<String>)?.let {
+                    ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                } ?: null
+                val createTime = (it.data?.get("createTime") as Timestamp).toDate()
+                val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                val boardResponse = BoardResponse(
+                    UserEntity(email, nickname, image),
+                    title,
+                    content,
+                    images,
+                    createTime,
+                    editTime,
+                    newLastDocument
+                )
+                boardList.add(boardResponse)
+            }
+            Log.d("BoardDataSource", snapshot.documents.count().toString())
+            BoardListResponse(boardList)
+        }.onFailure {
+            Log.d("BoardDataSource", it.stackTrace.toString())
+            throw FailSelectException("셀렉트에 실패 했습니다")
+        }.getOrThrow()
+    }
+
 
     override suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse {
         return kotlin.runCatching {

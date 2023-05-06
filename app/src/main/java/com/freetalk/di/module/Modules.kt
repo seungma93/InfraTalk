@@ -189,6 +189,14 @@ class Modules {
     }
 
     @Module
+    class SelectContentsUseCaseModule {
+        @Provides
+        fun providesSelectContentsUseCase(repository: BoardDataRepository): SelectContentsUseCase {
+            return SelectContentsUseCaseImpl(repository)
+        }
+    }
+
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
         abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
@@ -201,9 +209,10 @@ class Modules {
         @ViewModelKey(BoardViewModel::class)
         fun providesBoardViewModel(
             writeContentUseCase: WriteContentUseCase,
-            updateImageContentUseCase: UpdateImageContentUseCase
+            updateImageContentUseCase: UpdateImageContentUseCase,
+            selectContentsUseCase: SelectContentsUseCase
         ): ViewModel {
-            return BoardViewModel(writeContentUseCase, updateImageContentUseCase)
+            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, selectContentsUseCase)
         }
     }
 
