@@ -1,13 +1,18 @@
 package com.freetalk.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.entity.BoardListEntity
 import com.freetalk.data.remote.BoardInsetForm
 import com.freetalk.data.remote.BoardUpdateForm
 import com.freetalk.data.remote.ImagesRequest
+import com.freetalk.usecase.SelectContentsUseCase
 import com.freetalk.usecase.UpdateImageContentUseCase
 import com.freetalk.usecase.WriteContentUseCase
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.flow.*
+import java.security.PrivateKey
 import javax.inject.Inject
 
 sealed class BoardViewEvent {
@@ -16,14 +21,15 @@ sealed class BoardViewEvent {
 }
 
 sealed class BoardViewState {
-    //data class Select(val boardSelectData: BoardSelectData?) : BoardViewState()
+    data class Select(val boardListEntity: BoardListEntity?) : BoardViewState()
     data class Error(val errorCode: Throwable) : BoardViewState()
 }
 
 
 class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
-    private val updateImageContentUseCase: UpdateImageContentUseCase
+    private val updateImageContentUseCase: UpdateImageContentUseCase,
+    private val selectContentsUseCase: SelectContentsUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -47,11 +53,20 @@ class BoardViewModel @Inject constructor(
             _viewEvent.emit(BoardViewEvent.Error(it))
         }
     }
-/*
-    suspend fun select() {
-        Log.v("BoardViewModel", "셀렉트 시작")
-        _viewState.value = BoardViewState.Select(useCase.select())
+
+    suspend fun select(lastDocumentSnapshot: DocumentSnapshot?) {
+        kotlin.runCatching {
+            Log.d("BoardViewModel", "셀렉트 시작")
+            val selectResult = selectContentsUseCase.selectContents(lastDocumentSnapshot)
+            selectResult.boardList?.map {
+                Log.d("BoardViewModel", it.content)
+            }
+            _viewState.value = BoardViewState.Select(selectResult)
+        }.onFailure {
+            Log.d("BoardViewModel", "셀렉트 실패")
+        }
+
     }
 
- */
+
 }
