@@ -95,16 +95,16 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun selectContents(lastDocument: DocumentSnapshot?): BoardListResponse {
 
-        val boardList = mutableListOf<BoardResponse>()
         Log.d("slectContents", "들어온 변수" + lastDocument?.data?.get("title"))
         return kotlin.runCatching {
             Log.d("BoardDataSource", "셀렉트콘텐츠")
             val snapshot = getBoardDocuments(10, lastDocument)
-
             val newLastDocument = snapshot.documents.lastOrNull()
-            Log.d("BoardDataSource", newLastDocument?.data?.get("title").toString())
-            snapshot.documents.map {
 
+            Log.d("BoardDataSource", newLastDocument?.data?.get("title").toString())
+            Log.d("BoardDataSource", snapshot.documents.count().toString())
+
+            snapshot.documents.map {
                 val author = it.data?.get("author") as HashMap<String, Any>
                 val email = author["email"] as String
                 val nickname = author["nickname"] as String
@@ -118,7 +118,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 } ?: null
                 val createTime = (it.data?.get("createTime") as Timestamp).toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                val boardResponse = BoardResponse(
+                BoardResponse(
                     UserEntity(email, nickname, image),
                     title,
                     content,
@@ -127,10 +127,9 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     editTime,
                     newLastDocument
                 )
-                boardList.add(boardResponse)
+            }.let {
+                BoardListResponse(it)
             }
-            Log.d("BoardDataSource", snapshot.documents.count().toString())
-            BoardListResponse(boardList)
         }.onFailure {
             Log.d("BoardDataSource", it.stackTrace.toString())
             throw FailSelectException("셀렉트에 실패 했습니다")

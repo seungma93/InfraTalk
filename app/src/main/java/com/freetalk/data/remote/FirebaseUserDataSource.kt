@@ -176,7 +176,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", signUpForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.delete()?.await()
                 }
-            UserResponse(signUpForm.email, null, null)
+            UserResponse(email = signUpForm.email, nickname = null, image = null)
         }.onFailure {
             throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
