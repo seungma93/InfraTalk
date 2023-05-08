@@ -34,15 +34,15 @@ class BoardListAdapter(
         // data 초기화
         //datalist.clear()
         // 모든 데이터 add
-        newItems.let {
-            datalist.addAll(it)
-        }
+
+            datalist.addAll(newItems)
+
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
 
-    fun getItems(): BoardEntity {
-        return datalist.first()
+    fun getItem(): BoardEntity? {
+        return datalist.firstOrNull()
     }
 
 
