@@ -134,7 +134,7 @@ class BoardFragment : Fragment() {
                             else -> {
                                 Log.d("BoardFragment", "셀렉트 성공")
                                 it.boardListEntity.boardList?.let {
-                                    adapter?.setItems(it)
+                                    adapter?.submitList(it)
                                 }
 
                             }
@@ -153,7 +153,7 @@ class BoardFragment : Fragment() {
 
     fun moreItems() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select(adapter?.getItem()?.lastDocument)
+          boardViewModel.select(adapter?.currentList?.firstOrNull()?.lastDocument)
         }
     }
 
