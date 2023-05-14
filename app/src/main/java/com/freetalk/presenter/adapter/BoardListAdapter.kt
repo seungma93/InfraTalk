@@ -4,6 +4,8 @@ import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.freetalk.data.entity.BoardEntity
@@ -11,10 +13,28 @@ import com.freetalk.data.entity.BoardListEntity
 import com.freetalk.databinding.BoardListItemBinding
 import com.freetalk.databinding.BoardWriteImageItemBinding
 
+
 class BoardListAdapter(
     private val itemClick: (BoardEntity) -> Unit
-) : RecyclerView.Adapter<BoardListAdapter.ViewHolder>() {
+) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
     private val datalist = mutableListOf<BoardEntity>()
+
+    companion object {
+        val diffUtil = object : DiffUtil.ItemCallback<BoardEntity>() {
+
+            // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
+            override fun areItemsTheSame(oldItem: BoardEntity, newItem: BoardEntity): Boolean {
+                return oldItem == newItem
+            }
+
+            // 두 아이템이 동일한 내용을 가지고 있는지 체크. areItemsTheSame()이 true일때 호출됨
+            override fun areContentsTheSame(oldItem: BoardEntity, newItem: BoardEntity): Boolean {
+                return oldItem == newItem
+            }
+
+        }
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
@@ -23,12 +43,14 @@ class BoardListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(datalist[position])
+        holder.bind(getItem(position))
     }
-
+/*
     override fun getItemCount(): Int {
         return datalist.size
     }
+
+ */
 
     fun setItems(newItems: List<BoardEntity>) {
         // data 초기화
@@ -40,10 +62,12 @@ class BoardListAdapter(
         // 데이터 변경을 알림
         notifyDataSetChanged()
     }
-
+/*
     fun getItem(): BoardEntity? {
         return datalist.firstOrNull()
     }
+
+ */
 
 
 
