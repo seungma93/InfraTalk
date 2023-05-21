@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment.Sign
+package com.freetalk.presenter.fragment.sign
 
 import android.content.Context
 import android.graphics.Color

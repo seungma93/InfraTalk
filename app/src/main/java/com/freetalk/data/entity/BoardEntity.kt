@@ -14,8 +14,7 @@ data class BoardEntity (
     val content: String = "",
     val images: ImagesResultEntity? = null,
     val createTime: Date = Date(),
-    val editTime: Date? = null,
-    val lastDocument: DocumentSnapshot? = null
+    val editTime: Date? = null
     )
 
 fun BoardResponse.toEntity(): BoardEntity {
@@ -25,8 +24,6 @@ fun BoardResponse.toEntity(): BoardEntity {
         content = content.orEmpty(),
         images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
         createTime = createTime ?: Date(),
-        editTime = editTime ?: Date(),
-        lastDocument = lastDocument ?: null
-
+        editTime = editTime ?: Date()
     )
 }

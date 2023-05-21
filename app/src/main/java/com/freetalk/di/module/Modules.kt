@@ -189,10 +189,10 @@ class Modules {
     }
 
     @Module
-    class SelectContentsUseCaseModule {
+    class PrintBoardListUesCaseModule {
         @Provides
-        fun providesSelectContentsUseCase(repository: BoardDataRepository): SelectContentsUseCase {
-            return SelectContentsUseCaseImpl(repository)
+        fun providesPrintBoardListUesCase(repository: BoardDataRepository): PrintBoardListUesCase {
+            return PrintBoardListUesCase(repository)
         }
     }
 
@@ -210,9 +210,9 @@ class Modules {
         fun providesBoardViewModel(
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
-            selectContentsUseCase: SelectContentsUseCase
+            printBoardListUesCase: PrintBoardListUesCase
         ): ViewModel {
-            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, selectContentsUseCase)
+            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase)
         }
     }
 

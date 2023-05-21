@@ -7,13 +7,14 @@ import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
 
 data class BoardListEntity (
-    val boardList: List<BoardEntity>?
+    val boardList: List<BoardEntity> = emptyList()
 )
 
 fun BoardListResponse.toEntity(): BoardListEntity {
     return BoardListEntity(
-        boardList = boardList?.map{
-            it.toEntity()
-        }
+        boardList = boardList?.let { list ->
+            list.map { it.toEntity() }
+        } ?: emptyList()
+
     )
 }

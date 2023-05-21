@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment.Sign
+package com.freetalk.presenter.fragment.sign
 
 import android.Manifest
 import android.app.Activity

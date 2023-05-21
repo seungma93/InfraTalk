@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 interface BoardDataSource {
     suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse
-    suspend fun selectContents(lastDocument: DocumentSnapshot?): BoardListResponse
+    suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse
     suspend fun delete()
     suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
 }
@@ -34,10 +34,14 @@ data class BoardInsetForm(
 data class BoardUpdateForm(
     val author: UserEntity,
     val title: String,
-    val content: String?,
-    val images: List<Uri>?,
+    val content: String = "",
+    val images: List<Uri> = emptyList(),
     val createTime: Date,
     val editTime: Date?
+)
+
+data class BoardSelectForm(
+    val reload: Boolean
 )
 
 data class BoardResponse(
@@ -46,8 +50,7 @@ data class BoardResponse(
     val content: String? = null,
     val images: ImagesResultEntity? = null,
     val createTime: Date? = null,
-    val editTime: Date? = null,
-    val lastDocument: DocumentSnapshot? = null
+    val editTime: Date? = null
 )
 
 data class BoardListResponse(
@@ -58,6 +61,7 @@ data class BoardListResponse(
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : BoardDataSource {
+    private var lastDocument: DocumentSnapshot? = null
 
     override suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse {
 
@@ -93,30 +97,31 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     }
 
-    override suspend fun selectContents(lastDocument: DocumentSnapshot?): BoardListResponse {
+    override suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse {
+        Log.d("BoardDataSource", "셀렉트콘텐츠")
 
-        Log.d("slectContents", "들어온 변수" + lastDocument?.data?.get("title"))
         return kotlin.runCatching {
-            Log.d("BoardDataSource", "셀렉트콘텐츠")
-            val snapshot = getBoardDocuments(10, lastDocument)
-            val newLastDocument = snapshot.documents.lastOrNull()
 
-            Log.d("BoardDataSource", newLastDocument?.data?.get("title").toString())
+            val snapshot = when(boardSelectForm.reload) {
+                true -> getBoardDocuments(10, null)
+                false -> getBoardDocuments(10, lastDocument)
+            }
+            lastDocument = snapshot.documents.lastOrNull()
             Log.d("BoardDataSource", snapshot.documents.count().toString())
 
             snapshot.documents.map {
-                val author = it.data?.get("author") as HashMap<String, Any>
-                val email = author["email"] as String
-                val nickname = author["nickname"] as String
-                val image = (author["image"] as? String)?.let {
+                val author = it.data?.get("author") as? HashMap<String, Any>
+                val email = author?.get("email") as? String ?: ""
+                val nickname = author?.get("nickname") as? String ?: ""
+                val image = (author?.get("image") as? String)?.let {
                     Uri.parse(it)
-                } ?: null
-                val title = it.data?.get("title") as String
-                val content = it.data?.get("content") as String
+                }
+                val title = it.data?.get("title") as? String
+                val content = it.data?.get("content") as? String
                 val images = (it.data?.get("image") as? List<String>)?.let {
                     ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                } ?: null
-                val createTime = (it.data?.get("createTime") as Timestamp).toDate()
+                }
+                val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
                 BoardResponse(
                     UserEntity(email, nickname, image),
@@ -124,15 +129,14 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     content,
                     images,
                     createTime,
-                    editTime,
-                    newLastDocument
+                    editTime
                 )
             }.let {
                 BoardListResponse(it)
             }
         }.onFailure {
             Log.d("BoardDataSource", it.stackTrace.toString())
-            throw FailSelectException("셀렉트에 실패 했습니다")
+            throw FailSelectException("셀렉트에 실패 했습니다", it)
         }.getOrThrow()
     }
 

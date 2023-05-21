@@ -1,4 +1,4 @@
-package com.freetalk.presenter.fragment.Sign
+package com.freetalk.presenter.fragment.sign
 
 import android.content.Context
 import android.os.Bundle
@@ -19,7 +19,6 @@ import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.viewmodel.*
-import com.freetalk.usecase.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,38 +29,6 @@ class LoginMainFragment : Fragment() {
     @Inject
     lateinit var signViewModelFactory: ViewModelProvider.Factory
     private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
-/*
-    private val signViewModel: SignViewModel by lazy {
-        // dataSource
-        val firebaseRemoteDataSourceImpl =
-            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
-        val firebaseImageDataSourceImpl =
-            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
-        // repository
-        val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
-        val firebaseImageDataRepositoryImpl =
-            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
-        // useCase
-        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
-        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val updateProfileImageUseCaseImpl =
-            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
-        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
-        // factory
-        val factory = SignViewModelFactory(
-            signUpUseCaseImpl,
-            sendEmailUseCaseImpl,
-            updateProfileImageUseCaseImpl,
-            logInUseCaseImpl,
-            resetPasswordUseCaseImpl
-        )
-        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
-    }
- */
 
     override fun onAttach(context: Context) {
         DaggerSignFragmentComponent.factory().create(context).inject(this)

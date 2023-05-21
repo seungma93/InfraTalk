@@ -17,7 +17,6 @@ import com.freetalk.databinding.BoardWriteImageItemBinding
 class BoardListAdapter(
     private val itemClick: (BoardEntity) -> Unit
 ) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
-    private val datalist = mutableListOf<BoardEntity>()
 
     companion object {
         val diffUtil = object : DiffUtil.ItemCallback<BoardEntity>() {
@@ -45,31 +44,6 @@ class BoardListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
-/*
-    override fun getItemCount(): Int {
-        return datalist.size
-    }
-
- */
-
-    fun setItems(newItems: List<BoardEntity>) {
-        // data 초기화
-        //datalist.clear()
-        // 모든 데이터 add
-
-            datalist.addAll(newItems)
-
-        // 데이터 변경을 알림
-        notifyDataSetChanged()
-    }
-/*
-    fun getItem(): BoardEntity? {
-        return datalist.firstOrNull()
-    }
-
- */
-
-
 
     class ViewHolder(private val binding: BoardListItemBinding,
                      private val itemClick: (BoardEntity) -> Unit) :

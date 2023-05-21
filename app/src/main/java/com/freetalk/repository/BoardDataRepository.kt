@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 interface BoardDataRepository {
     suspend fun insert(boardInsertForm: BoardInsetForm): BoardEntity
-    suspend fun select(lastDocument: DocumentSnapshot?): BoardListEntity
+    suspend fun select(boardSelectForm: BoardSelectForm): BoardListEntity
     suspend fun update(boardUpdateForm: BoardUpdateForm): BoardEntity
 }
 
@@ -20,9 +20,9 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
         return dataSource.insertContent(boardInsertForm).toEntity()
     }
 
-    override suspend fun select(lastDocument: DocumentSnapshot?): BoardListEntity {
+    override suspend fun select(boardSelectForm: BoardSelectForm): BoardListEntity {
         Log.d("BoardDataRepository", "레포지토리")
-        return dataSource.selectContents(lastDocument).toEntity()
+        return dataSource.selectContents(boardSelectForm).toEntity()
     }
 
     override suspend fun update(boardUpdateForm: BoardUpdateForm): BoardEntity {
