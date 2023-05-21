@@ -182,7 +182,12 @@ class BoardWriteFragment : Fragment() {
                                         "boardWriteFragment",
                                         boardInsertForm.createTime.toString()
                                     )
-                                    boardViewModel.insert(boardInsertForm, null)
+                                    boardViewModel.insert(
+                                        boardInsertForm = boardInsertForm,
+                                        imagesRequest = ImagesRequest(
+                                            emptyList()
+                                        )
+                                    )
                                 }
                                 false -> {
                                     val boardInsertForm = BoardInsetForm(

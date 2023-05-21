@@ -68,7 +68,8 @@ class NoImageException(
 ) : Exception(_message)
 
 class FailSelectException(
-    val _message: String
+    val _message: String,
+    val throwable: Throwable
 ) : Exception(_message)
 
 class FailDeleteException(
@@ -221,7 +222,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 )
             }
         }.onFailure {
-            throw FailSelectException("셀렉트 실패")
+            throw FailSelectException("셀렉트 실패", it)
         }.getOrThrow()
     }
 

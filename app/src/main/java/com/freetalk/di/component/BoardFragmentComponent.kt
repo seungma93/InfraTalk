@@ -4,7 +4,6 @@ import android.content.Context
 import com.freetalk.di.module.Modules
 import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
-import com.freetalk.usecase.SelectContentsUseCase
 import dagger.BindsInstance
 import dagger.Component
 
@@ -20,7 +19,7 @@ import dagger.Component
         Modules.UploadImagesUseCaseModule::class,
         Modules.UpdateContentUseCaseModule::class,
         Modules.UpdateImageContentUseCaseModule::class,
-        Modules.SelectContentsUseCaseModule::class,
+        Modules.PrintBoardListUesCaseModule::class,
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]

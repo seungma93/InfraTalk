@@ -6,8 +6,8 @@ import androidx.fragment.app.Fragment
 import com.freetalk.R
 import com.freetalk.databinding.ActivityMainBinding
 import com.freetalk.presenter.fragment.*
-import com.freetalk.presenter.fragment.Sign.LoginMainFragment
-import com.freetalk.presenter.fragment.Sign.SignUpFragment
+import com.freetalk.presenter.fragment.sign.LoginMainFragment
+import com.freetalk.presenter.fragment.sign.SignUpFragment
 import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import com.freetalk.presenter.fragment.chat.ChatFragment

@@ -9,43 +9,40 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.freetalk.data.remote.BoardSelectForm
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
 import com.freetalk.presenter.viewmodel.BoardViewModel
-import com.freetalk.presenter.viewmodel.BoardViewState
-import com.freetalk.presenter.viewmodel.SignViewModel
-import com.freetalk.usecase.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class OnScrollListener(private val boardFragment: BoardFragment) : RecyclerView.OnScrollListener() {
+class OnScrollListener(private val moreItems: () -> Unit, private val showToast: () -> Unit) :
+    RecyclerView.OnScrollListener() {
+
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
+
         val lastVisibleItemPosition =
             (recyclerView.layoutManager as? LinearLayoutManager)?.findLastVisibleItemPosition() ?: 0
-        val itemCount = (recyclerView.adapter?.itemCount?.minus(1) ?: 0)
-        Log.d("BoardFragment", lastVisibleItemPosition.toString() + "  " + itemCount.toString())
-        if (!recyclerView.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
-            Log.d("BoardFragment", "onScrolled")
-            if ((recyclerView.adapter?.itemCount)?.rem(10) == 0) {
-                boardFragment.moreItems()
-            } else {
-                Toast.makeText(boardFragment.requireContext(), "마지막 페이지 입니다.", Toast.LENGTH_SHORT).show()
-                //binding.bookList.post {
-                //  adapter?.unsetLoading()
-                //}
+        recyclerView.adapter?.let {
+            val itemCount = it.itemCount - 1
+            Log.d("BoardFragment", lastVisibleItemPosition.toString() + "  " + itemCount.toString())
+            if (!recyclerView.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
+                Log.d("BoardFragment", "onScrolled")
+                val morePage = when (it.itemCount % 10) {
+                    0 -> true
+                    else -> false
+                }
+                if (morePage) moreItems() else showToast()
             }
-
         }
     }
 }
@@ -53,33 +50,21 @@ class OnScrollListener(private val boardFragment: BoardFragment) : RecyclerView.
 class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
-    private var adapter: BoardListAdapter? = null
-    private val onScrollListener: OnScrollListener = OnScrollListener(this)
+    private var _adapter: BoardListAdapter? = null
+    private val adapter get() = _adapter!!
+    private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
+        Toast.makeText(
+            requireContext(),
+            "마지막 페이지 입니다.",
+            Toast.LENGTH_SHORT
+        ).show()
+    })
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
     private val boardViewModel: BoardViewModel by viewModels { boardViewModelFactory }
 
-    /*
-    private val boardViewModel: BoardViewModel by lazy {
 
-        // dataSource
-        val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore)
-        val firebaseImageDataSourceImpl = FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
-        // repository
-        val firebaseBoardDataRepositoryImpl =
-            FirebaseBoardDataRepositoryImpl(firebaseBoardRemoteDataSourceImpl)
-        val firebaseImageDataRepositoryImpl = FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
-        // usecase
-        val writeContentUseCaseImpl = WriteContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
-        val uploadImagesUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
-        val updateContentUseCaseImpl = UpdateContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
-        val updateImagesContentUseCaseImpl = UpdateImageContentUseCaseImpl(updateContentUseCaseImpl, uploadImagesUseCaseImpl)
-        val factory = BoardViewModelFactory(writeContentUseCaseImpl, updateImagesContentUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
-    }
-
-     */
     override fun onAttach(context: Context) {
         DaggerBoardFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
@@ -97,7 +82,8 @@ class BoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var isFabOpen = false
-        adapter = BoardListAdapter {}
+        _adapter = BoardListAdapter {
+        }
         binding.apply {
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
@@ -108,15 +94,20 @@ class BoardFragment : Fragment() {
             }
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    boardViewModel.select(null)
+                    kotlin.runCatching {
+                        adapter.currentList.clear()
+                        boardViewModel.select(BoardSelectForm(true))
+                    }
+                    swipeRefreshLayout.isRefreshing = false
                 }
-                swipeRefreshLayout.isRefreshing = false
+
             }
             recyclerviewBoardList.adapter = adapter
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select(null)
+            adapter.currentList.clear()
+            boardViewModel.select(BoardSelectForm(true))
         }
         subscribe()
         initScrollListener()
@@ -125,23 +116,8 @@ class BoardFragment : Fragment() {
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
-                when (it) {
-                    is BoardViewState.Select -> {
-                        when (it.boardListEntity) {
-                            null -> {
-
-                            }
-                            else -> {
-                                Log.d("BoardFragment", "셀렉트 성공")
-                                it.boardListEntity.boardList?.let {
-                                    adapter?.submitList(it)
-                                }
-
-                            }
-                        }
-                    }
-                    else -> {}
-                }
+                Log.d("BoardFragment", "셀렉트 성공")
+                adapter.submitList(adapter.currentList + it.boardListEntity.boardList)
             }
         }
     }
@@ -151,9 +127,9 @@ class BoardFragment : Fragment() {
     }
 
 
-    fun moreItems() {
+    private fun moreItems() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-          boardViewModel.select(adapter?.currentList?.firstOrNull()?.lastDocument)
+            boardViewModel.select(BoardSelectForm(false))
         }
     }
 

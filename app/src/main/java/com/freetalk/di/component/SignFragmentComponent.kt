@@ -3,9 +3,9 @@ package com.freetalk.di.component
 import android.content.Context
 import com.freetalk.di.module.Modules
 import dagger.BindsInstance
-import com.freetalk.presenter.fragment.Sign.LoginMainFragment;
-import com.freetalk.presenter.fragment.Sign.ResetPasswordFragment;
-import com.freetalk.presenter.fragment.Sign.SignUpFragment;
+import com.freetalk.presenter.fragment.sign.LoginMainFragment;
+import com.freetalk.presenter.fragment.sign.ResetPasswordFragment;
+import com.freetalk.presenter.fragment.sign.SignUpFragment;
 import dagger.Component;
 
 @Component(
