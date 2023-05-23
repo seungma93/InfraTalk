@@ -83,6 +83,8 @@ class BoardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         var isFabOpen = false
         _adapter = BoardListAdapter {
+            val endPoint = EndPoint.BoardContent(boardEntity = it)
+            (requireActivity() as? Navigable)?.navigateFragment(endPoint)
         }
         binding.apply {
             btnFabMenu.setOnClickListener {

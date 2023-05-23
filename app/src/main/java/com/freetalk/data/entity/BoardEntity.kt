@@ -15,7 +15,7 @@ data class BoardEntity (
     val images: ImagesResultEntity? = null,
     val createTime: Date = Date(),
     val editTime: Date? = null
-    )
+    ) : Serializable
 
 fun BoardResponse.toEntity(): BoardEntity {
     return BoardEntity(
