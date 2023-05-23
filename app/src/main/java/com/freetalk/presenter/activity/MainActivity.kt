@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.databinding.ActivityMainBinding
 import com.freetalk.presenter.fragment.*
+import com.freetalk.presenter.fragment.board.BoardContentFragment
 import com.freetalk.presenter.fragment.sign.LoginMainFragment
 import com.freetalk.presenter.fragment.sign.SignUpFragment
 import com.freetalk.presenter.fragment.board.BoardFragment
@@ -24,6 +26,7 @@ sealed class EndPoint {
     object MyPage : EndPoint()
     object BoardWrite : EndPoint()
     object Error : EndPoint()
+    data class BoardContent(val boardEntity: BoardEntity): EndPoint()
 }
 
 interface Navigable {
@@ -89,6 +92,13 @@ class MainActivity() : AppCompatActivity(), Navigable {
                 }
                 is EndPoint.BoardWrite -> {
                     val fragment = BoardWriteFragment()
+                    setFragment(fragment, R.id.fragment_frame_layout, true)
+                }
+                is EndPoint.BoardContent -> {
+                    val fragment = BoardContentFragment()
+                    val bundle = Bundle()
+                    bundle.putSerializable(BoardContentFragment.BOARD_ITEM_KEY, endPoint.boardEntity)
+                    fragment.arguments = bundle
                     setFragment(fragment, R.id.fragment_frame_layout, true)
                 }
                 is EndPoint.Error -> {
