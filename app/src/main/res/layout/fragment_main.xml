@@ -10,19 +10,24 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/fragment_frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ProductGridFragment">
+        android:layout_height="0dp"
+        tools:context=".ProductGridFragment"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintVertical_weight="9"
+        >
 
     </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_weight="1"
+        android:layout_height="0dp"
         app:itemIconTint="@drawable/menu_click_color"
         app:itemTextColor="@drawable/menu_click_color"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_frame_layout"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_weight="1"
         app:menu="@menu/navi_menu"
         app:labelVisibilityMode="labeled"
         tools:ignore="MissingConstraints" />
@@ -33,6 +38,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.2"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_left"
