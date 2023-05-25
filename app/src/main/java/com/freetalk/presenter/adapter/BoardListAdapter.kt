@@ -23,7 +23,7 @@ class BoardListAdapter(
 
             // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
             override fun areItemsTheSame(oldItem: BoardEntity, newItem: BoardEntity): Boolean {
-                return oldItem == newItem
+                return oldItem.createTime == newItem.createTime && oldItem.author == newItem.author
             }
 
             // 두 아이템이 동일한 내용을 가지고 있는지 체크. areItemsTheSame()이 true일때 호출됨

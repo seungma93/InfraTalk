@@ -3,6 +3,7 @@ package com.freetalk.presenter.activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.freetalk.R
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.databinding.ActivityMainBinding

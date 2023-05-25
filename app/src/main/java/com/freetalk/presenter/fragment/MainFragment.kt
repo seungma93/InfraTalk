@@ -11,8 +11,16 @@ import com.freetalk.R
 import com.freetalk.databinding.FragmentMainBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
+import com.freetalk.presenter.fragment.board.BoardContentFragment
+import com.freetalk.presenter.fragment.board.BoardFragment
+import com.freetalk.presenter.fragment.board.BoardWriteFragment
+import com.freetalk.presenter.fragment.chat.ChatFragment
+import com.freetalk.presenter.fragment.home.HomeFragment
+import com.freetalk.presenter.fragment.mypage.MyPageFragment
+import com.freetalk.presenter.fragment.sign.LoginMainFragment
+import com.freetalk.presenter.fragment.sign.SignUpFragment
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), Navigable {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
@@ -33,16 +41,16 @@ class MainFragment : Fragment() {
                 when(it.itemId) {
                     R.id.home_fragment -> {
                         Log.v("MainFragment", "홈 버튼 클릭")
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Home)
+                        navigateFragment(EndPoint.Home)
                     }
                     R.id.board_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board)
+                        navigateFragment(EndPoint.Board)
                     }
                     R.id.chat_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Chat)
+                        navigateFragment(EndPoint.Chat)
                     }
                     R.id.my_page_fragment -> {
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.MyPage)
+                       navigateFragment(EndPoint.MyPage)
                     }
                 }
                 true
@@ -58,6 +66,57 @@ class MainFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, menuInflater)
+    }
+
+    private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
+        val transaction = childFragmentManager.beginTransaction()
+        when(backStackToken){
+            true -> {
+                transaction.replace(viewId, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            false -> {
+                transaction.replace(viewId, fragment)
+                    .commit()
+            }
+        }
+
+    }
+
+    override fun navigateFragment(endPoint: EndPoint) {
+        when (endPoint) {
+            is EndPoint.Home -> {
+                val fragment = HomeFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.Board -> {
+                val fragment = BoardFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.Chat -> {
+                val fragment = ChatFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.MyPage -> {
+                val fragment = MyPageFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.BoardWrite -> {
+                val fragment = BoardWriteFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.BoardContent -> {
+                val fragment = BoardContentFragment()
+                val bundle = Bundle()
+                bundle.putSerializable(BoardContentFragment.BOARD_ITEM_KEY, endPoint.boardEntity)
+                fragment.arguments = bundle
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is EndPoint.Error -> {
+            }
+            else -> {}
+        }
     }
 
 

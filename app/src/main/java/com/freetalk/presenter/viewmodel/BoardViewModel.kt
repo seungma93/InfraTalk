@@ -29,7 +29,6 @@ class BoardViewModel @Inject constructor(
     private val boardViewState = BoardViewState(BoardListEntity(emptyList()))
     private val _viewState = MutableStateFlow<BoardViewState>(boardViewState)
     val viewState: StateFlow<BoardViewState> = _viewState.asStateFlow()
-
     data class BoardViewState(val boardListEntity: BoardListEntity)
 
 
@@ -58,7 +57,12 @@ class BoardViewModel @Inject constructor(
             selectResult.boardList.map {
                 Log.d("BoardViewModel", it.content)
             }
-            _viewState.value = BoardViewState(selectResult)
+            val boardListState = when(boardSelectForm.reload) {
+                true -> selectResult.boardList
+                false -> _viewState.value.boardListEntity.boardList + selectResult.boardList
+            }
+
+            _viewState.value = BoardViewState(BoardListEntity(boardListState))
         }.onFailure {
             Log.d("BoardViewModel", "셀렉트 실패")
         }

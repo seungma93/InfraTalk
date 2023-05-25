@@ -37,10 +37,7 @@ class OnScrollListener(private val moreItems: () -> Unit, private val showToast:
             Log.d("BoardFragment", lastVisibleItemPosition.toString() + "  " + itemCount.toString())
             if (!recyclerView.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
                 Log.d("BoardFragment", "onScrolled")
-                val morePage = when (it.itemCount % 10) {
-                    0 -> true
-                    else -> false
-                }
+                val morePage = it.itemCount % 10 == 0
                 if (morePage) moreItems() else showToast()
             }
         }
@@ -81,23 +78,23 @@ class BoardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
         _adapter = BoardListAdapter {
             val endPoint = EndPoint.BoardContent(boardEntity = it)
-            (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+            (parentFragment as? Navigable)?.navigateFragment(endPoint)
         }
         binding.apply {
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
             }
             btnFabWrite.setOnClickListener {
-                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.BoardWrite)
+                (parentFragment as? Navigable)?.navigateFragment(EndPoint.BoardWrite)
                 toggleFab(true)
             }
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     kotlin.runCatching {
-                        adapter.currentList.clear()
                         boardViewModel.select(BoardSelectForm(true))
                     }
                     swipeRefreshLayout.isRefreshing = false
@@ -108,7 +105,6 @@ class BoardFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            adapter.currentList.clear()
             boardViewModel.select(BoardSelectForm(true))
         }
         subscribe()
@@ -119,7 +115,17 @@ class BoardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
                 Log.d("BoardFragment", "셀렉트 성공")
-                adapter.submitList(adapter.currentList + it.boardListEntity.boardList)
+                it.boardListEntity.boardList.map {
+                    Log.d("새로 업데이트", it.content)
+                }
+                adapter.currentList.map {
+                    Log.d("기존 리스트", it.content)
+                }
+                val newList = adapter.currentList + it.boardListEntity.boardList
+                newList.map {
+                    Log.d("합쳐진 리스트", it.content)
+                }
+                adapter.submitList(it.boardListEntity.boardList)
             }
         }
     }
@@ -128,13 +134,11 @@ class BoardFragment : Fragment() {
         binding.recyclerviewBoardList.addOnScrollListener(onScrollListener)
     }
 
-
     private fun moreItems() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.select(BoardSelectForm(false))
         }
     }
-
 
     private fun toggleFab(isFabOpen: Boolean): Boolean {
         return if (isFabOpen) {
