@@ -1,25 +1,22 @@
 package com.freetalk.data.entity
 
 import android.net.Uri
-import com.freetalk.data.UserSingleton
 import com.freetalk.data.remote.BoardResponse
-import com.google.firebase.firestore.DocumentSnapshot
 import java.io.Serializable
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
-data class BoardEntity (
-    val author: UserEntity = UserEntity("", "", Uri.parse("")),
+data class BoardEntity(
+    val author: UserEntity = UserEntity("", "", Uri.parse(""), emptyList()),
     val title: String = "",
     val content: String = "",
     val images: ImagesResultEntity? = null,
     val createTime: Date = Date(),
     val editTime: Date? = null
-    ) : Serializable
+) : Serializable
 
 fun BoardResponse.toEntity(): BoardEntity {
     return BoardEntity(
-        author = author ?: UserEntity("", "", Uri.parse("")),
+        author = author ?: UserEntity("", "", Uri.parse(""), emptyList()),
         title = title.orEmpty(),
         content = content.orEmpty(),
         images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
@@ -27,3 +24,5 @@ fun BoardResponse.toEntity(): BoardEntity {
         editTime = editTime ?: Date()
     )
 }
+
+

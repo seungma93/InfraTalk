@@ -1,5 +1,6 @@
 package com.freetalk.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.*
@@ -42,7 +43,8 @@ class SignViewModel @Inject constructor(
                     UserEntity(
                         signUpResult.email,
                         signUpResult.nickname,
-                        updateProfileResult.image
+                        updateProfileResult.image,
+                        emptyList()
                     )
                 )
             )
@@ -54,6 +56,7 @@ class SignViewModel @Inject constructor(
 
     suspend fun logIn(logInForm: LogInForm) {
         kotlin.runCatching {
+            Log.d("SignViewModel", "로그인 뷰 모델")
             _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(logInForm)))
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))

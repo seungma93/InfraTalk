@@ -1,8 +1,8 @@
 package com.freetalk.usecase
 
+import com.freetalk.data.NoImageException
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.remote.ImagesRequest
-import com.freetalk.data.remote.NoImageException
 import com.freetalk.data.remote.UpdateForm
 import javax.inject.Inject
 
@@ -19,7 +19,7 @@ class UpdateProfileImageUseCaseImpl @Inject constructor(
         updateForm: UpdateForm
     ): UserEntity {
         return when (imageRequest) {
-            null -> UserEntity(updateForm.email, updateForm.nickname!!, updateForm.image)
+            null -> UserEntity(updateForm.email, updateForm.nickname!!, updateForm.image, emptyList())
             else -> {
                 val uploadImageResult = uploadImagesUseCase.uploadImages(imageRequest)
                 when (uploadImageResult.successUris.isEmpty()) {

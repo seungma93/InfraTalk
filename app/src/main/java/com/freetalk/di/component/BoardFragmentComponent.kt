@@ -11,15 +11,19 @@ import dagger.Component
     modules = [
         Modules.FirebaseFirestoreModule::class,
         Modules.FirebaseStorageModule::class,
+        Modules.FirebaseAuthModule::class,
         Modules.FirebaseBoardDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
+        Modules.FirebaseUserDataSourceModule::class,
         Modules.BoardDataRepositoryModule::class,
+        Modules.UserDataRepositoryModule::class,
         Modules.ImageDataRepositoryModule::class,
         Modules.WriteContentUseCaseModule::class,
         Modules.UploadImagesUseCaseModule::class,
         Modules.UpdateContentUseCaseModule::class,
         Modules.UpdateImageContentUseCaseModule::class,
         Modules.PrintBoardListUesCaseModule::class,
+        Modules.UpdateBookMarkUseCaseModule::class,
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]

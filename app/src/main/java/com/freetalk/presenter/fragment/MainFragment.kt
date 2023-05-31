@@ -24,6 +24,10 @@ class MainFragment : Fragment(), Navigable {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
+    companion object {
+        private val bundle = Bundle()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -108,7 +112,6 @@ class MainFragment : Fragment(), Navigable {
             }
             is EndPoint.BoardContent -> {
                 val fragment = BoardContentFragment()
-                val bundle = Bundle()
                 bundle.putSerializable(BoardContentFragment.BOARD_ITEM_KEY, endPoint.boardEntity)
                 fragment.arguments = bundle
                 setFragment(fragment, R.id.fragment_frame_layout, true)
