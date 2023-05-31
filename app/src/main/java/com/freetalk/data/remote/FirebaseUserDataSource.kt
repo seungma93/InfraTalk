@@ -3,10 +3,13 @@ package com.freetalk.data.remote
 
 import android.net.Uri
 import android.util.Log
+import com.freetalk.data.*
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.UserEntity
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -17,69 +20,16 @@ interface UserDataSource {
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
+    suspend fun updateBookMarkList(bookMarkUpdateForm: BookMarkUpdateForm): UserResponse
 }
 
-class InvalidEmailException(
-    val _message: String
-) : Exception(_message)
 
-class VerifiedEmailException(
-    val _message: String
-) : Exception(_message)
-
-class InvalidPasswordException(
-    val _message: String
-) : Exception(_message)
-
-class WrongPasswordException(
-    val _message: String
-) : Exception(_message)
-
-class BlockedRequestException(
-    val _message: String
-) : Exception(_message)
-
-class NotExistEmailException(
-    val _message: String
-) : Exception(_message)
-
-class ExistEmailException(
-    val _message: String
-) : Exception(_message)
-
-class UnKnownException(
-    val _message: String
-) : Exception(_message)
-
-class FailSendEmailException(
-    val _message: String
-) : Exception(_message)
-
-class FailInsertException(
-    val _message: String
-) : Exception(_message)
-
-class FailUpdatetException(
-    val _message: String
-) : Exception(_message)
-
-class NoImageException(
-    val _message: String
-) : Exception(_message)
-
-class FailSelectException(
-    val _message: String,
-    val throwable: Throwable
-) : Exception(_message)
-
-class FailDeleteException(
-    val _message: String
-) : Exception(_message)
 
 data class UserResponse(
     val email: String? = null,
     val nickname: String? = null,
-    val image: Uri? = null
+    val image: Uri? = null,
+    val bookMarkList: List<String>? = null
 )
 
 data class SignUpForm(
@@ -101,6 +51,11 @@ data class UpdateForm(
 
 data class ResetPasswordForm(
     val email: String
+)
+
+data class BookMarkUpdateForm(
+    val boardEntity: BoardEntity,
+    val insertToken: Boolean
 )
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
@@ -132,7 +87,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
         Log.d("FirebaseUserData", "시작")
-        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null))
+        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null, emptyList()))
         val createAuthResult = createAuth(signUpForm)
         return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
     }
@@ -143,7 +98,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", updateForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
                 }
-            UserResponse(updateForm.email, updateForm.nickname, updateForm.image)
+            UserResponse(updateForm.email, updateForm.nickname, updateForm.image, emptyList())
         }.onFailure {
             throw FailUpdatetException("업데이트 실패")
         }.getOrThrow()
@@ -154,7 +109,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             currentUser?.let {
                 Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
-                UserResponse(currentUser.email, null, null)
+                UserResponse(currentUser.email, null, null, emptyList())
             } ?: run {
                 Log.d("UserDataSource", "알 수 없는1")
                 throw UnKnownException("알 수 없는 에러")
@@ -177,7 +132,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", signUpForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.delete()?.await()
                 }
-            UserResponse(email = signUpForm.email, nickname = null, image = null)
+            UserResponse(email = signUpForm.email, nickname = null, image = null, emptyList())
         }.onFailure {
             throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
@@ -214,14 +169,18 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 database.collection("User")
                     .whereEqualTo("email", logInAuthResult).get()
                     .await()
-            snapshot.documents.firstOrNull().let {
+            snapshot.documents.firstOrNull()?.let {
                 UserResponse(
-                    it?.data?.get("email") as String,
-                    it.data?.get("nickname") as String,
-                    Uri.parse(it.data?.get("image") as String)
+                    email = it.data?.get("email") as? String,
+                    nickname = it.data?.get("nickname") as? String,
+                    image = (it.data?.get("image") as? String)?.let { Uri.parse(it) },
+                    bookMarkList = it.data?.get("bookMarkList") as? List<String>
                 )
+            } ?: run{
+                throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
             }
         }.onFailure {
+            Log.d("UserDataSource", it.message.toString())
             throw FailSelectException("셀렉트 실패", it)
         }.getOrThrow()
     }
@@ -248,6 +207,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 is VerifiedEmailException -> throw VerifiedEmailException("이메일 인증이 필요 합니다")
                 else -> {
                     Log.d("UserDataSource", "로그인 3")
+                    Log.d("UserDataSource", it.message.toString())
                     throw UnKnownException("알 수 없는 에러")
                 }
             }
@@ -258,11 +218,58 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
         return kotlin.runCatching {
             auth.sendPasswordResetEmail(resetPasswordForm.email).await()
-            UserResponse(resetPasswordForm.email, null, null)
+            UserResponse(resetPasswordForm.email, null, null, emptyList())
         }.onFailure {
             throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
     }
+
+    override suspend fun updateBookMarkList(bookMarkUpdateForm: BookMarkUpdateForm): UserResponse =
+        with(bookMarkUpdateForm) {
+
+            return kotlin.runCatching {
+                val snapshot = database.collection("User")
+                    .whereEqualTo("email", UserSingleton.userEntity.email).get().await()
+
+                val oldList =
+                    (snapshot.documents.firstOrNull()?.data?.get("bookMarkList") as? List<String>)
+
+                val newList = mutableListOf<String>()
+
+                oldList?.let {
+                    val boardId = boardEntity.author.email + boardEntity.createTime
+                    when (bookMarkUpdateForm.insertToken) {
+                        true -> {
+                            newList.addAll(oldList)
+                            newList.add(boardId)
+                        }
+                        false -> {
+                            newList.addAll(oldList.filter { it != boardId })
+                        }
+                    }
+                } ?: run {
+                    throw FailLoadBookMarkListException("북마크 리스트 로드 실패")
+                }
+                snapshot.documents.firstOrNull()?.let {
+                    val update = mapOf(
+                        "bookMarkList" to newList
+                    )
+                    it.reference.update(update)
+                } ?: run { throw FailUpdateBookMarkException("DB에 북마크 업데이트 실패") }
+
+                newList.map { Log.d("BoardDataSource", it) }
+                UserResponse(
+                    email = UserSingleton.userEntity.email,
+                    nickname = UserSingleton.userEntity.nickname,
+                    image = UserSingleton.userEntity.image,
+                    bookMarkList = newList
+                )
+
+            }.onFailure {
+                throw FailUpdateBookMarkException("북마크 업데이트 실패")
+            }.getOrThrow()
+
+        }
 
 }
 

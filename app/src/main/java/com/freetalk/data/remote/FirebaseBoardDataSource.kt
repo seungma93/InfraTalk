@@ -2,8 +2,9 @@ package com.freetalk.data.remote
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.saveable.autoSaver
+import com.freetalk.data.*
 import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.entity.BookMarkableBoardEntity
 import com.freetalk.data.entity.ImagesResultEntity
 import com.freetalk.data.entity.UserEntity
 import com.google.firebase.Timestamp
@@ -21,6 +22,7 @@ interface BoardDataSource {
     suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse
     suspend fun delete()
     suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
+
 }
 
 data class BoardInsetForm(
@@ -54,9 +56,13 @@ data class BoardResponse(
 )
 
 data class BoardListResponse(
-    val boardList: List<BoardResponse>? = null
+    val boardList: List<BookMarkableBoardResponse>? = null
 )
 
+data class BookMarkableBoardResponse(
+    val boardResponse: BoardResponse,
+    val bookMarkToken: Boolean? = null
+)
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
@@ -102,7 +108,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
         return kotlin.runCatching {
 
-            val snapshot = when(boardSelectForm.reload) {
+            val snapshot = when (boardSelectForm.reload) {
                 true -> getBoardDocuments(10, null)
                 false -> getBoardDocuments(10, lastDocument)
             }
@@ -123,13 +129,20 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 }
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                BoardResponse(
-                    UserEntity(email, nickname, image),
+                val bookMarkList =
+                    (it.data?.get("bookMarkList") as? List<String>) ?: emptyList()
+                val boardResponse = BoardResponse(
+                    UserEntity(email, nickname, image, bookMarkList),
                     title,
                     content,
                     images,
                     createTime,
                     editTime
+                )
+                val boardId = email + createTime
+                BookMarkableBoardResponse(
+                    boardResponse = boardResponse,
+                    bookMarkToken = UserSingleton.userEntity.bookMarkList.contains(boardId)
                 )
             }.let {
                 BoardListResponse(it)
@@ -199,6 +212,9 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             throw FailUpdatetException("업데이트 실패")
         }.getOrThrow()
     }
+
+
+
 
     override suspend fun delete() {
         TODO("Not yet implemented")

@@ -7,14 +7,16 @@ import com.freetalk.data.remote.UserResponse
 data class UserEntity(
     val email: String,
     val nickname: String,
-    val image: Uri?
+    val image: Uri?,
+    val bookMarkList: List<String>
 )
 
 fun UserResponse.toEntity(): UserEntity{
     return UserEntity(
         email = email.orEmpty(),
         nickname = nickname.orEmpty(),
-        image = null
+        image = null,
+        bookMarkList = bookMarkList ?: emptyList()
     )
 }
 

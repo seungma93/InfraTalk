@@ -16,12 +16,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.freetalk.data.remote.BoardSelectForm
+import com.freetalk.data.remote.BookMarkUpdateForm
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
 import com.freetalk.presenter.viewmodel.BoardViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class OnScrollListener(private val moreItems: () -> Unit, private val showToast: () -> Unit) :
@@ -80,10 +82,28 @@ class BoardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
-        _adapter = BoardListAdapter {
-            val endPoint = EndPoint.BoardContent(boardEntity = it)
-            (parentFragment as? Navigable)?.navigateFragment(endPoint)
-        }
+        _adapter = BoardListAdapter (
+            {val endPoint = EndPoint.BoardContent(boardEntity = it.boardEntity)
+                (parentFragment as? Navigable)?.navigateFragment(endPoint) },
+            { isBookMark, bookMarkBoardEntity ->
+                when (isBookMark) {
+                    true -> {
+                        Log.v("BookSearchFragment", "삭제 람다")
+                        lifecycleScope.launch {
+                            boardViewModel.touchBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, false))
+                        }
+                    }
+                    false -> {
+                        Log.v("BookSearchFragment", "세이브 람다")
+                        lifecycleScope.launch {
+                            boardViewModel.touchBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, true))
+                        }
+                    }
+                }
+            }
+                )
+
+
         binding.apply {
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
@@ -116,15 +136,16 @@ class BoardFragment : Fragment() {
             boardViewModel.viewState.collect {
                 Log.d("BoardFragment", "셀렉트 성공")
                 it.boardListEntity.boardList.map {
-                    Log.d("새로 업데이트", it.content)
+                    Log.d("새로 업데이트", it.boardEntity.content)
                 }
                 adapter.currentList.map {
-                    Log.d("기존 리스트", it.content)
+                    Log.d("기존 리스트", it.boardEntity.content)
                 }
                 val newList = adapter.currentList + it.boardListEntity.boardList
                 newList.map {
-                    Log.d("합쳐진 리스트", it.content)
+                    Log.d("합쳐진 리스트", it.boardEntity.content)
                 }
+
                 adapter.submitList(it.boardListEntity.boardList)
             }
         }

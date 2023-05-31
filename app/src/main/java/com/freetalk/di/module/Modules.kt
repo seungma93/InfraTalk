@@ -197,6 +197,14 @@ class Modules {
     }
 
     @Module
+    class UpdateBookMarkUseCaseModule {
+        @Provides
+        fun providesUpdateBookMarkUseCase(repository: UserDataRepository): UpdateBookMarkUseCase {
+            return UpdateBookMarkUseCase(repository)
+        }
+    }
+
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
         abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
@@ -210,9 +218,10 @@ class Modules {
         fun providesBoardViewModel(
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
-            printBoardListUesCase: PrintBoardListUesCase
+            printBoardListUesCase: PrintBoardListUesCase,
+            updateBookMarkUseCase: UpdateBookMarkUseCase
         ): ViewModel {
-            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase)
+            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase, updateBookMarkUseCase)
         }
     }
 

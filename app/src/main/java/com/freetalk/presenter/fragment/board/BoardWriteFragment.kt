@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.freetalk.data.FailInsertException
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardWriteBinding

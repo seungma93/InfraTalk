@@ -2,6 +2,7 @@ package com.freetalk.presenter.fragment.sign
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.UserSingleton
+import com.freetalk.data.*
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.di.component.DaggerSignFragmentComponent
@@ -110,9 +111,11 @@ class LoginMainFragment : Fragment() {
                         it.userEntity?.let { userEntity ->
                             UserSingleton.userEntity = userEntity
                         }
+                        Log.d("LogInMainF", " 로그인 프레그먼트")
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }
                     is ViewEvent.Error -> {
+                        Log.d("LogInMainF", " 에러 발생")
                         hideProgressBar()
                         when(it.errorCode) {
                             is NotExistEmailException -> Toast.makeText(
@@ -136,13 +139,18 @@ class LoginMainFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                             is FailSendEmailException -> Toast.makeText(
-                                requireActivity(), "셀렉트에 실패 했습니다",
+                                requireActivity(), "이메일 전송에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            is FailSelectException -> Toast.makeText(
+                                requireActivity(), "계정 정보조회에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
                             is UnKnownException -> Toast.makeText(
                                 requireActivity(), "알 수 없는 에러가 발생했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            else -> Log.d("LogInMain", it.errorCode.message.toString())
                         }
                     }
                 else -> {}

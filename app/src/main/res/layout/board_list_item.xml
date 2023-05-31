@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
     android:background="@drawable/board_item"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="40dp"
         android:text="제목"
         style="@style/Widget.FreeTalk.BoardTextTitle"
@@ -44,5 +44,31 @@
         app:layout_constraintTop_toBottomOf="@+id/author"
         android:padding="5dp" />
 
+    <ImageButton
+        android:id="@+id/btn_bookmark"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right|bottom"
+        android:src="@drawable/btn_star_selector"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:background="@android:color/transparent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_like"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        >
+    </ImageButton>
+    <ImageButton
+        android:id="@+id/btn_like"
+        android:layout_width="35dp"
+        android:layout_height="38dp"
+        android:layout_gravity="right|bottom"
+        android:src="@drawable/btn_like_selector"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:background="@android:color/transparent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </ImageButton>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.freetalk.repository
 
 import android.util.Log
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.UserEntity
 import com.freetalk.data.entity.toEntity
 import com.freetalk.data.remote.*
@@ -14,6 +15,7 @@ interface UserDataRepository {
     suspend fun sendVerifiedEmail(): UserEntity
     suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity
+    suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm): UserEntity
 }
 
 class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource): UserDataRepository{
@@ -24,6 +26,7 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
     }
 
     override suspend fun logIn(logInForm: LogInForm): UserEntity {
+        Log.d("UserDataR", "로그인 레포")
         return dataSource.logIn(logInForm).toEntity()
     }
 
@@ -42,5 +45,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
 
     override suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity {
         return dataSource.deleteUserInfo(signUpForm).toEntity()
+    }
+
+    override suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm): UserEntity {
+        return dataSource.updateBookMarkList(bookMarkUpdateForm).toEntity()
     }
 }
