@@ -20,7 +20,7 @@ class UpdateBookMarkUseCase @Inject constructor(private val repository: UserData
         Log.d("UpdateBookMarkUseCase", userEntity.bookMarkList.contains(boardId).toString())
         return BookMarkableBoardEntity(
             boardEntity = bookMarkUpdateForm.boardEntity,
-            bookMarkToken = userEntity.bookMarkList.contains(boardId)
+            isBookMark = userEntity.bookMarkList.contains(boardId)
         )
     }
 }

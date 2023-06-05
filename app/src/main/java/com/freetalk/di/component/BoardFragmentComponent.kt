@@ -24,6 +24,7 @@ import dagger.Component
         Modules.UpdateImageContentUseCaseModule::class,
         Modules.PrintBoardListUesCaseModule::class,
         Modules.UpdateBookMarkUseCaseModule::class,
+        Modules.UpdateBookMarkedBoardListUseCaseModule::class,
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]

@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -22,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.freetalk.R
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.remote.*
@@ -42,32 +44,12 @@ class BoardWriteFragment : Fragment() {
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var adapter: BoardWriteAdapter? = null
-
+    private lateinit var callback: OnBackPressedCallback
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
     private val boardViewModel: BoardViewModel by viewModels { boardViewModelFactory }
 
-/*
-    private val boardViewModel: BoardViewModel by lazy {
-
-        // dataSource
-        val firebaseBoardRemoteDataSourceImpl = FirebaseBoardRemoteDataSourceImpl(Firebase.firestore)
-        val firebaseImageDataSourceImpl = FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
-        // repository
-        val firebaseBoardDataRepositoryImpl =
-            FirebaseBoardDataRepositoryImpl(firebaseBoardRemoteDataSourceImpl)
-        val firebaseImageDataRepositoryImpl = FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
-        // usecase
-        val writeContentUseCaseImpl = WriteContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
-        val uploadImagesUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
-        val updateContentUseCaseImpl = UpdateContentUseCaseImpl(firebaseBoardDataRepositoryImpl)
-        val updateImagesContentUseCaseImpl = UpdateImageContentUseCaseImpl(updateContentUseCaseImpl, uploadImagesUseCaseImpl)
-        val factory = BoardViewModelFactory(writeContentUseCaseImpl, updateImagesContentUseCaseImpl)
-        ViewModelProvider(requireActivity(), factory).get(BoardViewModel::class.java)
-    }
-
- */
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -109,6 +91,15 @@ class BoardWriteFragment : Fragment() {
                     adapter?.setItems(imgList)
                 }
             }
+
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("BoardWriteFragment", "백스택 실행")
+                parentFragmentManager.popBackStackImmediate()
+
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
 
@@ -123,7 +114,8 @@ class BoardWriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d("BoardWriteFragment", "갯수" + parentFragmentManager.backStackEntryCount)
+        Log.d("BoardWriteFragment", "갯수2" + requireParentFragment().childFragmentManager.backStackEntryCount)
         adapter = BoardWriteAdapter {}
 
         binding.apply {
@@ -245,7 +237,8 @@ class BoardWriteFragment : Fragment() {
                 when (it) {
                     is BoardViewEvent.Insert -> {
                         hideProgressBar()
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board)
+                        parentFragmentManager.popBackStackImmediate()
+                        //(requireActivity() as? Navigable)?.navigateFragment(EndPoint.Board)
                     }
                     is BoardViewEvent.Error -> {
                         hideProgressBar()
@@ -259,6 +252,11 @@ class BoardWriteFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onDestroyView() {
@@ -285,5 +283,6 @@ class BoardWriteFragment : Fragment() {
             .create()
             .show()
     }
+
 
 }

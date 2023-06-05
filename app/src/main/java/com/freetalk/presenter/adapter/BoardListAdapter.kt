@@ -89,7 +89,7 @@ class BoardListAdapter(
                     context.text = it.boardEntity.content
                     date.text = it.boardEntity.createTime.toString()
                     author.text = it.boardEntity.author.nickname
-                    btnBookmark.isSelected = it.bookMarkToken
+                    btnBookmark.isSelected = it.isBookMark
                     //Glide.with(itemView.context).load(imgUri).into(image)
                 }
             }
