@@ -61,7 +61,7 @@ data class BoardListResponse(
 
 data class BookMarkableBoardResponse(
     val boardResponse: BoardResponse,
-    val bookMarkToken: Boolean? = null
+    val isBookMark: Boolean? = null
 )
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
@@ -142,7 +142,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 val boardId = email + createTime
                 BookMarkableBoardResponse(
                     boardResponse = boardResponse,
-                    bookMarkToken = UserSingleton.userEntity.bookMarkList.contains(boardId)
+                    isBookMark = UserSingleton.userEntity.bookMarkList.contains(boardId)
                 )
             }.let {
                 BoardListResponse(it)

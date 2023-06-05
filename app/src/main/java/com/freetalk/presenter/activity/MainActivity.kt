@@ -1,6 +1,7 @@
 package com.freetalk.presenter.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -21,13 +22,7 @@ sealed class EndPoint {
     object LoginMain : EndPoint()
     object SignUp : EndPoint()
     object Main: EndPoint()
-    object Home : EndPoint()
-    object Board : EndPoint()
-    object Chat : EndPoint()
-    object MyPage : EndPoint()
-    object BoardWrite : EndPoint()
     object Error : EndPoint()
-    data class BoardContent(val boardEntity: BoardEntity): EndPoint()
 }
 
 interface Navigable {
@@ -75,35 +70,9 @@ class MainActivity() : AppCompatActivity(), Navigable {
                     val fragment = MainFragment()
                     setFragment(fragment, R.id.activity_frame_layout, false)
                 }
-                is EndPoint.Home -> {
-                    val fragment = HomeFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
-                is EndPoint.Board -> {
-                    val fragment = BoardFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
-                is EndPoint.Chat -> {
-                    val fragment = ChatFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
-                is EndPoint.MyPage -> {
-                    val fragment = MyPageFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
-                is EndPoint.BoardWrite -> {
-                    val fragment = BoardWriteFragment()
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
-                is EndPoint.BoardContent -> {
-                    val fragment = BoardContentFragment()
-                    val bundle = Bundle()
-                    bundle.putSerializable(BoardContentFragment.BOARD_ITEM_KEY, endPoint.boardEntity)
-                    fragment.arguments = bundle
-                    setFragment(fragment, R.id.fragment_frame_layout, true)
-                }
                 is EndPoint.Error -> {
                 }
             }
     }
+
 }

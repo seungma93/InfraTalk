@@ -19,7 +19,7 @@ class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
     private val updateImageContentUseCase: UpdateImageContentUseCase,
     private val printBoardListUseCase: PrintBoardListUesCase,
-    private val updateBookMarkUseCase: UpdateBookMarkUseCase
+    private val updateBookMarkedBoardListUseCase: UpdateBookMarkedBoardListUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -67,16 +67,12 @@ class BoardViewModel @Inject constructor(
 
     }
 
-    suspend fun touchBookMark(bookMarkUpdateForm: BookMarkUpdateForm) {
+    suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm) {
         kotlin.runCatching {
-            val bookMarkableBoardEntity = updateBookMarkUseCase.invoke(bookMarkUpdateForm)
-            val newList = mutableListOf<BookMarkableBoardEntity>()
-            newList.addAll(_viewState.value.boardListEntity.boardList)
-            newList.forEachIndexed { i, it ->
-                if (it.boardEntity.author.email == bookMarkableBoardEntity.boardEntity.author.email && it.boardEntity.createTime == bookMarkableBoardEntity.boardEntity.createTime) {
-                    newList.set(i, bookMarkableBoardEntity)
-                }
-            }
+            val newList = updateBookMarkedBoardListUseCase(
+                bookMarkUpdateForm,
+                _viewState.value.boardListEntity.boardList
+            )
             _viewState.value = BoardViewState(BoardListEntity(newList))
         }
     }

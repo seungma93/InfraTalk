@@ -8,6 +8,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.databinding.FragmentMainBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
@@ -20,13 +21,30 @@ import com.freetalk.presenter.fragment.mypage.MyPageFragment
 import com.freetalk.presenter.fragment.sign.LoginMainFragment
 import com.freetalk.presenter.fragment.sign.SignUpFragment
 
-class MainFragment : Fragment(), Navigable {
+interface ChildFragmentNavigable {
+    fun navigateFragment(endPoint: MainChildFragmentEndPoint)
+}
+
+sealed class MainChildFragmentEndPoint {
+    object Home : MainChildFragmentEndPoint()
+    object Board : MainChildFragmentEndPoint()
+    object Chat : MainChildFragmentEndPoint()
+    object MyPage : MainChildFragmentEndPoint()
+    object BoardWrite : MainChildFragmentEndPoint()
+    data class BoardContent(val boardEntity: BoardEntity): MainChildFragmentEndPoint()
+    object Error : MainChildFragmentEndPoint()
+}
+
+class MainFragment : Fragment(), ChildFragmentNavigable {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
     companion object {
         private val bundle = Bundle()
     }
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,16 +63,16 @@ class MainFragment : Fragment(), Navigable {
                 when(it.itemId) {
                     R.id.home_fragment -> {
                         Log.v("MainFragment", "홈 버튼 클릭")
-                        navigateFragment(EndPoint.Home)
+                        navigateFragment(MainChildFragmentEndPoint.Home)
                     }
                     R.id.board_fragment -> {
-                        navigateFragment(EndPoint.Board)
+                        navigateFragment(MainChildFragmentEndPoint.Board)
                     }
                     R.id.chat_fragment -> {
-                        navigateFragment(EndPoint.Chat)
+                        navigateFragment(MainChildFragmentEndPoint.Chat)
                     }
                     R.id.my_page_fragment -> {
-                       navigateFragment(EndPoint.MyPage)
+                       navigateFragment(MainChildFragmentEndPoint.MyPage)
                     }
                 }
                 true
@@ -88,35 +106,35 @@ class MainFragment : Fragment(), Navigable {
 
     }
 
-    override fun navigateFragment(endPoint: EndPoint) {
+    override fun navigateFragment(endPoint: MainChildFragmentEndPoint) {
         when (endPoint) {
-            is EndPoint.Home -> {
+            is MainChildFragmentEndPoint.Home -> {
                 val fragment = HomeFragment()
-                setFragment(fragment, R.id.fragment_frame_layout, true)
+                setFragment(fragment, R.id.fragment_frame_layout, false)
             }
-            is EndPoint.Board -> {
+            is MainChildFragmentEndPoint.Board -> {
                 val fragment = BoardFragment()
-                setFragment(fragment, R.id.fragment_frame_layout, true)
+                setFragment(fragment, R.id.fragment_frame_layout, false)
             }
-            is EndPoint.Chat -> {
+            is MainChildFragmentEndPoint.Chat -> {
                 val fragment = ChatFragment()
-                setFragment(fragment, R.id.fragment_frame_layout, true)
+                setFragment(fragment, R.id.fragment_frame_layout, false)
             }
-            is EndPoint.MyPage -> {
+            is MainChildFragmentEndPoint.MyPage -> {
                 val fragment = MyPageFragment()
-                setFragment(fragment, R.id.fragment_frame_layout, true)
+                setFragment(fragment, R.id.fragment_frame_layout, false)
             }
-            is EndPoint.BoardWrite -> {
+            is MainChildFragmentEndPoint.BoardWrite -> {
                 val fragment = BoardWriteFragment()
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
-            is EndPoint.BoardContent -> {
+            is MainChildFragmentEndPoint.BoardContent -> {
                 val fragment = BoardContentFragment()
                 bundle.putSerializable(BoardContentFragment.BOARD_ITEM_KEY, endPoint.boardEntity)
                 fragment.arguments = bundle
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
-            is EndPoint.Error -> {
+            is MainChildFragmentEndPoint.Error -> {
             }
             else -> {}
         }

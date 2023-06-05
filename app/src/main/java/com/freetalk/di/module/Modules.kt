@@ -205,6 +205,14 @@ class Modules {
     }
 
     @Module
+    class UpdateBookMarkedBoardListUseCaseModule {
+        @Provides
+        fun providesUpdateBookMarkedBoardListUseCase(updateBookMarkUseCase: UpdateBookMarkUseCase): UpdateBookMarkedBoardListUseCase {
+            return UpdateBookMarkedBoardListUseCase(updateBookMarkUseCase)
+        }
+    }
+
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
         abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
@@ -219,9 +227,9 @@ class Modules {
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
             printBoardListUesCase: PrintBoardListUesCase,
-            updateBookMarkUseCase: UpdateBookMarkUseCase
+            updateBookMarkedBoardListUseCase: UpdateBookMarkedBoardListUseCase
         ): ViewModel {
-            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase, updateBookMarkUseCase)
+            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase, updateBookMarkedBoardListUseCase)
         }
     }
 

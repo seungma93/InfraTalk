@@ -22,6 +22,9 @@ import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
+import com.freetalk.presenter.fragment.ChildFragmentNavigable
+import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
+import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -83,20 +86,20 @@ class BoardFragment : Fragment() {
         Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
         _adapter = BoardListAdapter (
-            {val endPoint = EndPoint.BoardContent(boardEntity = it.boardEntity)
-                (parentFragment as? Navigable)?.navigateFragment(endPoint) },
-            { isBookMark, bookMarkBoardEntity ->
-                when (isBookMark) {
+            {val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it.boardEntity)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint) },
+            { hasBookMark, bookMarkBoardEntity ->
+                when (hasBookMark) {
                     true -> {
                         Log.v("BookSearchFragment", "삭제 람다")
                         lifecycleScope.launch {
-                            boardViewModel.touchBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, false))
+                            boardViewModel.updateBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, true))
                         }
                     }
                     false -> {
                         Log.v("BookSearchFragment", "세이브 람다")
                         lifecycleScope.launch {
-                            boardViewModel.touchBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, true))
+                            boardViewModel.updateBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, false))
                         }
                     }
                 }
@@ -109,7 +112,7 @@ class BoardFragment : Fragment() {
                 isFabOpen = toggleFab(isFabOpen)
             }
             btnFabWrite.setOnClickListener {
-                (parentFragment as? Navigable)?.navigateFragment(EndPoint.BoardWrite)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(MainChildFragmentEndPoint.BoardWrite)
                 toggleFab(true)
             }
             swipeRefreshLayout.setOnRefreshListener {

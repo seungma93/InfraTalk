@@ -55,7 +55,7 @@ data class ResetPasswordForm(
 
 data class BookMarkUpdateForm(
     val boardEntity: BoardEntity,
-    val insertToken: Boolean
+    val hasBookMark: Boolean
 )
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
@@ -238,13 +238,13 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 oldList?.let {
                     val boardId = boardEntity.author.email + boardEntity.createTime
-                    when (bookMarkUpdateForm.insertToken) {
+                    when (bookMarkUpdateForm.hasBookMark) {
                         true -> {
-                            newList.addAll(oldList)
-                            newList.add(boardId)
+                            newList.addAll(oldList.filter { it != boardId })
                         }
                         false -> {
-                            newList.addAll(oldList.filter { it != boardId })
+                            newList.addAll(oldList)
+                            newList.add(boardId)
                         }
                     }
                 } ?: run {

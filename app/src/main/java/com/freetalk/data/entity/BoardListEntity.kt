@@ -30,12 +30,12 @@ data class BookMarkableBoardEntity(
         Date(),
         null
     ),
-    val bookMarkToken: Boolean = false
+    val isBookMark: Boolean = false
 )
 
 fun BookMarkableBoardResponse.toEntity(): BookMarkableBoardEntity {
     return BookMarkableBoardEntity(
         boardEntity = boardResponse.toEntity(),
-        bookMarkToken = bookMarkToken ?: false
+        isBookMark = isBookMark ?: false
     )
 }
