@@ -29,7 +29,8 @@ data class UserResponse(
     val email: String? = null,
     val nickname: String? = null,
     val image: Uri? = null,
-    val bookMarkList: List<String>? = null
+    val bookMarkList: List<String>? = null,
+    val likeList: List<String>? = null
 )
 
 data class SignUpForm(
@@ -57,6 +58,7 @@ data class BookMarkUpdateForm(
     val boardEntity: BoardEntity,
     val hasBookMark: Boolean
 )
+
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -87,7 +89,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
         Log.d("FirebaseUserData", "시작")
-        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null, emptyList()))
+        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null, emptyList(), emptyList()))
         val createAuthResult = createAuth(signUpForm)
         return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
     }
@@ -98,7 +100,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", updateForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
                 }
-            UserResponse(updateForm.email, updateForm.nickname, updateForm.image, emptyList())
+            UserResponse(updateForm.email, updateForm.nickname, updateForm.image, emptyList(), emptyList())
         }.onFailure {
             throw FailUpdatetException("업데이트 실패")
         }.getOrThrow()
@@ -109,7 +111,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             currentUser?.let {
                 Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
-                UserResponse(currentUser.email, null, null, emptyList())
+                UserResponse(currentUser.email, null, null, emptyList(), emptyList())
             } ?: run {
                 Log.d("UserDataSource", "알 수 없는1")
                 throw UnKnownException("알 수 없는 에러")
@@ -132,7 +134,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", signUpForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.delete()?.await()
                 }
-            UserResponse(email = signUpForm.email, nickname = null, image = null, emptyList())
+            UserResponse(email = signUpForm.email, nickname = null, image = null, emptyList(), emptyList())
         }.onFailure {
             throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
@@ -174,7 +176,8 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) },
-                    bookMarkList = it.data?.get("bookMarkList") as? List<String>
+                    bookMarkList = it.data?.get("bookMarkList") as? List<String>,
+                    likeList = it.data?.get("likeList") as? List<String>
                 )
             } ?: run{
                 throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
@@ -218,7 +221,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
         return kotlin.runCatching {
             auth.sendPasswordResetEmail(resetPasswordForm.email).await()
-            UserResponse(resetPasswordForm.email, null, null, emptyList())
+            UserResponse(resetPasswordForm.email, null, null, emptyList(), emptyList())
         }.onFailure {
             throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
@@ -238,7 +241,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 oldList?.let {
                     val boardId = boardEntity.author.email + boardEntity.createTime
-                    when (bookMarkUpdateForm.hasBookMark) {
+                    when (hasBookMark) {
                         true -> {
                             newList.addAll(oldList.filter { it != boardId })
                         }
@@ -262,7 +265,8 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     email = UserSingleton.userEntity.email,
                     nickname = UserSingleton.userEntity.nickname,
                     image = UserSingleton.userEntity.image,
-                    bookMarkList = newList
+                    bookMarkList = newList,
+                    likeList = UserSingleton.userEntity.likeList
                 )
 
             }.onFailure {
@@ -270,6 +274,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
 
         }
+
 
 }
 

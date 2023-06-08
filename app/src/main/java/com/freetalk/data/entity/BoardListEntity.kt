@@ -2,13 +2,11 @@ package com.freetalk.data.entity
 
 import android.net.Uri
 import com.freetalk.data.remote.BoardListResponse
-import com.freetalk.data.remote.BoardResponse
-import com.freetalk.data.remote.BookMarkableBoardResponse
-import com.google.firebase.firestore.DocumentSnapshot
+import com.freetalk.data.remote.WrapperBoardResponse
 import java.util.*
 
 data class BoardListEntity (
-    val boardList: List<BookMarkableBoardEntity> = emptyList()
+    val boardList: List<WrapperBoardEntity> = emptyList()
 )
 
 fun BoardListResponse.toEntity(): BoardListEntity {
@@ -21,21 +19,25 @@ fun BoardListResponse.toEntity(): BoardListEntity {
     )
 }
 
-data class BookMarkableBoardEntity(
+data class WrapperBoardEntity(
     val boardEntity: BoardEntity = BoardEntity(
-        UserEntity("", "", Uri.parse(""), emptyList()),
+        UserEntity("", "", Uri.parse(""), emptyList(), emptyList()),
         "",
         "",
         null,
         Date(),
         null
     ),
-    val isBookMark: Boolean = false
+    val isBookMark: Boolean = false,
+    val isLike: Boolean = false,
+    val likeCount: Int = 0
 )
 
-fun BookMarkableBoardResponse.toEntity(): BookMarkableBoardEntity {
-    return BookMarkableBoardEntity(
+fun WrapperBoardResponse.toEntity(): WrapperBoardEntity {
+    return WrapperBoardEntity(
         boardEntity = boardResponse.toEntity(),
-        isBookMark = isBookMark ?: false
+        isBookMark = isBookMark ?: false,
+        isLike = isLike ?: false,
+        likeCount = likeCount ?: 0
     )
 }

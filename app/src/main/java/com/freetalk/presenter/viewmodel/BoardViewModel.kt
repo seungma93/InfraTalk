@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.BoardListEntity
-import com.freetalk.data.entity.BookMarkableBoardEntity
 import com.freetalk.data.remote.*
 import com.freetalk.usecase.*
 import kotlinx.coroutines.flow.*
@@ -19,7 +18,8 @@ class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
     private val updateImageContentUseCase: UpdateImageContentUseCase,
     private val printBoardListUseCase: PrintBoardListUesCase,
-    private val updateBookMarkedBoardListUseCase: UpdateBookMarkedBoardListUseCase
+    private val updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
+    private val updateLikeBoardUseCase: UpdateLikeBoardUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -48,33 +48,56 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    suspend fun select(boardSelectForm: BoardSelectForm) {
-        kotlin.runCatching {
+    suspend fun select(boardSelectForm: BoardSelectForm): BoardViewState {
+        val result = kotlin.runCatching {
             Log.d("BoardViewModel", "셀렉트 시작")
             val selectResult = printBoardListUseCase(boardSelectForm)
             selectResult.boardList.map {
                 Log.d("BoardViewModel", it.boardEntity.content)
             }
-            val boardListState = when (boardSelectForm.reload) {
+            when (boardSelectForm.reload) {
                 true -> selectResult.boardList
                 false -> _viewState.value.boardListEntity.boardList + selectResult.boardList
             }
-
-            _viewState.value = BoardViewState(BoardListEntity(boardListState))
         }.onFailure {
             Log.d("BoardViewModel", "셀렉트 실패")
-        }
+        }.getOrNull()
 
+        return result?.let {
+            BoardViewState(BoardListEntity(it)).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm) {
         kotlin.runCatching {
-            val newList = updateBookMarkedBoardListUseCase(
+            val newList = updateBookMarkBoardUseCase(
                 bookMarkUpdateForm,
                 _viewState.value.boardListEntity.boardList
             )
             _viewState.value = BoardViewState(BoardListEntity(newList))
-        }
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 업데이트 실패")
+        }.getOrNull()
+    }
+
+    suspend fun updateLike(
+        likeUpdateForm: LikeUpdateForm,
+        likeSelectForm: LikeSelectForm,
+        likeSelectCountSelectForm: LikeCountSelectForm
+    ) {
+        kotlin.runCatching {
+            val newList = updateLikeBoardUseCase(
+                likeUpdateForm,
+                likeSelectForm,
+                likeSelectCountSelectForm,
+                _viewState.value.boardListEntity.boardList
+            )
+            _viewState.value = BoardViewState(BoardListEntity(newList))
+        }.onFailure {
+            Log.d("BoardViewModel", "좋아요 업데이트 실패")
+        }.getOrNull()
     }
 
 

@@ -6,7 +6,7 @@ import java.io.Serializable
 import java.util.*
 
 data class BoardEntity(
-    val author: UserEntity = UserEntity("", "", Uri.parse(""), emptyList()),
+    val author: UserEntity = UserEntity("", "", Uri.parse(""), emptyList(), emptyList()),
     val title: String = "",
     val content: String = "",
     val images: ImagesResultEntity? = null,
@@ -16,7 +16,7 @@ data class BoardEntity(
 
 fun BoardResponse.toEntity(): BoardEntity {
     return BoardEntity(
-        author = author ?: UserEntity("", "", Uri.parse(""), emptyList()),
+        author = author ?: UserEntity("", "", Uri.parse(""), emptyList(), emptyList()),
         title = title.orEmpty(),
         content = content.orEmpty(),
         images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
