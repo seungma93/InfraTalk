@@ -68,3 +68,16 @@ class FailUpdateBookMarkException(
 class FailSelectLogInInfoException(
     val _message: String
 ) : Exception(_message)
+
+class FailUpdateLikeException(
+    val _message: String
+) : Exception(_message)
+
+class FailLoadLikeException(
+    val _message: String
+) : Exception(_message)
+
+class FailLoadLikeCountException(
+    val _message: String
+) : Exception(_message)
+

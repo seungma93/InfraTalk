@@ -10,13 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.freetalk.data.remote.BoardSelectForm
-import com.freetalk.data.remote.BookMarkUpdateForm
+import com.freetalk.data.UserSingleton
+import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
@@ -28,6 +29,7 @@ import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class OnScrollListener(private val moreItems: () -> Unit, private val showToast: () -> Unit) :
     RecyclerView.OnScrollListener() {
@@ -85,26 +87,66 @@ class BoardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
-        _adapter = BoardListAdapter (
-            {val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it.boardEntity)
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint) },
+        _adapter = BoardListAdapter(
+            {
+                val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it.boardEntity)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            },
             { hasBookMark, bookMarkBoardEntity ->
                 when (hasBookMark) {
                     true -> {
                         Log.v("BookSearchFragment", "삭제 람다")
                         lifecycleScope.launch {
-                            boardViewModel.updateBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, true))
+                            boardViewModel.updateBookMark(
+                                BookMarkUpdateForm(
+                                    bookMarkBoardEntity.boardEntity,
+                                    true
+                                )
+                            )
                         }
                     }
                     false -> {
                         Log.v("BookSearchFragment", "세이브 람다")
                         lifecycleScope.launch {
-                            boardViewModel.updateBookMark(BookMarkUpdateForm(bookMarkBoardEntity.boardEntity, false))
+                            boardViewModel.updateBookMark(
+                                BookMarkUpdateForm(
+                                    bookMarkBoardEntity.boardEntity,
+                                    false
+                                )
+                            )
                         }
                     }
                 }
-            }
-                )
+            },
+            { wrapperBoardEntity ->
+
+                    val likeUpdateForm = LikeUpdateForm(
+                        wrapperBoardEntity.boardEntity.author.email,
+                        wrapperBoardEntity.boardEntity.createTime,
+                        UserSingleton.userEntity.email
+                        )
+
+                    val likeSelectForm = LikeSelectForm(
+                        wrapperBoardEntity.boardEntity.author.email,
+                        wrapperBoardEntity.boardEntity.createTime,
+                        UserSingleton.userEntity.email
+                    )
+
+                    val likeCountSelectForm = LikeCountSelectForm(
+                        wrapperBoardEntity.boardEntity.author.email,
+                        wrapperBoardEntity.boardEntity.createTime,
+                    )
+
+                        Log.v("BookSearchFragment", "세이브 람다")
+                        lifecycleScope.launch {
+                            boardViewModel.updateLike(
+                                likeUpdateForm, likeSelectForm, likeCountSelectForm
+                            )
+                        }
+                    }
+
+
+        )
 
 
         binding.apply {
@@ -112,7 +154,9 @@ class BoardFragment : Fragment() {
                 isFabOpen = toggleFab(isFabOpen)
             }
             btnFabWrite.setOnClickListener {
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(MainChildFragmentEndPoint.BoardWrite)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(
+                    MainChildFragmentEndPoint.BoardWrite
+                )
                 toggleFab(true)
             }
             swipeRefreshLayout.setOnRefreshListener {
@@ -128,10 +172,15 @@ class BoardFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select(BoardSelectForm(true))
+            val result = boardViewModel.select(BoardSelectForm(true))
+            adapter.submitList(result.boardListEntity.boardList) {
+                binding.recyclerviewBoardList.scrollToPosition(0)
+            }
         }
         subscribe()
         initScrollListener()
+
+
     }
 
     private fun subscribe() {

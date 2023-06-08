@@ -30,7 +30,4 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
         return dataSource.updateContent(boardUpdateForm).toEntity()
     }
 
-
-
-
 }

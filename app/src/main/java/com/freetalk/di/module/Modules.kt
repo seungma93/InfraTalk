@@ -1,5 +1,6 @@
 package com.freetalk.di.module
 
+import android.service.autofill.UserData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.freetalk.data.remote.*
@@ -71,9 +72,19 @@ class Modules {
     }
 
     @Module
+    class FirebaseLikeDataSourceModule {
+        @Provides
+        fun providesFirebaseLikeRemoteDataSource(
+            database: FirebaseFirestore
+        ): LikeDataSource {
+            return FirebaseLikeRemoteDataSourceImpl(database)
+        }
+    }
+
+    @Module
     class BoardDataRepositoryModule {
         @Provides
-        fun providesFirebaseBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
+        fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
             return BoardDataRepositoryImpl(dataSource)
         }
     }
@@ -81,7 +92,7 @@ class Modules {
     @Module
     class ImageDataRepositoryModule {
         @Provides
-        fun providesFirebaseImageDataRepository(dataSource: ImageDataSource): ImageDataRepository {
+        fun providesImageDataRepository(dataSource: ImageDataSource): ImageDataRepository {
             return ImageDataRepositoryImpl(dataSource)
         }
     }
@@ -89,8 +100,16 @@ class Modules {
     @Module
     class UserDataRepositoryModule {
         @Provides
-        fun providesFirebaseUserDataRepository(dataSource: UserDataSource): UserDataRepository {
+        fun providesUserDataRepository(dataSource: UserDataSource): UserDataRepository {
             return UserDataRepositoryImpl(dataSource)
+        }
+    }
+
+    @Module
+    class LikeDataRepositoryModule {
+        @Provides
+        fun providesLikeDataRepository(dataSource: LikeDataSource): LikeDataRepository {
+            return LikeDataRepositoryImpl(dataSource)
         }
     }
 
@@ -196,19 +215,20 @@ class Modules {
         }
     }
 
+
     @Module
-    class UpdateBookMarkUseCaseModule {
+    class UpdateBookMarkBoardUseCaseModule {
         @Provides
-        fun providesUpdateBookMarkUseCase(repository: UserDataRepository): UpdateBookMarkUseCase {
-            return UpdateBookMarkUseCase(repository)
+        fun providesUpdateBookMarkBoardUseCase(repository: UserDataRepository): UpdateBookMarkBoardUseCase {
+            return UpdateBookMarkBoardUseCase(repository)
         }
     }
 
     @Module
-    class UpdateBookMarkedBoardListUseCaseModule {
+    class UpdateLikeBoardUseCaseModule {
         @Provides
-        fun providesUpdateBookMarkedBoardListUseCase(updateBookMarkUseCase: UpdateBookMarkUseCase): UpdateBookMarkedBoardListUseCase {
-            return UpdateBookMarkedBoardListUseCase(updateBookMarkUseCase)
+        fun providesUpdateLikeBoardUseCase(repository: LikeDataRepository): UpdateLikeBoardUseCase {
+            return UpdateLikeBoardUseCase(repository)
         }
     }
 
@@ -227,9 +247,16 @@ class Modules {
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
             printBoardListUesCase: PrintBoardListUesCase,
-            updateBookMarkedBoardListUseCase: UpdateBookMarkedBoardListUseCase
+            updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
+            updateLikeBoardUseCase: UpdateLikeBoardUseCase
         ): ViewModel {
-            return BoardViewModel(writeContentUseCase, updateImageContentUseCase, printBoardListUesCase, updateBookMarkedBoardListUseCase)
+            return BoardViewModel(
+                writeContentUseCase,
+                updateImageContentUseCase,
+                printBoardListUesCase,
+                updateBookMarkBoardUseCase,
+                updateLikeBoardUseCase
+            )
         }
     }
 

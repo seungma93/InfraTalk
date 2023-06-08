@@ -50,4 +50,5 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
     override suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm): UserEntity {
         return dataSource.updateBookMarkList(bookMarkUpdateForm).toEntity()
     }
+
 }

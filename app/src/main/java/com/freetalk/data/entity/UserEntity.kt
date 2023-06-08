@@ -8,7 +8,8 @@ data class UserEntity(
     val email: String,
     val nickname: String,
     val image: Uri?,
-    val bookMarkList: List<String>
+    val bookMarkList: List<String>,
+    val likeList: List<String>
 )
 
 fun UserResponse.toEntity(): UserEntity{
@@ -16,7 +17,8 @@ fun UserResponse.toEntity(): UserEntity{
         email = email.orEmpty(),
         nickname = nickname.orEmpty(),
         image = null,
-        bookMarkList = bookMarkList ?: emptyList()
+        bookMarkList = bookMarkList ?: emptyList(),
+        likeList = likeList ?: emptyList()
     )
 }
 

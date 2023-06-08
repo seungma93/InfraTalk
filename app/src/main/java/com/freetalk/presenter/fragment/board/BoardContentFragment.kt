@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.freetalk.data.entity.BoardEntity
@@ -16,6 +17,16 @@ import com.freetalk.databinding.FragmentBoardContentBinding
 class BoardContentFragment : Fragment() {
     companion object {
         const val BOARD_ITEM_KEY = "BOARD_ITEM_KEY"
+
+        fun newInstance(
+            boardEntity: BoardEntity
+        ): BoardContentFragment {
+            return BoardContentFragment().apply {
+                arguments = bundleOf(
+                    BOARD_ITEM_KEY to boardEntity
+                )
+            }
+        }
     }
 
     private var _binding: FragmentBoardContentBinding? = null
@@ -29,7 +40,7 @@ class BoardContentFragment : Fragment() {
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
-                parentFragmentManager.popBackStackImmediate()
+                parentFragmentManager.popBackStack()
 
             }
         }

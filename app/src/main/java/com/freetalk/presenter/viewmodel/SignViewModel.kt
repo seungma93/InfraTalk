@@ -44,6 +44,7 @@ class SignViewModel @Inject constructor(
                         signUpResult.email,
                         signUpResult.nickname,
                         updateProfileResult.image,
+                        emptyList(),
                         emptyList()
                     )
                 )
