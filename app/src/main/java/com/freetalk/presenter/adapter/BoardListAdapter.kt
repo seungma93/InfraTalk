@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.freetalk.data.entity.WrapperBoardEntity
 import com.freetalk.databinding.BoardListItemBinding
 
@@ -68,10 +69,7 @@ class BoardListAdapter(
                 btnBookmark.setOnClickListener {
                     wrapperBoardEntity?.let {
                         Log.v("BookListAdapter", "onClick 실행")
-                        when (btnBookmark.isSelected) {
-                            true -> bookMarkClick(true, it)
-                            false -> bookMarkClick(false, it)
-                        }
+                        bookMarkClick(btnBookmark.isSelected, it)
                     }
                 }
                 btnLike.setOnClickListener {
@@ -96,7 +94,7 @@ class BoardListAdapter(
                     btnBookmark.isSelected = it.isBookMark
                     btnLike.isSelected = it.isLike
                     likeCount.text = it.likeCount.toString()
-                    //Glide.with(itemView.context).load(imgUri).into(image)
+                    Glide.with(itemView.context).load(it.boardEntity.images?.successUris?.firstOrNull()).into(image)
                 }
             }
         }

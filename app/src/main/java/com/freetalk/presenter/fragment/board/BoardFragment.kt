@@ -88,48 +88,46 @@ class BoardFragment : Fragment() {
         Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
         _adapter = BoardListAdapter(
-            {
+            itemClick = {
                 val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it.boardEntity)
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             },
-            { hasBookMark, bookMarkBoardEntity ->
+            bookMarkClick = { hasBookMark, bookMarkBoardEntity ->
                 when (hasBookMark) {
                     true -> {
                         Log.v("BookSearchFragment", "삭제 람다")
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             boardViewModel.updateBookMark(
                                 BookMarkUpdateForm(
-                                    bookMarkBoardEntity.boardEntity,
-                                    true
+                                    boardEntity = bookMarkBoardEntity.boardEntity,
+                                    hasBookMark = true
                                 )
                             )
                         }
                     }
                     false -> {
                         Log.v("BookSearchFragment", "세이브 람다")
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             boardViewModel.updateBookMark(
                                 BookMarkUpdateForm(
-                                    bookMarkBoardEntity.boardEntity,
-                                    false
+                                    boardEntity = bookMarkBoardEntity.boardEntity,
+                                    hasBookMark = false
                                 )
                             )
                         }
                     }
                 }
             },
-            { wrapperBoardEntity ->
+            likeClick = { wrapperBoardEntity ->
 
                     val likeUpdateForm = LikeUpdateForm(
                         wrapperBoardEntity.boardEntity.author.email,
-                        wrapperBoardEntity.boardEntity.createTime,
-                        UserSingleton.userEntity.email
+                        wrapperBoardEntity.boardEntity.createTime
                         )
 
                     val likeSelectForm = LikeSelectForm(
                         wrapperBoardEntity.boardEntity.author.email,
-                        wrapperBoardEntity.boardEntity.createTime,
-                        UserSingleton.userEntity.email
+                        wrapperBoardEntity.boardEntity.createTime
                     )
 
                     val likeCountSelectForm = LikeCountSelectForm(
@@ -138,7 +136,7 @@ class BoardFragment : Fragment() {
                     )
 
                         Log.v("BookSearchFragment", "세이브 람다")
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             boardViewModel.updateLike(
                                 likeUpdateForm, likeSelectForm, likeCountSelectForm
                             )
@@ -157,12 +155,12 @@ class BoardFragment : Fragment() {
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(
                     MainChildFragmentEndPoint.BoardWrite
                 )
-                toggleFab(true)
+                toggleFab(isFabOpen = true)
             }
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     kotlin.runCatching {
-                        boardViewModel.select(BoardSelectForm(true))
+                        boardViewModel.select(BoardSelectForm(reload = true))
                     }
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -172,7 +170,7 @@ class BoardFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            val result = boardViewModel.select(BoardSelectForm(true))
+            val result = boardViewModel.select(BoardSelectForm(reload = true))
             adapter.submitList(result.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
             }
@@ -209,7 +207,7 @@ class BoardFragment : Fragment() {
 
     private fun moreItems() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select(BoardSelectForm(false))
+            boardViewModel.select(BoardSelectForm(reload = false))
         }
     }
 

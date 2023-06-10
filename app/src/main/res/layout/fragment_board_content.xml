@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/content_title"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="글 제목"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/content_author"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:text="닉네임"
+                app:layout_constraintTop_toBottomOf="@+id/content_title"/>
+
+            <TextView
+                android:id="@+id/content_create_time"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:text="날짜"
+                android:gravity="right"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/content_title"/>
+
+            <TextView
+                android:id="@+id/content_context"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:text="글 내용"
+                app:layout_constraintTop_toBottomOf="@+id/content_author"/>
+            
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_image"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/content_context"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

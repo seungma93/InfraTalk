@@ -13,6 +13,7 @@ class UpdateBookMarkBoardUseCase @Inject constructor(private val repository: Use
         boardList: List<WrapperBoardEntity>
     ): List<WrapperBoardEntity> {
         val userEntity = repository.updateBookMark(bookMarkUpdateForm)
+
         UserSingleton.userEntity = userEntity
 
         val boardId = bookMarkUpdateForm.boardEntity.author.email + bookMarkUpdateForm.boardEntity.createTime
