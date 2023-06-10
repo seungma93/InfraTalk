@@ -124,7 +124,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 val likeList = (author?.get("likeList") as? List<String>) ?: emptyList()
                 val title = it.data?.get("title") as? String
                 val content = it.data?.get("content") as? String
-                val images = (it.data?.get("image") as? List<String>)?.let {
+                val images = (it.data?.get("images") as? List<String>)?.let {
                     ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
                 }
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()

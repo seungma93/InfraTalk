@@ -3,6 +3,7 @@ package com.freetalk.data.remote
 import com.freetalk.data.FailLoadLikeCountException
 import com.freetalk.data.FailLoadLikeException
 import com.freetalk.data.FailUpdateLikeException
+import com.freetalk.data.UserSingleton
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.util.Date
@@ -17,14 +18,12 @@ interface LikeDataSource {
 
 data class LikeUpdateForm(
     val boardAuthorEmail: String,
-    val boardCreateTime: Date,
-    val userEmail: String
+    val boardCreateTime: Date
 )
 
 data class LikeSelectForm(
     val boardAuthorEmail: String,
-    val boardCreateTime: Date,
-    val userEmail: String
+    val boardCreateTime: Date
 )
 
 data class LikeCountSelectForm(
@@ -53,7 +52,7 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
         with(likeUpdateForm) {
             return kotlin.runCatching {
                 val snapshot = database.collection("Like")
-                    .whereEqualTo("userEmail", userEmail)
+                    .whereEqualTo("userEmail", UserSingleton.userEntity.email)
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
@@ -61,7 +60,7 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                 val likeResponse = LikeResponse(
                     boardAuthorEmail = boardAuthorEmail,
                     boardCreateTime = boardCreateTime,
-                    userEmail = userEmail,
+                    userEmail = UserSingleton.userEntity.email,
                     updateTime = Date(System.currentTimeMillis())
                 )
 
@@ -82,7 +81,7 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
         with(likeSelectForm) {
             return kotlin.runCatching {
                 val snapshot = database.collection("Like")
-                    .whereEqualTo("userEmail", userEmail)
+                    .whereEqualTo("userEmail", UserSingleton.userEntity.email)
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
@@ -91,7 +90,7 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                     LikeResponse(
                         boardAuthorEmail = boardAuthorEmail,
                         boardCreateTime = boardCreateTime,
-                        userEmail = userEmail,
+                        userEmail = UserSingleton.userEntity.email,
                         updateTime = it.data?.get("updateTime") as? Date
                     )
                 } ?: run {
