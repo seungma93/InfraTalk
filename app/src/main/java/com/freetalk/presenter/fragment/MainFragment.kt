@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
 import com.freetalk.data.entity.BoardEntity
+import com.freetalk.data.entity.WrapperBoardEntity
 import com.freetalk.databinding.FragmentMainBinding
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
@@ -31,7 +32,7 @@ sealed class MainChildFragmentEndPoint {
     object Chat : MainChildFragmentEndPoint()
     object MyPage : MainChildFragmentEndPoint()
     object BoardWrite : MainChildFragmentEndPoint()
-    data class BoardContent(val boardEntity: BoardEntity): MainChildFragmentEndPoint()
+    data class BoardContent(val wrapperBoardEntity: WrapperBoardEntity): MainChildFragmentEndPoint()
     object Error : MainChildFragmentEndPoint()
 }
 
@@ -123,7 +124,7 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.BoardContent -> {
-                val fragment = BoardContentFragment.newInstance(endPoint.boardEntity)
+                val fragment = BoardContentFragment.newInstance(endPoint.wrapperBoardEntity)
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.Error -> {

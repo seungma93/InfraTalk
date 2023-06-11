@@ -89,7 +89,7 @@ class BoardFragment : Fragment() {
         var isFabOpen = false
         _adapter = BoardListAdapter(
             itemClick = {
-                val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it.boardEntity)
+                val endPoint = MainChildFragmentEndPoint.BoardContent(wrapperBoardEntity = it)
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             },
             bookMarkClick = { hasBookMark, bookMarkBoardEntity ->
@@ -142,7 +142,6 @@ class BoardFragment : Fragment() {
                             )
                         }
                     }
-
 
         )
 
