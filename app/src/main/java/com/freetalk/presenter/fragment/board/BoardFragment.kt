@@ -92,31 +92,23 @@ class BoardFragment : Fragment() {
                 val endPoint = MainChildFragmentEndPoint.BoardContent(wrapperBoardEntity = it)
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             },
-            bookMarkClick = { hasBookMark, bookMarkBoardEntity ->
-                when (hasBookMark) {
-                    true -> {
-                        Log.v("BookSearchFragment", "삭제 람다")
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.updateBookMark(
-                                BookMarkUpdateForm(
-                                    boardEntity = bookMarkBoardEntity.boardEntity,
-                                    hasBookMark = true
-                                )
-                            )
-                        }
-                    }
-                    false -> {
-                        Log.v("BookSearchFragment", "세이브 람다")
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.updateBookMark(
-                                BookMarkUpdateForm(
-                                    boardEntity = bookMarkBoardEntity.boardEntity,
-                                    hasBookMark = false
-                                )
-                            )
-                        }
-                    }
+            bookMarkClick = { wrapperBoardEntity ->
+
+                val bookMarkUpdateForm = BookMarkUpdateForm(
+                    wrapperBoardEntity.boardEntity.author.email,
+                    wrapperBoardEntity.boardEntity.createTime
+                )
+
+                val bookMarkSelectForm = BookMarkSelectForm(
+                    wrapperBoardEntity.boardEntity.author.email,
+                    wrapperBoardEntity.boardEntity.createTime
+                )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    boardViewModel.updateBookMark(
+                        bookMarkUpdateForm, bookMarkSelectForm
+                    )
                 }
+
             },
             likeClick = { wrapperBoardEntity ->
 

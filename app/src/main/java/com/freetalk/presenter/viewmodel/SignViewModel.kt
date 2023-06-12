@@ -43,9 +43,7 @@ class SignViewModel @Inject constructor(
                     UserEntity(
                         signUpResult.email,
                         signUpResult.nickname,
-                        updateProfileResult.image,
-                        emptyList(),
-                        emptyList()
+                        updateProfileResult.image
                     )
                 )
             )

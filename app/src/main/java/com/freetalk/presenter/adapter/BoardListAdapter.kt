@@ -13,7 +13,7 @@ import com.freetalk.databinding.BoardListItemBinding
 
 class BoardListAdapter(
     private val itemClick: (WrapperBoardEntity) -> Unit,
-    private val bookMarkClick: (Boolean, WrapperBoardEntity) -> Unit,
+    private val bookMarkClick: (WrapperBoardEntity) -> Unit,
     private val likeClick: (WrapperBoardEntity) -> Unit
 ) : ListAdapter<WrapperBoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
 
@@ -53,7 +53,7 @@ class BoardListAdapter(
     class ViewHolder(
         private val binding: BoardListItemBinding,
         private val itemClick: (WrapperBoardEntity) -> Unit,
-        private val bookMarkClick: (Boolean, WrapperBoardEntity) -> Unit,
+        private val bookMarkClick: (WrapperBoardEntity) -> Unit,
         private val likeClick: (WrapperBoardEntity) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
@@ -69,7 +69,7 @@ class BoardListAdapter(
                 btnBookmark.setOnClickListener {
                     wrapperBoardEntity?.let {
                         Log.v("BookListAdapter", "onClick 실행")
-                        bookMarkClick(btnBookmark.isSelected, it)
+                        bookMarkClick(it)
                     }
                 }
                 btnLike.setOnClickListener {
