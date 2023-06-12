@@ -70,10 +70,14 @@ class BoardViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-    suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm) {
+    suspend fun updateBookMark(
+        bookMarkUpdateForm: BookMarkUpdateForm,
+        bookMarkSelectForm: BookMarkSelectForm,
+    ) {
         kotlin.runCatching {
             val newList = updateBookMarkBoardUseCase(
                 bookMarkUpdateForm,
+                bookMarkSelectForm,
                 _viewState.value.boardListEntity.boardList
             )
             _viewState.value = BoardViewState(BoardListEntity(newList))

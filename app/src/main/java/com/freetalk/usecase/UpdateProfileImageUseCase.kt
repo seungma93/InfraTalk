@@ -19,7 +19,7 @@ class UpdateProfileImageUseCaseImpl @Inject constructor(
         updateForm: UpdateForm
     ): UserEntity {
         return when (imageRequest) {
-            null -> UserEntity(updateForm.email, updateForm.nickname!!, updateForm.image, emptyList(), emptyList())
+            null -> UserEntity(updateForm.email, updateForm.nickname!!, updateForm.image)
             else -> {
                 val uploadImageResult = uploadImagesUseCase.uploadImages(imageRequest)
                 when (uploadImageResult.successUris.isEmpty()) {

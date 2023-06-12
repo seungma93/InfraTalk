@@ -20,7 +20,6 @@ interface UserDataSource {
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
-    suspend fun updateBookMarkList(bookMarkUpdateForm: BookMarkUpdateForm): UserResponse
 }
 
 
@@ -28,9 +27,7 @@ interface UserDataSource {
 data class UserResponse(
     val email: String? = null,
     val nickname: String? = null,
-    val image: Uri? = null,
-    val bookMarkList: List<String>? = null,
-    val likeList: List<String>? = null
+    val image: Uri? = null
 )
 
 data class SignUpForm(
@@ -53,12 +50,6 @@ data class UpdateForm(
 data class ResetPasswordForm(
     val email: String
 )
-
-data class BookMarkUpdateForm(
-    val boardEntity: BoardEntity,
-    val hasBookMark: Boolean
-)
-
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -89,7 +80,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
         Log.d("FirebaseUserData", "시작")
-        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null, emptyList(), emptyList()))
+        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null))
         val createAuthResult = createAuth(signUpForm)
         return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
     }
@@ -100,7 +91,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", updateForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
                 }
-            UserResponse(updateForm.email, updateForm.nickname, updateForm.image, emptyList(), emptyList())
+            UserResponse(updateForm.email, updateForm.nickname, updateForm.image)
         }.onFailure {
             throw FailUpdatetException("업데이트 실패")
         }.getOrThrow()
@@ -111,7 +102,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             currentUser?.let {
                 Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
-                UserResponse(currentUser.email, null, null, emptyList(), emptyList())
+                UserResponse(currentUser.email, null, null)
             } ?: run {
                 Log.d("UserDataSource", "알 수 없는1")
                 throw UnKnownException("알 수 없는 에러")
@@ -134,7 +125,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("email", signUpForm.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.delete()?.await()
                 }
-            UserResponse(email = signUpForm.email, nickname = null, image = null, emptyList(), emptyList())
+            UserResponse(email = signUpForm.email, nickname = null, image = null)
         }.onFailure {
             throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
@@ -175,9 +166,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 UserResponse(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,
-                    image = (it.data?.get("image") as? String)?.let { Uri.parse(it) },
-                    bookMarkList = it.data?.get("bookMarkList") as? List<String>,
-                    likeList = it.data?.get("likeList") as? List<String>
+                    image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
             } ?: run{
                 throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
@@ -221,60 +210,11 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
         return kotlin.runCatching {
             auth.sendPasswordResetEmail(resetPasswordForm.email).await()
-            UserResponse(resetPasswordForm.email, null, null, emptyList(), emptyList())
+            UserResponse(resetPasswordForm.email, null, null)
         }.onFailure {
             throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
     }
-
-    override suspend fun updateBookMarkList(bookMarkUpdateForm: BookMarkUpdateForm): UserResponse =
-        with(bookMarkUpdateForm) {
-
-            return kotlin.runCatching {
-                val snapshot = database.collection("User")
-                    .whereEqualTo("email", UserSingleton.userEntity.email).get().await()
-
-                val oldList =
-                    (snapshot.documents.firstOrNull()?.data?.get("bookMarkList") as? List<String>)
-
-                val newList = mutableListOf<String>()
-
-                oldList?.let {
-                    val boardId = boardEntity.author.email + boardEntity.createTime
-                    when (hasBookMark) {
-                        true -> {
-                            newList.addAll(oldList.filter { it != boardId })
-                        }
-                        false -> {
-                            newList.addAll(oldList)
-                            newList.add(boardId)
-                        }
-                    }
-                } ?: run {
-                    throw FailLoadBookMarkListException("북마크 리스트 로드 실패")
-                }
-                snapshot.documents.firstOrNull()?.let {
-                    val update = mapOf(
-                        "bookMarkList" to newList
-                    )
-                    it.reference.update(update)
-                } ?: run { throw FailUpdateBookMarkException("DB에 북마크 업데이트 실패") }
-
-                newList.map { Log.d("BoardDataSource", it) }
-                UserResponse(
-                    email = UserSingleton.userEntity.email,
-                    nickname = UserSingleton.userEntity.nickname,
-                    image = UserSingleton.userEntity.image,
-                    bookMarkList = newList,
-                    likeList = UserSingleton.userEntity.likeList
-                )
-
-            }.onFailure {
-                throw FailUpdateBookMarkException("북마크 업데이트 실패")
-            }.getOrThrow()
-
-        }
-
 
 }
 

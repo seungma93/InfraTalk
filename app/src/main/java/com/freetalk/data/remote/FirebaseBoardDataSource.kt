@@ -121,7 +121,6 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 val image = (author?.get("image") as? String)?.let {
                     Uri.parse(it)
                 }
-                val likeList = (author?.get("likeList") as? List<String>) ?: emptyList()
                 val title = it.data?.get("title") as? String
                 val content = it.data?.get("content") as? String
                 val images = (it.data?.get("images") as? List<String>)?.let {
@@ -129,8 +128,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 }
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                val bookMarkList =
-                    (it.data?.get("bookMarkList") as? List<String>) ?: emptyList()
+
 
                 val likeSnapshot = database.collection("Like")
                     .whereEqualTo("userEmail", UserSingleton.userEntity.email)
@@ -143,9 +141,14 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", createTime)
                     .get().await()
 
+                val bookMarkSnapshot = database.collection("BookMark")
+                    .whereEqualTo("userEmail", UserSingleton.userEntity.email)
+                    .whereEqualTo("boardAuthorEmail", email)
+                    .whereEqualTo("boardCreateTime", createTime)
+                    .get().await()
 
                 val boardResponse = BoardResponse(
-                    UserEntity(email, nickname, image, bookMarkList, likeList),
+                    UserEntity(email, nickname, image),
                     title,
                     content,
                     images,
@@ -155,7 +158,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 val boardId = email + createTime
                 WrapperBoardResponse(
                     boardResponse = boardResponse,
-                    isBookMark = UserSingleton.userEntity.bookMarkList.contains(boardId),
+                    isBookMark = bookMarkSnapshot.documents.isNotEmpty(),
                     isLike = likeSnapshot.documents.isNotEmpty(),
                     likeCount = likeCountSnapshot.size()
                 )

@@ -69,6 +69,8 @@ class BoardContentFragment : Fragment() {
 
         printContent()
         binding.recyclerviewImage.adapter = adapter
+
+
     }
 
     private fun printContent() = with(binding) {

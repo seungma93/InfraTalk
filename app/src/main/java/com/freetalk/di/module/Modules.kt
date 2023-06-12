@@ -82,6 +82,16 @@ class Modules {
     }
 
     @Module
+    class FirebaseBookMarkDataSourceModule {
+        @Provides
+        fun providesFirebaseLikeRemoteDataSource(
+            database: FirebaseFirestore
+        ): BookMarkDataSource {
+            return FirebaseBookMarkRemoteDataSourceImpl(database)
+        }
+    }
+
+    @Module
     class BoardDataRepositoryModule {
         @Provides
         fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
@@ -110,6 +120,14 @@ class Modules {
         @Provides
         fun providesLikeDataRepository(dataSource: LikeDataSource): LikeDataRepository {
             return LikeDataRepositoryImpl(dataSource)
+        }
+    }
+
+    @Module
+    class BookMarkDataRepositoryModule {
+        @Provides
+        fun providesBookMarkDataRepository(dataSource: BookMarkDataSource): BookMarkDataRepository {
+            return BookMarkDataRepositoryImpl(dataSource)
         }
     }
 
@@ -219,7 +237,7 @@ class Modules {
     @Module
     class UpdateBookMarkBoardUseCaseModule {
         @Provides
-        fun providesUpdateBookMarkBoardUseCase(repository: UserDataRepository): UpdateBookMarkBoardUseCase {
+        fun providesUpdateBookMarkBoardUseCase(repository: BookMarkDataRepository): UpdateBookMarkBoardUseCase {
             return UpdateBookMarkBoardUseCase(repository)
         }
     }

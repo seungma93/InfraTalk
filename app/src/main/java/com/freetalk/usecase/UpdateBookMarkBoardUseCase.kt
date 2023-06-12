@@ -2,30 +2,30 @@ package com.freetalk.usecase
 
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.entity.WrapperBoardEntity
+import com.freetalk.data.remote.BookMarkSelectForm
 import com.freetalk.data.remote.BookMarkUpdateForm
+import com.freetalk.repository.BookMarkDataRepository
 import com.freetalk.repository.UserDataRepository
 import javax.inject.Inject
 
 
-class UpdateBookMarkBoardUseCase @Inject constructor(private val repository: UserDataRepository) {
+class UpdateBookMarkBoardUseCase @Inject constructor(private val repository: BookMarkDataRepository) {
     suspend operator fun invoke(
         bookMarkUpdateForm: BookMarkUpdateForm,
+        bookMarkSelectForm: BookMarkSelectForm,
         boardList: List<WrapperBoardEntity>
     ): List<WrapperBoardEntity> {
-        val userEntity = repository.updateBookMark(bookMarkUpdateForm)
 
-        UserSingleton.userEntity = userEntity
-
-        val boardId = bookMarkUpdateForm.boardEntity.author.email + bookMarkUpdateForm.boardEntity.createTime
+        repository.updateBookMark(bookMarkUpdateForm)
 
         return boardList.map {
-            if (it.boardEntity.author.email == bookMarkUpdateForm.boardEntity.author.email && it.boardEntity.createTime == bookMarkUpdateForm.boardEntity.createTime) {
+            if (it.boardEntity.author.email == bookMarkUpdateForm.boardAuthorEmail && it.boardEntity.createTime == bookMarkUpdateForm.boardCreateTime) {
                 WrapperBoardEntity(
-                    boardEntity = bookMarkUpdateForm.boardEntity,
-                    isBookMark = userEntity.bookMarkList.contains(boardId),
+                    boardEntity = it.boardEntity,
+                    isBookMark = repository.selectBookMark(bookMarkSelectForm).boardAuthorEmail.isNotEmpty(),
                     isLike = it.isLike,
                     likeCount = it.likeCount
-                    )
+                )
             } else it
         }
     }
