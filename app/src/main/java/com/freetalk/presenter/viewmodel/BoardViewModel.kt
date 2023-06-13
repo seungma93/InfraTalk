@@ -2,8 +2,7 @@ package com.freetalk.presenter.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.freetalk.data.entity.BoardEntity
-import com.freetalk.data.entity.BoardListEntity
+import com.freetalk.data.entity.*
 import com.freetalk.data.remote.*
 import com.freetalk.usecase.*
 import kotlinx.coroutines.flow.*
@@ -19,16 +18,21 @@ class BoardViewModel @Inject constructor(
     private val updateImageContentUseCase: UpdateImageContentUseCase,
     private val printBoardListUseCase: PrintBoardListUesCase,
     private val updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
-    private val updateLikeBoardUseCase: UpdateLikeBoardUseCase
+    private val updateLikeBoardUseCase: UpdateLikeBoardUseCase,
+    private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
-    private val boardViewState = BoardViewState(BoardListEntity(emptyList()))
+
+    // 처음 값 생성
+    private val boardViewState = BoardViewState(BoardListEntity(emptyList()), WrapperBoardEntity())
     private val _viewState = MutableStateFlow<BoardViewState>(boardViewState)
     val viewState: StateFlow<BoardViewState> = _viewState.asStateFlow()
 
-    data class BoardViewState(val boardListEntity: BoardListEntity)
-
+    data class BoardViewState(
+        val boardListEntity: BoardListEntity,
+        val wrapperBoardEntity: WrapperBoardEntity
+    )
 
     suspend fun insert(boardInsertForm: BoardInsetForm, imagesRequest: ImagesRequest) {
         kotlin.runCatching {
@@ -64,7 +68,7 @@ class BoardViewModel @Inject constructor(
         }.getOrNull()
 
         return result?.let {
-            BoardViewState(BoardListEntity(it)).apply {
+            BoardViewState(BoardListEntity(it), _viewState.value.wrapperBoardEntity).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -80,7 +84,7 @@ class BoardViewModel @Inject constructor(
                 bookMarkSelectForm,
                 _viewState.value.boardListEntity.boardList
             )
-            _viewState.value = BoardViewState(BoardListEntity(newList))
+            _viewState.value = BoardViewState(BoardListEntity(newList), _viewState.value.wrapperBoardEntity)
         }.onFailure {
             Log.d("BoardViewModel", "북마크 업데이트 실패")
         }.getOrNull()
@@ -98,11 +102,27 @@ class BoardViewModel @Inject constructor(
                 likeSelectCountSelectForm,
                 _viewState.value.boardListEntity.boardList
             )
-            _viewState.value = BoardViewState(BoardListEntity(newList))
+            _viewState.value = BoardViewState(BoardListEntity(newList), _viewState.value.wrapperBoardEntity)
         }.onFailure {
             Log.d("BoardViewModel", "좋아요 업데이트 실패")
         }.getOrNull()
     }
 
+    suspend fun updateBookMarkContent(
+        bookMarkUpdateForm: BookMarkUpdateForm,
+        bookMarkSelectForm: BookMarkSelectForm,
+        wrapperBoardEntity: WrapperBoardEntity
+    ) {
+        kotlin.runCatching {
+            val wrapperBoardEntity = updateBookMarkBoardContentUseCase(
+                bookMarkUpdateForm,
+                bookMarkSelectForm,
+                wrapperBoardEntity
+            )
+            _viewState.value = BoardViewState(_viewState.value.boardListEntity, wrapperBoardEntity)
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 업데이트 실패")
+        }.getOrNull()
+    }
 
 }

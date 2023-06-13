@@ -85,3 +85,7 @@ class FailLoadLikeCountException(
     val _message: String
 ) : Exception(_message)
 
+
+class FailSelectBoardContentException(
+    val _message: String
+) : Exception(_message)

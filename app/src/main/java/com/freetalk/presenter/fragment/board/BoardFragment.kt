@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.freetalk.data.UserSingleton
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
@@ -89,7 +90,7 @@ class BoardFragment : Fragment() {
         var isFabOpen = false
         _adapter = BoardListAdapter(
             itemClick = {
-                val endPoint = MainChildFragmentEndPoint.BoardContent(wrapperBoardEntity = it)
+                val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it)
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             },
             bookMarkClick = { wrapperBoardEntity ->

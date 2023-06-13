@@ -7,12 +7,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.freetalk.data.entity.BoardEntity
 import com.freetalk.data.entity.WrapperBoardEntity
 import com.freetalk.databinding.BoardListItemBinding
 
 
 class BoardListAdapter(
-    private val itemClick: (WrapperBoardEntity) -> Unit,
+    private val itemClick: (BoardEntity) -> Unit,
     private val bookMarkClick: (WrapperBoardEntity) -> Unit,
     private val likeClick: (WrapperBoardEntity) -> Unit
 ) : ListAdapter<WrapperBoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
@@ -52,7 +53,7 @@ class BoardListAdapter(
 
     class ViewHolder(
         private val binding: BoardListItemBinding,
-        private val itemClick: (WrapperBoardEntity) -> Unit,
+        private val itemClick: (BoardEntity) -> Unit,
         private val bookMarkClick: (WrapperBoardEntity) -> Unit,
         private val likeClick: (WrapperBoardEntity) -> Unit
     ) :
@@ -63,7 +64,7 @@ class BoardListAdapter(
             binding.apply {
                 root.setOnClickListener {
                     wrapperBoardEntity?.let {
-                        itemClick(it)
+                        itemClick(it.boardEntity)
                     }
                 }
                 btnBookmark.setOnClickListener {

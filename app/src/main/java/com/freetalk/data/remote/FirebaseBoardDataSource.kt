@@ -20,6 +20,7 @@ interface BoardDataSource {
     suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse
     suspend fun delete()
     suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
+    suspend fun selectBoardContent(boardContentSelectForm: BoardContentSelectForm): BoardResponse
 }
 
 data class BoardInsetForm(
@@ -61,6 +62,11 @@ data class WrapperBoardResponse(
     val isBookMark: Boolean? = null,
     val isLike: Boolean? = null,
     val likeCount: Int? = null
+)
+
+data class BoardContentSelectForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date
 )
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
@@ -155,7 +161,6 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     createTime,
                     editTime
                 )
-                val boardId = email + createTime
                 WrapperBoardResponse(
                     boardResponse = boardResponse,
                     isBookMark = bookMarkSnapshot.documents.isNotEmpty(),
@@ -231,6 +236,43 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
+    override suspend fun selectBoardContent(boardContentSelectForm: BoardContentSelectForm): BoardResponse =
+        with(boardContentSelectForm) {
+            return kotlin.runCatching {
+                val snapshot = database.collection("Board")
+                    .whereEqualTo("author.email", boardAuthorEmail)
+                    .whereEqualTo("createTime", boardCreateTime).get().await()
+
+                snapshot.documents.firstOrNull()?.let {
+                    val author = it.data?.get("author") as? HashMap<String, Any>
+                    val email = author?.get("email") as? String ?: ""
+                    val nickname = author?.get("nickname") as? String ?: ""
+                    val image = (author?.get("image") as? String)?.let {
+                        Uri.parse(it)
+                    }
+                    val title = it.data?.get("title") as? String
+                    val content = it.data?.get("content") as? String
+                    val images = (it.data?.get("images") as? List<String>)?.let {
+                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                    }
+                    val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
+                    val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    BoardResponse(
+                        author = UserEntity(email, nickname, image),
+                        title = title,
+                        content = content,
+                        images = images,
+                        createTime = createTime,
+                        editTime = editTime
+                    )
+                } ?: run {
+                    throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+                }
+            }.onFailure {
+                throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+            }.getOrThrow()
+
+        }
 
 
     override suspend fun delete() {

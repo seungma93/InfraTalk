@@ -2,6 +2,7 @@ package com.freetalk.di.component
 
 import android.content.Context
 import com.freetalk.di.module.Modules
+import com.freetalk.presenter.fragment.board.BoardContentFragment
 import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import dagger.BindsInstance
@@ -29,6 +30,10 @@ import dagger.Component
         Modules.PrintBoardListUesCaseModule::class,
         Modules.UpdateBookMarkBoardUseCaseModule::class,
         Modules.UpdateLikeBoardUseCaseModule::class,
+        Modules.UpdateBookMarkBoardContentUseCaseModule::class,
+        Modules.SelectBoardContentUseCaseModule::class,
+        Modules.BoardContentViewModelModule::class,
+        Modules.UpdateLikeBoardContentUseCaseModule::class,
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
@@ -38,6 +43,7 @@ import dagger.Component
 interface BoardFragmentComponent {
     fun inject(fragment: BoardFragment)
     fun inject(fragment: BoardWriteFragment)
+    fun inject(fragment: BoardContentFragment)
 
     @Component.Factory
     interface Factory {
