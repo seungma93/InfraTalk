@@ -4,10 +4,7 @@ import android.service.autofill.UserData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.freetalk.data.remote.*
-import com.freetalk.presenter.viewmodel.BoardViewModel
-import com.freetalk.presenter.viewmodel.SignViewModel
-import com.freetalk.presenter.viewmodel.ViewModelFactory
-import com.freetalk.presenter.viewmodel.ViewModelKey
+import com.freetalk.presenter.viewmodel.*
 import com.freetalk.repository.*
 import com.freetalk.usecase.*
 import com.google.firebase.auth.FirebaseAuth
@@ -251,6 +248,34 @@ class Modules {
     }
 
     @Module
+    class UpdateLikeBoardContentUseCaseModule {
+        @Provides
+        fun providesUpdateLikeBoardContentUseCase(repository: LikeDataRepository): UpdateLikeBoardContentUseCase {
+            return UpdateLikeBoardContentUseCase(repository)
+        }
+    }
+
+    @Module
+    class UpdateBookMarkBoardContentUseCaseModule {
+        @Provides
+        fun providesUpdateBookMarkBoardContentUseCase(repository: BookMarkDataRepository): UpdateBookMarkBoardContentUseCase {
+            return UpdateBookMarkBoardContentUseCase(repository)
+        }
+    }
+
+    @Module
+    class SelectBoardContentUseCaseModule {
+        @Provides
+        fun providesSelectBoardContentUseCase(
+            boardDataRepository: BoardDataRepository,
+            bookMarkDataRepository: BookMarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): SelectBoardContentUseCase {
+            return SelectBoardContentUseCase(boardDataRepository, bookMarkDataRepository, likeDataRepository)
+        }
+    }
+
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
         abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
@@ -266,14 +291,34 @@ class Modules {
             updateImageContentUseCase: UpdateImageContentUseCase,
             printBoardListUesCase: PrintBoardListUesCase,
             updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
-            updateLikeBoardUseCase: UpdateLikeBoardUseCase
+            updateLikeBoardUseCase: UpdateLikeBoardUseCase,
+            updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
         ): ViewModel {
             return BoardViewModel(
                 writeContentUseCase,
                 updateImageContentUseCase,
                 printBoardListUesCase,
                 updateBookMarkBoardUseCase,
-                updateLikeBoardUseCase
+                updateLikeBoardUseCase,
+                updateBookMarkBoardContentUseCase
+            )
+        }
+    }
+
+    @Module
+    class BoardContentViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(BoardContentViewModel::class)
+        fun providesBoardContentViewModel(
+            selectBoardContentUseCase: SelectBoardContentUseCase,
+            updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
+            updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase
+        ): ViewModel {
+            return BoardContentViewModel(
+                updateBookMarkBoardContentUseCase,
+                selectBoardContentUseCase,
+                updateLikeBoardContentUseCase
             )
         }
     }

@@ -32,7 +32,7 @@ sealed class MainChildFragmentEndPoint {
     object Chat : MainChildFragmentEndPoint()
     object MyPage : MainChildFragmentEndPoint()
     object BoardWrite : MainChildFragmentEndPoint()
-    data class BoardContent(val wrapperBoardEntity: WrapperBoardEntity): MainChildFragmentEndPoint()
+    data class BoardContent(val boardEntity: BoardEntity): MainChildFragmentEndPoint()
     object Error : MainChildFragmentEndPoint()
 }
 
@@ -124,7 +124,7 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.BoardContent -> {
-                val fragment = BoardContentFragment.newInstance(endPoint.wrapperBoardEntity)
+                val fragment = BoardContentFragment.newInstance(endPoint.boardEntity)
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.Error -> {
