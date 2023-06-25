@@ -12,16 +12,18 @@ import javax.inject.Inject
 class BoardContentViewModel @Inject constructor(
     private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
     private val selectBoardContentUseCase: SelectBoardContentUseCase,
-    private val updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase
+    private val updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase,
+    private val writeCommentUseCase: WriteCommentUseCase
 ) : ViewModel() {
 
     // 처음 값 생성
-    private val boardContentViewState = BoardContentViewState(WrapperBoardEntity())
+    private val boardContentViewState = BoardContentViewState(WrapperBoardEntity(), CommentEntity())
     private val _viewState = MutableStateFlow<BoardContentViewState>(boardContentViewState)
     val viewState: StateFlow<BoardContentViewState> = _viewState.asStateFlow()
 
     data class BoardContentViewState(
-        val wrapperBoardEntity: WrapperBoardEntity
+        val wrapperBoardEntity: WrapperBoardEntity,
+        val commentEntity: CommentEntity
     )
 
     suspend fun select(
@@ -37,7 +39,7 @@ class BoardContentViewModel @Inject constructor(
                 likeSelectForm,
                 likeCountSelectForm
             )
-            _viewState.value = BoardContentViewState(wrapperBoardEntity)
+            _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
 
         }.onFailure {
             Log.d("BoardViewModel", "셀렉트 실패")
@@ -54,7 +56,8 @@ class BoardContentViewModel @Inject constructor(
                 bookMarkSelectForm,
                 _viewState.value.wrapperBoardEntity
             )
-            _viewState.value = BoardContentViewState(wrapperBoardEntity)
+            _viewState.value =
+                BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
         }.onFailure {
             Log.d("BoardViewModel", "북마크 업데이트 실패")
         }.getOrNull()
@@ -72,7 +75,19 @@ class BoardContentViewModel @Inject constructor(
                 likeCountSelectForm,
                 _viewState.value.wrapperBoardEntity
             )
-            _viewState.value = BoardContentViewState(wrapperBoardEntity)
+            _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
+        }.onFailure {
+
+        }.getOrNull()
+    }
+
+    suspend fun insertComment(
+        commentInsertForm: CommentInsertForm
+    ) {
+        kotlin.runCatching {
+            val commentEntity = writeCommentUseCase(commentInsertForm)
+            _viewState.value =
+                BoardContentViewState(_viewState.value.wrapperBoardEntity, commentEntity)
         }.onFailure {
 
         }.getOrNull()

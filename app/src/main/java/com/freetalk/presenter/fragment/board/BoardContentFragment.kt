@@ -61,7 +61,6 @@ class BoardContentFragment : Fragment() {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStack()
-
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
@@ -96,8 +95,6 @@ class BoardContentFragment : Fragment() {
                         boardEntity.createTime
                     )
 
-
-
                     boardContentViewModel.updateBookMarkContent(bookMarkUpdateForm, bookMarkSelectForm)
                 }
             }
@@ -122,7 +119,21 @@ class BoardContentFragment : Fragment() {
                     boardContentViewModel.updateLikeContent(likeUpdateForm, likeSelectForm, likeCountSelectForm)
                 }
             }
+            btnSubmitComment.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    boardContentViewModel.viewState.value.wrapperBoardEntity.boardEntity.let {
+                        val commentInsertForm = CommentInsertForm(
+                            it.author.email,
+                            it.createTime,
+                            commentEditText.text.toString()
+                        )
+                        boardContentViewModel.insertComment(commentInsertForm = commentInsertForm)
+                    }
+                    commentEditText.text = null
+                }
+            }
         }
+
         subscribe()
         printContent()
         binding.recyclerviewImage.adapter = adapter
@@ -152,27 +163,28 @@ class BoardContentFragment : Fragment() {
         }
     }
 
-    private fun printContent() = with(binding) {
+    private fun printContent() = with(boardEntity) {
 
         val bookMarkSelectForm = BookMarkSelectForm(
-            boardEntity.author.email,
-            boardEntity.createTime
+            author.email,
+            createTime
         )
 
         val boardContentSelectForm = BoardContentSelectForm(
-            boardEntity.author.email,
-            boardEntity.createTime
+            author.email,
+            createTime
         )
 
         val likeSelectForm = LikeSelectForm(
-            boardEntity.author.email,
-            boardEntity.createTime
+            author.email,
+            createTime
         )
 
         val likeCountSelectForm = LikeCountSelectForm(
-            boardEntity.author.email,
-            boardEntity.createTime
+            author.email,
+            createTime
         )
+
         viewLifecycleOwner.lifecycleScope.launch {
             boardContentViewModel.select(
                 boardContentSelectForm,

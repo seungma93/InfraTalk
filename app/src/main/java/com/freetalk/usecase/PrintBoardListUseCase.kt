@@ -7,7 +7,7 @@ import com.freetalk.repository.BoardDataRepository
 import javax.inject.Inject
 
 
-class PrintBoardListUesCase @Inject constructor(private val repository: BoardDataRepository) {
+class PrintBoardListUseCase @Inject constructor(private val repository: BoardDataRepository) {
     suspend operator fun invoke (boardSelectForm: BoardSelectForm): BoardListEntity {
         Log.d("SelectContentsUseCase", "유즈케이스")
         return repository.select(boardSelectForm)

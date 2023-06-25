@@ -55,7 +55,7 @@ data class WrapperBoardEntity(
 
 fun WrapperBoardResponse.toEntity(): WrapperBoardEntity {
     return WrapperBoardEntity(
-        boardEntity = boardResponse.toEntity(),
+        boardEntity = boardResponse?.toEntity() ?: BoardEntity(),
         isBookMark = isBookMark ?: false,
         isLike = isLike ?: false,
         likeCount = likeCount ?: 0

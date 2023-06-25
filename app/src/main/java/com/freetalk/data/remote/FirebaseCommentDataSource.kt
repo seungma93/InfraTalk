@@ -15,123 +15,129 @@ import java.util.*
 import javax.inject.Inject
 
 
-interface BoardDataSource {
-    suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse
-    suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse
-    suspend fun delete()
-    suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse
-    suspend fun selectBoardContent(boardContentSelectForm: BoardContentSelectForm): BoardResponse
+interface CommentDataSource {
+    suspend fun insertComment(wrapperCommentInsertForm: WrapperCommentInsertForm): CommentResponse
+    suspend fun selectComments(commentsSelectForm: CommentsSelectForm): CommentListResponse
+    suspend fun selectCommentContent(commentContentSelectForm: CommentContentSelectForm): CommentResponse
 }
 
-data class BoardInsetForm(
-    val author: UserEntity,
-    val title: String,
-    val content: String,
-    val createTime: Date,
-    val editTime: Date?
+data class CommentInsertForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
+    val content: String
 )
 
-data class BoardUpdateForm(
-    val author: UserEntity,
-    val title: String,
-    val content: String = "",
-    val images: List<Uri> = emptyList(),
-    val createTime: Date,
-    val editTime: Date?
+data class WrapperCommentInsertForm(
+    val commentInsertForm: CommentInsertForm,
+    val userSingleton: UserSingleton
 )
 
-data class BoardSelectForm(
+data class CommentsSelectForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
     val reload: Boolean
 )
 
-data class BoardResponse(
+data class CommentContentSelectForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
+    val commentAuthorEmail: String,
+    val commentCreateTime: Date
+)
+
+data class CommentResponse(
+    val boardAuthorEmail: String? = null,
+    val boardCreateTime: Date? = null,
     val author: UserEntity? = null,
-    val title: String? = null,
     val content: String? = null,
-    val images: ImagesResultEntity? = null,
     val createTime: Date? = null,
     val editTime: Date? = null
 )
 
-data class BoardListResponse(
-    val boardList: List<WrapperBoardResponse>? = null
-)
-
-data class WrapperBoardResponse(
-    val boardResponse: BoardResponse? = null,
-    val isBookMark: Boolean? = null,
+data class WrapperCommentResponse(
+    val commentResponse: CommentResponse? = null,
     val isLike: Boolean? = null,
     val likeCount: Int? = null
 )
 
-data class BoardContentSelectForm(
-    val boardAuthorEmail: String,
-    val boardCreateTime: Date
+data class CommentListResponse(
+    val commentList: List<WrapperCommentResponse>? = null
 )
 
-class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
+class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
-) : BoardDataSource {
+) : CommentDataSource {
     private var lastDocument: DocumentSnapshot? = null
 
-    override suspend fun insertContent(boardInsertForm: BoardInsetForm): BoardResponse {
+    override suspend fun insertComment(wrapperCommentInsertForm: WrapperCommentInsertForm): CommentResponse =
+        with(wrapperCommentInsertForm) {
 
-        return kotlin.runCatching {
-            database.collection("Board").add(boardInsertForm).await()
-            BoardResponse(
-                boardInsertForm.author,
-                boardInsertForm.title,
-                boardInsertForm.content,
-                null,
-                boardInsertForm.createTime,
-                null
-            )
-        }.onFailure {
-            throw FailInsertException("인서트에 실패 했습니다")
-        }.getOrThrow()
-    }
+            return kotlin.runCatching {
+                val createTime = Date(System.currentTimeMillis())
+                val insert = mapOf(
+                    "boardAuthorEmail" to commentInsertForm.boardAuthorEmail,
+                    "boardCreateTime" to commentInsertForm.boardCreateTime,
+                    "author" to userSingleton,
+                    "content" to commentInsertForm.content,
+                    "createTime" to createTime,
+                    "editTime" to null
+                )
+                database.collection("Comment").add(insert).await()
+                CommentResponse(
+                    boardAuthorEmail = commentInsertForm.boardAuthorEmail,
+                    boardCreateTime = commentInsertForm.boardCreateTime,
+                    author = userSingleton.userEntity,
+                    content = commentInsertForm.content,
+                    createTime = createTime,
+                    editTime = null
+                )
+            }.onFailure {
+                throw FailInsertException("인서트에 실패 했습니다")
+            }.getOrThrow()
+        }
 
-    private suspend fun getBoardDocuments(
+    private suspend fun getCommentDocuments(
+        commentsSelectForm: CommentsSelectForm,
         limit: Long,
         startAfter: DocumentSnapshot?
     ): QuerySnapshot {
         Log.d("BoardDataSource", "겟보드다큐먼트")
-        val query = database.collection("Board").orderBy("createTime", Query.Direction.DESCENDING)
+        val query = database.collection("Comment")
+            .whereEqualTo("boardAuthorEmail", commentsSelectForm.boardAuthorEmail)
+            .whereEqualTo("boardCreateTime", commentsSelectForm.boardCreateTime)
+            .orderBy("createTime", Query.Direction.DESCENDING)
             .limit(limit)
         return if (startAfter != null) {
-            Log.d("getBoardDocument", startAfter.data?.get("title").toString())
             query.startAfter(startAfter).get().await()
         } else {
             query.get().await()
         }
 
-
     }
 
-    override suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse {
+    override suspend fun selectComments(commentsSelectForm: CommentsSelectForm): CommentListResponse {
         Log.d("BoardDataSource", "셀렉트콘텐츠")
 
         return kotlin.runCatching {
 
-            val snapshot = when (boardSelectForm.reload) {
-                true -> getBoardDocuments(10, null)
-                false -> getBoardDocuments(10, lastDocument)
+            val snapshot = when (commentsSelectForm.reload) {
+                true -> getCommentDocuments(commentsSelectForm, 10, null)
+                false -> getCommentDocuments(commentsSelectForm, 10, lastDocument)
             }
+
             lastDocument = snapshot.documents.lastOrNull()
             Log.d("BoardDataSource", snapshot.documents.count().toString())
 
             snapshot.documents.map {
+                val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: ""
+                val boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate()
                 val author = it.data?.get("author") as? HashMap<String, Any>
                 val email = author?.get("email") as? String ?: ""
                 val nickname = author?.get("nickname") as? String ?: ""
                 val image = (author?.get("image") as? String)?.let {
                     Uri.parse(it)
                 }
-                val title = it.data?.get("title") as? String
                 val content = it.data?.get("content") as? String
-                val images = (it.data?.get("images") as? List<String>)?.let {
-                    ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                }
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
 
@@ -147,28 +153,21 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", createTime)
                     .get().await()
 
-                val bookMarkSnapshot = database.collection("BookMark")
-                    .whereEqualTo("userEmail", UserSingleton.userEntity.email)
-                    .whereEqualTo("boardAuthorEmail", email)
-                    .whereEqualTo("boardCreateTime", createTime)
-                    .get().await()
-
-                val boardResponse = BoardResponse(
+                val commentResponse = CommentResponse(
+                    boardAuthorEmail,
+                    boardCreateTime,
                     UserEntity(email, nickname, image),
-                    title,
                     content,
-                    images,
                     createTime,
                     editTime
                 )
-                WrapperBoardResponse(
-                    boardResponse = boardResponse,
-                    isBookMark = bookMarkSnapshot.documents.isNotEmpty(),
+                WrapperCommentResponse(
+                    commentResponse = commentResponse,
                     isLike = likeSnapshot.documents.isNotEmpty(),
                     likeCount = likeCountSnapshot.size()
                 )
             }.let {
-                BoardListResponse(it)
+                CommentListResponse(it)
             }
         }.onFailure {
             Log.d("BoardDataSource", it.stackTrace.toString())
@@ -176,7 +175,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-
+/*
     override suspend fun updateContent(boardUpdateForm: BoardUpdateForm): BoardResponse {
         return kotlin.runCatching {
             database.collection("Board")
@@ -235,13 +234,14 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             throw FailUpdatetException("업데이트 실패")
         }.getOrThrow()
     }
+ */
 
-    override suspend fun selectBoardContent(boardContentSelectForm: BoardContentSelectForm): BoardResponse =
-        with(boardContentSelectForm) {
+    override suspend fun selectCommentContent(commentContentSelectForm: CommentContentSelectForm): CommentResponse =
+        with(commentContentSelectForm) {
             return kotlin.runCatching {
-                val snapshot = database.collection("Board")
-                    .whereEqualTo("author.email", boardAuthorEmail)
-                    .whereEqualTo("createTime", boardCreateTime).get().await()
+                val snapshot = database.collection("Comment")
+                    .whereEqualTo("author.email", commentAuthorEmail)
+                    .whereEqualTo("createTime", commentCreateTime).get().await()
 
                 snapshot.documents.firstOrNull()?.let {
                     val author = it.data?.get("author") as? HashMap<String, Any>
@@ -250,18 +250,15 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     val image = (author?.get("image") as? String)?.let {
                         Uri.parse(it)
                     }
-                    val title = it.data?.get("title") as? String
                     val content = it.data?.get("content") as? String
-                    val images = (it.data?.get("images") as? List<String>)?.let {
-                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                    }
                     val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                     val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                    BoardResponse(
+
+                    CommentResponse(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime,
                         author = UserEntity(email, nickname, image),
-                        title = title,
                         content = content,
-                        images = images,
                         createTime = createTime,
                         editTime = editTime
                     )
@@ -274,8 +271,4 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
         }
 
-
-    override suspend fun delete() {
-        TODO("Not yet implemented")
-    }
 }
