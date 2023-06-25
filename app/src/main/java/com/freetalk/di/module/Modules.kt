@@ -89,6 +89,16 @@ class Modules {
     }
 
     @Module
+    class FirebaseCommentDataSourceModule {
+        @Provides
+        fun providesFirebaseCommentRemoteDataSource(
+            database: FirebaseFirestore
+        ): CommentDataSource {
+            return FirebaseCommentRemoteDataSourceImpl(database)
+        }
+    }
+
+    @Module
     class BoardDataRepositoryModule {
         @Provides
         fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
@@ -125,6 +135,17 @@ class Modules {
         @Provides
         fun providesBookMarkDataRepository(dataSource: BookMarkDataSource): BookMarkDataRepository {
             return BookMarkDataRepositoryImpl(dataSource)
+        }
+    }
+
+    @Module
+    class CommentDataRepositoryModule {
+        @Provides
+        fun providesCommentDataRepository(
+            commentDataSource: CommentDataSource,
+            userDataSource: UserDataSource
+        ): CommentDataRepository {
+            return CommentDataRepositoryImpl(commentDataSource, userDataSource)
         }
     }
 
@@ -223,13 +244,20 @@ class Modules {
     }
 
     @Module
-    class PrintBoardListUesCaseModule {
+    class PrintBoardListUseCaseModule {
         @Provides
-        fun providesPrintBoardListUesCase(repository: BoardDataRepository): PrintBoardListUesCase {
-            return PrintBoardListUesCase(repository)
+        fun providesPrintBoardListUseCase(repository: BoardDataRepository): PrintBoardListUseCase {
+            return PrintBoardListUseCase(repository)
         }
     }
 
+    @Module
+    class WriteCommentUesCaseModule {
+        @Provides
+        fun providesWriteCommentUesCase(repository: CommentDataRepository): WriteCommentUseCase {
+            return WriteCommentUseCase(repository)
+        }
+    }
 
     @Module
     class UpdateBookMarkBoardUseCaseModule {
@@ -271,7 +299,11 @@ class Modules {
             bookMarkDataRepository: BookMarkDataRepository,
             likeDataRepository: LikeDataRepository
         ): SelectBoardContentUseCase {
-            return SelectBoardContentUseCase(boardDataRepository, bookMarkDataRepository, likeDataRepository)
+            return SelectBoardContentUseCase(
+                boardDataRepository,
+                bookMarkDataRepository,
+                likeDataRepository
+            )
         }
     }
 
@@ -289,7 +321,7 @@ class Modules {
         fun providesBoardViewModel(
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
-            printBoardListUesCase: PrintBoardListUesCase,
+            printBoardListUseCase: PrintBoardListUseCase,
             updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
             updateLikeBoardUseCase: UpdateLikeBoardUseCase,
             updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
@@ -297,7 +329,7 @@ class Modules {
             return BoardViewModel(
                 writeContentUseCase,
                 updateImageContentUseCase,
-                printBoardListUesCase,
+                printBoardListUseCase,
                 updateBookMarkBoardUseCase,
                 updateLikeBoardUseCase,
                 updateBookMarkBoardContentUseCase
@@ -313,12 +345,14 @@ class Modules {
         fun providesBoardContentViewModel(
             selectBoardContentUseCase: SelectBoardContentUseCase,
             updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
-            updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase
+            updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase,
+            writeCommentUseCase: WriteCommentUseCase
         ): ViewModel {
             return BoardContentViewModel(
                 updateBookMarkBoardContentUseCase,
                 selectBoardContentUseCase,
-                updateLikeBoardContentUseCase
+                updateLikeBoardContentUseCase,
+                writeCommentUseCase
             )
         }
     }

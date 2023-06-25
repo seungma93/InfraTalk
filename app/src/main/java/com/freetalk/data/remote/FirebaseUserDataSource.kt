@@ -20,9 +20,8 @@ interface UserDataSource {
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
+    suspend fun getUserSingleton(): UserSingleton
 }
-
-
 
 data class UserResponse(
     val email: String? = null,
@@ -129,6 +128,10 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.onFailure {
             throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
+    }
+
+    override suspend fun getUserSingleton(): UserSingleton {
+        return UserSingleton
     }
 
     private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {

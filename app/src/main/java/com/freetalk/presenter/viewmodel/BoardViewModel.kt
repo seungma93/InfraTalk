@@ -16,7 +16,7 @@ sealed class BoardViewEvent {
 class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
     private val updateImageContentUseCase: UpdateImageContentUseCase,
-    private val printBoardListUseCase: PrintBoardListUesCase,
+    private val printBoardListUseCase: PrintBoardListUseCase,
     private val updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
     private val updateLikeBoardUseCase: UpdateLikeBoardUseCase,
     private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
