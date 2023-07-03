@@ -1,6 +1,7 @@
 package com.freetalk.usecase
 
 import com.freetalk.data.UserSingleton
+import com.freetalk.data.entity.LikeEntity
 import com.freetalk.data.entity.WrapperBoardEntity
 import com.freetalk.data.remote.BookMarkSelectForm
 import com.freetalk.data.remote.BookMarkUpdateForm
@@ -21,7 +22,7 @@ class UpdateBookMarkBoardContentUseCase @Inject constructor(private val reposito
         return WrapperBoardEntity(
             boardEntity = boardEntity,
             isBookMark = repository.selectBookMark(bookMarkSelectForm).boardAuthorEmail.isNotEmpty(),
-            isLike = isLike,
+            likeEntity = likeEntity,
             likeCount = likeCount
         )
     }

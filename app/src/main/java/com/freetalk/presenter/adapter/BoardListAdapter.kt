@@ -69,14 +69,12 @@ class BoardListAdapter(
                 }
                 btnBookmark.setOnClickListener {
                     wrapperBoardEntity?.let {
-                        Log.v("BookListAdapter", "onClick 실행")
                         bookMarkClick(it)
                     }
                 }
                 btnLike.setOnClickListener {
                     wrapperBoardEntity?.let {
-                        Log.v("BookListAdapter", "onClick 실행")
-                        likeClick(it)
+                            likeClick(it)
                     }
                 }
             }
@@ -93,7 +91,7 @@ class BoardListAdapter(
                     date.text = it.boardEntity.createTime.toString()
                     author.text = it.boardEntity.author.nickname
                     btnBookmark.isSelected = it.isBookMark
-                    btnLike.isSelected = it.isLike
+                    btnLike.isSelected = (it.likeEntity != null)
                     likeCount.text = it.likeCount.toString()
                     Glide.with(itemView.context).load(it.boardEntity.images?.successUris?.firstOrNull()).into(image)
                 }

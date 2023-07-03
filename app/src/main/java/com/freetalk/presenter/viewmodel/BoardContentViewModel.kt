@@ -12,7 +12,8 @@ import javax.inject.Inject
 class BoardContentViewModel @Inject constructor(
     private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
     private val selectBoardContentUseCase: SelectBoardContentUseCase,
-    private val updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase,
+    private val insertLikeBoardContentUseCase: InsertLikeBoardContentUseCase,
+    private val deleteLikeBoardContentUseCase: DeleteLikeBoardContentUseCase,
     private val writeCommentUseCase: WriteCommentUseCase
 ) : ViewModel() {
 
@@ -63,16 +64,30 @@ class BoardContentViewModel @Inject constructor(
         }.getOrNull()
     }
 
-    suspend fun updateLikeContent(
-        likeUpdateForm: LikeUpdateForm,
-        likeSelectForm: LikeSelectForm,
+    suspend fun insertLikeContent(
+        insertLikeForm: InsertLikeForm,
         likeCountSelectForm: LikeCountSelectForm
     ) {
         kotlin.runCatching {
-            val wrapperBoardEntity = updateLikeBoardContentUseCase(
-                likeUpdateForm,
-                likeSelectForm,
-                likeCountSelectForm,
+            val wrapperBoardEntity = insertLikeBoardContentUseCase(
+                insertLikeForm = insertLikeForm,
+                likeCountSelectForm = likeCountSelectForm,
+                _viewState.value.wrapperBoardEntity
+            )
+            _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
+        }.onFailure {
+
+        }.getOrNull()
+    }
+
+    suspend fun deleteLikeContent(
+        deleteLikeForm: DeleteLikeForm,
+        likeCountSelectForm: LikeCountSelectForm
+    ) {
+        kotlin.runCatching {
+            val wrapperBoardEntity = deleteLikeBoardContentUseCase(
+                deleteLikeForm = deleteLikeForm,
+                likeCountSelectForm = likeCountSelectForm,
                 _viewState.value.wrapperBoardEntity
             )
             _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)

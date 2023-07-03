@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import com.freetalk.data.*
 import com.freetalk.data.entity.ImagesResultEntity
+import com.freetalk.data.entity.LikeEntity
 import com.freetalk.data.entity.UserEntity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -54,13 +55,14 @@ data class BoardResponse(
 )
 
 data class BoardListResponse(
-    val boardList: List<WrapperBoardResponse>? = null
+    val boardList: List<BoardResponse>? = null
 )
+
 
 data class WrapperBoardResponse(
     val boardResponse: BoardResponse? = null,
     val isBookMark: Boolean? = null,
-    val isLike: Boolean? = null,
+    val likeEntity: LikeEntity? = null,
     val likeCount: Int? = null
 )
 
@@ -104,8 +106,6 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         } else {
             query.get().await()
         }
-
-
     }
 
     override suspend fun selectContents(boardSelectForm: BoardSelectForm): BoardListResponse {
@@ -135,7 +135,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
 
-
+/*
                 val likeSnapshot = database.collection("Like")
                     .whereEqualTo("userEmail", UserSingleton.userEntity.email)
                     .whereEqualTo("boardAuthorEmail", email)
@@ -153,19 +153,15 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", createTime)
                     .get().await()
 
-                val boardResponse = BoardResponse(
+ */
+
+                BoardResponse(
                     UserEntity(email, nickname, image),
                     title,
                     content,
                     images,
                     createTime,
                     editTime
-                )
-                WrapperBoardResponse(
-                    boardResponse = boardResponse,
-                    isBookMark = bookMarkSnapshot.documents.isNotEmpty(),
-                    isLike = likeSnapshot.documents.isNotEmpty(),
-                    likeCount = likeCountSnapshot.size()
                 )
             }.let {
                 BoardListResponse(it)
