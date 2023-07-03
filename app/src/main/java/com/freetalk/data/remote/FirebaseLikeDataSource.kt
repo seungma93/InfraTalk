@@ -1,9 +1,6 @@
 package com.freetalk.data.remote
 
-import com.freetalk.data.FailLoadLikeCountException
-import com.freetalk.data.FailLoadLikeException
-import com.freetalk.data.FailUpdateLikeException
-import com.freetalk.data.UserSingleton
+import com.freetalk.data.*
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.util.Date
@@ -11,14 +8,37 @@ import javax.inject.Inject
 
 
 interface LikeDataSource {
-    suspend fun updateLike(likeUpdateForm: LikeUpdateForm): LikeResponse
+    suspend fun insertLike(insertLikeRequest: InsertLikeRequest): LikeResponse
+    suspend fun deleteLike(deleteLikeRequest: DeleteLikeRequest): LikeResponse
     suspend fun selectLike(likeSelectForm: LikeSelectForm): LikeResponse
     suspend fun selectLikeCount(likeCountSelectForm: LikeCountSelectForm): LikeCountResponse
 }
 
-data class LikeUpdateForm(
+data class InsertLikeRequest(
     val boardAuthorEmail: String,
     val boardCreateTime: Date
+)
+
+data class InsertLikeForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date
+)
+
+data class DeleteLikeForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date
+)
+
+data class DeleteLikeRequest(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date
+)
+
+data class FirebaseInsertLikeRequest(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
+    val userEmail: String,
+    val updateTime: Date,
 )
 
 data class LikeSelectForm(
@@ -44,12 +64,34 @@ data class LikeCountResponse(
     val likeCount: Int? = null
 )
 
+
 class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : LikeDataSource {
 
-    override suspend fun updateLike(likeUpdateForm: LikeUpdateForm): LikeResponse =
-        with(likeUpdateForm) {
+    override suspend fun insertLike(insertLikeRequest: InsertLikeRequest): LikeResponse =
+        with(insertLikeRequest) {
+            return kotlin.runCatching {
+                val firebaseInsertLikeRequest = FirebaseInsertLikeRequest(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime,
+                    userEmail = UserSingleton.userEntity.email,
+                    updateTime = Date(System.currentTimeMillis()),
+                )
+                database.collection("Like").add(firebaseInsertLikeRequest).await()
+                LikeResponse(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime,
+                    userEmail = UserSingleton.userEntity.email,
+                    updateTime = Date(System.currentTimeMillis())
+                )
+            }.onFailure {
+                throw FailInsertLikeException("좋아요 인서트를 실패 했습니다")
+            }.getOrThrow()
+        }
+
+    override suspend fun deleteLike(deleteLikeRequest: DeleteLikeRequest): LikeResponse =
+        with(deleteLikeRequest) {
             return kotlin.runCatching {
                 val snapshot = database.collection("Like")
                     .whereEqualTo("userEmail", UserSingleton.userEntity.email)
@@ -57,24 +99,19 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
 
-                val likeResponse = LikeResponse(
+                snapshot.documents.firstOrNull()?.let {
+                    database.collection("Like").document(it.id).delete()
+                } ?: throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
+
+                LikeResponse(
                     boardAuthorEmail = boardAuthorEmail,
                     boardCreateTime = boardCreateTime,
                     userEmail = UserSingleton.userEntity.email,
                     updateTime = Date(System.currentTimeMillis())
                 )
-
-                snapshot.documents.firstOrNull()?.let {
-                    database.collection("Like").document(it.id).delete()
-                } ?: run {
-                    database.collection("Like").add(likeResponse).await()
-                }
-
-                likeResponse
             }.onFailure {
-               throw FailUpdateLikeException("좋아요 업데이트를 실패 했습니다")
+                throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
             }.getOrThrow()
-
         }
 
     override suspend fun selectLike(likeSelectForm: LikeSelectForm): LikeResponse =
@@ -103,27 +140,26 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                 }
 
             }.onFailure {
-                throw FailLoadLikeException("좋아요 ㄴ로드를 실패 했습니다")
+                throw FailLoadLikeException("좋아요 로드를 실패 했습니다")
             }.getOrThrow()
 
         }
 
-    override suspend fun selectLikeCount(likeCountSelectForm: LikeCountSelectForm): LikeCountResponse = with(likeCountSelectForm) {
-        return kotlin.runCatching {
-            val snapshot = database.collection("Like")
-                .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
-                .whereEqualTo("boardCreateTime", boardCreateTime)
-                .get().await()
-            LikeCountResponse(
-                boardAuthorEmail = boardAuthorEmail,
-                boardCreateTime = boardCreateTime,
-                likeCount = snapshot.documents.size
-            )
-        }.onFailure {
-            throw FailLoadLikeCountException("좋아요 카운트 로드를 실패 했습니다")
-        }.getOrThrow()
+    override suspend fun selectLikeCount(likeCountSelectForm: LikeCountSelectForm): LikeCountResponse =
+        with(likeCountSelectForm) {
+            return kotlin.runCatching {
+                val snapshot = database.collection("Like")
+                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
+                    .whereEqualTo("boardCreateTime", boardCreateTime)
+                    .get().await()
+                LikeCountResponse(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime,
+                    likeCount = snapshot.documents.size
+                )
+            }.onFailure {
+                throw FailLoadLikeCountException("좋아요 카운트 로드를 실패 했습니다")
+            }.getOrThrow()
 
-    }
-
-
+        }
 }

@@ -22,6 +22,7 @@ import com.freetalk.databinding.FragmentBoardContentBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.presenter.adapter.BoardContentImageAdapter
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
+import com.freetalk.presenter.viewmodel.BoardViewEvent
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -99,26 +100,34 @@ class BoardContentFragment : Fragment() {
                 }
             }
             btnLike.setOnClickListener {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val likeUpdateForm = LikeUpdateForm(
-                        boardEntity.author.email,
-                        boardEntity.createTime
-                    )
+                boardContentViewModel.viewState.value.wrapperBoardEntity.likeEntity?.let {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val deleteLikeForm = DeleteLikeForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
 
-                    val likeSelectForm = LikeSelectForm(
-                        boardEntity.author.email,
-                        boardEntity.createTime
-                    )
+                        val likeCountSelectForm = LikeCountSelectForm(
+                            boardEntity.author.email,
+                            boardEntity.createTime
+                        )
+                        boardContentViewModel.deleteLikeContent(deleteLikeForm, likeCountSelectForm)
+                    }
+                } ?: run {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val insertLikeForm = InsertLikeForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
 
-                    val likeCountSelectForm = LikeCountSelectForm(
-                        boardEntity.author.email,
-                        boardEntity.createTime
-                    )
-
-
-                    boardContentViewModel.updateLikeContent(likeUpdateForm, likeSelectForm, likeCountSelectForm)
+                        val likeCountSelectForm = LikeCountSelectForm(
+                            boardEntity.author.email,
+                            boardEntity.createTime
+                        )
+                        boardContentViewModel.insertLikeContent(insertLikeForm, likeCountSelectForm)
+                    }
                 }
-            }
+                            }
             btnSubmitComment.setOnClickListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     boardContentViewModel.viewState.value.wrapperBoardEntity.boardEntity.let {
@@ -137,10 +146,7 @@ class BoardContentFragment : Fragment() {
         subscribe()
         printContent()
         binding.recyclerviewImage.adapter = adapter
-
-
     }
-
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardContentViewModel.viewState.collect {
@@ -152,7 +158,7 @@ class BoardContentFragment : Fragment() {
                             contentCreateTime.text = it.boardEntity.createTime.toString()
                             contentAuthor.text = it.boardEntity.author.nickname
                             btnBookmark.isSelected = it.isBookMark
-                            btnLike.isSelected = it.isLike
+                            btnLike.isSelected = it.likeEntity != null
                             likeCount.text = it.likeCount.toString()
                             it.boardEntity.images?.let {
                                 adapter.setItems(it.successUris)

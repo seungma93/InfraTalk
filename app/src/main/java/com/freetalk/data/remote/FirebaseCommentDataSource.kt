@@ -60,6 +60,15 @@ data class WrapperCommentResponse(
     val likeCount: Int? = null
 )
 
+data class InsertCommentRequest(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
+    val author: UserEntity,
+    val content: String,
+    val createTime: Date,
+    val editTime: Date?
+)
+
 data class CommentListResponse(
     val commentList: List<WrapperCommentResponse>? = null
 )
@@ -74,15 +83,18 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
             return kotlin.runCatching {
                 val createTime = Date(System.currentTimeMillis())
-                val insert = mapOf(
-                    "boardAuthorEmail" to commentInsertForm.boardAuthorEmail,
-                    "boardCreateTime" to commentInsertForm.boardCreateTime,
-                    "author" to userSingleton,
-                    "content" to commentInsertForm.content,
-                    "createTime" to createTime,
-                    "editTime" to null
+
+                val insertCommentRequest = InsertCommentRequest(
+                    boardAuthorEmail = commentInsertForm.boardAuthorEmail,
+                    boardCreateTime = commentInsertForm.boardCreateTime,
+                    author = userSingleton.userEntity,
+                    content = commentInsertForm.content,
+                    createTime = createTime,
+                    editTime = null
                 )
-                database.collection("Comment").add(insert).await()
+
+                database.collection("Comment").add(insertCommentRequest).await()
+
                 CommentResponse(
                     boardAuthorEmail = commentInsertForm.boardAuthorEmail,
                     boardCreateTime = commentInsertForm.boardCreateTime,

@@ -73,7 +73,11 @@ class FailSelectLogInInfoException(
     val _message: String
 ) : Exception(_message)
 
-class FailUpdateLikeException(
+class FailInsertLikeException(
+    val _message: String
+) : Exception(_message)
+
+class FailDeleteLikeException(
     val _message: String
 ) : Exception(_message)
 
@@ -84,7 +88,6 @@ class FailLoadLikeException(
 class FailLoadLikeCountException(
     val _message: String
 ) : Exception(_message)
-
 
 class FailSelectBoardContentException(
     val _message: String

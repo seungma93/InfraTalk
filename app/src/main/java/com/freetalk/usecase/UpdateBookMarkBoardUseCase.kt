@@ -23,7 +23,7 @@ class UpdateBookMarkBoardUseCase @Inject constructor(private val repository: Boo
                 WrapperBoardEntity(
                     boardEntity = it.boardEntity,
                     isBookMark = repository.selectBookMark(bookMarkSelectForm).boardAuthorEmail.isNotEmpty(),
-                    isLike = it.isLike,
+                    likeEntity = it.likeEntity,
                     likeCount = it.likeCount
                 )
             } else it

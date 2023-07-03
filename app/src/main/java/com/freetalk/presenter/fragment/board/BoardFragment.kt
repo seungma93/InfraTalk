@@ -28,6 +28,7 @@ import com.freetalk.presenter.fragment.ChildFragmentNavigable
 import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
 import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.viewmodel.BoardViewModel
+import com.freetalk.usecase.InsertLikeBoardContentUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -112,29 +113,42 @@ class BoardFragment : Fragment() {
 
             },
             likeClick = { wrapperBoardEntity ->
-
-                    val likeUpdateForm = LikeUpdateForm(
-                        wrapperBoardEntity.boardEntity.author.email,
-                        wrapperBoardEntity.boardEntity.createTime
+                wrapperBoardEntity.apply {
+                    likeEntity?.let {
+                        val deleteLikeForm = DeleteLikeForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
+                        val likeCountSelectForm = LikeCountSelectForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
                         )
 
-                    val likeSelectForm = LikeSelectForm(
-                        wrapperBoardEntity.boardEntity.author.email,
-                        wrapperBoardEntity.boardEntity.createTime
-                    )
-
-                    val likeCountSelectForm = LikeCountSelectForm(
-                        wrapperBoardEntity.boardEntity.author.email,
-                        wrapperBoardEntity.boardEntity.createTime,
-                    )
-
-                        Log.v("BookSearchFragment", "세이브 람다")
                         viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.updateLike(
-                                likeUpdateForm, likeSelectForm, likeCountSelectForm
+                            boardViewModel.deleteLike(
+                                deleteLikeForm, likeCountSelectForm
+                            )
+                        }
+                    } ?: run {
+                        val insertLikeForm = InsertLikeForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
+                        val likeCountSelectForm = LikeCountSelectForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
+
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            boardViewModel.insertLike(
+                                insertLikeForm, likeCountSelectForm
                             )
                         }
                     }
+
+                }
+            }
+
 
         )
 
@@ -163,7 +177,7 @@ class BoardFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             val result = boardViewModel.select(BoardSelectForm(reload = true))
-            adapter.submitList(result.boardListEntity.boardList) {
+            adapter.submitList(result.boardList.wrapperBoardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
             }
         }
@@ -177,18 +191,18 @@ class BoardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
                 Log.d("BoardFragment", "셀렉트 성공")
-                it.boardListEntity.boardList.map {
+                it.boardList.wrapperBoardList.map {
                     Log.d("새로 업데이트", it.boardEntity.content)
                 }
                 adapter.currentList.map {
                     Log.d("기존 리스트", it.boardEntity.content)
                 }
-                val newList = adapter.currentList + it.boardListEntity.boardList
+                val newList = adapter.currentList + it.boardList.wrapperBoardList
                 newList.map {
                     Log.d("합쳐진 리스트", it.boardEntity.content)
                 }
 
-                adapter.submitList(it.boardListEntity.boardList)
+                adapter.submitList(it.boardList.wrapperBoardList)
             }
         }
     }

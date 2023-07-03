@@ -8,14 +8,20 @@ import com.freetalk.data.remote.*
 import javax.inject.Inject
 
 interface LikeDataRepository {
-    suspend fun updateLike(likeUpdateForm: LikeUpdateForm): LikeEntity
+    suspend fun insertLike(insertLikeRequest: InsertLikeRequest): LikeEntity
+    suspend fun deleteLike(deleteLikeRequest: DeleteLikeRequest): LikeEntity
     suspend fun selectLike(likeSelectForm: LikeSelectForm): LikeEntity
     suspend fun selectLikeCount(likeCountSelectForm: LikeCountSelectForm): LikeCountEntity
 }
 
 class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDataSource): LikeDataRepository {
-    override suspend fun updateLike(likeUpdateForm: LikeUpdateForm): LikeEntity {
-        return dataSource.updateLike(likeUpdateForm).toEntity()
+
+    override suspend fun insertLike(insertLikeRequest: InsertLikeRequest): LikeEntity {
+        return dataSource.insertLike(insertLikeRequest).toEntity()
+    }
+
+    override suspend fun deleteLike(deleteLikeRequest: DeleteLikeRequest): LikeEntity {
+        return dataSource.deleteLike(deleteLikeRequest).toEntity()
     }
 
     override suspend fun selectLike(likeSelectForm: LikeSelectForm): LikeEntity {

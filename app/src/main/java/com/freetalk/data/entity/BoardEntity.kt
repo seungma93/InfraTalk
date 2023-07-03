@@ -28,7 +28,7 @@ fun BoardResponse.toEntity(): BoardEntity {
 }
 
 data class BoardListEntity (
-    val boardList: List<WrapperBoardEntity> = emptyList()
+    val boardList: List<BoardEntity> = emptyList()
 )
 
 fun BoardListResponse.toEntity(): BoardListEntity {
@@ -49,7 +49,7 @@ data class WrapperBoardEntity(
         null
     ),
     val isBookMark: Boolean = false,
-    val isLike: Boolean = false,
+    val likeEntity: LikeEntity? = LikeEntity(),
     val likeCount: Int = 0
 ): Serializable
 
@@ -57,7 +57,7 @@ fun WrapperBoardResponse.toEntity(): WrapperBoardEntity {
     return WrapperBoardEntity(
         boardEntity = boardResponse?.toEntity() ?: BoardEntity(),
         isBookMark = isBookMark ?: false,
-        isLike = isLike ?: false,
+        likeEntity = likeEntity,
         likeCount = likeCount ?: 0
     )
 }

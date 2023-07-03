@@ -246,8 +246,12 @@ class Modules {
     @Module
     class PrintBoardListUseCaseModule {
         @Provides
-        fun providesPrintBoardListUseCase(repository: BoardDataRepository): PrintBoardListUseCase {
-            return PrintBoardListUseCase(repository)
+        fun providesPrintBoardListUseCase(
+            boardDataRepository: BoardDataRepository,
+            bookMarkDataRepository: BookMarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): PrintBoardListUseCase {
+            return PrintBoardListUseCase(boardDataRepository, bookMarkDataRepository, likeDataRepository)
         }
     }
 
@@ -268,18 +272,34 @@ class Modules {
     }
 
     @Module
-    class UpdateLikeBoardUseCaseModule {
+    class InsertLikeBoardUseCaseModule {
         @Provides
-        fun providesUpdateLikeBoardUseCase(repository: LikeDataRepository): UpdateLikeBoardUseCase {
-            return UpdateLikeBoardUseCase(repository)
+        fun providesInsertLikeBoardUseCase(repository: LikeDataRepository): InsertLikeBoardUseCase {
+            return InsertLikeBoardUseCase(repository)
         }
     }
 
     @Module
-    class UpdateLikeBoardContentUseCaseModule {
+    class InsertLikeBoardContentUseCaseModule {
         @Provides
-        fun providesUpdateLikeBoardContentUseCase(repository: LikeDataRepository): UpdateLikeBoardContentUseCase {
-            return UpdateLikeBoardContentUseCase(repository)
+        fun providesInsertLikeBoardContentUseCase(repository: LikeDataRepository): InsertLikeBoardContentUseCase {
+            return InsertLikeBoardContentUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteLikeBoardUseCaseModule {
+        @Provides
+        fun providesDeleteLikeBoardUseCase(repository: LikeDataRepository): DeleteLikeBoardUseCase {
+            return DeleteLikeBoardUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteLikeBoardContentUseCaseModule {
+        @Provides
+        fun providesDeleteLikeBoardContentUseCase(repository: LikeDataRepository): DeleteLikeBoardContentUseCase {
+            return DeleteLikeBoardContentUseCase(repository)
         }
     }
 
@@ -323,7 +343,8 @@ class Modules {
             updateImageContentUseCase: UpdateImageContentUseCase,
             printBoardListUseCase: PrintBoardListUseCase,
             updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
-            updateLikeBoardUseCase: UpdateLikeBoardUseCase,
+            insertLikeBoardUseCase: InsertLikeBoardUseCase,
+            deleteLikeBoardUseCase: DeleteLikeBoardUseCase,
             updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
         ): ViewModel {
             return BoardViewModel(
@@ -331,7 +352,8 @@ class Modules {
                 updateImageContentUseCase,
                 printBoardListUseCase,
                 updateBookMarkBoardUseCase,
-                updateLikeBoardUseCase,
+                insertLikeBoardUseCase,
+                deleteLikeBoardUseCase,
                 updateBookMarkBoardContentUseCase
             )
         }
@@ -345,13 +367,15 @@ class Modules {
         fun providesBoardContentViewModel(
             selectBoardContentUseCase: SelectBoardContentUseCase,
             updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
-            updateLikeBoardContentUseCase: UpdateLikeBoardContentUseCase,
+            insertLikeBoardContentUseCase: InsertLikeBoardContentUseCase,
+            deleteLikeBoardContentUseCase: DeleteLikeBoardContentUseCase,
             writeCommentUseCase: WriteCommentUseCase
         ): ViewModel {
             return BoardContentViewModel(
                 updateBookMarkBoardContentUseCase,
                 selectBoardContentUseCase,
-                updateLikeBoardContentUseCase,
+                insertLikeBoardContentUseCase,
+                deleteLikeBoardContentUseCase,
                 writeCommentUseCase
             )
         }

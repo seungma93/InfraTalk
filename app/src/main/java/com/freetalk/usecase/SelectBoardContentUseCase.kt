@@ -6,6 +6,8 @@ import com.freetalk.repository.BoardDataRepository
 import com.freetalk.repository.BookMarkDataRepository
 import com.freetalk.repository.LikeDataRepository
 import com.freetalk.repository.LikeDataRepositoryImpl
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class SelectBoardContentUseCase @Inject constructor(
@@ -18,13 +20,26 @@ class SelectBoardContentUseCase @Inject constructor(
         bookMarkSelectForm: BookMarkSelectForm,
         likeSelectForm: LikeSelectForm,
         likeCountSelectForm: LikeCountSelectForm
-    ): WrapperBoardEntity {
+    ): WrapperBoardEntity = coroutineScope {
 
-        return WrapperBoardEntity(
-            boardEntity = boardDataRepository.selectBoardContent(boardContentSelectForm),
-            isBookMark = bookMarkDataRepository.selectBookMark(bookMarkSelectForm).boardAuthorEmail.isNotEmpty(),
-            isLike = likeDataRepository.selectLike(likeSelectForm).boardAuthorEmail.isNotEmpty(),
-            likeCount = likeDataRepository.selectLikeCount(likeCountSelectForm).likeCount
+        val jobSelectBoardEntity = boardDataRepository.selectBoardContent(boardContentSelectForm)
+        val jobSelectBookMark = bookMarkDataRepository.selectBookMark(bookMarkSelectForm)
+        val jobSelectLikeEntity = likeDataRepository.selectLike(likeSelectForm)
+        val jobSelectLikeCountEntity = likeDataRepository.selectLikeCount(likeCountSelectForm)
+
+        val boardEntity = async { jobSelectBoardEntity }.await()
+        val bookMarkEntity = async { jobSelectBookMark }.await()
+        val likeEntity = async { jobSelectLikeEntity }.await()
+        val likeCount = async { jobSelectLikeCountEntity }.await()
+
+        WrapperBoardEntity(
+            boardEntity = boardEntity,
+            isBookMark = bookMarkEntity.boardAuthorEmail.isNotEmpty(),
+            likeEntity = when (likeEntity.boardAuthorEmail.isNotEmpty()) {
+                true -> likeEntity
+                false -> null
+            },
+            likeCount = likeCount.likeCount
         )
     }
 
