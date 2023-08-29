@@ -15,7 +15,7 @@ class DeleteLikeBoardUseCase @Inject constructor(private val repository: LikeDat
         deleteLikeForm: DeleteLikeForm,
         likeCountSelectForm: LikeCountSelectForm,
         boardList: List<WrapperBoardEntity>
-    ): List<WrapperBoardEntity> = coroutineScope {
+    ): List<WrapperBoardEntity> {
 
         val deleteLikeRequest = DeleteLikeRequest(
             deleteLikeForm.boardAuthorEmail,
@@ -25,11 +25,11 @@ class DeleteLikeBoardUseCase @Inject constructor(private val repository: LikeDat
         repository.deleteLike(deleteLikeRequest)
         val likeCount = repository.selectLikeCount(likeCountSelectForm).likeCount
 
-        boardList.map {
+        return boardList.map {
             if (it.boardEntity.author.email == deleteLikeForm.boardAuthorEmail && it.boardEntity.createTime == deleteLikeForm.boardCreateTime) {
                 WrapperBoardEntity(
                     boardEntity = it.boardEntity,
-                    isBookMark = it.isBookMark,
+                    bookMarkEntity = it.bookMarkEntity,
                     likeEntity = null,
                     likeCount = likeCount
                 )

@@ -96,3 +96,7 @@ class FailSelectBoardContentException(
 class FailUpdateBookMarkException(
     val _message: String
 ) : Exception(_message)
+
+class FailDeleteBookMarkException(
+    val _message: String
+) : Exception(_message)

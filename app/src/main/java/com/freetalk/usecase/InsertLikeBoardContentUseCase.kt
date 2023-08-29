@@ -14,7 +14,7 @@ class InsertLikeBoardContentUseCase @Inject constructor(private val repository: 
         insertLikeForm: InsertLikeForm,
         likeCountSelectForm: LikeCountSelectForm,
         wrapperBoardEntity: WrapperBoardEntity
-    ): WrapperBoardEntity = coroutineScope {
+    ): WrapperBoardEntity = with(wrapperBoardEntity) {
 
         val insertLikeRequest = InsertLikeRequest(
             insertLikeForm.boardAuthorEmail,
@@ -25,8 +25,8 @@ class InsertLikeBoardContentUseCase @Inject constructor(private val repository: 
         val likeCount = repository.selectLikeCount(likeCountSelectForm).likeCount
 
         WrapperBoardEntity(
-            boardEntity = wrapperBoardEntity.boardEntity,
-            isBookMark = wrapperBoardEntity.isBookMark,
+            boardEntity = boardEntity,
+            bookMarkEntity = bookMarkEntity,
             likeEntity = likeEntity,
             likeCount = likeCount
         )

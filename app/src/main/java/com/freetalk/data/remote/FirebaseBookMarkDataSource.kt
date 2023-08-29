@@ -9,11 +9,17 @@ import javax.inject.Inject
 
 
 interface BookMarkDataSource {
-    suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm): BookMarkResponse
+    suspend fun insertBookMark(insertBookMarkRequest: InsertBookMarkRequest): BookMarkResponse
+    suspend fun deleteBookMark(deleteBookMarkRequest: DeleteBookMarkRequest): BookMarkResponse
     suspend fun selectBookMark(bookMarkSelectForm: BookMarkSelectForm): BookMarkResponse
 }
 
-data class BookMarkUpdateForm(
+data class InsertBookMarkForm(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date
+)
+
+data class DeleteBookMarkForm(
     val boardAuthorEmail: String,
     val boardCreateTime: Date
 )
@@ -51,7 +57,7 @@ class FirebaseBookMarkRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : BookMarkDataSource {
 
-    suspend fun insertBookMark(insertBookMarkRequest: InsertBookMarkRequest): BookMarkResponse =
+    override suspend fun insertBookMark(insertBookMarkRequest: InsertBookMarkRequest): BookMarkResponse =
         with(insertBookMarkRequest) {
             return kotlin.runCatching {
                 val firebaseInsertBookMarkRequest = FirebaseInsertBookMarkRequest(
@@ -73,7 +79,7 @@ class FirebaseBookMarkRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
         }
 
-    suspend fun deleteBookMark(deleteBookMarkRequest: DeleteBookMarkRequest): Result<Unit> =
+    override suspend fun deleteBookMark(deleteBookMarkRequest: DeleteBookMarkRequest): BookMarkResponse =
         with(deleteBookMarkRequest) {
          return kotlin.runCatching {
              val snapshot = database.collection("BookMark")
@@ -81,36 +87,20 @@ class FirebaseBookMarkRemoteDataSourceImpl @Inject constructor(
                  .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                  .whereEqualTo("boardCreateTime", boardCreateTime)
                  .get().await()
-         }
-        }
 
-    override suspend fun updateBookMark(bookMarkUpdateForm: BookMarkUpdateForm): BookMarkResponse =
-        with(bookMarkUpdateForm) {
-            return kotlin.runCatching {
-                val snapshot = database.collection("BookMark")
-                    .whereEqualTo("userEmail", UserSingleton.userEntity.email)
-                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
-                    .whereEqualTo("boardCreateTime", boardCreateTime)
-                    .get().await()
+             snapshot.documents.firstOrNull()?.let {
+                 database.collection("BookMark").document(it.id).delete()
+             } ?: throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
 
-                val bookMarkResponse = BookMarkResponse(
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime,
-                    userEmail = UserSingleton.userEntity.email,
-                    updateTime = Date(System.currentTimeMillis())
-                )
-
-                snapshot.documents.firstOrNull()?.let {
-                    database.collection("BookMark").document(it.id).delete()
-                } ?: run {
-                    database.collection("BookMark").add(bookMarkResponse).await()
-                }
-
-                bookMarkResponse
-            }.onFailure {
-                throw FailUpdateBookMarkException("북마크 업데이트를 실패 했습니다")
-            }.getOrThrow()
-
+             BookMarkResponse(
+                 boardAuthorEmail = boardAuthorEmail,
+                 boardCreateTime = boardCreateTime,
+                 userEmail = UserSingleton.userEntity.email,
+                 updateTime = Date(System.currentTimeMillis())
+             )
+         }.onFailure {
+             throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
+         }.getOrThrow()
         }
 
     override suspend fun selectBookMark(bookMarkSelectForm: BookMarkSelectForm): BookMarkResponse =

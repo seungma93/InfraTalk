@@ -3,6 +3,7 @@ package com.freetalk.data.remote
 import android.net.Uri
 import android.util.Log
 import com.freetalk.data.*
+import com.freetalk.data.entity.BookMarkEntity
 import com.freetalk.data.entity.ImagesResultEntity
 import com.freetalk.data.entity.LikeEntity
 import com.freetalk.data.entity.UserEntity
@@ -61,7 +62,7 @@ data class BoardListResponse(
 
 data class WrapperBoardResponse(
     val boardResponse: BoardResponse? = null,
-    val isBookMark: Boolean? = null,
+    val bookMarkEntity: BookMarkEntity? = null,
     val likeEntity: LikeEntity? = null,
     val likeCount: Int? = null
 )

@@ -14,7 +14,7 @@ class DeleteLikeBoardContentUseCase @Inject constructor(private val repository: 
         deleteLikeForm: DeleteLikeForm,
         likeCountSelectForm: LikeCountSelectForm,
         wrapperBoardEntity: WrapperBoardEntity
-    ): WrapperBoardEntity = coroutineScope {
+    ): WrapperBoardEntity = with(wrapperBoardEntity) {
 
         val deleteLikeRequest = DeleteLikeRequest(
             deleteLikeForm.boardAuthorEmail,
@@ -23,9 +23,9 @@ class DeleteLikeBoardContentUseCase @Inject constructor(private val repository: 
         repository.deleteLike(deleteLikeRequest)
         val likeCount = repository.selectLikeCount(likeCountSelectForm).likeCount
 
-        WrapperBoardEntity(
-            boardEntity = wrapperBoardEntity.boardEntity,
-            isBookMark = wrapperBoardEntity.isBookMark,
+        return WrapperBoardEntity(
+            boardEntity = boardEntity,
+            bookMarkEntity = bookMarkEntity,
             likeEntity = null,
             likeCount = likeCount
         )

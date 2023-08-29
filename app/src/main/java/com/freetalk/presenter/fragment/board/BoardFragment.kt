@@ -95,22 +95,25 @@ class BoardFragment : Fragment() {
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             },
             bookMarkClick = { wrapperBoardEntity ->
-
-                val bookMarkUpdateForm = BookMarkUpdateForm(
-                    wrapperBoardEntity.boardEntity.author.email,
-                    wrapperBoardEntity.boardEntity.createTime
-                )
-
-                val bookMarkSelectForm = BookMarkSelectForm(
-                    wrapperBoardEntity.boardEntity.author.email,
-                    wrapperBoardEntity.boardEntity.createTime
-                )
-                viewLifecycleOwner.lifecycleScope.launch {
-                    boardViewModel.updateBookMark(
-                        bookMarkUpdateForm, bookMarkSelectForm
-                    )
+                wrapperBoardEntity.apply {
+                    bookMarkEntity?.let {
+                        val deleteBookMarkForm = DeleteBookMarkForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            boardViewModel.deleteBookMark(deleteBookMarkForm)
+                        }
+                    } ?: run {
+                        val insertBookMarkForm = InsertBookMarkForm(
+                            boardAuthorEmail = boardEntity.author.email,
+                            boardCreateTime = boardEntity.createTime
+                        )
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            boardViewModel.insertBookMark(insertBookMarkForm)
+                        }
+                    }
                 }
-
             },
             likeClick = { wrapperBoardEntity ->
                 wrapperBoardEntity.apply {
@@ -180,6 +183,7 @@ class BoardFragment : Fragment() {
                 binding.recyclerviewBoardList.scrollToPosition(0)
             }
         }
+
         subscribe()
         initScrollListener()
     }
