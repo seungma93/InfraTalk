@@ -145,7 +145,6 @@ class BoardFragment : Fragment() {
                             )
                         }
                     }
-
                 }
             }
 
@@ -183,25 +182,12 @@ class BoardFragment : Fragment() {
         }
         subscribe()
         initScrollListener()
-
-
     }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewState.collect {
                 Log.d("BoardFragment", "셀렉트 성공")
-                it.boardList.wrapperBoardList.map {
-                    Log.d("새로 업데이트", it.boardEntity.content)
-                }
-                adapter.currentList.map {
-                    Log.d("기존 리스트", it.boardEntity.content)
-                }
-                val newList = adapter.currentList + it.boardList.wrapperBoardList
-                newList.map {
-                    Log.d("합쳐진 리스트", it.boardEntity.content)
-                }
-
                 adapter.submitList(it.boardList.wrapperBoardList)
             }
         }

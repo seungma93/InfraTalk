@@ -61,7 +61,7 @@ class FailLoadBookMarkListException(
     val _message: String
 ) : Exception(_message)
 
-class FailUpdateBookMarkException(
+class FailInsertBookMarkException(
     val _message: String
 ) : Exception(_message)
 
@@ -90,5 +90,9 @@ class FailLoadLikeCountException(
 ) : Exception(_message)
 
 class FailSelectBoardContentException(
+    val _message: String
+) : Exception(_message)
+
+class FailUpdateBookMarkException(
     val _message: String
 ) : Exception(_message)

@@ -73,6 +73,7 @@ class BoardListAdapter(
                     }
                 }
                 btnLike.setOnClickListener {
+                    btnLike.isEnabled = false
                     wrapperBoardEntity?.let {
                             likeClick(it)
                     }
@@ -93,7 +94,9 @@ class BoardListAdapter(
                     btnBookmark.isSelected = it.isBookMark
                     btnLike.isSelected = (it.likeEntity != null)
                     likeCount.text = it.likeCount.toString()
-                    Glide.with(itemView.context).load(it.boardEntity.images?.successUris?.firstOrNull()).into(image)
+                    Glide.with(itemView.context).load(it.boardEntity.images?.successUris?.firstOrNull()).into(ivSingleImage)
+                    btnLike.isEnabled = true
+                    btnBookmark.isEnabled = true
                 }
             }
         }

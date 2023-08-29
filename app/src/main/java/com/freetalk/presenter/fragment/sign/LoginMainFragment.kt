@@ -77,6 +77,9 @@ class LoginMainFragment : Fragment() {
                 val dialogFragment = ResetPasswordFragment()
                 dialogFragment.show(childFragmentManager, "CustomDialog")
             }
+            btnTest.setOnClickListener {
+                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
+            }
         }
         subsribe()
     }
