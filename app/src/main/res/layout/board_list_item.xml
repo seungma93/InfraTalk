@@ -166,10 +166,11 @@
             android:id="@+id/ly_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="3dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ly_image"
-            android:layout_marginTop="8dp">
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <ImageButton
                 android:id="@+id/btn_bookmark"
@@ -180,10 +181,11 @@
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
                 android:src="@drawable/btn_star_selector"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toLeftOf="@+id/btn_like"
-
-                ></ImageButton>
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginLeft="5dp"
+                />
 
             <ImageButton
                 android:id="@+id/btn_like"
@@ -194,19 +196,23 @@
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
                 android:src="@drawable/btn_like_selector"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/like_count"></ImageButton>
+                app:layout_constraintRight_toLeftOf="@+id/like_count"
+                app:layout_constraintLeft_toRightOf="@id/btn_bookmark"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginLeft="5dp"/>
 
             <TextView
                 android:id="@+id/like_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="30dp"
+                android:layout_height="0dp"
                 android:gravity="center"
-                android:padding="3dp"
                 android:textAlignment="center"
                 android:textSize="15dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/btn_like"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginLeft="5dp"
                 tools:text="1" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

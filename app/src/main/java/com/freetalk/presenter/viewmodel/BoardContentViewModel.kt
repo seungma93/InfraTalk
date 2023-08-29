@@ -10,7 +10,8 @@ import javax.inject.Inject
 
 
 class BoardContentViewModel @Inject constructor(
-    private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
+    private val insertBookMarkBoardContentUseCase: InsertBookMarkBoardContentUseCase,
+    private val deleteBookMarkBoardContentUseCase: DeleteBookMarkBoardContentUseCase,
     private val selectBoardContentUseCase: SelectBoardContentUseCase,
     private val insertLikeBoardContentUseCase: InsertLikeBoardContentUseCase,
     private val deleteLikeBoardContentUseCase: DeleteLikeBoardContentUseCase,
@@ -47,20 +48,31 @@ class BoardContentViewModel @Inject constructor(
         }.getOrNull()
     }
 
-    suspend fun updateBookMarkContent(
-        bookMarkUpdateForm: BookMarkUpdateForm,
-        bookMarkSelectForm: BookMarkSelectForm
+    suspend fun insertBookMarkContent(
+        insertBookMarkForm: InsertBookMarkForm
     ) {
         kotlin.runCatching {
-            val wrapperBoardEntity = updateBookMarkBoardContentUseCase(
-                bookMarkUpdateForm,
-                bookMarkSelectForm,
+            val wrapperBoardEntity = insertBookMarkBoardContentUseCase(
+                insertBookMarkForm,
                 _viewState.value.wrapperBoardEntity
             )
-            _viewState.value =
-                BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
+            _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
         }.onFailure {
-            Log.d("BoardViewModel", "북마크 업데이트 실패")
+
+        }.getOrNull()
+    }
+
+    suspend fun deleteBookMarkContent(
+        deleteBookMarkForm: DeleteBookMarkForm
+    ) {
+        kotlin.runCatching {
+            val wrapperBoardEntity = deleteBookMarkBoardContentUseCase(
+                deleteBookMarkForm,
+                _viewState.value.wrapperBoardEntity
+            )
+            _viewState.value = BoardContentViewState(wrapperBoardEntity, _viewState.value.commentEntity)
+        }.onFailure {
+
         }.getOrNull()
     }
 

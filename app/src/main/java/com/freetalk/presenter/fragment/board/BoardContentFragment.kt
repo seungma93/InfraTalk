@@ -82,24 +82,35 @@ class BoardContentFragment : Fragment() {
 
         _adapter = BoardContentImageAdapter { }
 
-
         binding.apply {
             btnBookmark.setOnClickListener {
+                btnBookmark.isEnabled = false
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val bookMarkUpdateForm = BookMarkUpdateForm(
-                        boardEntity.author.email,
-                        boardEntity.createTime
-                    )
 
-                    val bookMarkSelectForm = BookMarkSelectForm(
-                        boardEntity.author.email,
-                        boardEntity.createTime
-                    )
-
-                    boardContentViewModel.updateBookMarkContent(bookMarkUpdateForm, bookMarkSelectForm)
+                    when(binding.btnBookmark.isSelected) {
+                        true -> {
+                            val deleteBookMarkForm = DeleteBookMarkForm(
+                                boardAuthorEmail = boardEntity.author.email,
+                                boardCreateTime = boardEntity.createTime
+                            )
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardContentViewModel.deleteBookMarkContent(deleteBookMarkForm)
+                            }
+                        }
+                        false -> {
+                            val insertBookMarkForm = InsertBookMarkForm(
+                                boardAuthorEmail = boardEntity.author.email,
+                                boardCreateTime = boardEntity.createTime
+                            )
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardContentViewModel.insertBookMarkContent(insertBookMarkForm)
+                            }
+                        }
+                    }
                 }
             }
             btnLike.setOnClickListener {
+                btnBookmark.isEnabled = false
                 boardContentViewModel.viewState.value.wrapperBoardEntity.likeEntity?.let {
                     viewLifecycleOwner.lifecycleScope.launch {
                         val deleteLikeForm = DeleteLikeForm(
@@ -157,12 +168,14 @@ class BoardContentFragment : Fragment() {
                             contentContext.text = it.boardEntity.content
                             contentCreateTime.text = it.boardEntity.createTime.toString()
                             contentAuthor.text = it.boardEntity.author.nickname
-                            btnBookmark.isSelected = it.isBookMark
+                            btnBookmark.isSelected = it.bookMarkEntity != null
                             btnLike.isSelected = it.likeEntity != null
                             likeCount.text = it.likeCount.toString()
                             it.boardEntity.images?.let {
                                 adapter.setItems(it.successUris)
                             }
+                            btnBookmark.isEnabled = true
+                            btnLike.isEnabled = true
                         }
                     }
             }

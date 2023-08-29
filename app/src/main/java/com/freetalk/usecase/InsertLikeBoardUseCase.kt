@@ -30,7 +30,7 @@ class InsertLikeBoardUseCase @Inject constructor(private val repository: LikeDat
             if (it.boardEntity.author.email == insertLikeForm.boardAuthorEmail && it.boardEntity.createTime == insertLikeForm.boardCreateTime) {
                 WrapperBoardEntity(
                     boardEntity = it.boardEntity,
-                    isBookMark = it.isBookMark,
+                    bookMarkEntity = it.bookMarkEntity,
                     likeEntity = likeEntity,
                     likeCount = likeCount
                 )

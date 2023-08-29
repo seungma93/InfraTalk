@@ -264,10 +264,18 @@ class Modules {
     }
 
     @Module
-    class UpdateBookMarkBoardUseCaseModule {
+    class InsertBookMarkBoardUseCaseModule {
         @Provides
-        fun providesUpdateBookMarkBoardUseCase(repository: BookMarkDataRepository): UpdateBookMarkBoardUseCase {
-            return UpdateBookMarkBoardUseCase(repository)
+        fun providesInsertBookMarkBoardUseCase(repository: BookMarkDataRepository): InsertBookMarkBoardUseCase {
+            return InsertBookMarkBoardUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteBookMarkBoardUseCaseModule {
+        @Provides
+        fun providesDeleteBookMarkBoardUseCase(repository: BookMarkDataRepository): DeleteBookMarkBoardUseCase {
+            return DeleteBookMarkBoardUseCase(repository)
         }
     }
 
@@ -304,10 +312,18 @@ class Modules {
     }
 
     @Module
-    class UpdateBookMarkBoardContentUseCaseModule {
+    class InsertBookMarkBoardContentUseCaseModule {
         @Provides
-        fun providesUpdateBookMarkBoardContentUseCase(repository: BookMarkDataRepository): UpdateBookMarkBoardContentUseCase {
-            return UpdateBookMarkBoardContentUseCase(repository)
+        fun providesInsertBookMarkBoardContentUseCase(repository: BookMarkDataRepository): InsertBookMarkBoardContentUseCase {
+            return InsertBookMarkBoardContentUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteBookMarkBoardContentUseCaseModule {
+        @Provides
+        fun providesDeleteBookMarkBoardContentUseCase(repository: BookMarkDataRepository): DeleteBookMarkBoardContentUseCase {
+            return DeleteBookMarkBoardContentUseCase(repository)
         }
     }
 
@@ -342,19 +358,19 @@ class Modules {
             writeContentUseCase: WriteContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
             printBoardListUseCase: PrintBoardListUseCase,
-            updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
+            insertBookMarkBoardUseCase: InsertBookMarkBoardUseCase,
+            deleteBookMarkBoardUseCase: DeleteBookMarkBoardUseCase,
             insertLikeBoardUseCase: InsertLikeBoardUseCase,
-            deleteLikeBoardUseCase: DeleteLikeBoardUseCase,
-            updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
+            deleteLikeBoardUseCase: DeleteLikeBoardUseCase
         ): ViewModel {
             return BoardViewModel(
                 writeContentUseCase,
                 updateImageContentUseCase,
                 printBoardListUseCase,
-                updateBookMarkBoardUseCase,
+                insertBookMarkBoardUseCase,
+                deleteBookMarkBoardUseCase,
                 insertLikeBoardUseCase,
-                deleteLikeBoardUseCase,
-                updateBookMarkBoardContentUseCase
+                deleteLikeBoardUseCase
             )
         }
     }
@@ -366,13 +382,15 @@ class Modules {
         @ViewModelKey(BoardContentViewModel::class)
         fun providesBoardContentViewModel(
             selectBoardContentUseCase: SelectBoardContentUseCase,
-            updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase,
+            insertBookMarkBoardContentUseCase: InsertBookMarkBoardContentUseCase,
+            deleteBookMarkBoardContentUseCase: DeleteBookMarkBoardContentUseCase,
             insertLikeBoardContentUseCase: InsertLikeBoardContentUseCase,
             deleteLikeBoardContentUseCase: DeleteLikeBoardContentUseCase,
             writeCommentUseCase: WriteCommentUseCase
         ): ViewModel {
             return BoardContentViewModel(
-                updateBookMarkBoardContentUseCase,
+                insertBookMarkBoardContentUseCase,
+                deleteBookMarkBoardContentUseCase,
                 selectBoardContentUseCase,
                 insertLikeBoardContentUseCase,
                 deleteLikeBoardContentUseCase,

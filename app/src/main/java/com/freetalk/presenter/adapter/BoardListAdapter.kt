@@ -86,12 +86,12 @@ class BoardListAdapter(
             this.wrapperBoardEntity = wrapperBoardEntity
             binding.apply {
                 wrapperBoardEntity.let {
-                    Log.v("BoardListAdpater", "셀렉트 바인딩")
+                    Log.d("BoardListAdpater", "셀렉트 바인딩")
                     title.text = it.boardEntity.title
                     context.text = it.boardEntity.content
                     date.text = it.boardEntity.createTime.toString()
                     author.text = it.boardEntity.author.nickname
-                    btnBookmark.isSelected = it.isBookMark
+                    btnBookmark.isSelected = (it.bookMarkEntity != null)
                     btnLike.isSelected = (it.likeEntity != null)
                     likeCount.text = it.likeCount.toString()
                     Glide.with(itemView.context).load(it.boardEntity.images?.successUris?.firstOrNull()).into(ivSingleImage)

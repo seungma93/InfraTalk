@@ -25,6 +25,7 @@ class PrintBoardListUseCase @Inject constructor(
     data class WrapperBoardList(
         val wrapperBoardList: List<WrapperBoardEntity>
     )
+
     suspend operator fun invoke(
         boardSelectForm: BoardSelectForm,
     ): WrapperBoardList = coroutineScope {
@@ -33,39 +34,44 @@ class PrintBoardListUseCase @Inject constructor(
 
         WrapperBoardList(
             boardEntityList.boardList.map {
-            val bookMarkSelectForm = BookMarkSelectForm(
-                boardAuthorEmail = it.author.email,
-                boardCreateTime = it.createTime
-            )
+                val bookMarkSelectForm = BookMarkSelectForm(
+                    boardAuthorEmail = it.author.email,
+                    boardCreateTime = it.createTime
+                )
 
-            val likeSelectForm = LikeSelectForm(
-                boardAuthorEmail = it.author.email,
-                boardCreateTime = it.createTime
-            )
+                val likeSelectForm = LikeSelectForm(
+                    boardAuthorEmail = it.author.email,
+                    boardCreateTime = it.createTime
+                )
 
-            val likeCountSelectForm = LikeCountSelectForm(
-                boardAuthorEmail = it.author.email,
-                boardCreateTime = it.createTime
-            )
+                val likeCountSelectForm = LikeCountSelectForm(
+                    boardAuthorEmail = it.author.email,
+                    boardCreateTime = it.createTime
+                )
 
-            val jobSelectBookMarkEntity = async { bookMarkDataRepository.selectBookMark(bookMarkSelectForm) }
-            val jobSelectLikeEntity = async { likeDataRepository.selectLike(likeSelectForm) }
-            val jobSelectLikeCountEntity = async { likeDataRepository.selectLikeCount(likeCountSelectForm) }
+                val jobSelectBookMarkEntity =
+                    async { bookMarkDataRepository.selectBookMark(bookMarkSelectForm) }
+                val jobSelectLikeEntity = async { likeDataRepository.selectLike(likeSelectForm) }
+                val jobSelectLikeCountEntity =
+                    async { likeDataRepository.selectLikeCount(likeCountSelectForm) }
 
-            val bookMarkEntity = jobSelectBookMarkEntity.await()
-            val likeEntity = jobSelectLikeEntity.await()
-            val likeCountEntity = jobSelectLikeCountEntity.await()
+                val bookMarkEntity = jobSelectBookMarkEntity.await()
+                val likeEntity = jobSelectLikeEntity.await()
+                val likeCountEntity = jobSelectLikeCountEntity.await()
 
-            WrapperBoardEntity(
-                boardEntity = it,
-                isBookMark = bookMarkEntity.boardAuthorEmail.isNotEmpty(),
-                likeEntity = when(likeEntity.boardAuthorEmail.isNotEmpty()) {
-                    true -> likeEntity
-                    false -> null
-                },
-                likeCount = likeCountEntity.likeCount
-            )
-        })
+                WrapperBoardEntity(
+                    boardEntity = it,
+                    bookMarkEntity = when (bookMarkEntity.boardAuthorEmail.isNotEmpty()) {
+                        true -> bookMarkEntity
+                        false -> null
+                    },
+                    likeEntity = when (likeEntity.boardAuthorEmail.isNotEmpty()) {
+                        true -> likeEntity
+                        false -> null
+                    },
+                    likeCount = likeCountEntity.likeCount
+                )
+            })
     }
 
 }

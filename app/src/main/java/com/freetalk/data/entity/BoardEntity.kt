@@ -48,7 +48,7 @@ data class WrapperBoardEntity(
         Date(),
         null
     ),
-    val isBookMark: Boolean = false,
+    val bookMarkEntity: BookMarkEntity? = BookMarkEntity(),
     val likeEntity: LikeEntity? = LikeEntity(),
     val likeCount: Int = 0
 ): Serializable
@@ -56,7 +56,7 @@ data class WrapperBoardEntity(
 fun WrapperBoardResponse.toEntity(): WrapperBoardEntity {
     return WrapperBoardEntity(
         boardEntity = boardResponse?.toEntity() ?: BoardEntity(),
-        isBookMark = isBookMark ?: false,
+        bookMarkEntity = bookMarkEntity,
         likeEntity = likeEntity,
         likeCount = likeCount ?: 0
     )

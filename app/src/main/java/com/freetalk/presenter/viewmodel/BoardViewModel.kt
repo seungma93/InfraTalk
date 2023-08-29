@@ -17,22 +17,21 @@ class BoardViewModel @Inject constructor(
     private val writeContentUseCase: WriteContentUseCase,
     private val updateImageContentUseCase: UpdateImageContentUseCase,
     private val printBoardListUseCase: PrintBoardListUseCase,
-    private val updateBookMarkBoardUseCase: UpdateBookMarkBoardUseCase,
+    private val insertBookMarkUseCase: InsertBookMarkBoardUseCase,
+    private val deleteBookMarkBoardUseCase: DeleteBookMarkBoardUseCase,
     private val insertLikeBoardUseCase: InsertLikeBoardUseCase,
-    private val deleteLikeBoardUseCase: DeleteLikeBoardUseCase,
-    private val updateBookMarkBoardContentUseCase: UpdateBookMarkBoardContentUseCase
+    private val deleteLikeBoardUseCase: DeleteLikeBoardUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
 
     // 처음 값 생성
-    private val boardViewState = BoardViewState(PrintBoardListUseCase.WrapperBoardList(emptyList()), WrapperBoardEntity())
+    private val boardViewState = BoardViewState(PrintBoardListUseCase.WrapperBoardList(emptyList()))
     private val _viewState = MutableStateFlow<BoardViewState>(boardViewState)
     val viewState: StateFlow<BoardViewState> = _viewState.asStateFlow()
 
     data class BoardViewState(
-        val boardList: PrintBoardListUseCase.WrapperBoardList,
-        val wrapperBoardEntity: WrapperBoardEntity
+        val boardList: PrintBoardListUseCase.WrapperBoardList
     )
 
     suspend fun insert(boardInsertForm: BoardInsetForm, imagesRequest: ImagesRequest) {
@@ -69,26 +68,10 @@ class BoardViewModel @Inject constructor(
         }.getOrNull()
 
         return result?.let {
-            BoardViewState(PrintBoardListUseCase.WrapperBoardList(it), _viewState.value.wrapperBoardEntity).apply {
+            BoardViewState(PrintBoardListUseCase.WrapperBoardList(it)).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
-    }
-
-    suspend fun updateBookMark(
-        bookMarkUpdateForm: BookMarkUpdateForm,
-        bookMarkSelectForm: BookMarkSelectForm,
-    ) {
-        kotlin.runCatching {
-            val newList = updateBookMarkBoardUseCase(
-                bookMarkUpdateForm,
-                bookMarkSelectForm,
-                _viewState.value.boardList.wrapperBoardList
-            )
-            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(newList), _viewState.value.wrapperBoardEntity)
-        }.onFailure {
-            Log.d("BoardViewModel", "북마크 업데이트 실패")
-        }.getOrNull()
     }
 
     suspend fun insertLike(
@@ -101,9 +84,9 @@ class BoardViewModel @Inject constructor(
                 likeCountSelectForm,
                 _viewState.value.boardList.wrapperBoardList
             )
-            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(boardList), _viewState.value.wrapperBoardEntity)
+            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(boardList))
         }.onFailure {
-            Log.d("BoardViewModel", "좋아요 업데이트 실패1" + it.message.toString())
+            Log.d("BoardViewModel", "좋아요 인서트 실패" + it.message.toString())
         }.getOrNull()
     }
 
@@ -117,14 +100,41 @@ class BoardViewModel @Inject constructor(
                 likeCountSelectForm,
                 _viewState.value.boardList.wrapperBoardList
             )
-            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(boardList), _viewState.value.wrapperBoardEntity)
+            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(boardList))
         }.onFailure {
-            Log.d("BoardViewModel", "좋아요 업데이트 실패2")
+            Log.d("BoardViewModel", "좋아요 딜리트 실패")
         }.getOrNull()
     }
 
+    suspend fun insertBookMark(
+        insertBookMarkForm: InsertBookMarkForm
+    ) {
+        kotlin.runCatching {
+            val newList = insertBookMarkUseCase(
+                insertBookMarkForm,
+                _viewState.value.boardList.wrapperBoardList
+            )
+            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(newList))
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 인서트 실패")
+        }.getOrNull()
+    }
 
+    suspend fun deleteBookMark(
+        deleteBookMarkForm: DeleteBookMarkForm
+    ) {
+        kotlin.runCatching {
+            val newList = deleteBookMarkBoardUseCase(
+                deleteBookMarkForm,
+                _viewState.value.boardList.wrapperBoardList
+            )
+            _viewState.value = BoardViewState(PrintBoardListUseCase.WrapperBoardList(newList))
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 딜리트 실패")
+        }.getOrNull()
+    }
 
+    /*
     suspend fun updateBookMarkContent(
         bookMarkUpdateForm: BookMarkUpdateForm,
         bookMarkSelectForm: BookMarkSelectForm,
@@ -141,5 +151,7 @@ class BoardViewModel @Inject constructor(
             Log.d("BoardViewModel", "북마크 업데이트 실패")
         }.getOrNull()
     }
+
+     */
 
 }

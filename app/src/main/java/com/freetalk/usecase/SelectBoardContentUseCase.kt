@@ -34,7 +34,10 @@ class SelectBoardContentUseCase @Inject constructor(
 
         WrapperBoardEntity(
             boardEntity = boardEntity,
-            isBookMark = bookMarkEntity.boardAuthorEmail.isNotEmpty(),
+            bookMarkEntity = when(bookMarkEntity.boardAuthorEmail.isNotEmpty()) {
+                true -> bookMarkEntity
+                false -> null
+            },
             likeEntity = when (likeEntity.boardAuthorEmail.isNotEmpty()) {
                 true -> likeEntity
                 false -> null
