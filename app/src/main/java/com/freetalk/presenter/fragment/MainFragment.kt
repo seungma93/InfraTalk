@@ -1,26 +1,16 @@
 package com.freetalk.presenter.fragment
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.freetalk.R
-import com.freetalk.data.entity.BoardEntity
-import com.freetalk.data.entity.WrapperBoardEntity
 import com.freetalk.databinding.FragmentMainBinding
-import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.fragment.board.BoardContentFragment
 import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import com.freetalk.presenter.fragment.chat.ChatFragment
 import com.freetalk.presenter.fragment.home.HomeFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
-import com.freetalk.presenter.fragment.sign.LoginMainFragment
-import com.freetalk.presenter.fragment.sign.SignUpFragment
 
 interface ChildFragmentNavigable {
     fun navigateFragment(endPoint: MainChildFragmentEndPoint)
@@ -32,7 +22,6 @@ sealed class MainChildFragmentEndPoint {
     object Chat : MainChildFragmentEndPoint()
     object MyPage : MainChildFragmentEndPoint()
     object BoardWrite : MainChildFragmentEndPoint()
-    data class BoardContent(val boardEntity: BoardEntity): MainChildFragmentEndPoint()
     object Error : MainChildFragmentEndPoint()
 }
 
@@ -121,10 +110,6 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
             }
             is MainChildFragmentEndPoint.BoardWrite -> {
                 val fragment = BoardWriteFragment()
-                setFragment(fragment, R.id.fragment_frame_layout, true)
-            }
-            is MainChildFragmentEndPoint.BoardContent -> {
-                val fragment = BoardContentFragment.newInstance(endPoint.boardEntity)
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.Error -> {

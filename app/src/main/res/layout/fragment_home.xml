@@ -47,6 +47,18 @@
                 />
         </com.google.android.material.card.MaterialCardView>
 
+        <ImageButton
+        android:id="@+id/btn_bookmark"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginLeft="5dp"
+        android:adjustViewBounds="true"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/btn_star_selector"
+        />
+
     </FrameLayout>
 
 

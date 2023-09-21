@@ -6,8 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.freetalk.R
-import com.freetalk.data.entity.BoardEntity
+import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.databinding.ActivityMainBinding
+import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
 import com.freetalk.presenter.fragment.*
 import com.freetalk.presenter.fragment.board.BoardContentFragment
 import com.freetalk.presenter.fragment.sign.LoginMainFragment
@@ -22,6 +23,7 @@ sealed class EndPoint {
     object LoginMain : EndPoint()
     object SignUp : EndPoint()
     object Main: EndPoint()
+    data class BoardContent(val boardContentPrimaryKeyEntity: BoardContentPrimaryKeyEntity): EndPoint()
     object Error : EndPoint()
 }
 
@@ -69,6 +71,10 @@ class MainActivity() : AppCompatActivity(), Navigable {
                 is EndPoint.Main -> {
                     val fragment = MainFragment()
                     setFragment(fragment, R.id.activity_frame_layout, false)
+                }
+                is EndPoint.BoardContent -> {
+                    val fragment = BoardContentFragment.newInstance(endPoint.boardContentPrimaryKeyEntity)
+                    setFragment(fragment, R.id.activity_frame_layout, true)
                 }
                 is EndPoint.Error -> {
                 }

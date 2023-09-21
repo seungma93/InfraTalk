@@ -26,7 +26,6 @@
     <style name="Widget.FreeTalk.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="hintTextAppearance">@style/TextAppearance.FreeTalk.TextInputLayout.HintText</item>
         <item name="hintTextColor">@color/textColorPrimary</item>
-        <item name="android:paddingBottom">8dp</item>
         <item name="boxStrokeColor">@color/textInputOutlineColor</item>
     </style>
 

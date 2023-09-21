@@ -8,50 +8,31 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.freetalk.data.UserSingleton
-import com.freetalk.data.entity.BoardEntity
-import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
+import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
+import com.freetalk.presenter.form.BoardBookmarkAddForm
+import com.freetalk.presenter.form.BoardBookmarkDeleteForm
+import com.freetalk.presenter.form.BoardLikeAddForm
+import com.freetalk.presenter.form.BoardLikeCountLoadForm
+import com.freetalk.presenter.form.BoardLikeDeleteForm
+import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.fragment.ChildFragmentNavigable
 import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
-import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.viewmodel.BoardViewModel
-import com.freetalk.usecase.InsertLikeBoardContentUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
-class OnScrollListener(private val moreItems: () -> Unit, private val showToast: () -> Unit) :
-    RecyclerView.OnScrollListener() {
-
-    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        super.onScrolled(recyclerView, dx, dy)
-
-        val lastVisibleItemPosition =
-            (recyclerView.layoutManager as? LinearLayoutManager)?.findLastVisibleItemPosition() ?: 0
-        recyclerView.adapter?.let {
-            val itemCount = it.itemCount - 1
-            Log.d("BoardFragment", lastVisibleItemPosition.toString() + "  " + itemCount.toString())
-            if (!recyclerView.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
-                Log.d("BoardFragment", "onScrolled")
-                val morePage = it.itemCount % 10 == 0
-                if (morePage) moreItems() else showToast()
-            }
-        }
-    }
-}
 
 class BoardFragment : Fragment() {
     private var _binding: FragmentBoardBinding? = null
@@ -76,6 +57,10 @@ class BoardFragment : Fragment() {
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -87,65 +72,73 @@ class BoardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("BoardContentFragment", "갯수" + parentFragmentManager.backStackEntryCount)
         var isFabOpen = false
         _adapter = BoardListAdapter(
             itemClick = {
-                val endPoint = MainChildFragmentEndPoint.BoardContent(boardEntity = it)
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                val endPoint = EndPoint.BoardContent(
+                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
+                        boardAuthorEmail = it.author.email,
+                        boardCreateTime = it.createTime
+                    )
+                )
+                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
             },
-            bookMarkClick = { wrapperBoardEntity ->
-                wrapperBoardEntity.apply {
-                    bookMarkEntity?.let {
-                        val deleteBookMarkForm = DeleteBookMarkForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.deleteBookMark(deleteBookMarkForm)
+            bookmarkClick = { boardEntity ->
+                boardEntity.apply {
+                    when (bookmarkEntity.isBookmark) {
+                        true -> {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardViewModel.deleteBookMark(
+                                    BoardBookmarkDeleteForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    )
+                                )
+                            }
                         }
-                    } ?: run {
-                        val insertBookMarkForm = InsertBookMarkForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.insertBookMark(insertBookMarkForm)
+
+                        false -> {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardViewModel.addBookMark(
+                                    BoardBookmarkAddForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    )
+                                )
+                            }
                         }
                     }
                 }
             },
-            likeClick = { wrapperBoardEntity ->
-                wrapperBoardEntity.apply {
-                    likeEntity?.let {
-                        val deleteLikeForm = DeleteLikeForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
-                        val likeCountSelectForm = LikeCountSelectForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
-
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.deleteLike(
-                                deleteLikeForm, likeCountSelectForm
-                            )
+            likeClick = { boardEntity ->
+                boardEntity.apply {
+                    when (likeEntity.isLike) {
+                        true -> {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardViewModel.deleteLike(
+                                    BoardLikeDeleteForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    ), BoardLikeCountLoadForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    )
+                                )
+                            }
                         }
-                    } ?: run {
-                        val insertLikeForm = InsertLikeForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
-                        val likeCountSelectForm = LikeCountSelectForm(
-                            boardAuthorEmail = boardEntity.author.email,
-                            boardCreateTime = boardEntity.createTime
-                        )
 
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            boardViewModel.insertLike(
-                                insertLikeForm, likeCountSelectForm
-                            )
+                        false -> {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                boardViewModel.addLike(
+                                    BoardLikeAddForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    ), BoardLikeCountLoadForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -153,7 +146,6 @@ class BoardFragment : Fragment() {
 
 
         )
-
 
         binding.apply {
             btnFabMenu.setOnClickListener {
@@ -168,19 +160,23 @@ class BoardFragment : Fragment() {
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                     kotlin.runCatching {
-                        boardViewModel.select(BoardSelectForm(reload = true))
+                        boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
                     }
                     swipeRefreshLayout.isRefreshing = false
                 }
 
             }
             recyclerviewBoardList.adapter = adapter
+            recyclerviewBoardList.itemAnimator = null
         }
-
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            val result = boardViewModel.select(BoardSelectForm(reload = true))
-            adapter.submitList(result.boardList.wrapperBoardList) {
+        Log.d("BoardFragment", "1-1")
+        viewLifecycleOwner.lifecycleScope.launch {
+            Log.d("BoardFragment", "1-2")
+            //showProgressBar()
+            val result = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+            adapter.submitList(result.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
+                hideProgressBar()
             }
         }
 
@@ -189,10 +185,9 @@ class BoardFragment : Fragment() {
     }
 
     private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
             boardViewModel.viewState.collect {
-                Log.d("BoardFragment", "셀렉트 성공")
-                adapter.submitList(it.boardList.wrapperBoardList)
+                adapter.submitList(it.boardListEntity.boardList)
             }
         }
     }
@@ -203,7 +198,7 @@ class BoardFragment : Fragment() {
 
     private fun moreItems() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.select(BoardSelectForm(reload = false))
+            boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
         }
     }
 
@@ -227,5 +222,28 @@ class BoardFragment : Fragment() {
             }.start()
             true
         }
+    }
+
+    private fun showProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 시작")
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }

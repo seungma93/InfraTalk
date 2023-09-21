@@ -13,13 +13,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.data.*
-import com.freetalk.data.remote.*
+import com.freetalk.data.BlockedRequestException
+import com.freetalk.data.FailSelectException
+import com.freetalk.data.FailSendEmailException
+import com.freetalk.data.InvalidEmailException
+import com.freetalk.data.NotExistEmailException
+import com.freetalk.data.UnKnownException
+import com.freetalk.data.UserSingleton
+import com.freetalk.data.VerifiedEmailException
+import com.freetalk.data.WrongPasswordException
 import com.freetalk.databinding.FragmentLoginMainBinding
 import com.freetalk.di.component.DaggerSignFragmentComponent
+import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.viewmodel.*
+import com.freetalk.presenter.form.LogInForm
+import com.freetalk.presenter.viewmodel.SignViewModel
+import com.freetalk.presenter.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,6 +88,7 @@ class LoginMainFragment : Fragment() {
                 dialogFragment.show(childFragmentManager, "CustomDialog")
             }
             btnTest.setOnClickListener {
+                UserSingleton.userEntity = UserEntity(email = "test@naver.com", image = null, nickname = "ff")
                 (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
             }
         }

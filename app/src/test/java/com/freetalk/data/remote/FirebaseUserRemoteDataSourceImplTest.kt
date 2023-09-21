@@ -1,6 +1,8 @@
 package com.freetalk.data.remote
 
-import com.freetalk.data.entity.UserEntity
+import com.freetalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.SignUpForm
+import com.freetalk.domain.entity.UserEntity
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
