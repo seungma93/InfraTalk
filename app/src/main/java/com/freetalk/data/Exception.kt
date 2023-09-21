@@ -100,3 +100,15 @@ class FailUpdateBookMarkException(
 class FailDeleteBookMarkException(
     val _message: String
 ) : Exception(_message)
+
+class FailInsertCommentException(
+    val _message: String
+) : Exception(_message)
+
+class FailSelectCommentsException(
+    val _message: String
+) : Exception(_message)
+
+class FailDeleteCommentException(
+    val _message: String
+) : Exception(_message)

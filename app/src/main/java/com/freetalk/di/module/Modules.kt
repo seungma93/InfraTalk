@@ -1,12 +1,74 @@
 package com.freetalk.di.module
 
-import android.service.autofill.UserData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.freetalk.data.remote.*
-import com.freetalk.presenter.viewmodel.*
-import com.freetalk.repository.*
-import com.freetalk.usecase.*
+import com.freetalk.data.datasource.remote.BoardDataSource
+import com.freetalk.data.datasource.remote.BookmarkDataSource
+import com.freetalk.data.datasource.remote.CommentDataSource
+import com.freetalk.data.datasource.remote.FirebaseBoardRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseBookmarkRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseCommentRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseImageRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseLikeRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.ImageDataSource
+import com.freetalk.data.datasource.remote.LikeDataSource
+import com.freetalk.data.datasource.remote.UserDataSource
+import com.freetalk.domain.repository.BoardDataRepository
+import com.freetalk.domain.repository.BoardDataRepositoryImpl
+import com.freetalk.domain.repository.BookmarkDataRepository
+import com.freetalk.domain.repository.BookmarkDataRepositoryImpl
+import com.freetalk.domain.repository.CommentDataRepository
+import com.freetalk.domain.repository.CommentDataRepositoryImpl
+import com.freetalk.domain.repository.ImageDataRepository
+import com.freetalk.domain.repository.ImageDataRepositoryImpl
+import com.freetalk.domain.repository.LikeDataRepository
+import com.freetalk.domain.repository.LikeDataRepositoryImpl
+import com.freetalk.domain.repository.UserDataRepository
+import com.freetalk.domain.repository.UserDataRepositoryImpl
+import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
+import com.freetalk.domain.usecase.AddBoardContentBookmarkUseCase
+import com.freetalk.domain.usecase.AddBoardContentLikeUseCase
+import com.freetalk.domain.usecase.AddBoardLikeUseCase
+import com.freetalk.domain.usecase.AddCommentBookmarkUseCase
+import com.freetalk.domain.usecase.AddCommentLikeUseCase
+import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
+import com.freetalk.domain.usecase.DeleteBoardContentBookmarkUseCase
+import com.freetalk.domain.usecase.DeleteBoardContentLikeUseCase
+import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
+import com.freetalk.domain.usecase.DeleteCommentBookmarkUseCase
+import com.freetalk.domain.usecase.DeleteCommentLikeUseCase
+import com.freetalk.domain.usecase.DeleteCommentUseCase
+import com.freetalk.domain.usecase.DeleteUserInfoUseCase
+import com.freetalk.domain.usecase.DeleteUserInfoUseCaseImpl
+import com.freetalk.domain.usecase.LoadBoardContentUseCase
+import com.freetalk.domain.usecase.LoadBoardListUseCase
+import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
+import com.freetalk.domain.usecase.LoadCommentListUseCase
+import com.freetalk.domain.usecase.LogInUseCase
+import com.freetalk.domain.usecase.LogInUseCaseImpl
+import com.freetalk.domain.usecase.ResetPasswordUseCase
+import com.freetalk.domain.usecase.ResetPasswordUseCaseImpl
+import com.freetalk.domain.usecase.SendEmailUseCase
+import com.freetalk.domain.usecase.SendEmailUseCaseImpl
+import com.freetalk.domain.usecase.SignUpUseCase
+import com.freetalk.domain.usecase.SignUpUseCaseImpl
+import com.freetalk.domain.usecase.UpdateBoardContentUseCase
+import com.freetalk.domain.usecase.UpdateImageContentUseCase
+import com.freetalk.domain.usecase.UpdateImageContentUseCaseImpl
+import com.freetalk.domain.usecase.UpdateProfileImageUseCase
+import com.freetalk.domain.usecase.UpdateProfileImageUseCaseImpl
+import com.freetalk.domain.usecase.UpdateUserInfoUseCase
+import com.freetalk.domain.usecase.UpdateUserInfoUseCaseImpl
+import com.freetalk.domain.usecase.UploadImagesUseCase
+import com.freetalk.domain.usecase.UploadImagesUseCaseImpl
+import com.freetalk.domain.usecase.WriteBoardContentUseCase
+import com.freetalk.domain.usecase.WriteCommentUseCase
+import com.freetalk.presenter.viewmodel.BoardContentViewModel
+import com.freetalk.presenter.viewmodel.BoardViewModel
+import com.freetalk.presenter.viewmodel.SignViewModel
+import com.freetalk.presenter.viewmodel.ViewModelFactory
+import com.freetalk.presenter.viewmodel.ViewModelKey
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -79,12 +141,12 @@ class Modules {
     }
 
     @Module
-    class FirebaseBookMarkDataSourceModule {
+    class FirebaseBookmarkDataSourceModule {
         @Provides
-        fun providesFirebaseLikeRemoteDataSource(
+        fun providesFirebaseBookmarkRemoteDataSource(
             database: FirebaseFirestore
-        ): BookMarkDataSource {
-            return FirebaseBookMarkRemoteDataSourceImpl(database)
+        ): BookmarkDataSource {
+            return FirebaseBookmarkRemoteDataSourceImpl(database)
         }
     }
 
@@ -92,9 +154,10 @@ class Modules {
     class FirebaseCommentDataSourceModule {
         @Provides
         fun providesFirebaseCommentRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): CommentDataSource {
-            return FirebaseCommentRemoteDataSourceImpl(database)
+            return FirebaseCommentRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -131,10 +194,10 @@ class Modules {
     }
 
     @Module
-    class BookMarkDataRepositoryModule {
+    class BookmarkDataRepositoryModule {
         @Provides
-        fun providesBookMarkDataRepository(dataSource: BookMarkDataSource): BookMarkDataRepository {
-            return BookMarkDataRepositoryImpl(dataSource)
+        fun providesBookmarkDataRepository(dataSource: BookmarkDataSource): BookmarkDataRepository {
+            return BookmarkDataRepositoryImpl(dataSource)
         }
     }
 
@@ -142,10 +205,9 @@ class Modules {
     class CommentDataRepositoryModule {
         @Provides
         fun providesCommentDataRepository(
-            commentDataSource: CommentDataSource,
-            userDataSource: UserDataSource
+            commentDataSource: CommentDataSource
         ): CommentDataRepository {
-            return CommentDataRepositoryImpl(commentDataSource, userDataSource)
+            return CommentDataRepositoryImpl(commentDataSource)
         }
     }
 
@@ -182,10 +244,10 @@ class Modules {
     }
 
     @Module
-    class UpdateContentUseCaseModule {
+    class UpdateBoardContentUseCaseModule {
         @Provides
-        fun providesUpdateContentUseCase(boardDataRepository: BoardDataRepository): UpdateContentUseCase {
-            return UpdateContentUseCaseImpl(boardDataRepository)
+        fun providesUpdateBoardContentUseCase(boardDataRepository: BoardDataRepository): UpdateBoardContentUseCase {
+            return UpdateBoardContentUseCase(boardDataRepository)
         }
     }
 
@@ -193,7 +255,7 @@ class Modules {
     class UpdateImageContentUseCaseModule {
         @Provides
         fun providesUpdateImageContentUseCase(
-            updateContentUseCase: UpdateContentUseCase,
+            updateContentUseCase: UpdateBoardContentUseCase,
             uploadImagesUseCase: UploadImagesUseCase
         ): UpdateImageContentUseCase {
             return UpdateImageContentUseCaseImpl(updateContentUseCase, uploadImagesUseCase)
@@ -230,8 +292,8 @@ class Modules {
     @Module
     class WriteContentUseCaseModule {
         @Provides
-        fun providesWriteContentUseCase(repository: BoardDataRepository): WriteContentUseCase {
-            return WriteContentUseCaseImpl(repository)
+        fun providesWriteContentUseCase(repository: BoardDataRepository): WriteBoardContentUseCase {
+            return WriteBoardContentUseCase(repository)
         }
     }
 
@@ -244,14 +306,18 @@ class Modules {
     }
 
     @Module
-    class PrintBoardListUseCaseModule {
+    class LoadBoardListUseCaseModule {
         @Provides
-        fun providesPrintBoardListUseCase(
+        fun providesLoadBoardListUseCase(
             boardDataRepository: BoardDataRepository,
-            bookMarkDataRepository: BookMarkDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
             likeDataRepository: LikeDataRepository
-        ): PrintBoardListUseCase {
-            return PrintBoardListUseCase(boardDataRepository, bookMarkDataRepository, likeDataRepository)
+        ): LoadBoardListUseCase {
+            return LoadBoardListUseCase(
+                boardDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
         }
     }
 
@@ -264,80 +330,161 @@ class Modules {
     }
 
     @Module
-    class InsertBookMarkBoardUseCaseModule {
+    class AddBoardBookmarkUseCaseModule {
         @Provides
-        fun providesInsertBookMarkBoardUseCase(repository: BookMarkDataRepository): InsertBookMarkBoardUseCase {
-            return InsertBookMarkBoardUseCase(repository)
+        fun providesAddBoardBookmarkUseCase(repository: BookmarkDataRepository): AddBoardBookmarkUseCase {
+            return AddBoardBookmarkUseCase(repository)
         }
     }
 
     @Module
-    class DeleteBookMarkBoardUseCaseModule {
+    class DeleteBoardBookmarkUseCaseModule {
         @Provides
-        fun providesDeleteBookMarkBoardUseCase(repository: BookMarkDataRepository): DeleteBookMarkBoardUseCase {
-            return DeleteBookMarkBoardUseCase(repository)
+        fun providesDeleteBoardBookmarkUseCase(repository: BookmarkDataRepository): DeleteBoardBookmarkUseCase {
+            return DeleteBoardBookmarkUseCase(repository)
         }
     }
 
     @Module
-    class InsertLikeBoardUseCaseModule {
+    class AddBoardLikeUseCaseModule {
         @Provides
-        fun providesInsertLikeBoardUseCase(repository: LikeDataRepository): InsertLikeBoardUseCase {
-            return InsertLikeBoardUseCase(repository)
+        fun providesAddBoardLikeUseCase(repository: LikeDataRepository): AddBoardLikeUseCase {
+            return AddBoardLikeUseCase(repository)
         }
     }
 
     @Module
-    class InsertLikeBoardContentUseCaseModule {
+    class DeleteBoardLikeUseCaseModule {
         @Provides
-        fun providesInsertLikeBoardContentUseCase(repository: LikeDataRepository): InsertLikeBoardContentUseCase {
-            return InsertLikeBoardContentUseCase(repository)
+        fun providesDeleteBoardLikeUseCase(repository: LikeDataRepository): DeleteBoardLikeUseCase {
+            return DeleteBoardLikeUseCase(repository)
         }
     }
 
     @Module
-    class DeleteLikeBoardUseCaseModule {
+    class AddBoardContentLikeUseCaseModule {
         @Provides
-        fun providesDeleteLikeBoardUseCase(repository: LikeDataRepository): DeleteLikeBoardUseCase {
-            return DeleteLikeBoardUseCase(repository)
+        fun providesAddBoardContentLikeUseCase(repository: LikeDataRepository): AddBoardContentLikeUseCase {
+            return AddBoardContentLikeUseCase(repository)
+        }
+    }
+
+
+    @Module
+    class DeleteBoardContentLikeUseCaseModule {
+        @Provides
+        fun providesDeleteBoardContentLikeUseCase(repository: LikeDataRepository): DeleteBoardContentLikeUseCase {
+            return DeleteBoardContentLikeUseCase(repository)
         }
     }
 
     @Module
-    class DeleteLikeBoardContentUseCaseModule {
+    class AddBoardContentBookmarkUseCaseModule {
         @Provides
-        fun providesDeleteLikeBoardContentUseCase(repository: LikeDataRepository): DeleteLikeBoardContentUseCase {
-            return DeleteLikeBoardContentUseCase(repository)
+        fun providesAddBoardContentBookmarkUseCase(repository: BookmarkDataRepository): AddBoardContentBookmarkUseCase {
+            return AddBoardContentBookmarkUseCase(repository)
         }
     }
 
     @Module
-    class InsertBookMarkBoardContentUseCaseModule {
+    class DeleteBoardContentBookmarkUseCaseModule {
         @Provides
-        fun providesInsertBookMarkBoardContentUseCase(repository: BookMarkDataRepository): InsertBookMarkBoardContentUseCase {
-            return InsertBookMarkBoardContentUseCase(repository)
+        fun providesDeleteBoardContentBookmarkUseCase(repository: BookmarkDataRepository): DeleteBoardContentBookmarkUseCase {
+            return DeleteBoardContentBookmarkUseCase(repository)
         }
     }
 
     @Module
-    class DeleteBookMarkBoardContentUseCaseModule {
+    class LoadCommentListUseCaseModule {
         @Provides
-        fun providesDeleteBookMarkBoardContentUseCase(repository: BookMarkDataRepository): DeleteBookMarkBoardContentUseCase {
-            return DeleteBookMarkBoardContentUseCase(repository)
+        fun providesLoadCommentListUseCase(
+            commentDataRepository: CommentDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): LoadCommentListUseCase {
+            return LoadCommentListUseCase(
+                commentDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
         }
     }
 
     @Module
-    class SelectBoardContentUseCaseModule {
+    class AddCommentBookmarkUseCaseModule {
+        @Provides
+        fun providesAddCommentBookmarkUseCase(repository: BookmarkDataRepository): AddCommentBookmarkUseCase {
+            return AddCommentBookmarkUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteCommentBookmarkUseCaseModule {
+        @Provides
+        fun providesDeleteCommentBookmarkUseCase(repository: BookmarkDataRepository): DeleteCommentBookmarkUseCase {
+            return DeleteCommentBookmarkUseCase(repository)
+        }
+    }
+
+    @Module
+    class AddCommentLikeUseCaseModule {
+        @Provides
+        fun providesAddCommentLikeUseCase(repository: LikeDataRepository): AddCommentLikeUseCase {
+            return AddCommentLikeUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteLikeCommentUseCaseModule {
+        @Provides
+        fun providesDeleteCommentLikeUseCase(repository: LikeDataRepository): DeleteCommentLikeUseCase {
+            return DeleteCommentLikeUseCase(repository)
+        }
+    }
+
+    @Module
+    class DeleteCommentUseCaseModule {
+        @Provides
+        fun providesDeleteCommentUseCase(
+            commentDataRepository: CommentDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): DeleteCommentUseCase {
+            return DeleteCommentUseCase(
+                commentDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
+        }
+    }
+
+    @Module
+    class LoadBoardRelatedAllCommentListUseCaseModule {
+        @Provides
+        fun providesLoadBoardRelatedAllCommentListUseCase(
+            commentDataRepository: CommentDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): LoadBoardRelatedAllCommentListUseCase {
+            return LoadBoardRelatedAllCommentListUseCase(
+                commentDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
+        }
+    }
+
+    @Module
+    class LoadBoardContentUseCaseModule {
         @Provides
         fun providesSelectBoardContentUseCase(
             boardDataRepository: BoardDataRepository,
-            bookMarkDataRepository: BookMarkDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
             likeDataRepository: LikeDataRepository
-        ): SelectBoardContentUseCase {
-            return SelectBoardContentUseCase(
+        ): LoadBoardContentUseCase {
+            return LoadBoardContentUseCase(
                 boardDataRepository,
-                bookMarkDataRepository,
+                bookmarkDataRepository,
                 likeDataRepository
             )
         }
@@ -355,22 +502,22 @@ class Modules {
         @IntoMap
         @ViewModelKey(BoardViewModel::class)
         fun providesBoardViewModel(
-            writeContentUseCase: WriteContentUseCase,
+            writeBoardContentUseCase: WriteBoardContentUseCase,
             updateImageContentUseCase: UpdateImageContentUseCase,
-            printBoardListUseCase: PrintBoardListUseCase,
-            insertBookMarkBoardUseCase: InsertBookMarkBoardUseCase,
-            deleteBookMarkBoardUseCase: DeleteBookMarkBoardUseCase,
-            insertLikeBoardUseCase: InsertLikeBoardUseCase,
-            deleteLikeBoardUseCase: DeleteLikeBoardUseCase
+            loadBoardListUseCase: LoadBoardListUseCase,
+            addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
+            deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
+            addBoardLikeUseCase: AddBoardLikeUseCase,
+            deleteBoardLikeUseCase: DeleteBoardLikeUseCase
         ): ViewModel {
             return BoardViewModel(
-                writeContentUseCase,
+                writeBoardContentUseCase,
                 updateImageContentUseCase,
-                printBoardListUseCase,
-                insertBookMarkBoardUseCase,
-                deleteBookMarkBoardUseCase,
-                insertLikeBoardUseCase,
-                deleteLikeBoardUseCase
+                loadBoardListUseCase,
+                addBoardBookmarkUseCase,
+                deleteBoardBookmarkUseCase,
+                addBoardLikeUseCase,
+                deleteBoardLikeUseCase
             )
         }
     }
@@ -381,20 +528,34 @@ class Modules {
         @IntoMap
         @ViewModelKey(BoardContentViewModel::class)
         fun providesBoardContentViewModel(
-            selectBoardContentUseCase: SelectBoardContentUseCase,
-            insertBookMarkBoardContentUseCase: InsertBookMarkBoardContentUseCase,
-            deleteBookMarkBoardContentUseCase: DeleteBookMarkBoardContentUseCase,
-            insertLikeBoardContentUseCase: InsertLikeBoardContentUseCase,
-            deleteLikeBoardContentUseCase: DeleteLikeBoardContentUseCase,
-            writeCommentUseCase: WriteCommentUseCase
+            writeCommentUseCase: WriteCommentUseCase,
+            loadBoardContentUseCase: LoadBoardContentUseCase,
+            loadCommentListUseCase: LoadCommentListUseCase,
+            loadBoardRelatedAllCommentListUseCase: LoadBoardRelatedAllCommentListUseCase,
+            deleteCommentUseCase: DeleteCommentUseCase,
+            addBoardContentBookmarkUseCase: AddBoardContentBookmarkUseCase,
+            deleteBoardContentBookmarkUseCase: DeleteBoardContentBookmarkUseCase,
+            addBoardContentLikeUseCase: AddBoardContentLikeUseCase,
+            deleteBoardContentLikeUseCase: DeleteBoardContentLikeUseCase,
+            addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
+            deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
+            addCommentLikeUseCase: AddCommentLikeUseCase,
+            deleteCommentLikeUseCase: DeleteCommentLikeUseCase
         ): ViewModel {
             return BoardContentViewModel(
-                insertBookMarkBoardContentUseCase,
-                deleteBookMarkBoardContentUseCase,
-                selectBoardContentUseCase,
-                insertLikeBoardContentUseCase,
-                deleteLikeBoardContentUseCase,
-                writeCommentUseCase
+                writeCommentUseCase,
+                loadBoardContentUseCase,
+                loadCommentListUseCase,
+                loadBoardRelatedAllCommentListUseCase,
+                deleteCommentUseCase,
+                addBoardContentBookmarkUseCase,
+                deleteBoardContentBookmarkUseCase,
+                addBoardContentLikeUseCase,
+                deleteBoardContentLikeUseCase,
+                addCommentBookmarkUseCase,
+                deleteCommentBookmarkUseCase,
+                addCommentLikeUseCase,
+                deleteCommentLikeUseCase
             )
         }
     }

@@ -2,9 +2,18 @@ package com.freetalk.presenter.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.freetalk.data.entity.UserEntity
-import com.freetalk.data.remote.*
-import com.freetalk.usecase.*
+import com.freetalk.data.model.request.ImagesRequest
+import com.freetalk.domain.entity.UserEntity
+import com.freetalk.domain.usecase.DeleteUserInfoUseCase
+import com.freetalk.domain.usecase.LogInUseCase
+import com.freetalk.domain.usecase.ResetPasswordUseCase
+import com.freetalk.domain.usecase.SendEmailUseCase
+import com.freetalk.domain.usecase.SignUpUseCase
+import com.freetalk.domain.usecase.UpdateProfileImageUseCase
+import com.freetalk.presenter.form.LogInForm
+import com.freetalk.presenter.form.ResetPasswordForm
+import com.freetalk.presenter.form.SignUpForm
+import com.freetalk.presenter.form.UpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

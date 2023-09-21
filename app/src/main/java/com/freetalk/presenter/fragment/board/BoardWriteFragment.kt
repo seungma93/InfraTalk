@@ -18,24 +18,19 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.freetalk.R
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.UserSingleton
-import com.freetalk.data.remote.*
 import com.freetalk.databinding.FragmentBoardWriteBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
-import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardWriteAdapter
+import com.freetalk.presenter.form.BoardContentImagesInsertForm
+import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.viewmodel.*
-import com.freetalk.usecase.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -117,7 +112,10 @@ class BoardWriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("BoardWriteFragment", "갯수" + parentFragmentManager.backStackEntryCount)
-        Log.d("BoardWriteFragment", "갯수2" + requireParentFragment().childFragmentManager.backStackEntryCount)
+        Log.d(
+            "BoardWriteFragment",
+            "갯수2" + requireParentFragment().childFragmentManager.backStackEntryCount
+        )
         adapter = BoardWriteAdapter {}
 
         binding.apply {
@@ -132,11 +130,13 @@ class BoardWriteFragment : Fragment() {
                         // 권한이 존재하는 경우
                         navigateImage()
                     }
+
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
                         // 권한이 거부 되어 있는 경우
                         Log.v("BoardWriteFragment", "권한 없음")
                         showPermissionContextPopup()
                     }
+
                     else -> {
                         // 처음 권한을 시도했을 때 띄움
                         Log.v("BoardWriteFragment", "처음 시도")
@@ -154,6 +154,7 @@ class BoardWriteFragment : Fragment() {
                             Toast.LENGTH_LONG
                         ).show();
                     }
+
                     contextEditText.text.isNullOrEmpty() -> {
                         Toast.makeText(
                             requireActivity(),
@@ -161,44 +162,38 @@ class BoardWriteFragment : Fragment() {
                             Toast.LENGTH_LONG
                         ).show();
                     }
+
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
                             showProgressBar()
                             when (adapter!!.getItems().isEmpty()) {
                                 true -> {
-                                    val boardInsertForm = BoardInsetForm(
-                                        author = UserSingleton.userEntity,
-                                        title = binding.titleEditText.text.toString(),
-                                        content = binding.contextEditText.text.toString(),
-                                        createTime = Date(System.currentTimeMillis()),
-                                        editTime = null
-                                    )
-                                    Log.d(
-                                        "boardWriteFragment",
-                                        boardInsertForm.createTime.toString()
-                                    )
-                                    boardViewModel.insert(
-                                        boardInsertForm = boardInsertForm,
-                                        imagesRequest = ImagesRequest(
+                                    boardViewModel.writeBoardContent(
+                                        boardContentInsertForm = BoardContentInsertForm(
+                                            author = UserSingleton.userEntity,
+                                            title = binding.titleEditText.text.toString(),
+                                            content = binding.contextEditText.text.toString(),
+                                            createTime = Date(System.currentTimeMillis()),
+                                            editTime = null
+                                        ),
+                                        boardContentImagesInsertForm = BoardContentImagesInsertForm(
                                             emptyList()
                                         )
                                     )
                                 }
+
                                 false -> {
-                                    val boardInsertForm = BoardInsetForm(
-                                        author = UserSingleton.userEntity,
-                                        title = binding.titleEditText.text.toString(),
-                                        content = binding.contextEditText.text.toString(),
-                                        createTime = Date(System.currentTimeMillis()),
-                                        editTime = null
-                                    )
-                                    Log.d(
-                                        "boardWriteFragment",
-                                        boardInsertForm.createTime.toString()
-                                    )
-                                    boardViewModel.insert(
-                                        boardInsertForm,
-                                        ImagesRequest(adapter!!.getItems())
+                                    boardViewModel.writeBoardContent(
+                                        boardContentInsertForm = BoardContentInsertForm(
+                                            author = UserSingleton.userEntity,
+                                            title = binding.titleEditText.text.toString(),
+                                            content = binding.contextEditText.text.toString(),
+                                            createTime = Date(System.currentTimeMillis()),
+                                            editTime = null
+                                        ),
+                                        boardContentImagesInsertForm = BoardContentImagesInsertForm(
+                                            adapter!!.getItems()
+                                        )
                                     )
                                 }
                             }
@@ -237,10 +232,11 @@ class BoardWriteFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             boardViewModel.viewEvent.collect {
                 when (it) {
-                    is BoardViewEvent.Insert -> {
+                    is BoardViewEvent.Register -> {
                         hideProgressBar()
                         parentFragmentManager.popBackStack()
                     }
+
                     is BoardViewEvent.Error -> {
                         hideProgressBar()
                         when (it.errorCode) {

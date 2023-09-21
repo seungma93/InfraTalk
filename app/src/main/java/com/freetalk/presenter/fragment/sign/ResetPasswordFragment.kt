@@ -13,9 +13,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.freetalk.data.FailSendEmailException
-import com.freetalk.data.remote.ResetPasswordForm
 import com.freetalk.databinding.FragmentDialogChangeAccountBinding
 import com.freetalk.di.component.DaggerSignFragmentComponent
+import com.freetalk.presenter.form.ResetPasswordForm
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
