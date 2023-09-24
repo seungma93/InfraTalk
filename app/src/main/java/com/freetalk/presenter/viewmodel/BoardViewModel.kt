@@ -1,5 +1,6 @@
 package com.freetalk.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.domain.entity.BoardListEntity
 import com.freetalk.domain.entity.BoardWriteEntity
@@ -113,33 +114,45 @@ class BoardViewModel @Inject constructor(
     suspend fun addLike(
         boardLikeAddForm: BoardLikeAddForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm
-    ) {
-        kotlin.runCatching {
-            val boardListEntity = addBoardLikeUseCase(
+    ): BoardViewState {
+        val result = kotlin.runCatching {
+            addBoardLikeUseCase(
                 boardLikeAddForm = boardLikeAddForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
-                boardListEntity = BoardListEntity(boardList = _viewState.value.boardListEntity.boardList)
+                boardListEntity = BoardListEntity(boardList = viewState.value.boardListEntity.boardList)
             )
-            _viewState.value = BoardViewState(boardListEntity = boardListEntity)
         }.onFailure {
 
         }.getOrNull()
+
+        return result?.let {
+            BoardViewState(boardListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteLike(
         boardLikeDeleteForm: BoardLikeDeleteForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm,
-    ) {
-        kotlin.runCatching {
-            val boardListEntity = deleteBoardLikeUseCase(
+    ): BoardViewState {
+        val result = kotlin.runCatching {
+            deleteBoardLikeUseCase(
                 boardLikeDeleteForm = boardLikeDeleteForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
-                boardListEntity = BoardListEntity(boardList = _viewState.value.boardListEntity.boardList)
+                boardListEntity = BoardListEntity(boardList = viewState.value.boardListEntity.boardList)
             )
-            _viewState.value = BoardViewState(boardListEntity = boardListEntity)
         }.onFailure {
 
         }.getOrNull()
+        result?.let { it.boardList.map {
+            if(it.boardMetaEntity.author.email == boardLikeDeleteForm.boardAuthorEmail) Log.d("board", "뷰모델 체크" + it.likeEntity.isLike)
+        } }
+        return result?.let {
+            BoardViewState(boardListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun addBookMark(

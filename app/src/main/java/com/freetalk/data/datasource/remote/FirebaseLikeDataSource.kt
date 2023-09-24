@@ -1,5 +1,6 @@
 package com.freetalk.data.datasource.remote
 
+import android.util.Log
 import com.freetalk.data.FailDeleteLikeException
 import com.freetalk.data.FailInsertLikeException
 import com.freetalk.data.FailLoadLikeCountException
@@ -62,8 +63,8 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
 
-                snapshot.documents.firstOrNull()?.let {
-                    database.collection("BoardLike").document(it.id).delete().await()
+                snapshot.documents.firstOrNull()?.apply {
+                    database.collection("BoardLike").document(id).delete().await()
                 } ?: throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
 
                 LikeResponse(isLike = false)
@@ -184,9 +185,9 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
 
-                    snapshot.documents.map {
-                        database.collection("CommentLike").document(it.id).delete().await()
-                    }
+                snapshot.documents.map {
+                    database.collection("CommentLike").document(it.id).delete().await()
+                }
 
                 CommentRelatedLikesResponse(isLikes = false)
             }.onFailure {

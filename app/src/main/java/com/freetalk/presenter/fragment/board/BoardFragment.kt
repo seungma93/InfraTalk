@@ -116,7 +116,7 @@ class BoardFragment : Fragment() {
                     when (likeEntity.isLike) {
                         true -> {
                             viewLifecycleOwner.lifecycleScope.launch {
-                                boardViewModel.deleteLike(
+                                val boardViewState = boardViewModel.deleteLike(
                                     BoardLikeDeleteForm(
                                         boardAuthorEmail = boardMetaEntity.author.email,
                                         boardCreateTime = boardMetaEntity.createTime
@@ -125,12 +125,13 @@ class BoardFragment : Fragment() {
                                         boardCreateTime = boardMetaEntity.createTime
                                     )
                                 )
+                                adapter.submitList(boardViewState.boardListEntity.boardList)
                             }
                         }
 
                         false -> {
                             viewLifecycleOwner.lifecycleScope.launch {
-                                boardViewModel.addLike(
+                                val boardViewState = boardViewModel.addLike(
                                     BoardLikeAddForm(
                                         boardAuthorEmail = boardMetaEntity.author.email,
                                         boardCreateTime = boardMetaEntity.createTime
@@ -139,27 +140,29 @@ class BoardFragment : Fragment() {
                                         boardCreateTime = boardMetaEntity.createTime
                                     )
                                 )
+                                adapter.submitList(boardViewState.boardListEntity.boardList)
                             }
                         }
                     }
                 }
             }
-
-
         )
 
         binding.apply {
+            // fab 메뉴
             btnFabMenu.setOnClickListener {
                 isFabOpen = toggleFab(isFabOpen)
             }
+            // 글쓰기 버튼
             btnFabWrite.setOnClickListener {
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(
                     MainChildFragmentEndPoint.BoardWrite
                 )
                 toggleFab(isFabOpen = true)
             }
+            // 스와이프
             swipeRefreshLayout.setOnRefreshListener {
-                viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                viewLifecycleOwner.lifecycleScope.launch {
                     kotlin.runCatching {
                         boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
                     }
@@ -170,32 +173,27 @@ class BoardFragment : Fragment() {
             recyclerviewBoardList.adapter = adapter
             recyclerviewBoardList.itemAnimator = null
         }
-        Log.d("BoardFragment", "1-1")
-        viewLifecycleOwner.lifecycleScope.launch {
-            Log.d("BoardFragment", "1-2")
-
-            val result = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
-            /*
-            adapter.submitList(result.boardListEntity.boardList) {
-                binding.recyclerviewBoardList.scrollToPosition(0)
-                hideProgressBar()
-            }
-
-             */
-        }
-        //showProgressBar()
-        subscribe()
+        loadBoardList()
         initScrollListener()
     }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
             boardViewModel.viewState.collect {
-                adapter.submitList(it.boardListEntity.boardList) {
-                    if(it.boardListEntity.boardList.size > 2) hideProgressBar()
-
-                }
+                adapter.submitList(it.boardListEntity.boardList)
             }
+        }
+    }
+
+    private fun loadBoardList() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            showProgressBar()
+            val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+            adapter.submitList(boardViewState.boardListEntity.boardList) {
+                binding.recyclerviewBoardList.scrollToPosition(0)
+                hideProgressBar()
+            }
+
         }
     }
 

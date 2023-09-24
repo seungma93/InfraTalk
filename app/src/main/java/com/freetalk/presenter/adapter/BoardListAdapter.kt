@@ -46,11 +46,13 @@ class BoardListAdapter(
                     }
                 }
                 btnBookmark.setOnClickListener {
+                    btnBookmark.isEnabled = false
                     boardEntity?.let {
                         bookmarkClick(it)
                     }
                 }
                 btnLike.setOnClickListener {
+                    Log.d("board", "좋아요 람다 전달")
                     btnLike.isEnabled = false
                     boardEntity?.let {
                         likeClick(it)
@@ -72,9 +74,12 @@ class BoardListAdapter(
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
                     likeCount.text = it.likeCountEntity.likeCount.toString()
+                    /*
                     Glide.with(itemView.context)
                         .load(it.boardMetaEntity.images?.successUris?.firstOrNull())
                         .into(ivSingleImage)
+
+                     */
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
                 }
