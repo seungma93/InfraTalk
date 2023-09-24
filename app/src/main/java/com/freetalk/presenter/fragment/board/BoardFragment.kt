@@ -89,23 +89,25 @@ class BoardFragment : Fragment() {
                     when (bookmarkEntity.isBookmark) {
                         true -> {
                             viewLifecycleOwner.lifecycleScope.launch {
-                                boardViewModel.deleteBookMark(
+                                val boardViewState = boardViewModel.deleteBookMark(
                                     BoardBookmarkDeleteForm(
                                         boardAuthorEmail = boardMetaEntity.author.email,
                                         boardCreateTime = boardMetaEntity.createTime
                                     )
                                 )
+                                adapter.submitList(boardViewState.boardListEntity.boardList)
                             }
                         }
 
                         false -> {
                             viewLifecycleOwner.lifecycleScope.launch {
-                                boardViewModel.addBookMark(
+                                val boardViewState = boardViewModel.addBookMark(
                                     BoardBookmarkAddForm(
                                         boardAuthorEmail = boardMetaEntity.author.email,
                                         boardCreateTime = boardMetaEntity.createTime
                                     )
                                 )
+                                adapter.submitList(boardViewState.boardListEntity.boardList)
                             }
                         }
                     }
