@@ -122,6 +122,7 @@ class BoardContentViewHolder(
         binding.apply {
             btnBookmark.setOnClickListener {
                 boardEntity?.let {
+                    Log.d("board", "보드 북마크 람다 전달")
                     boardBookmarkClick(it)
                 }
             }

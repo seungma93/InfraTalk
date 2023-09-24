@@ -204,8 +204,9 @@ class BoardFragment : Fragment() {
     }
 
     private fun moreItems() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
+        viewLifecycleOwner.lifecycleScope.launch{
+            val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
+            adapter.submitList(boardViewState.boardListEntity.boardList)
         }
     }
 
