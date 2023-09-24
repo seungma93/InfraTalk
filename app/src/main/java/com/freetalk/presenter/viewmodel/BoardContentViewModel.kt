@@ -109,62 +109,79 @@ class BoardContentViewModel @Inject constructor(
 
     suspend fun addBoardContentBookmark(
         boardBookmarkAddForm: BoardBookmarkAddForm
-    ) {
-        kotlin.runCatching {
-            val boardEntity = addBoardContentBookmarkUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            addBoardContentBookmarkUseCase(
                 boardBookmarkAddForm = boardBookmarkAddForm,
                 boardEntity = viewState.value.boardEntity
             )
-            _viewState.value = viewState.value.copy(boardEntity = boardEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(boardEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteBoardContentBookmark(
         boardBookmarkDeleteForm: BoardBookmarkDeleteForm
-    ) {
-        kotlin.runCatching {
-            val boardEntity = deleteBoardContentBookmarkUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            deleteBoardContentBookmarkUseCase(
                 boardBookmarkDeleteForm = boardBookmarkDeleteForm,
                 boardEntity = viewState.value.boardEntity
             )
-            _viewState.value = viewState.value.copy(boardEntity = boardEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(boardEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun addBoardContentLike(
         boardLikeAddForm: BoardLikeAddForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm,
-    ) {
-        kotlin.runCatching {
-            val boardEntity = addBoardContentLikeUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            addBoardContentLikeUseCase(
                 boardLikeAddForm = boardLikeAddForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
                 boardEntity = viewState.value.boardEntity
             )
-            _viewState.value = viewState.value.copy(boardEntity = boardEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(boardEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteBoardContentLike(
         boardLikeDeleteForm: BoardLikeDeleteForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm
-    ) {
-        kotlin.runCatching {
-            val boardEntity = deleteBoardContentLikeUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            deleteBoardContentLikeUseCase(
                 boardLikeDeleteForm = boardLikeDeleteForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
                 boardEntity = viewState.value.boardEntity
             )
-            _viewState.value = viewState.value.copy(boardEntity = boardEntity)
+
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(boardEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun writeComment(
@@ -226,61 +243,79 @@ class BoardContentViewModel @Inject constructor(
     suspend fun addCommentLike(
         commentLikeAddForm: CommentLikeAddForm,
         commentLikeCountLoadForm: CommentLikeCountLoadForm
-    ) {
-        kotlin.runCatching {
-            val commentListEntity = addCommentLikeUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            addCommentLikeUseCase(
                 commentLikeAddForm = commentLikeAddForm,
                 commentLikeCountLoadForm = commentLikeCountLoadForm,
                 commentListEntity = viewState.value.commentListEntity
             )
-            _viewState.value = viewState.value.copy(commentListEntity = commentListEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(commentListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteCommentLike(
         commentLikeDeleteForm: CommentLikeDeleteForm,
         commentLikeCountLoadForm: CommentLikeCountLoadForm
-    ) {
-        kotlin.runCatching {
-            val commentListEntity = deleteCommentLikeUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            deleteCommentLikeUseCase(
                 commentLikeDeleteForm = commentLikeDeleteForm,
                 commentLikeCountLoadForm = commentLikeCountLoadForm,
                 commentListEntity = _viewState.value.commentListEntity
             )
-            _viewState.value = viewState.value.copy(commentListEntity = commentListEntity)
+
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(commentListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun addCommentBookmark(
         commentBookmarkAddForm: CommentBookmarkAddForm
-    ) {
-        kotlin.runCatching {
-            val commentListEntity = addCommentBookmarkUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            addCommentBookmarkUseCase(
                 commentBookmarkAddForm = commentBookmarkAddForm,
                 commentListEntity = viewState.value.commentListEntity
             )
-            _viewState.value = viewState.value.copy(commentListEntity = commentListEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(commentListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteCommentBookmark(
         commentBookmarkDeleteForm: CommentBookmarkDeleteForm
-    ) {
-        kotlin.runCatching {
-            val commentListEntity = deleteCommentBookmarkUseCase(
+    ):BoardContentViewState {
+        val result = kotlin.runCatching {
+            deleteCommentBookmarkUseCase(
                 commentBookmarkDeleteForm = commentBookmarkDeleteForm,
                 commentListEntity = viewState.value.commentListEntity
             )
-            _viewState.value = viewState.value.copy(commentListEntity = commentListEntity)
+
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            boardContentViewState.copy(commentListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
     /*
         suspend fun deleteComment(
