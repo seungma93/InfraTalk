@@ -145,9 +145,7 @@ class BoardViewModel @Inject constructor(
         }.onFailure {
 
         }.getOrNull()
-        result?.let { it.boardList.map {
-            if(it.boardMetaEntity.author.email == boardLikeDeleteForm.boardAuthorEmail) Log.d("board", "뷰모델 체크" + it.likeEntity.isLike)
-        } }
+
         return result?.let {
             BoardViewState(boardListEntity = it).apply {
                 _viewState.value = this
@@ -157,29 +155,38 @@ class BoardViewModel @Inject constructor(
 
     suspend fun addBookMark(
         boardBookmarkAddForm: BoardBookmarkAddForm
-    ) {
-        kotlin.runCatching {
-            val boardListEntity = addBoardBookmarkUseCase(
+    ):BoardViewState {
+        val result = kotlin.runCatching {
+            addBoardBookmarkUseCase(
                 boardBookmarkAddForm = boardBookmarkAddForm,
                 boardListEntity = BoardListEntity(boardList = _viewState.value.boardListEntity.boardList)
             )
-            _viewState.value = BoardViewState(boardListEntity = boardListEntity)
         }.onFailure {
 
         }.getOrNull()
+
+        return result?.let {
+            BoardViewState(boardListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 
     suspend fun deleteBookMark(
         boardBookmarkDeleteForm: BoardBookmarkDeleteForm
-    ) {
-        kotlin.runCatching {
-            val boardListEntity = deleteBoardBookmarkUseCase(
+    ):BoardViewState {
+        val result = kotlin.runCatching {
+            deleteBoardBookmarkUseCase(
                 boardBookmarkDeleteForm = boardBookmarkDeleteForm,
                 boardListEntity = BoardListEntity(boardList = _viewState.value.boardListEntity.boardList)
             )
-            _viewState.value = BoardViewState(boardListEntity = boardListEntity)
         }.onFailure {
 
         }.getOrNull()
+        return result?.let {
+            BoardViewState(boardListEntity = it).apply {
+                _viewState.value = this
+            }
+        } ?: viewState.value
     }
 }
