@@ -1,6 +1,7 @@
 package com.freetalk.data.datasource.remote
 
 import android.net.Uri
+import android.util.Log
 import com.freetalk.data.*
 import com.freetalk.data.model.request.BoardRelatedAllCommentMetaListSelectRequest
 import com.freetalk.data.model.request.CommentDeleteRequest
@@ -83,7 +84,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                 false -> getCommentDocuments(commentMetaListSelectRequest, 10, lastDocument)
             }
             lastDocument = snapshot.documents.lastOrNull()
-
+            if(lastDocument == null) Log.d("comment", "데이터 소스 시작")
             snapshot.documents.map {
                 val authorEmail = it.data?.get("authorEmail") as? String ?: ""
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
@@ -96,7 +97,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                 val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: ""
                 val boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-
+                Log.d("comment", "authorEmail" + authorEmail + "userResponse"+ userResponse.email)
                 CommentMetaResponse(
                     author = userResponse,
                     createTime = createTime,
@@ -111,6 +112,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
             }
         }.onFailure {
             throw FailSelectCommentsException("댓글 셀렉트에 실패 했습니다")
+            Log.d("comment", "데이터 소스 에러" + it.message)
         }.getOrThrow()
     }
 

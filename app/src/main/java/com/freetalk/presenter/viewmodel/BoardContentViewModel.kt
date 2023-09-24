@@ -1,5 +1,6 @@
 package com.freetalk.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardMetaEntity
@@ -178,9 +179,15 @@ class BoardContentViewModel @Inject constructor(
     }
 
     suspend fun loadCommentList(commentMetaListLoadForm: CommentMetaListLoadForm): BoardContentViewState {
+        Log.d("comment", "뷰모델 시작")
         val result = kotlin.runCatching {
             val commentListEntity =
                 loadCommentListUseCase(commentMetaListLoadForm = commentMetaListLoadForm)
+            if(commentListEntity.commentList.isEmpty()) Log.d("comment", "에러다")
+            commentListEntity.commentList.map {
+                Log.d("comment", "뷰모델 데이터 체크" + it.commentMetaEntity.content)
+            }
+
             when (commentMetaListLoadForm.reload) {
                 true -> commentListEntity.commentList
                 false -> viewState.value.commentListEntity.commentList + commentListEntity.commentList

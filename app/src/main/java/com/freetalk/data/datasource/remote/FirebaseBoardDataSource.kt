@@ -1,6 +1,7 @@
 package com.freetalk.data.datasource.remote
 
 import android.net.Uri
+import android.util.Log
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.FailSelectBoardContentException
 import com.freetalk.data.FailSelectException
@@ -9,6 +10,8 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.UserSelectRequest
+import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
 import com.freetalk.domain.entity.ImagesResultEntity
@@ -19,12 +22,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
+import toEntity
 import java.util.Date
 import javax.inject.Inject
 
 
 interface BoardDataSource {
-    suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardMetaResponse
+    suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse
     suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse
     suspend fun selectBoard(boardSelectRequest: BoardSelectRequest): BoardMetaResponse
     suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
@@ -32,21 +36,21 @@ interface BoardDataSource {
 
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val userDataSource: UserDataSource
 ) : BoardDataSource {
     private var lastDocument: DocumentSnapshot? = null
 
-    override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardMetaResponse =
+    override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse =
         with(boardInsertRequest) {
             return kotlin.runCatching {
-                database.collection("Board").add(this).await()
-                BoardMetaResponse(
-                    author = author,
-                    title = title,
-                    content = content,
-                    images = null,
-                    createTime = Date(System.currentTimeMillis()),
-                    editTime = null
+                database.collection("Board")
+                    .add(boardInsertRequest.copy(createTime = Date(System.currentTimeMillis())))
+                    .await()
+                BoardInsertResponse(
+                    boardAuthorEmail = boardInsertRequest.authorEmail,
+                    boardCreteTime = Date(System.currentTimeMillis()),
+                    isSuccess = true
                 )
             }.onFailure {
                 throw FailInsertException("인서트에 실패 했습니다")
@@ -75,12 +79,9 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             lastDocument = snapshot.documents.lastOrNull()
 
             snapshot.documents.map {
-                val author = it.data?.get("author") as? HashMap<*, *>
-                val email = author?.get("email") as? String ?: ""
-                val nickname = author?.get("nickname") as? String ?: ""
-                val image = (author?.get("image") as? String)?.let {
-                    Uri.parse(it)
-                }
+                val authorEmail = it.data?.get("authorEmail") as? String ?: ""
+                val userResponse =
+                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail))
                 val title = it.data?.get("title") as? String
                 val content = it.data?.get("content") as? String
                 val images = (it.data?.get("images") as? List<String>)?.let {
@@ -88,9 +89,8 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 }
                 val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
                 val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-
                 BoardMetaResponse(
-                    UserEntity(email, nickname, image),
+                    userResponse.toEntity(),
                     title,
                     content,
                     images,

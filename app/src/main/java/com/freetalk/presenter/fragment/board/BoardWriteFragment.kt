@@ -166,37 +166,19 @@ class BoardWriteFragment : Fragment() {
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
                             showProgressBar()
-                            when (adapter!!.getItems().isEmpty()) {
-                                true -> {
-                                    boardViewModel.writeBoardContent(
-                                        boardContentInsertForm = BoardContentInsertForm(
-                                            author = UserSingleton.userEntity,
-                                            title = binding.titleEditText.text.toString(),
-                                            content = binding.contextEditText.text.toString(),
-                                            createTime = Date(System.currentTimeMillis()),
-                                            editTime = null
-                                        ),
-                                        boardContentImagesInsertForm = BoardContentImagesInsertForm(
-                                            emptyList()
-                                        )
-                                    )
-                                }
-
-                                false -> {
-                                    boardViewModel.writeBoardContent(
-                                        boardContentInsertForm = BoardContentInsertForm(
-                                            author = UserSingleton.userEntity,
-                                            title = binding.titleEditText.text.toString(),
-                                            content = binding.contextEditText.text.toString(),
-                                            createTime = Date(System.currentTimeMillis()),
-                                            editTime = null
-                                        ),
-                                        boardContentImagesInsertForm = BoardContentImagesInsertForm(
-                                            adapter!!.getItems()
-                                        )
-                                    )
-                                }
-                            }
+                            boardViewModel.writeBoardContent(
+                                boardContentInsertForm = BoardContentInsertForm(
+                                    author = UserSingleton.userEntity,
+                                    createTime = Date(System.currentTimeMillis()),
+                                    title = binding.titleEditText.text.toString(),
+                                    content = binding.contextEditText.text.toString(),
+                                    images = when (adapter!!.getItems().isEmpty()) {
+                                        true -> null
+                                        false -> adapter!!.getItems()
+                                    },
+                                    editTime = null
+                                )
+                            )
                         }
                     }
                 }

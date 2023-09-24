@@ -75,6 +75,7 @@ class BoardFragment : Fragment() {
         var isFabOpen = false
         _adapter = BoardListAdapter(
             itemClick = {
+                Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
                 val endPoint = EndPoint.BoardContent(
                     boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
                         boardAuthorEmail = it.author.email,
@@ -172,14 +173,17 @@ class BoardFragment : Fragment() {
         Log.d("BoardFragment", "1-1")
         viewLifecycleOwner.lifecycleScope.launch {
             Log.d("BoardFragment", "1-2")
-            //showProgressBar()
+
             val result = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+            /*
             adapter.submitList(result.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
                 hideProgressBar()
             }
-        }
 
+             */
+        }
+        //showProgressBar()
         subscribe()
         initScrollListener()
     }
@@ -187,7 +191,10 @@ class BoardFragment : Fragment() {
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
             boardViewModel.viewState.collect {
-                adapter.submitList(it.boardListEntity.boardList)
+                adapter.submitList(it.boardListEntity.boardList) {
+                    if(it.boardListEntity.boardList.size > 2) hideProgressBar()
+
+                }
             }
         }
     }

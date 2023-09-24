@@ -38,6 +38,16 @@ data class BoardEntity(
 data class BoardContentPrimaryKeyEntity(
     val boardAuthorEmail: String,
     val boardCreateTime: Date
+): Serializable
+
+data class BoardInsertEntity(
+    val boardAuthorEmail: String,
+    val boardCreteTime: Date,
+    val isSuccess: Boolean
+)
+
+data class BoardWriteEntity(
+    val isSuccess: Boolean
 )
 
 
