@@ -1,26 +1,23 @@
 package com.freetalk.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardListEntity
-import com.freetalk.domain.entity.BoardMetaEntity
+import com.freetalk.domain.entity.BoardWriteEntity
 import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
-import com.freetalk.domain.usecase.UpdateImageContentUseCase
+import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.WriteBoardContentUseCase
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
-import com.freetalk.presenter.form.BoardContentImagesInsertForm
+import com.freetalk.presenter.form.BoardContentImagesUpdateForm
 import com.freetalk.presenter.form.BoardContentInsertForm
-import com.freetalk.presenter.form.BoardContentUpdateForm
 import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
-import com.freetalk.presenter.form.BoardUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,13 +27,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 sealed class BoardViewEvent {
-    data class Register(val boardMetaEntity: BoardMetaEntity) : BoardViewEvent()
+    data class Register(val boardWriteEntity: BoardWriteEntity) : BoardViewEvent()
     data class Error(val errorCode: Throwable) : BoardViewEvent()
 }
 
 class BoardViewModel @Inject constructor(
     private val writeBoardContentUseCase: WriteBoardContentUseCase,
-    private val updateImageContentUseCase: UpdateImageContentUseCase,
+    private val updateBoardContentImagesUseCase: UpdateBoardContentImagesUseCase,
     private val loadBoardListUseCase: LoadBoardListUseCase,
     private val addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
@@ -55,21 +52,41 @@ class BoardViewModel @Inject constructor(
     )
 
     suspend fun writeBoardContent(
-        boardContentInsertForm: BoardContentInsertForm,
-        boardContentImagesInsertForm: BoardContentImagesInsertForm
+        boardContentInsertForm: BoardContentInsertForm
     ) {
         kotlin.runCatching {
-            val boardMetaEntity = writeBoardContentUseCase(boardContentInsertForm)
-            val boardUpdateForm = BoardUpdateForm(
-                author = boardMetaEntity.author,
-                title = boardMetaEntity.title,
-                content = boardMetaEntity.content,
-                images = boardContentImagesInsertForm.images,
-                createTime = boardMetaEntity.createTime
-            )
-            val boardEntity =
-                updateImageContentUseCase.updateImageContent(boardUpdateForm = boardUpdateForm)
-            _viewEvent.emit(BoardViewEvent.Register(boardMetaEntity))
+            val boardInsertEntity =
+                writeBoardContentUseCase(boardContentInsertForm = boardContentInsertForm)
+
+            when (boardContentInsertForm.images.isNullOrEmpty()) {
+                true -> {
+                    _viewEvent.emit(
+                        BoardViewEvent.Register(
+                            boardWriteEntity = BoardWriteEntity(
+                                isSuccess = true
+                            )
+                        )
+                    )
+                }
+
+                false -> {
+                    updateBoardContentImagesUseCase(
+                        boardContentImagesUpdateForm = BoardContentImagesUpdateForm(
+                            boardAuthorEmail = boardInsertEntity.boardAuthorEmail,
+                            boardCreateTime = boardInsertEntity.boardCreteTime,
+                            images = boardContentInsertForm.images
+                        )
+                    )
+                    _viewEvent.emit(
+                        BoardViewEvent.Register(
+                            boardWriteEntity = BoardWriteEntity(
+                                isSuccess = true
+                            )
+                        )
+                    )
+                }
+            }
+
         }.onFailure {
             _viewEvent.emit(BoardViewEvent.Error(it))
         }

@@ -7,6 +7,7 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.BoardMetaListEntity
 import com.freetalk.presenter.form.BoardContentInsertForm
@@ -19,15 +20,15 @@ import javax.inject.Inject
 
 class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource) :
     BoardDataRepository {
-    override suspend fun insertBoard(boardContentInsertForm: BoardContentInsertForm): BoardMetaEntity =
+    override suspend fun insertBoard(boardContentInsertForm: BoardContentInsertForm): BoardInsertEntity =
         with(boardContentInsertForm) {
 
             return dataSource.insertBoard(
                 boardInsertRequest = BoardInsertRequest(
-                    author = author,
+                    authorEmail = author.email,
+                    createTime = createTime,
                     title = title,
                     content = content,
-                    createTime = createTime,
                     editTime = null
                 )
             ).toEntity()

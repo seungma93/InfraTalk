@@ -18,30 +18,6 @@ class BoardListAdapter(
     private val likeClick: (BoardEntity) -> Unit
 ) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
 
-    companion object {
-        val diffUtil = object : DiffUtil.ItemCallback<BoardEntity>() {
-
-            // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
-            override fun areItemsTheSame(
-                oldItem: BoardEntity,
-                newItem: BoardEntity
-            ): Boolean {
-                return oldItem.boardMetaEntity.createTime == newItem.boardMetaEntity.createTime &&
-                        oldItem.boardMetaEntity.author == newItem.boardMetaEntity.author
-            }
-
-            // 두 아이템이 동일한 내용을 가지고 있는지 체크. areItemsTheSame()이 true일때 호출됨
-            override fun areContentsTheSame(
-                oldItem: BoardEntity,
-                newItem: BoardEntity
-            ): Boolean {
-                return oldItem == newItem
-            }
-
-        }
-    }
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -65,6 +41,7 @@ class BoardListAdapter(
             binding.apply {
                 root.setOnClickListener {
                     boardEntity?.let {
+                        Log.d("comment","리스트어댑터 데이터" + it.boardMetaEntity.author.email)
                         itemClick(it.boardMetaEntity)
                     }
                 }
@@ -102,6 +79,28 @@ class BoardListAdapter(
                     btnBookmark.isEnabled = true
                 }
             }
+        }
+    }
+    companion object {
+        val diffUtil = object : DiffUtil.ItemCallback<BoardEntity>() {
+
+            // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
+            override fun areItemsTheSame(
+                oldItem: BoardEntity,
+                newItem: BoardEntity
+            ): Boolean {
+                return oldItem.boardMetaEntity.createTime == newItem.boardMetaEntity.createTime &&
+                        oldItem.boardMetaEntity.author == newItem.boardMetaEntity.author
+            }
+
+            // 두 아이템이 동일한 내용을 가지고 있는지 체크. areItemsTheSame()이 true일때 호출됨
+            override fun areContentsTheSame(
+                oldItem: BoardEntity,
+                newItem: BoardEntity
+            ): Boolean {
+                return oldItem == newItem
+            }
+
         }
     }
 }

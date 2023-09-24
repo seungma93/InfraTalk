@@ -208,6 +208,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             val snapshot = query.get().await()
 
             snapshot.documents.firstOrNull()?.let {
+                Log.d("comment", "유저데이터 소스 데이터" + it.data?.get("email") as? String)
                 UserResponse(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,

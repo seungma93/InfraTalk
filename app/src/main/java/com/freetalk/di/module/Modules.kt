@@ -53,9 +53,8 @@ import com.freetalk.domain.usecase.SendEmailUseCase
 import com.freetalk.domain.usecase.SendEmailUseCaseImpl
 import com.freetalk.domain.usecase.SignUpUseCase
 import com.freetalk.domain.usecase.SignUpUseCaseImpl
+import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.UpdateBoardContentUseCase
-import com.freetalk.domain.usecase.UpdateImageContentUseCase
-import com.freetalk.domain.usecase.UpdateImageContentUseCaseImpl
 import com.freetalk.domain.usecase.UpdateProfileImageUseCase
 import com.freetalk.domain.usecase.UpdateProfileImageUseCaseImpl
 import com.freetalk.domain.usecase.UpdateUserInfoUseCase
@@ -106,8 +105,8 @@ class Modules {
     @Module
     class FirebaseBoardDataSourceModule {
         @Provides
-        fun providesFirebaseBoardRemoteDataSource(database: FirebaseFirestore): BoardDataSource {
-            return FirebaseBoardRemoteDataSourceImpl(database)
+        fun providesFirebaseBoardRemoteDataSource(database: FirebaseFirestore, userDataSource: UserDataSource): BoardDataSource {
+            return FirebaseBoardRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -252,13 +251,13 @@ class Modules {
     }
 
     @Module
-    class UpdateImageContentUseCaseModule {
+    class UpdateBoardContentImagesUseCaseModule {
         @Provides
-        fun providesUpdateImageContentUseCase(
-            updateContentUseCase: UpdateBoardContentUseCase,
+        fun providesUpdateBoardContentImagesUseCase(
+            updateBoardContentUseCase: UpdateBoardContentUseCase,
             uploadImagesUseCase: UploadImagesUseCase
-        ): UpdateImageContentUseCase {
-            return UpdateImageContentUseCaseImpl(updateContentUseCase, uploadImagesUseCase)
+        ): UpdateBoardContentImagesUseCase {
+            return UpdateBoardContentImagesUseCase(updateBoardContentUseCase, uploadImagesUseCase)
         }
     }
 
@@ -503,7 +502,7 @@ class Modules {
         @ViewModelKey(BoardViewModel::class)
         fun providesBoardViewModel(
             writeBoardContentUseCase: WriteBoardContentUseCase,
-            updateImageContentUseCase: UpdateImageContentUseCase,
+            updateBoardContentImagesUseCase: UpdateBoardContentImagesUseCase,
             loadBoardListUseCase: LoadBoardListUseCase,
             addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
@@ -512,7 +511,7 @@ class Modules {
         ): ViewModel {
             return BoardViewModel(
                 writeBoardContentUseCase,
-                updateImageContentUseCase,
+                updateBoardContentImagesUseCase,
                 loadBoardListUseCase,
                 addBoardBookmarkUseCase,
                 deleteBoardBookmarkUseCase,

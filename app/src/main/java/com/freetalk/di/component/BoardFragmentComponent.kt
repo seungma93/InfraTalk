@@ -28,7 +28,7 @@ import dagger.Component
         Modules.WriteContentUseCaseModule::class,
         Modules.UploadImagesUseCaseModule::class,
         Modules.UpdateBoardContentUseCaseModule::class,
-        Modules.UpdateImageContentUseCaseModule::class,
+        Modules.UpdateBoardContentImagesUseCaseModule::class,
         Modules.LoadBoardListUseCaseModule::class,
         Modules.AddBoardBookmarkUseCaseModule::class,
         Modules.DeleteBoardBookmarkUseCaseModule::class,

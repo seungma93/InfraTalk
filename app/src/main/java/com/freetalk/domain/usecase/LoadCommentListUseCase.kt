@@ -1,5 +1,6 @@
 package com.freetalk.domain.usecase
 
+import android.util.Log
 import com.freetalk.domain.entity.CommentEntity
 import com.freetalk.domain.entity.CommentListEntity
 import com.freetalk.domain.repository.BookmarkDataRepository
@@ -24,7 +25,7 @@ class LoadCommentListUseCase @Inject constructor(
 
         val commentMetaListEntity =
             commentDataRepository.loadCommentMetaList(commentMetaListLoadForm = commentMetaListLoadForm)
-
+        Log.d("comment", "메타 데이터 체크" + commentMetaListEntity.commentMetaList.size)
         CommentListEntity(
             commentMetaListEntity.commentMetaList.map {
 

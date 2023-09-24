@@ -1,10 +1,12 @@
 package com.freetalk.data.mapper
 
 import android.net.Uri
+import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
 import com.freetalk.data.model.response.BoardResponse
 import com.freetalk.domain.entity.BoardEntity
+import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.BoardMetaListEntity
 import com.freetalk.domain.entity.BookmarkEntity
@@ -37,5 +39,13 @@ fun BoardResponse.toEntity(): BoardEntity {
         bookmarkEntity = bookmarkEntity ?: BookmarkEntity(),
         likeEntity = likeEntity ?: LikeEntity(),
         likeCountEntity = likeCountEntity ?: LikeCountEntity()
+    )
+}
+
+fun BoardInsertResponse.toEntity(): BoardInsertEntity {
+    return BoardInsertEntity(
+        boardAuthorEmail = boardAuthorEmail.orEmpty(),
+        boardCreteTime = boardCreteTime ?: Date(),
+        isSuccess = isSuccess ?: false
     )
 }

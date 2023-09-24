@@ -19,13 +19,21 @@ import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.presenter.adapter.BoardContentImageAdapter
 import com.freetalk.presenter.adapter.CommentListAdapter
+import com.freetalk.presenter.adapter.ListItem
+import com.freetalk.presenter.form.BoardBookmarkLoadForm
+import com.freetalk.presenter.form.BoardLikeCountLoadForm
+import com.freetalk.presenter.form.BoardLikeLoadForm
+import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
+import com.freetalk.presenter.form.CommentInsertForm
 import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
+import com.freetalk.presenter.form.CommentMetaListLoadForm
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
+import java.util.Collections.list
 import javax.inject.Inject
 
 
@@ -46,7 +54,10 @@ class BoardContentFragment : Fragment() {
 
     private var _binding: FragmentBoardContentBinding? = null
     private val binding get() = _binding!!
-    private val boardEntity get() = requireArguments().getSerializable(BOARD_ITEM_KEY) as BoardEntity
+    private val boardContentPrimaryKeyEntity
+        get() = requireArguments().getSerializable(
+            BOARD_ITEM_KEY
+        ) as BoardContentPrimaryKeyEntity
     private lateinit var callback: OnBackPressedCallback
     private var _boardContentImageAdapter: BoardContentImageAdapter? = null
     private val boardContentImageAdapter get() = _boardContentImageAdapter!!
@@ -94,11 +105,11 @@ class BoardContentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         _boardContentImageAdapter = BoardContentImageAdapter { }
         _commentAdapter = CommentListAdapter(
-            itemClick = {
+            commentItemClick = {
                 //val endPoint = EndPoint.BoardContent(boardEntity = it)
                 //(requireActivity() as? Navigable)?.navigateFragment(endPoint)
             },
-            bookmarkClick = { commentEntity ->
+            commentBookmarkClick = { commentEntity ->
                 commentEntity.apply {
                     when (bookmarkEntity.isBookmark) {
                         true -> {
@@ -125,7 +136,7 @@ class BoardContentFragment : Fragment() {
                     }
                 }
             },
-            likeClick = { commentEntity ->
+            commentLikeClick = { commentEntity ->
                 commentEntity.apply {
                     when (likeEntity.isLike) {
                         true -> {
@@ -158,7 +169,7 @@ class BoardContentFragment : Fragment() {
                     }
                 }
             },
-            deleteClick = { /*
+            commentDeleteClick = { /*
                     wrapperCommentEntity ->
                 wrapperCommentEntity.apply {
                     viewLifecycleOwner.lifecycleScope.launch {
@@ -171,69 +182,17 @@ class BoardContentFragment : Fragment() {
                     }
                 }
                 */
-            }
-
+            },
+            boardBookmarkClick = {},
+            boardLikeClick = {}
         )
-    }
-/*
+
+        Log.d(
+            "comment",
+            "boardContentPrimaryKeyEntity" + boardContentPrimaryKeyEntity.boardAuthorEmail
+        )
         binding.apply {
-            btnBookmark.setOnClickListener {
-                btnBookmark.isEnabled = false
-                viewLifecycleOwner.lifecycleScope.launch {
 
-                    when (binding.btnBookmark.isSelected) {
-                        true -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                boardContentViewModel.deleteBoardContentBookmark(
-                                    boardBookmarkDeleteForm = BoardBookmarkDeleteForm(
-                                        boardAuthorEmail = boardMetaEntity.a.email,
-                                        boardCreateTime = boardEntity.createTime
-                                    )
-                                )
-                            }
-                        }
-
-                        false -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                boardContentViewModel.insertBookMarkContent(
-                                    BoardBookmarkInsertFrom(
-                                        boardAuthorEmail = boardEntity.author.email,
-                                        boardCreateTime = boardEntity.createTime
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            btnLike.setOnClickListener {
-                btnBookmark.isEnabled = false
-                boardContentViewModel.viewState.value.wrapperBoardEntity.likeEntity?.let {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        boardContentViewModel.deleteLikeContent(
-                            BoardLikeDeleteForm(
-                                boardAuthorEmail = boardEntity.author.email,
-                                boardCreateTime = boardEntity.createTime
-                            ), BoardLikeCountSelectForm(
-                                boardEntity.author.email,
-                                boardEntity.createTime
-                            )
-                        )
-                    }
-                } ?: run {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        boardContentViewModel.insertLikeContent(
-                            BoardLikeInsertForm(
-                                boardAuthorEmail = boardEntity.author.email,
-                                boardCreateTime = boardEntity.createTime
-                            ), BoardLikeCountSelectForm(
-                                boardAuthorEmail = boardEntity.author.email,
-                                boardCreateTime = boardEntity.createTime
-                            )
-                        )
-                    }
-                }
-            }
             btnSubmitComment.setOnClickListener {
                 val inputComment = binding.commentTextInput.editText!!.text.toString()
                 when (inputComment.isEmpty()) {
@@ -246,16 +205,17 @@ class BoardContentFragment : Fragment() {
 
                     false -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            boardContentViewModel.viewState.value.wrapperBoardEntity.boardEntity.let {
-                                val commentInsertForm = CommentInsertForm(
-                                    it.author.email,
-                                    it.createTime,
-                                    commentEditText.text.toString()
-                                )
-                                boardContentViewModel.insertComment(commentInsertForm = commentInsertForm)
-                            }
-                            commentEditText.text = null
 
+                            boardContentViewModel.writeComment(
+                                commentInsertForm = CommentInsertForm(
+                                    boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                                    boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime,
+                                    content = commentEditText.text.toString()
+                                )
+                            )
+
+                            commentEditText.text = null
+                            /*
                             val result = boardContentViewModel.selectAllComments(
                                 CommentsSelectForm(
                                     boardAuthorEmail = boardEntity.author.email,
@@ -263,104 +223,94 @@ class BoardContentFragment : Fragment() {
                                     reload = true
                                 )
                             )
+
+
                             commentAdapter.submitList(result.commentList.wrapperCommentList) {
                                 binding.rvComment.scrollToPosition(result.commentList.wrapperCommentList.size - 1)
                             }
+
+                             */
                         }
                     }
 
                 }
             }
+
+
             //recyclerviewImage.adapter = boardContentImageAdapter
             rvComment.adapter = commentAdapter
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            Log.d("BoardCommentFragment", "코멘트 셀렉트")
             //showProgressBar()
-            val result = boardContentViewModel.selectComments(
-                CommentsSelectForm(
-                    boardAuthorEmail = boardEntity.author.email,
-                    boardCreateTime = boardEntity.createTime,
-                    reload = true
+            boardContentPrimaryKeyEntity.let {
+                boardContentViewModel.loadBoardContent(
+                    boardLoadForm = BoardLoadForm(
+                        boardAuthorEmail = it.boardAuthorEmail,
+                        boardCreateTime = it.boardCreateTime
+                    ),
+                    boardBookmarkLoadForm = BoardBookmarkLoadForm(
+                        boardAuthorEmail = it.boardAuthorEmail,
+                        boardCreateTime = it.boardCreateTime
+                    ),
+                    boardLikeLoadForm = BoardLikeLoadForm(
+                        boardAuthorEmail = it.boardAuthorEmail,
+                        boardCreateTime = it.boardCreateTime
+                    ),
+                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                        boardAuthorEmail = it.boardAuthorEmail,
+                        boardCreateTime = it.boardCreateTime
+                    )
+                )
+            }
+            val a = boardContentViewModel.loadCommentList(
+                commentMetaListLoadForm = CommentMetaListLoadForm(
+                    boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                    boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime, reload = false
                 )
             )
-            commentAdapter.submitList(result.commentList.wrapperCommentList) {
+            val list: MutableList<ListItem> = mutableListOf()
+            list.add(ListItem.BoardItem(a.boardEntity))
+            a.commentListEntity.commentList.map {
+                list.add(ListItem.CommentItem(commentEntity = it))
+            }
+
+            commentAdapter.submitList(list) {
                 binding.rvComment.scrollToPosition(0)
             }
         }
 
         subscribe()
-        printContent()
-        initScrollListener()
+        //initScrollListener()
 
     }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
             boardContentViewModel.viewState.collect {
-                Log.d("BoardCommentFragment", "콜렉트 시작")
-                it.wrapperBoardEntity.let {
-                    binding.apply {
-                        title.text = it.boardEntity.title
-                        context.text = it.boardEntity.content
-                        date.text = it.boardEntity.createTime.toString()
-                        author.text = it.boardEntity.author.nickname
-                        btnBookmark.isSelected = it.bookMarkEntity != null
-                        btnLike.isSelected = it.likeEntity != null
-                        likeCount.text = it.likeCount.toString()
-                        it.boardEntity.images?.let {
-                            boardContentImageAdapter.setItems(it.successUris)
-                        }
-                        btnBookmark.isEnabled = true
-                        btnLike.isEnabled = true
-                    }
-                }
                 //commentAdapter.submitList(it.commentList.wrapperCommentList)
             }
         }
     }
-
-    private fun printContent() = with(boardEntity) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            boardContentViewModel.select(
-                BoardContentSelectForm(
-                    boardAuthorEmail = author.email,
-                    boardCreateTime = createTime
-                ),
-                BoardContentBookmarkSelectForm(
-                    boardAuthorEmail = author.email,
-                    boardCreateTime = createTime
-                ),
-                BoardContentLikeSelectForm(
-                    boardAuthorEmail = author.email,
-                    boardCreateTime = createTime
-                ),
-                BoardContentLikeCountSelectForm(
-                    boardAuthorEmail = author.email,
-                    boardCreateTime = createTime
-                )
-            )
+    /*
+        private fun initScrollListener() {
+            binding.rvComment.addOnScrollListener(onScrollListener)
         }
-    }
 
-    private fun initScrollListener() {
-        binding.rvComment.addOnScrollListener(onScrollListener)
-    }
-
-    private fun moreItems() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            boardContentViewModel.selectComments(
-                CommentsSelectForm(
-                    boardAuthorEmail = boardEntity.author.email,
-                    boardCreateTime = boardEntity.createTime,
-                    reload = false
+        private fun moreItems() {
+            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                boardContentViewModel.selectComments(
+                    CommentsSelectForm(
+                        boardAuthorEmail = boardEntity.author.email,
+                        boardCreateTime = boardEntity.createTime,
+                        reload = false
+                    )
                 )
-            )
+            }
         }
-    }
 
- */
+     */
+
 
     override fun onDetach() {
         super.onDetach()
