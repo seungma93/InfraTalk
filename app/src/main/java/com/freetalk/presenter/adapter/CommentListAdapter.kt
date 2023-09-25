@@ -142,6 +142,7 @@ class BoardContentViewHolder(
                 title.text = it.boardMetaEntity.title
                 date.text = it.boardMetaEntity.createTime.toString()
                 author.text = it.boardMetaEntity.author.nickname
+                content.text = it.boardMetaEntity.content
                 btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                 btnLike.isSelected = it.likeEntity.isLike
                 likeCount.text = it.likeCountEntity.likeCount.toString()

@@ -104,8 +104,8 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("commentCreateTime", commentCreateTime)
                     .get().await()
 
-                snapshot.documents.firstOrNull()?.let {
-                    database.collection("CommentBookmark").document(it.id).delete().await()
+                snapshot.documents.firstOrNull()?.apply {
+                    database.collection("CommentBookmark").document(id).delete().await()
                 } ?: throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
 
                 BookmarkResponse(isBookmark = false)
