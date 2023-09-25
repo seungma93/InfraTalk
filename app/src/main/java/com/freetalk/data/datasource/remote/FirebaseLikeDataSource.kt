@@ -132,8 +132,8 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("commentCreateTime", commentCreateTime)
                     .get().await()
 
-                snapshot.documents.firstOrNull()?.let {
-                    database.collection("CommentLike").document(it.id).delete().await()
+                snapshot.documents.firstOrNull()?.apply {
+                    database.collection("CommentLike").document(id).delete().await()
                 } ?: throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
 
                 LikeResponse(isLike = false)
