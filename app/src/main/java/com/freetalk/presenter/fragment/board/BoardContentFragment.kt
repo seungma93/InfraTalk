@@ -209,7 +209,6 @@ class BoardContentFragment : Fragment() {
                     }
 
                     false -> {
-                        Log.d("board", "보드 북마크 람다 전달 받음")
                         viewLifecycleOwner.lifecycleScope.launch {
                             val result = boardContentViewModel.addBoardContentBookmark(
                                 boardBookmarkAddForm = BoardBookmarkAddForm(
@@ -220,10 +219,8 @@ class BoardContentFragment : Fragment() {
 
                             val list: MutableList<ListItem> = mutableListOf()
                             list.add(ListItem.BoardItem(result.boardEntity))
-                            Log.d("board", "보드 북마크 람다 전달 받음2" +result.commentListEntity.commentList.size)
                             result.commentListEntity.commentList.map { commentEntity ->
                                 list.add(ListItem.CommentItem(commentEntity = commentEntity))
-                                Log.d("board", "코멘트리스트" + commentEntity.commentMetaEntity.content)
                             }
                             commentAdapter.submitList(list)
                         }
@@ -234,7 +231,7 @@ class BoardContentFragment : Fragment() {
                 when(it.likeEntity.isLike) {
                     true -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            boardContentViewModel.deleteBoardContentLike(
+                            val result = boardContentViewModel.deleteBoardContentLike(
                                 boardLikeDeleteForm = BoardLikeDeleteForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
@@ -244,11 +241,17 @@ class BoardContentFragment : Fragment() {
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            val list: MutableList<ListItem> = mutableListOf()
+                            list.add(ListItem.BoardItem(result.boardEntity))
+                            result.commentListEntity.commentList.map { commentEntity ->
+                                list.add(ListItem.CommentItem(commentEntity = commentEntity))
+                            }
+                            commentAdapter.submitList(list)
                         }
                     }
                     false -> {
                         viewLifecycleOwner.lifecycleScope.launch {
-                            boardContentViewModel.addBoardContentLike(
+                            val result = boardContentViewModel.addBoardContentLike(
                                 boardLikeAddForm = BoardLikeAddForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
@@ -258,6 +261,12 @@ class BoardContentFragment : Fragment() {
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            val list: MutableList<ListItem> = mutableListOf()
+                            list.add(ListItem.BoardItem(result.boardEntity))
+                            result.commentListEntity.commentList.map { commentEntity ->
+                                list.add(ListItem.CommentItem(commentEntity = commentEntity))
+                            }
+                            commentAdapter.submitList(list)
                         }
                     }
                 }
