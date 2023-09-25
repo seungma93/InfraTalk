@@ -139,23 +139,14 @@ class BoardContentViewHolder(
         this.boardEntity = boardEntity
         binding.apply {
             boardEntity.let {
-
                 title.text = it.boardMetaEntity.title
-                /*
-                date.text = it.commentMetaEntity.createTime.toString()
-                author.text = it.commentMetaEntity.author.nickname
+                date.text = it.boardMetaEntity.createTime.toString()
+                author.text = it.boardMetaEntity.author.nickname
                 btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                 btnLike.isSelected = it.likeEntity.isLike
                 likeCount.text = it.likeCountEntity.likeCount.toString()
-                btnDelete.visibility =
-                    when (UserSingleton.userEntity.email == it.commentMetaEntity.author.email) {
-                        true -> View.VISIBLE
-                        else -> View.GONE
-                    }
                 btnLike.isEnabled = true
                 btnBookmark.isEnabled = true
-
-                 */
             }
         }
     }

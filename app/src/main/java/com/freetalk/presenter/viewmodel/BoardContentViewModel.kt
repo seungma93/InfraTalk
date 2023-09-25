@@ -119,7 +119,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(boardEntity = it).apply {
+            viewState.value.copy(boardEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -137,7 +137,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(boardEntity = it).apply {
+            viewState.value.copy(boardEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -157,7 +157,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(boardEntity = it).apply {
+            viewState.value.copy(boardEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -178,7 +178,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(boardEntity = it).apply {
+            viewState.value.copy(boardEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -254,7 +254,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(commentListEntity = it).apply {
+            viewState.value.copy(commentListEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -275,7 +275,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(commentListEntity = it).apply {
+            viewState.value.copy(commentListEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -293,7 +293,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(commentListEntity = it).apply {
+            viewState.value.copy(commentListEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
@@ -312,7 +312,7 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            boardContentViewState.copy(commentListEntity = it).apply {
+            viewState.value.copy(commentListEntity = it).apply {
                 _viewState.value = this
             }
         } ?: viewState.value
