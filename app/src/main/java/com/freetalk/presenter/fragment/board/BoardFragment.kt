@@ -204,9 +204,12 @@ class BoardFragment : Fragment() {
     }
 
     private fun moreItems() {
+        showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch{
             val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
-            adapter.submitList(boardViewState.boardListEntity.boardList)
+            adapter.submitList(boardViewState.boardListEntity.boardList) {
+                hideProgressBar()
+            }
         }
     }
 
