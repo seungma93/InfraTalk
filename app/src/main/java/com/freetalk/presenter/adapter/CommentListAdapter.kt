@@ -112,6 +112,7 @@ class CommentListAdapter(
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
+
 }
 
 class BoardContentViewHolder(
