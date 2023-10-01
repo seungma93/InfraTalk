@@ -252,7 +252,8 @@ class BoardContentFragment : Fragment() {
                         }
                     }
                 }
-            }
+            },
+            userEntity = boardContentViewModel.getUserInfo()
         )
 
         binding.apply {
@@ -358,13 +359,15 @@ class BoardContentFragment : Fragment() {
         }
     }
 
-    private fun createListItem(viewState: BoardContentViewModel.BoardContentViewState): List<ListItem> {
-        val list: MutableList<ListItem> = mutableListOf()
-        list.add(ListItem.BoardItem(viewState.boardEntity))
-        viewState.commentListEntity.commentList.map { commentEntity ->
-            list.add(ListItem.CommentItem(commentEntity = commentEntity))
+    private fun createListItem(
+        viewState: BoardContentViewModel.BoardContentViewState
+    ): List<ListItem> = with(viewState) {
+        return mutableListOf<ListItem>().apply {
+            add(ListItem.BoardItem(boardEntity))
+            commentListEntity.commentList.map { commentEntity ->
+                add(ListItem.CommentItem(commentEntity = commentEntity))
+            }
         }
-        return list
     }
     /*
         private fun initScrollListener() {

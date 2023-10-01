@@ -13,4 +13,5 @@ interface UserDataRepository {
     suspend fun sendVerifiedEmail(): UserEntity
     suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity
+    fun getUserInfo(): UserEntity
 }

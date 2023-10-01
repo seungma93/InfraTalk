@@ -26,7 +26,6 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
             return dataSource.insertBoard(
                 boardInsertRequest = BoardInsertRequest(
                     authorEmail = author.email,
-                    createTime = createTime,
                     title = title,
                     content = content,
                     editTime = null

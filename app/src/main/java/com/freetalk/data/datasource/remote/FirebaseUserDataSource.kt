@@ -6,7 +6,6 @@ import android.util.Log
 import com.freetalk.data.*
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.UserResponse
-import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.form.LogInForm
 import com.freetalk.presenter.form.ResetPasswordForm
@@ -15,8 +14,6 @@ import com.freetalk.presenter.form.UpdateForm
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -27,7 +24,7 @@ interface UserDataSource {
     suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
-    suspend fun getUserSingleton(): UserSingleton
+    fun getUserInfo(): UserEntity
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
 
 }
@@ -111,8 +108,8 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun getUserSingleton(): UserSingleton {
-        return UserSingleton
+    override fun getUserInfo(): UserEntity {
+        return UserSingleton.userEntity
     }
 
     private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
