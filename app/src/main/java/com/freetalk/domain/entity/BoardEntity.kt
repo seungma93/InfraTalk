@@ -11,7 +11,9 @@ data class BoardMetaEntity(
     val images: ImagesResultEntity? = null,
     val createTime: Date = Date(),
     val editTime: Date? = null
-) : Serializable
+) : Serializable {
+    val boardPrimaryKey: String get() = author.email + createTime
+}
 
 data class BoardMetaListEntity (
     val boardMetaList: List<BoardMetaEntity> = emptyList()
