@@ -12,7 +12,9 @@ data class CommentMetaEntity(
     val boardAuthorEmail: String = "",
     val boardCreateTime: Date = Date(),
     val editTime: Date? = null
-) : Serializable
+) : Serializable {
+    val commentPrimaryKey: String get() = author.email + createTime
+}
 
 data class CommentListEntity(
     val commentList: List<CommentEntity> = emptyList()

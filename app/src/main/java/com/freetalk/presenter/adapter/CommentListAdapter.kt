@@ -44,12 +44,10 @@ class CommentListAdapter(
             ): Boolean {
                 return when {
                     oldItem is ListItem.BoardItem && newItem is ListItem.BoardItem -> {
-                        oldItem.boardEntity.createTime == newItem.boardEntity.boardMetaEntity.createTime &&
-                                oldItem.boardEntity.boardMetaEntity.author.email == newItem.boardEntity.boardMetaEntity.author.email
+                        oldItem.boardEntity.boardMetaEntity.boardPrimaryKey == newItem.boardEntity.boardMetaEntity.boardPrimaryKey
                     }
                     oldItem is ListItem.CommentItem && newItem is ListItem.CommentItem -> {
-                        oldItem.commentEntity.commentMetaEntity.createTime == newItem.commentEntity.commentMetaEntity.createTime &&
-                                oldItem.commentEntity.commentMetaEntity.author.email == newItem.commentEntity.commentMetaEntity.author.email
+                        oldItem.commentEntity.commentMetaEntity.commentPrimaryKey == newItem.commentEntity.commentMetaEntity.commentPrimaryKey
                     }
                     else -> false
                 }
