@@ -6,9 +6,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -36,6 +38,7 @@ import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Collections.list
 import javax.inject.Inject
@@ -220,7 +223,7 @@ class BoardContentFragment : Fragment() {
                 }
             },
             boardLikeClick = {
-                when(it.likeEntity.isLike) {
+                when (it.likeEntity.isLike) {
                     true -> {
                         viewLifecycleOwner.lifecycleScope.launch {
                             val viewState = boardContentViewModel.deleteBoardContentLike(
@@ -236,6 +239,7 @@ class BoardContentFragment : Fragment() {
                             commentAdapter.submitList(createListItem(viewState))
                         }
                     }
+
                     false -> {
                         viewLifecycleOwner.lifecycleScope.launch {
                             val viewState = boardContentViewModel.addBoardContentLike(
@@ -301,52 +305,52 @@ class BoardContentFragment : Fragment() {
                 }
             }
 
-
             //recyclerviewImage.adapter = boardContentImageAdapter
             rvComment.adapter = commentAdapter
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            //showProgressBar()
-            boardContentPrimaryKeyEntity.let {
-                boardContentViewModel.loadBoardContent(
-                    boardLoadForm = BoardLoadForm(
-                        boardAuthorEmail = it.boardAuthorEmail,
-                        boardCreateTime = it.boardCreateTime
-                    ),
-                    boardBookmarkLoadForm = BoardBookmarkLoadForm(
-                        boardAuthorEmail = it.boardAuthorEmail,
-                        boardCreateTime = it.boardCreateTime
-                    ),
-                    boardLikeLoadForm = BoardLikeLoadForm(
-                        boardAuthorEmail = it.boardAuthorEmail,
-                        boardCreateTime = it.boardCreateTime
-                    ),
-                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                        boardAuthorEmail = it.boardAuthorEmail,
-                        boardCreateTime = it.boardCreateTime
+            showProgressBar()
+            boardContentPrimaryKeyEntity.apply {
+                val asyncBoard = async {
+                    boardContentViewModel.loadBoardContent(
+                        boardLoadForm = BoardLoadForm(
+                            boardAuthorEmail = boardAuthorEmail,
+                            boardCreateTime = boardCreateTime
+                        ),
+                        boardBookmarkLoadForm = BoardBookmarkLoadForm(
+                            boardAuthorEmail = boardAuthorEmail,
+                            boardCreateTime = boardCreateTime
+                        ),
+                        boardLikeLoadForm = BoardLikeLoadForm(
+                            boardAuthorEmail = boardAuthorEmail,
+                            boardCreateTime = boardCreateTime
+                        ),
+                        boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                            boardAuthorEmail = boardAuthorEmail,
+                            boardCreateTime = boardCreateTime
+                        )
                     )
-                )
-            }
-            val boardContentViewState = boardContentViewModel.loadCommentList(
-                commentMetaListLoadForm = CommentMetaListLoadForm(
-                    boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
-                    boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime,
-                    reload = false
-                )
-            )
-            val list: MutableList<ListItem> = mutableListOf()
-            list.add(ListItem.BoardItem(boardContentViewState.boardEntity))
-            boardContentViewState.commentListEntity.commentList.map {
-                list.add(ListItem.CommentItem(commentEntity = it))
-            }
+                }
+                val asyncComment = async {
+                    boardContentViewModel.loadCommentList(
+                        commentMetaListLoadForm = CommentMetaListLoadForm(
+                            boardAuthorEmail = boardAuthorEmail,
+                            boardCreateTime = boardCreateTime,
+                            reload = false
+                        )
+                    )
+                }
+                asyncBoard.await()
+                val boardContentViewState = asyncComment.await()
 
-            commentAdapter.submitList(list) {
-                binding.rvComment.scrollToPosition(0)
+                commentAdapter.submitList(createListItem(boardContentViewState)) {
+                    binding.rvComment.scrollToPosition(0)
+                    hideProgressBar()
+                }
             }
         }
 
-        subscribe()
         //initScrollListener()
 
     }
@@ -388,6 +392,28 @@ class BoardContentFragment : Fragment() {
 
      */
 
+    private fun showProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 시작")
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
 
     override fun onDetach() {
         super.onDetach()
