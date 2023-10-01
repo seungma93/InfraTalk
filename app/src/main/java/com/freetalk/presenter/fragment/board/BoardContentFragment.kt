@@ -376,6 +376,7 @@ class BoardContentFragment : Fragment() {
     }
 
     private fun moreItems() {
+        showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch {
             val viewState = boardContentViewModel.loadCommentList(
                 commentMetaListLoadForm = CommentMetaListLoadForm(
@@ -384,7 +385,9 @@ class BoardContentFragment : Fragment() {
                     reload = false
                 )
             )
-            commentAdapter.submitList(createListItem(viewState))
+            commentAdapter.submitList(createListItem(viewState)) {
+                hideProgressBar()
+            }
         }
     }
 
