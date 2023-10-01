@@ -70,7 +70,6 @@ class BoardContentFragment : Fragment() {
     private val boardContentImageAdapter get() = _boardContentImageAdapter!!
     private var _commentAdapter: CommentListAdapter? = null
     private val commentAdapter get() = _commentAdapter!!
-    /*
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
         Toast.makeText(
             requireContext(),
@@ -79,7 +78,6 @@ class BoardContentFragment : Fragment() {
         ).show()
     })
 
-     */
 
     @Inject
     lateinit var boardContentViewModelFactory: ViewModelProvider.Factory
@@ -342,17 +340,16 @@ class BoardContentFragment : Fragment() {
                     )
                 }
                 asyncBoard.await()
-                val boardContentViewState = asyncComment.await()
+                val viewState = asyncComment.await()
 
-                commentAdapter.submitList(createListItem(boardContentViewState)) {
+                commentAdapter.submitList(createListItem(viewState)) {
                     binding.rvComment.scrollToPosition(0)
                     hideProgressBar()
                 }
             }
         }
 
-        //initScrollListener()
-
+        initScrollListener()
     }
 
     private fun subscribe() {
@@ -373,24 +370,23 @@ class BoardContentFragment : Fragment() {
             }
         }
     }
-    /*
-        private fun initScrollListener() {
-            binding.rvComment.addOnScrollListener(onScrollListener)
-        }
 
-        private fun moreItems() {
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                boardContentViewModel.selectComments(
-                    CommentsSelectForm(
-                        boardAuthorEmail = boardEntity.author.email,
-                        boardCreateTime = boardEntity.createTime,
-                        reload = false
-                    )
+    private fun initScrollListener() {
+        binding.rvComment.addOnScrollListener(onScrollListener)
+    }
+
+    private fun moreItems() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val viewState = boardContentViewModel.loadCommentList(
+                commentMetaListLoadForm = CommentMetaListLoadForm(
+                    boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                    boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime,
+                    reload = false
                 )
-            }
+            )
+            commentAdapter.submitList(createListItem(viewState))
         }
-
-     */
+    }
 
     private fun showProgressBar() {
         Log.d("BoardFragment", "프로그레스바 시작")

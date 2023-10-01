@@ -28,7 +28,6 @@ class LoadCommentListUseCase @Inject constructor(
         Log.d("comment", "메타 데이터 체크" + commentMetaListEntity.commentMetaList.size)
         CommentListEntity(
             commentMetaListEntity.commentMetaList.map {
-
                 val asyncBookmark =
                     async {
                         bookmarkDataRepository.loadCommentBookmark(
