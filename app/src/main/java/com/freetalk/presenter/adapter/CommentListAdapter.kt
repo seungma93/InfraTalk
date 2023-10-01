@@ -8,10 +8,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.freetalk.data.UserSingleton
+import com.freetalk.data.datasource.remote.UserDataSource
 import com.freetalk.databinding.ListItemBoardContentBinding
 import com.freetalk.databinding.ListItemCommentBinding
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.CommentEntity
+import com.freetalk.domain.entity.UserEntity
+import com.freetalk.presenter.viewmodel.BoardContentViewModel
+import com.google.firebase.firestore.auth.User
 
 sealed class ListItem {
     data class BoardItem(val boardEntity: BoardEntity) : ListItem()
@@ -24,7 +28,8 @@ class CommentListAdapter(
     private val boardLikeClick: (BoardEntity) -> Unit,
     private val commentBookmarkClick: (CommentEntity) -> Unit,
     private val commentLikeClick: (CommentEntity) -> Unit,
-    private val commentDeleteClick: (CommentEntity) -> Unit
+    private val commentDeleteClick: (CommentEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : ListAdapter<ListItem, RecyclerView.ViewHolder>(diffUtil) {
 
     companion object {
@@ -39,7 +44,7 @@ class CommentListAdapter(
             ): Boolean {
                 return when {
                     oldItem is ListItem.BoardItem && newItem is ListItem.BoardItem -> {
-                        oldItem.boardEntity.boardMetaEntity.createTime == newItem.boardEntity.boardMetaEntity.createTime &&
+                        oldItem.boardEntity.createTime == newItem.boardEntity.boardMetaEntity.createTime &&
                                 oldItem.boardEntity.boardMetaEntity.author.email == newItem.boardEntity.boardMetaEntity.author.email
                     }
                     oldItem is ListItem.CommentItem && newItem is ListItem.CommentItem -> {
@@ -80,7 +85,7 @@ class CommentListAdapter(
                         parent,
                         false
                     )
-                CommentViewHolder(binding, commentItemClick, commentBookmarkClick, commentLikeClick, commentDeleteClick)
+                CommentViewHolder(binding, commentItemClick, commentBookmarkClick, commentLikeClick, commentDeleteClick, userEntity)
             }
 
             else -> throw IllegalArgumentException("Unknown view type")
@@ -158,7 +163,8 @@ class CommentViewHolder(
     private val commentItemClick: (CommentEntity) -> Unit,
     private val commentBookmarkClick: (CommentEntity) -> Unit,
     private val commentLikeClick: (CommentEntity) -> Unit,
-    private val commentDeleteClick: (CommentEntity) -> Unit
+    private val commentDeleteClick: (CommentEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : RecyclerView.ViewHolder(binding.root) {
     private var commentEntity: CommentEntity? = null
 
@@ -201,7 +207,7 @@ class CommentViewHolder(
                 btnLike.isSelected = it.likeEntity.isLike
                 likeCount.text = it.likeCountEntity.likeCount.toString()
                 btnDelete.visibility =
-                    when (UserSingleton.userEntity.email == it.commentMetaEntity.author.email) {
+                    when ( userEntity.email == it.commentMetaEntity.author.email) {
                         true -> View.VISIBLE
                         else -> View.GONE
                     }

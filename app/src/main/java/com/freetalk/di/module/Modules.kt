@@ -41,6 +41,7 @@ import com.freetalk.domain.usecase.DeleteCommentLikeUseCase
 import com.freetalk.domain.usecase.DeleteCommentUseCase
 import com.freetalk.domain.usecase.DeleteUserInfoUseCase
 import com.freetalk.domain.usecase.DeleteUserInfoUseCaseImpl
+import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadBoardContentUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
@@ -539,7 +540,8 @@ class Modules {
             addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
-            deleteCommentLikeUseCase: DeleteCommentLikeUseCase
+            deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
         ): ViewModel {
             return BoardContentViewModel(
                 writeCommentUseCase,
@@ -554,7 +556,8 @@ class Modules {
                 addCommentBookmarkUseCase,
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
-                deleteCommentLikeUseCase
+                deleteCommentLikeUseCase,
+                getUserInfoUseCase
             )
         }
     }

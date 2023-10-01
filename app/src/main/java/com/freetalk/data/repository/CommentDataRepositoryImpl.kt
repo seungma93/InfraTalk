@@ -46,8 +46,7 @@ class CommentDataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun loadBoardRelatedAllCommentMetaList(
-        boardRelatedAllCommentMetaListSelectForm:
-        BoardRelatedAllCommentMetaListSelectForm
+        boardRelatedAllCommentMetaListSelectForm: BoardRelatedAllCommentMetaListSelectForm
     ): CommentMetaListEntity =
         with(boardRelatedAllCommentMetaListSelectForm) {
             return commentDataSource.selectRelatedAllCommentMetaList(

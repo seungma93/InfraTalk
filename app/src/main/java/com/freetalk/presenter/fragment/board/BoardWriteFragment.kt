@@ -169,7 +169,6 @@ class BoardWriteFragment : Fragment() {
                             boardViewModel.writeBoardContent(
                                 boardContentInsertForm = BoardContentInsertForm(
                                     author = UserSingleton.userEntity,
-                                    createTime = Date(System.currentTimeMillis()),
                                     title = binding.titleEditText.text.toString(),
                                     content = binding.contextEditText.text.toString(),
                                     images = when (adapter!!.getItems().isEmpty()) {

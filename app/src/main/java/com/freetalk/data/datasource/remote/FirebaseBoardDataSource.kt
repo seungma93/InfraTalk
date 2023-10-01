@@ -41,15 +41,16 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 ) : BoardDataSource {
     private var lastDocument: DocumentSnapshot? = null
 
-    override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse =
-        with(boardInsertRequest) {
+    override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse {
             return kotlin.runCatching {
+                val createTime = boardInsertRequest.createTime
                 database.collection("Board")
-                    .add(boardInsertRequest.copy(createTime = Date(System.currentTimeMillis())))
+                    .add(boardInsertRequest)
                     .await()
+
                 BoardInsertResponse(
                     boardAuthorEmail = boardInsertRequest.authorEmail,
-                    boardCreteTime = Date(System.currentTimeMillis()),
+                    boardCreteTime = createTime,
                     isSuccess = true
                 )
             }.onFailure {
@@ -79,23 +80,18 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             lastDocument = snapshot.documents.lastOrNull()
 
             snapshot.documents.map {
-                val authorEmail = it.data?.get("authorEmail") as? String ?: ""
-                val userResponse =
-                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail))
-                val title = it.data?.get("title") as? String
-                val content = it.data?.get("content") as? String
-                val images = (it.data?.get("images") as? List<String>)?.let {
-                    ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                }
-                val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
-                val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                 BoardMetaResponse(
-                    userResponse.toEntity(),
-                    title,
-                    content,
-                    images,
-                    createTime,
-                    editTime
+                    author = userDataSource
+                        .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
+                        .toEntity(),
+                    title = it.data?.get("title") as? String,
+                    content = it.data?.get("content") as? String,
+                    images = (it.data?.get("images") as? List<String>)?.let {
+                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                    },
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
                 )
             }.let {
                 BoardMetaListResponse(it)
@@ -114,7 +110,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
                     boardUpdateRequest.images?.let { images ->
 
-                        boardUpdateRequest.editTime?.let { date ->
+                        boardUpdateRequest.editTime.let { date ->
 
                             when (boardUpdateRequest.content) {
                                 null -> {
@@ -173,28 +169,20 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("authorEmail", boardAuthorEmail)
                     .whereEqualTo("createTime", boardCreateTime).get().await()
 
-                snapshot.documents.firstOrNull()?.let {
-                    val author = it.data?.get("author") as? HashMap<String, Any>
-                    val email = author?.get("email") as? String ?: ""
-                    val nickname = author?.get("nickname") as? String ?: ""
-                    val image = (author?.get("image") as? String)?.let {
-                        Uri.parse(it)
-                    }
-                    val title = it.data?.get("title") as? String
-                    val content = it.data?.get("content") as? String
-                    val images = (it.data?.get("images") as? List<String>)?.let {
-                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                    }
-                    val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
-                    val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                    BoardMetaResponse(
-                        author = UserEntity(email, nickname, image),
-                        title = title,
-                        content = content,
-                        images = images,
-                        createTime = createTime,
-                        editTime = editTime
-                    )
+                    snapshot.documents.firstOrNull()?.let {
+                        val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                        BoardMetaResponse(
+                            author = userDataSource
+                                .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
+                                .toEntity(),
+                            title = it.data?.get("title") as? String,
+                            content = it.data?.get("content") as? String,
+                            images = (it.data?.get("images") as? List<String>)?.let {
+                                ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                            },
+                            createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                            editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                        )
                 } ?: run {
                     throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
                 }

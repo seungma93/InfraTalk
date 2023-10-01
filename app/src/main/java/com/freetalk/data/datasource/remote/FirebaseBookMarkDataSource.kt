@@ -14,7 +14,11 @@ import com.freetalk.data.model.request.CommentRelatedBookmarksDeleteRequest
 import com.freetalk.data.model.response.BookmarkResponse
 import com.freetalk.data.model.response.CommentRelatedBookmarksResponse
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -56,7 +60,7 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
                     .get().await()
 
                 snapshot.documents.firstOrNull()?.apply {
-                    database.collection("BoardBookMark").document(id).delete()
+                    database.collection("BoardBookMark").document(id).delete().await()
                 } ?: throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
                 BookmarkResponse(isBookmark = false)
             }.onFailure {
@@ -74,10 +78,7 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
                     .get().await()
 
                 BookmarkResponse(
-                    isBookmark = when (snapshot.documents.firstOrNull()) {
-                        null -> false
-                        else -> true
-                    }
+                    isBookmark = snapshot.documents.firstOrNull()?.let { true } ?: false
                 )
             }.onFailure {
                 throw FailLoadBookMarkException("좋아요 로드를 실패 했습니다")
@@ -136,21 +137,26 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
 
         }
 
-    override suspend fun deleteCommentRelatedBookMarks(commentRelatedBookmarksDeleteRequest: CommentRelatedBookmarksDeleteRequest): CommentRelatedBookmarksResponse =
+    override suspend fun deleteCommentRelatedBookMarks(
+        commentRelatedBookmarksDeleteRequest: CommentRelatedBookmarksDeleteRequest
+    ): CommentRelatedBookmarksResponse = coroutineScope {
         with(commentRelatedBookmarksDeleteRequest) {
-            return kotlin.runCatching {
+            kotlin.runCatching {
                 val snapshot = database.collection("CommentBookmark")
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
                     .get().await()
-
-                snapshot.documents.map {
-                    database.collection("CommentBookmark").document(it.id).delete().await()
-                }
+                launch(Dispatchers.IO) {
+                    snapshot.documents.map {
+                        launch {
+                            database.collection("CommentBookmark").document(it.id).delete()
+                        }
+                    }
+                }.join()
                 CommentRelatedBookmarksResponse(isBookmarks = false)
-
             }.onFailure {
                 throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
             }.getOrThrow()
         }
+    }
 }

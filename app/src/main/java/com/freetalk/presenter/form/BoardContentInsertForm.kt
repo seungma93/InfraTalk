@@ -6,7 +6,6 @@ import java.util.Date
 
 data class BoardContentInsertForm(
     val author: UserEntity,
-    val createTime: Date,
     val title: String,
     val content: String,
     val images: List<Uri>?,

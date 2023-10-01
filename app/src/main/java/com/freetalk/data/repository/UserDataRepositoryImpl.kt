@@ -40,4 +40,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         return dataSource.deleteUserInfo(signUpForm).toEntity()
     }
 
+    override fun getUserInfo(): UserEntity {
+        return dataSource.getUserInfo()
+    }
+
+
 }

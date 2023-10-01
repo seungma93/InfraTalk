@@ -14,14 +14,13 @@ data class CommentMetaEntity(
     val editTime: Date? = null
 ) : Serializable
 
-data class CommentListEntity (
+data class CommentListEntity(
     val commentList: List<CommentEntity> = emptyList()
 )
 
-data class CommentMetaListEntity (
+data class CommentMetaListEntity(
     val commentMetaList: List<CommentMetaEntity> = emptyList()
 )
-
 
 
 data class CommentEntity(
@@ -36,7 +35,19 @@ data class CommentEntity(
     val bookmarkEntity: BookmarkEntity,
     val likeEntity: LikeEntity,
     val likeCountEntity: LikeCountEntity
-): Serializable
+) : Serializable
 
+interface BookMarkable {
+    val bookMarkEntity: BookmarkEntity
+}
 
+interface Likeable {
+    val likeEntity: LikeEntity
+}
 
+data class Feed(
+    override val bookMarkEntity: BookmarkEntity,
+    override val likeEntity: LikeEntity
+) : BookMarkable, Likeable {
+
+}

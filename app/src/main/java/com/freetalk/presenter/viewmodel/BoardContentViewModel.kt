@@ -10,6 +10,7 @@ import com.freetalk.domain.entity.CommentListEntity
 import com.freetalk.domain.entity.CommentMetaEntity
 import com.freetalk.domain.entity.LikeCountEntity
 import com.freetalk.domain.entity.LikeEntity
+import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.usecase.AddBoardContentBookmarkUseCase
 import com.freetalk.domain.usecase.AddBoardContentLikeUseCase
 import com.freetalk.domain.usecase.AddCommentBookmarkUseCase
@@ -19,6 +20,7 @@ import com.freetalk.domain.usecase.DeleteBoardContentLikeUseCase
 import com.freetalk.domain.usecase.DeleteCommentBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteCommentLikeUseCase
 import com.freetalk.domain.usecase.DeleteCommentUseCase
+import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadBoardContentUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
@@ -45,6 +47,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import javax.inject.Inject
 
 sealed class BoardContentViewEvent {
@@ -65,7 +69,8 @@ class BoardContentViewModel @Inject constructor(
     private val addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
     private val deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
     private val addCommentLikeUseCase: AddCommentLikeUseCase,
-    private val deleteCommentLikeUseCase: DeleteCommentLikeUseCase
+    private val deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardContentViewEvent>()
     val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
@@ -100,8 +105,9 @@ class BoardContentViewModel @Inject constructor(
                 boardLikeLoadForm = boardLikeLoadForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm
             )
-            _viewState.value = viewState.value.copy(boardEntity = boardEntity)
-
+            _viewState.update { _ ->
+                viewState.value.copy(boardEntity = boardEntity)
+            }
         }.onFailure {
 
         }.getOrNull()
@@ -119,8 +125,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(boardEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardEntity = it)
             }
         } ?: viewState.value
     }
@@ -137,8 +143,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(boardEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardEntity = it)
             }
         } ?: viewState.value
     }
@@ -157,8 +163,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(boardEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardEntity = it)
             }
         } ?: viewState.value
     }
@@ -178,8 +184,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(boardEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardEntity = it)
             }
         } ?: viewState.value
     }
@@ -214,28 +220,26 @@ class BoardContentViewModel @Inject constructor(
         }.getOrNull()
 
         return result?.let {
-            viewState.value.copy(commentListEntity = CommentListEntity(it)).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = CommentListEntity(it))
             }
         } ?: viewState.value
     }
 
     suspend fun loadBoardRelatedAllCommentList(
-        boardRelatedAllCommentMetaListSelectForm:
-        BoardRelatedAllCommentMetaListSelectForm
+        boardRelatedAllCommentMetaListSelectForm: BoardRelatedAllCommentMetaListSelectForm
     ): BoardContentViewState {
         val result = kotlin.runCatching {
             loadBoardRelatedAllCommentListUseCase(
-                boardRelatedAllCommentMetaListSelectForm =
-                boardRelatedAllCommentMetaListSelectForm
+                boardRelatedAllCommentMetaListSelectForm = boardRelatedAllCommentMetaListSelectForm
             )
         }.onFailure {
 
         }.getOrNull()
 
         return result?.let {
-            viewState.value.copy(commentListEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
             }
         } ?: viewState.value
     }
@@ -254,8 +258,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(commentListEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
             }
         } ?: viewState.value
     }
@@ -275,8 +279,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(commentListEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
             }
         } ?: viewState.value
     }
@@ -293,8 +297,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(commentListEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
             }
         } ?: viewState.value
     }
@@ -312,8 +316,8 @@ class BoardContentViewModel @Inject constructor(
 
         }.getOrNull()
         return result?.let {
-            viewState.value.copy(commentListEntity = it).apply {
-                _viewState.value = this
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
             }
         } ?: viewState.value
     }
@@ -337,4 +341,8 @@ class BoardContentViewModel @Inject constructor(
         }
 
      */
+
+    fun getUserInfo(): UserEntity {
+        return getUserInfoUseCase()
+    }
 }

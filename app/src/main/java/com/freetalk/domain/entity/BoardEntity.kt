@@ -33,7 +33,9 @@ data class BoardEntity(
     val bookmarkEntity: BookmarkEntity,
     val likeEntity: LikeEntity,
     val likeCountEntity: LikeCountEntity
-): Serializable
+): Serializable {
+    val createTime get() = boardMetaEntity.createTime
+}
 
 data class BoardContentPrimaryKeyEntity(
     val boardAuthorEmail: String,
