@@ -80,35 +80,39 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
     }
 
-    override suspend fun selectCommentMetaList(commentMetaListSelectRequest: CommentMetaListSelectRequest): CommentMetaListResponse {
-        return kotlin.runCatching {
-            val snapshot = when (commentMetaListSelectRequest.reload) {
-                true -> getCommentDocuments(commentMetaListSelectRequest, 10, null)
-                false -> getCommentDocuments(commentMetaListSelectRequest, 10, lastDocument)
-            }
-            lastDocument = snapshot.documents.lastOrNull()
-            snapshot.documents.map {
-                val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
-                CommentMetaResponse(
-                    author = userDataSource
-                        .selectUserInfo(UserSelectRequest(userEmail = authorEmail)),
-                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
-                    content = it.data?.get("content") as? String,
-                    images = (it.data?.get("images") as? List<String>)?.let {
-                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                    },
-                    boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
-                    boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
-                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                )
-            }.let {
-                CommentMetaListResponse(it)
-            }
-        }.onFailure {
-            throw FailSelectCommentsException("댓글 셀렉트에 실패 했습니다")
-            Log.d("comment", "데이터 소스 에러" + it.message)
-        }.getOrThrow()
-    }
+    override suspend fun selectCommentMetaList(commentMetaListSelectRequest: CommentMetaListSelectRequest): CommentMetaListResponse =
+        coroutineScope {
+            kotlin.runCatching {
+                val snapshot = when (commentMetaListSelectRequest.reload) {
+                    true -> getCommentDocuments(commentMetaListSelectRequest, 10, null)
+                    false -> getCommentDocuments(commentMetaListSelectRequest, 10, lastDocument)
+                }
+                lastDocument = snapshot.documents.lastOrNull()
+                snapshot.documents.map {
+                    val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                    val asyncUserInfo =
+                        async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)) }
+                    it to asyncUserInfo
+                }.map { (it, deferred) ->
+                    CommentMetaResponse(
+                        author = deferred.await(),
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
+                        boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    )
+                }.let {
+                    CommentMetaListResponse(it)
+                }
+            }.onFailure {
+                throw FailSelectCommentsException("댓글 셀렉트에 실패 했습니다")
+                Log.d("comment", "데이터 소스 에러" + it.message)
+            }.getOrThrow()
+        }
 
     override suspend fun selectRelatedAllCommentMetaList(
         boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
@@ -129,7 +133,8 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
             snapshot.documents.map {
                 val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
-                val asyncUserInfo = async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)) }
+                val asyncUserInfo =
+                    async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)) }
                 it to asyncUserInfo
             }.map { (it, deferred) ->
                 CommentMetaResponse(
