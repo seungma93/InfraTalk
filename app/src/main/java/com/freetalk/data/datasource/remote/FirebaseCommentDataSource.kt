@@ -16,6 +16,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import toEntity
 import java.util.*
@@ -26,9 +28,9 @@ interface CommentDataSource {
     suspend fun insertComment(commentInsertRequest: CommentInsertRequest): CommentMetaResponse
     suspend fun selectCommentMetaList(commentMetaListSelectRequest: CommentMetaListSelectRequest): CommentMetaListResponse
     suspend fun selectRelatedAllCommentMetaList(
-        boardRelatedAllCommentMetaListSelectRequest:
-        BoardRelatedAllCommentMetaListSelectRequest
+        boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
     ): CommentMetaListResponse
+
     suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentMetaResponse
 }
 
@@ -109,10 +111,10 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun selectRelatedAllCommentMetaList(
-        boardRelatedAllCommentMetaListSelectRequest:
-        BoardRelatedAllCommentMetaListSelectRequest
-    ): CommentMetaListResponse {
-        return kotlin.runCatching {
+        boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
+    ): CommentMetaListResponse = coroutineScope {
+
+        kotlin.runCatching {
             val query = database.collection("Comment")
                 .whereEqualTo(
                     "boardAuthorEmail",
@@ -127,8 +129,11 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
             snapshot.documents.map {
                 val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                val asyncUserInfo = async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)) }
+                it to asyncUserInfo
+            }.map { (it, deferred) ->
                 CommentMetaResponse(
-                    author = userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)),
+                    author = deferred.await(),
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     content = it.data?.get("content") as? String,
                     images = (it.data?.get("images") as? List<String>)?.let {
@@ -151,9 +156,10 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
             database.collection("Comment")
                 .whereEqualTo("authorEmail", commentDeleteRequest.commentAuthorEmail)
                 .whereEqualTo("createTime", commentDeleteRequest.commentCreateTime)
-                .get().await().let {
-                    it.documents.firstOrNull()?.reference?.delete()?.await()
+                .get().await().apply {
+                    documents.forEach { it.reference.delete().await() }
                 }
+
             CommentMetaResponse(
                 boardAuthorEmail = null,
                 boardCreateTime = null,
