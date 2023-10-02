@@ -30,6 +30,7 @@ import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikeLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
+import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
@@ -280,23 +281,23 @@ class BoardContentFragment : Fragment() {
                                     content = commentEditText.text.toString()
                                 )
                             )
-
                             commentEditText.text = null
-                            /*
-                            val result = boardContentViewModel.selectAllComments(
-                                CommentsSelectForm(
-                                    boardAuthorEmail = boardEntity.author.email,
-                                    boardCreateTime = boardEntity.createTime,
-                                    reload = true
+
+                            showProgressBar()
+
+                            val viewState = boardContentViewModel.loadBoardRelatedAllCommentList(
+                                boardRelatedAllCommentMetaListSelectForm = BoardRelatedAllCommentMetaListSelectForm(
+                                    boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                                    boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
                                 )
                             )
-
-
-                            commentAdapter.submitList(result.commentList.wrapperCommentList) {
-                                binding.rvComment.scrollToPosition(result.commentList.wrapperCommentList.size - 1)
+                            commentAdapter.submitList(emptyList())
+                            commentAdapter.submitList(createListItem(viewState = viewState)) {
+                                binding.rvComment.scrollToPosition(commentAdapter.itemCount - 1)
+                                hideProgressBar()
                             }
 
-                             */
+
                         }
                     }
 
