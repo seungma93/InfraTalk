@@ -272,6 +272,7 @@ class BoardContentFragment : Fragment() {
                     }
 
                     false -> {
+                        btnSubmitComment.isEnabled = false
                         viewLifecycleOwner.lifecycleScope.launch {
 
                             boardContentViewModel.writeComment(
@@ -295,6 +296,7 @@ class BoardContentFragment : Fragment() {
                             commentAdapter.submitList(createListItem(viewState = viewState)) {
                                 binding.rvComment.scrollToPosition(commentAdapter.itemCount - 1)
                                 hideProgressBar()
+                                btnSubmitComment.isEnabled = true
                             }
 
 
