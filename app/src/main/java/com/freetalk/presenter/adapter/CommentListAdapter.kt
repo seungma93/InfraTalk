@@ -115,6 +115,7 @@ class CommentListAdapter(
 
 }
 
+
 class BoardContentViewHolder(
     private val binding: ListItemBoardContentBinding,
     private val boardBookmarkClick: (BoardEntity) -> Unit,

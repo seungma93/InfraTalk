@@ -129,7 +129,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo(
                     "boardCreateTime",
                     boardRelatedAllCommentMetaListSelectRequest.boardCreateTime
-                )
+                ).orderBy("createTime", Query.Direction.ASCENDING)
 
             val snapshot = query.get().await()
 
