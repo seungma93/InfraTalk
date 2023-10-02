@@ -23,47 +23,47 @@ class LoadBoardListUseCase @Inject constructor(
     ): BoardListEntity = coroutineScope {
         val boardMetaListEntity = boardDataRepository.loadBoardMetaList(boardListLoadForm)
 
-        BoardListEntity(
-            boardMetaListEntity.boardMetaList.map {
-                val asyncBookmark =
-                    async {
-                        bookMarkDataRepository.loadBoardBookmark(
-                            BoardBookmarkLoadForm(
-                                boardAuthorEmail = it.author.email,
-                                boardCreateTime = it.createTime
-                            )
-                        )
-                    }
-                val asyncLike = async {
-                    likeDataRepository.loadBoardLike(
-                        BoardLikeLoadForm(
+        boardMetaListEntity.boardMetaList.map {
+            val asyncBookmark =
+                async {
+                    bookMarkDataRepository.loadBoardBookmark(
+                        BoardBookmarkLoadForm(
                             boardAuthorEmail = it.author.email,
                             boardCreateTime = it.createTime
                         )
                     )
                 }
-                val asyncLikeCount =
-                    async {
-                        likeDataRepository.loadBoardLikeCount(
-                            BoardLikeCountLoadForm(
-                                boardAuthorEmail = it.author.email,
-                                boardCreateTime = it.createTime
-                            )
-                        )
-                    }
-
-                val bookmarkEntity = asyncBookmark.await()
-                val likeEntity = asyncLike.await()
-                val likeCountEntity = asyncLikeCount.await()
-
-                BoardEntity(
-                    boardMetaEntity = it,
-                    bookmarkEntity = bookmarkEntity,
-                    likeEntity = likeEntity,
-                    likeCountEntity = likeCountEntity
+            val asyncLike = async {
+                likeDataRepository.loadBoardLike(
+                    BoardLikeLoadForm(
+                        boardAuthorEmail = it.author.email,
+                        boardCreateTime = it.createTime
+                    )
                 )
             }
-        )
+            val asyncLikeCount =
+                async {
+                    likeDataRepository.loadBoardLikeCount(
+                        BoardLikeCountLoadForm(
+                            boardAuthorEmail = it.author.email,
+                            boardCreateTime = it.createTime
+                        )
+                    )
+                }
+            it to Triple(asyncBookmark, asyncLike, asyncLikeCount)
+        }.map { (board, deferred) ->
+            val asyncBookmark = deferred.first
+            val asyncLike = deferred.second
+            val asyncLikeCount = deferred.third
+            BoardEntity(
+                boardMetaEntity = board,
+                bookmarkEntity = asyncBookmark.await(),
+                likeEntity = asyncLike.await(),
+                likeCountEntity = asyncLikeCount.await()
+            )
+        }.let {
+            BoardListEntity(boardList = it)
+        }
     }
-
 }
+
