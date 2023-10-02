@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
+import toEntity
 import java.util.*
 import javax.inject.Inject
 
@@ -84,28 +85,19 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                 false -> getCommentDocuments(commentMetaListSelectRequest, 10, lastDocument)
             }
             lastDocument = snapshot.documents.lastOrNull()
-            if(lastDocument == null) Log.d("comment", "데이터 소스 시작")
             snapshot.documents.map {
-                val authorEmail = it.data?.get("authorEmail") as? String ?: ""
-                val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
-                val userResponse =
-                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail))
-                val content = it.data?.get("content") as? String
-                val images = (it.data?.get("images") as? List<String>)?.let {
-                    ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                }
-                val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: ""
-                val boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate()
-                val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                Log.d("comment", "authorEmail" + authorEmail + "userResponse"+ userResponse.email)
+                val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                 CommentMetaResponse(
-                    author = userResponse,
-                    createTime = createTime,
-                    content = content,
-                    images = images,
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime,
-                    editTime = editTime
+                    author = userDataSource
+                        .selectUserInfo(UserSelectRequest(userEmail = authorEmail)),
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    content = it.data?.get("content") as? String,
+                    images = (it.data?.get("images") as? List<String>)?.let {
+                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                    },
+                    boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
+                    boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
+                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
                 )
             }.let {
                 CommentMetaListResponse(it)
@@ -134,26 +126,17 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
             val snapshot = query.get().await()
 
             snapshot.documents.map {
-                val authorEmail = it.data?.get("authorEmail") as? String ?: ""
-                val createTime = (it.data?.get("createTime") as? Timestamp)?.toDate()
-                val userResponse =
-                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail))
-                val content = it.data?.get("content") as? String
-                val images = (it.data?.get("images") as? List<String>)?.let {
-                    ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                }
-                val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: ""
-                val boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate()
-                val editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-
+                val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                 CommentMetaResponse(
-                    author = userResponse,
-                    createTime = createTime,
-                    content = content,
-                    images = images,
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime,
-                    editTime = editTime
+                    author = userDataSource.selectUserInfo(UserSelectRequest(userEmail = authorEmail)),
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    content = it.data?.get("content") as? String,
+                    images = (it.data?.get("images") as? List<String>)?.let {
+                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                    },
+                    boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
+                    boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
+                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
                 )
             }.let {
                 CommentMetaListResponse(it)
