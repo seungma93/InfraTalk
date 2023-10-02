@@ -24,20 +24,15 @@ class LoadBoardContentUseCase @Inject constructor(
         boardLikeCountLoadForm: BoardLikeCountLoadForm
     ): BoardEntity = coroutineScope {
 
-        val asyncBoardMeta =
-            boardDataRepository.loadBoard(boardLoadForm = boardLoadForm)
-        val asyncBookmark =
-            bookmarkDataRepository.loadBoardBookmark(boardBookmarkLoadForm = boardBookmarkLoadForm)
-        val asyncLike =
-            likeDataRepository.loadBoardLike(boardLikeLoadForm = boardLikeLoadForm)
-        val asyncLikeCount =
-            likeDataRepository.loadBoardLikeCount(boardLikeCountLoadForm = boardLikeCountLoadForm)
+        val asyncBoardMeta = async { boardDataRepository.loadBoard(boardLoadForm = boardLoadForm) }
+        val asyncBookmark = async { bookmarkDataRepository.loadBoardBookmark(boardBookmarkLoadForm = boardBookmarkLoadForm) }
+        val asyncLike = async { likeDataRepository.loadBoardLike(boardLikeLoadForm = boardLikeLoadForm) }
+        val asyncLikeCount = async { likeDataRepository.loadBoardLikeCount(boardLikeCountLoadForm = boardLikeCountLoadForm) }
 
-
-        val boardMetaEntity = async { asyncBoardMeta }.await()
-        val bookmarkEntity = async { asyncBookmark }.await()
-        val likeEntity = async { asyncLike }.await()
-        val likeCountEntity = async { asyncLikeCount }.await()
+        val boardMetaEntity = asyncBoardMeta.await()
+        val bookmarkEntity = asyncBookmark.await()
+        val likeEntity = asyncLike.await()
+        val likeCountEntity = asyncLikeCount.await()
 
         BoardEntity(
             boardMetaEntity = boardMetaEntity,

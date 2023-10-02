@@ -25,47 +25,48 @@ class LoadCommentListUseCase @Inject constructor(
 
         val commentMetaListEntity =
             commentDataRepository.loadCommentMetaList(commentMetaListLoadForm = commentMetaListLoadForm)
-        Log.d("comment", "메타 데이터 체크" + commentMetaListEntity.commentMetaList.size)
-        CommentListEntity(
-            commentMetaListEntity.commentMetaList.map {
-                val asyncBookmark =
-                    async {
-                        bookmarkDataRepository.loadCommentBookmark(
-                            commentBookmarkLoadForm = CommentBookmarkLoadForm(
-                                commentAuthorEmail = it.author.email,
-                                commentCreateTime = it.createTime
-                            )
-                        )
-                    }
-                val asyncLike =
-                    async {
-                        likeDataRepository.loadCommentLike(
-                            commentLikeLoadForm = CommentLikeLoadForm(
-                                commentAuthorEmail = it.author.email,
-                                commentCreateTime = it.createTime
-                            )
-                        )
-                    }
-                val asyncLikeCount =
-                    async {
-                        likeDataRepository.loadCommentLikeCount(
-                            commentLikeCountLoadForm = CommentLikeCountLoadForm(
-                                commentAuthorEmail = it.author.email,
-                                commentCreateTime = it.createTime
-                            )
-                        )
-                    }
-                val bookmarkEntity = asyncBookmark.await()
-                val likeEntity = asyncLike.await()
-                val likeCountEntity = asyncLikeCount.await()
 
-                CommentEntity(
-                    commentMetaEntity = it,
-                    bookmarkEntity = bookmarkEntity,
-                    likeEntity = likeEntity,
-                    likeCountEntity = likeCountEntity
-                )
-            }
-        )
+        commentMetaListEntity.commentMetaList.map {
+            val asyncBookmark =
+                async {
+                    bookmarkDataRepository.loadCommentBookmark(
+                        commentBookmarkLoadForm = CommentBookmarkLoadForm(
+                            commentAuthorEmail = it.author.email,
+                            commentCreateTime = it.createTime
+                        )
+                    )
+                }
+            val asyncLike =
+                async {
+                    likeDataRepository.loadCommentLike(
+                        commentLikeLoadForm = CommentLikeLoadForm(
+                            commentAuthorEmail = it.author.email,
+                            commentCreateTime = it.createTime
+                        )
+                    )
+                }
+            val asyncLikeCount =
+                async {
+                    likeDataRepository.loadCommentLikeCount(
+                        commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                            commentAuthorEmail = it.author.email,
+                            commentCreateTime = it.createTime
+                        )
+                    )
+                }
+            it to Triple(asyncBookmark, asyncLike, asyncLikeCount)
+        }.map { (commentMeta, deferred) ->
+            val asyncBookmark = deferred.first
+            val asyncLike = deferred.second
+            val asyncLikeCount = deferred.third
+            CommentEntity(
+                commentMetaEntity = commentMeta,
+                bookmarkEntity = asyncBookmark.await(),
+                likeEntity = asyncLike.await(),
+                likeCountEntity = asyncLikeCount.await()
+            )
+        }.let {
+            CommentListEntity(commentList = it)
+        }
     }
 }
