@@ -39,6 +39,12 @@ data class CommentEntity(
     val likeCountEntity: LikeCountEntity
 ) : Serializable
 
+data class CommentDeleteEntity(
+    val commentAuthorEmail: String,
+    val commentCreateTime: Date,
+    val isSuccess: Boolean
+)
+
 interface BookMarkable {
     val bookMarkEntity: BookmarkEntity
 }

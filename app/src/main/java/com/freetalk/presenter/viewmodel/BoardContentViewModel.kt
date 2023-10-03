@@ -36,11 +36,14 @@ import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
+import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
 import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -317,26 +320,31 @@ class BoardContentViewModel @Inject constructor(
             }
         } ?: viewState.value
     }
-    /*
-        suspend fun deleteComment(
 
-        ) {
-            kotlin.runCatching {
-                val newList = deleteCommentUseCase(
-                    deleteCommentForm,
-                    _viewState.value.commentList
+        suspend fun deleteComment(
+            commentDeleteForm: CommentDeleteForm,
+            commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom,
+            commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm
+        ): BoardContentViewState {
+            val result = kotlin.runCatching {
+                deleteCommentUseCase(
+                    commentDeleteForm = commentDeleteForm,
+                    commentRelatedBookmarksDeleteForm = commentRelatedBookmarksDeleteForm,
+                    commentRelatedLikesDeleteForm = commentRelatedLikesDeleteForm,
+                    commentListEntity = viewState.value.commentListEntity ?: error("")
                 )
-                _viewState.value =
-                    BoardContentViewState(
-                        _viewState.value.wrapperBoardEntity,
-                        PrintCommentListUseCase.WrapperCommentList(newList)
-                    )
+
             }.onFailure {
                 Log.d("BoardViewModel", "북마크 딜리트 실패")
             }.getOrNull()
+
+            return result?.let {
+                _viewState.updateAndGet { _->
+                    viewState.value.copy(commentListEntity = it)
+                }
+            } ?: viewState.value
         }
 
-     */
 
     fun getUserInfo(): UserEntity {
         return getUserInfoUseCase()

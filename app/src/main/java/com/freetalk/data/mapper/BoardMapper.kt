@@ -33,6 +33,7 @@ fun BoardMetaListResponse.toEntity(): BoardMetaListEntity {
         } ?: emptyList()
     )
 }
+/*
 fun BoardResponse.toEntity(): BoardEntity {
     return BoardEntity(
         boardMetaEntity = boardMetaResponse?.toEntity() ?: BoardMetaEntity(),
@@ -41,6 +42,8 @@ fun BoardResponse.toEntity(): BoardEntity {
         likeCountEntity = likeCountEntity ?: LikeCountEntity()
     )
 }
+
+ */
 
 fun BoardInsertResponse.toEntity(): BoardInsertEntity {
     return BoardInsertEntity(

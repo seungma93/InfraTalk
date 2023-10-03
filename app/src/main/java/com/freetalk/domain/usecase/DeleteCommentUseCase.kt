@@ -23,32 +23,30 @@ class DeleteCommentUseCase @Inject constructor(
         commentListEntity: CommentListEntity
     ): CommentListEntity = coroutineScope {
 
-
-        val asyncComment = async {
+        val asyncCommentDelete = async {
             commentDataRepository.deleteComment(
                 commentDeleteForm = commentDeleteForm
             )
         }
-        val asyncBookmark =
+        val asyncBookmarkDelete =
             async {
                 bookmarkDataRepository.deleteCommentRelatedBookmarks(
                     commentRelatedBookmarksDeleteForm = commentRelatedBookmarksDeleteForm
                 )
             }
-        val asyncLike = async {
+        val asyncLikeDelete = async {
             likeDataRepository.deleteCommentRelatedLikes(
                 commentRelatedLikesDeleteForm = commentRelatedLikesDeleteForm
             )
         }
 
-        asyncComment.await()
-        asyncBookmark.await()
-        asyncLike.await()
+        asyncCommentDelete.await()
+        asyncBookmarkDelete.await()
+        asyncLikeDelete.await()
 
         CommentListEntity(
-            commentList = commentListEntity.commentList.filterNot {
-                it.commentMetaEntity.author.email == commentDeleteForm.commentAuthorEmail &&
-                        it.commentMetaEntity.createTime == commentDeleteForm.commentCreateTIme
+            commentList = commentListEntity.commentList.filterNot { commentEntity ->
+                commentEntity.commentMetaEntity.commentPrimaryKey == commentDeleteForm.let { it.commentAuthorEmail + it.commentCreateTime }
             }
         )
     }

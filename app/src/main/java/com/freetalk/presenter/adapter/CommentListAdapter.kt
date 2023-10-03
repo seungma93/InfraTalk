@@ -187,6 +187,7 @@ class CommentViewHolder(
                 }
             }
             btnDelete.setOnClickListener {
+                btnDelete.isEnabled = false
                 commentEntity?.let {
                     commentDeleteClick(it)
                 }
@@ -213,6 +214,7 @@ class CommentViewHolder(
                     }
                 btnLike.isEnabled = true
                 btnBookmark.isEnabled = true
+                btnDelete.isEnabled = true
             }
         }
     }

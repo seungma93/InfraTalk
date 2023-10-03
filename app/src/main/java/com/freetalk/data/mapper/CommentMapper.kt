@@ -1,8 +1,10 @@
 package com.freetalk.data.mapper
 
 import android.net.Uri
+import com.freetalk.data.model.response.CommentDeleteResponse
 import com.freetalk.data.model.response.CommentMetaListResponse
 import com.freetalk.data.model.response.CommentMetaResponse
+import com.freetalk.domain.entity.CommentDeleteEntity
 import com.freetalk.domain.entity.CommentMetaEntity
 import com.freetalk.domain.entity.CommentMetaListEntity
 import com.freetalk.domain.entity.UserEntity
@@ -26,6 +28,14 @@ fun CommentMetaListResponse.toEntity(): CommentMetaListEntity {
         commentMetaList = commentMetaList?.let { list ->
             list.map { it.toEntity() }
         } ?: emptyList()
+    )
+}
+
+fun CommentDeleteResponse.toEntity(): CommentDeleteEntity {
+    return CommentDeleteEntity(
+        commentAuthorEmail = commentAuthorEmail.orEmpty(),
+        commentCreateTime = commentCreateTime ?: Date(),
+        isSuccess = isSuccess ?: false
     )
 }
 
