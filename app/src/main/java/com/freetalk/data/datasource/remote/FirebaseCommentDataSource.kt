@@ -7,6 +7,7 @@ import com.freetalk.data.model.request.BoardRelatedAllCommentMetaListSelectReque
 import com.freetalk.data.model.request.CommentDeleteRequest
 import com.freetalk.data.model.request.CommentMetaListSelectRequest
 import com.freetalk.data.model.request.UserSelectRequest
+import com.freetalk.data.model.response.CommentDeleteResponse
 import com.freetalk.data.model.response.CommentMetaListResponse
 import com.freetalk.data.model.response.CommentMetaResponse
 import com.freetalk.domain.entity.ImagesResultEntity
@@ -31,7 +32,7 @@ interface CommentDataSource {
         boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
     ): CommentMetaListResponse
 
-    suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentMetaResponse
+    suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
 }
 
 
@@ -156,7 +157,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentMetaResponse {
+    override suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse {
         return kotlin.runCatching {
             database.collection("Comment")
                 .whereEqualTo("authorEmail", commentDeleteRequest.commentAuthorEmail)
@@ -165,13 +166,10 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                     documents.forEach { it.reference.delete().await() }
                 }
 
-            CommentMetaResponse(
-                boardAuthorEmail = null,
-                boardCreateTime = null,
-                author = null,
-                content = null,
-                createTime = null,
-                editTime = null
+            CommentDeleteResponse(
+                commentAuthorEmail = commentDeleteRequest.commentAuthorEmail,
+                commentCreateTime = commentDeleteRequest.commentCreateTime,
+                isSuccess = true
             )
         }.onFailure {
             throw FailDeleteCommentException("댓글 셀렉트에 실패 했습니다")

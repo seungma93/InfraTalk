@@ -19,6 +19,7 @@ import com.freetalk.databinding.FragmentBoardContentBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
 import com.freetalk.domain.entity.BoardEntity
+import com.freetalk.domain.entity.CommentRelatedLikesEntity
 import com.freetalk.presenter.adapter.BoardContentImageAdapter
 import com.freetalk.presenter.adapter.CommentListAdapter
 import com.freetalk.presenter.adapter.ListItem
@@ -33,11 +34,14 @@ import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
+import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
 import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.async
@@ -181,19 +185,30 @@ class BoardContentFragment : Fragment() {
                     }
                 }
             },
-            commentDeleteClick = { /*
-                    wrapperCommentEntity ->
-                wrapperCommentEntity.apply {
+            commentDeleteClick = {commentEntity ->
+                commentEntity.apply {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        boardContentViewModel.deleteComment(
-                            CommentDeleteForm(
-                                commentAuthorEmail = commentEntity.commentAuthor.email,
-                                commentCreateTIme = commentEntity.createTime
+                        showProgressBar()
+                        val viewState = boardContentViewModel.deleteComment(
+                            commentDeleteForm = CommentDeleteForm(
+                                commentAuthorEmail = commentMetaEntity.author.email,
+                                commentCreateTime = commentMetaEntity.createTime
+                            ),
+                            commentRelatedBookmarksDeleteForm = CommentRelatedBookmarksDeleteFrom(
+                                boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                                boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
+                            ),
+                            commentRelatedLikesDeleteForm = CommentRelatedLikesDeleteForm(
+                                boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
+                                boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
                             )
                         )
+                        commentAdapter.submitList(createListItem(viewState)) {
+                            hideProgressBar()
+                        }
                     }
                 }
-                */
+
             },
             boardBookmarkClick = {
                 when (it.bookmarkEntity.isBookmark) {
@@ -346,7 +361,7 @@ class BoardContentFragment : Fragment() {
                     boardEntity = boardViewState.boardEntity,
                     commentListEntity = commentViewState.commentListEntity
                 )
-                
+
                 commentAdapter.submitList(createListItem(viewState)) {
                     binding.rvComment.scrollToPosition(0)
                     hideProgressBar()

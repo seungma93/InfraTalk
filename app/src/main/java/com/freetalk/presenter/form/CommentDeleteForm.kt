@@ -4,5 +4,5 @@ import java.util.Date
 
 data class CommentDeleteForm(
     val commentAuthorEmail: String,
-    val commentCreateTIme: Date
+    val commentCreateTime: Date
 )

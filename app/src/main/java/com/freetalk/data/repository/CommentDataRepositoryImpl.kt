@@ -1,4 +1,4 @@
-package com.freetalk.domain.repository
+package com.freetalk.data.repository
 
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.datasource.remote.CommentDataSource
@@ -6,8 +6,10 @@ import com.freetalk.data.mapper.toEntity
 import com.freetalk.data.model.request.BoardRelatedAllCommentMetaListSelectRequest
 import com.freetalk.data.model.request.CommentDeleteRequest
 import com.freetalk.data.model.request.CommentMetaListSelectRequest
+import com.freetalk.domain.entity.CommentDeleteEntity
 import com.freetalk.domain.entity.CommentMetaEntity
 import com.freetalk.domain.entity.CommentMetaListEntity
+import com.freetalk.domain.repository.CommentDataRepository
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
@@ -57,11 +59,11 @@ class CommentDataRepositoryImpl @Inject constructor(
             ).toEntity()
         }
 
-    override suspend fun deleteComment(commentDeleteForm: CommentDeleteForm): CommentMetaEntity {
+    override suspend fun deleteComment(commentDeleteForm: CommentDeleteForm): CommentDeleteEntity {
         return commentDataSource.deleteComment(
             commentDeleteRequest = CommentDeleteRequest(
                 commentAuthorEmail = commentDeleteForm.commentAuthorEmail,
-                commentCreateTime = commentDeleteForm.commentCreateTIme
+                commentCreateTime = commentDeleteForm.commentCreateTime
             )
         ).toEntity()
     }

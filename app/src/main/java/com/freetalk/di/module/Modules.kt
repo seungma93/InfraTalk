@@ -19,7 +19,7 @@ import com.freetalk.domain.repository.BoardDataRepositoryImpl
 import com.freetalk.domain.repository.BookmarkDataRepository
 import com.freetalk.domain.repository.BookmarkDataRepositoryImpl
 import com.freetalk.domain.repository.CommentDataRepository
-import com.freetalk.domain.repository.CommentDataRepositoryImpl
+import com.freetalk.data.repository.CommentDataRepositoryImpl
 import com.freetalk.domain.repository.ImageDataRepository
 import com.freetalk.domain.repository.ImageDataRepositoryImpl
 import com.freetalk.domain.repository.LikeDataRepository
