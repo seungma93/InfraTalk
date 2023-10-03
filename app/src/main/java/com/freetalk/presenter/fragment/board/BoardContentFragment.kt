@@ -39,6 +39,7 @@ import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
+import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Collections.list
@@ -282,8 +283,6 @@ class BoardContentFragment : Fragment() {
                                     content = commentEditText.text.toString()
                                 )
                             )
-                            commentEditText.text = null
-
                             showProgressBar()
 
                             val viewState = boardContentViewModel.loadBoardRelatedAllCommentList(
@@ -292,13 +291,12 @@ class BoardContentFragment : Fragment() {
                                     boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
                                 )
                             )
-                            commentAdapter.submitList(emptyList())
                             commentAdapter.submitList(createListItem(viewState = viewState)) {
                                 binding.rvComment.scrollToPosition(commentAdapter.itemCount - 1)
                                 hideProgressBar()
+                                commentEditText.text = null
                                 btnSubmitComment.isEnabled = true
                             }
-
 
                         }
                     }
@@ -342,9 +340,13 @@ class BoardContentFragment : Fragment() {
                         )
                     )
                 }
-                asyncBoard.await()
-                val viewState = asyncComment.await()
-
+                val boardViewState = asyncBoard.await()
+                val commentViewState = asyncComment.await()
+                val viewState = BoardContentViewModel.BoardContentViewState(
+                    boardEntity = boardViewState.boardEntity,
+                    commentListEntity = commentViewState.commentListEntity
+                )
+                
                 commentAdapter.submitList(createListItem(viewState)) {
                     binding.rvComment.scrollToPosition(0)
                     hideProgressBar()
@@ -355,21 +357,15 @@ class BoardContentFragment : Fragment() {
         initScrollListener()
     }
 
-    private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            boardContentViewModel.viewState.collect {
-                //commentAdapter.submitList(it.commentList.wrapperCommentList)
-            }
-        }
-    }
-
     private fun createListItem(
         viewState: BoardContentViewModel.BoardContentViewState
     ): List<ListItem> = with(viewState) {
         return mutableListOf<ListItem>().apply {
-            add(ListItem.BoardItem(boardEntity))
-            commentListEntity.commentList.map { commentEntity ->
-                add(ListItem.CommentItem(commentEntity = commentEntity))
+            add(ListItem.BoardItem(boardEntity = boardEntity ?: error("")))
+            commentListEntity?.let {
+                it.commentList.map { commentEntity ->
+                    add(ListItem.CommentItem(commentEntity = commentEntity))
+                }
             }
         }
     }
