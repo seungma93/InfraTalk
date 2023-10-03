@@ -73,23 +73,19 @@ class BoardContentViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardContentViewEvent>()
-    val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
+    private val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
 
-    // 처음 값 생성
-    private val boardContentViewState = BoardContentViewState(
-        BoardEntity(
-            boardMetaEntity = BoardMetaEntity(),
-            bookmarkEntity = BookmarkEntity(),
-            likeEntity = LikeEntity(),
-            likeCountEntity = LikeCountEntity()
-        ), CommentListEntity(emptyList())
+    private val _viewState = MutableStateFlow<BoardContentViewState>(
+        BoardContentViewState(
+            boardEntity = null,
+            commentListEntity = null
+        )
     )
-    private val _viewState = MutableStateFlow<BoardContentViewState>(boardContentViewState)
-    val viewState: StateFlow<BoardContentViewState> = _viewState.asStateFlow()
+    private val viewState: StateFlow<BoardContentViewState> = _viewState.asStateFlow()
 
     data class BoardContentViewState(
-        val boardEntity: BoardEntity,
-        val commentListEntity: CommentListEntity
+        val boardEntity: BoardEntity?,
+        val commentListEntity: CommentListEntity?
     )
 
     suspend fun loadBoardContent(
@@ -97,29 +93,32 @@ class BoardContentViewModel @Inject constructor(
         boardBookmarkLoadForm: BoardBookmarkLoadForm,
         boardLikeLoadForm: BoardLikeLoadForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm
-    ) {
-        kotlin.runCatching {
-            val boardEntity = loadBoardContentUseCase.invoke(
+    ): BoardContentViewState {
+        val result = kotlin.runCatching {
+            loadBoardContentUseCase.invoke(
                 boardLoadForm = boardLoadForm,
                 boardBookmarkLoadForm = boardBookmarkLoadForm,
                 boardLikeLoadForm = boardLikeLoadForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm
             )
-            _viewState.update { _ ->
-                viewState.value.copy(boardEntity = boardEntity)
-            }
         }.onFailure {
 
         }.getOrNull()
+
+        return result?.let {
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardEntity = it)
+            }
+        } ?: viewState.value
     }
 
     suspend fun addBoardContentBookmark(
         boardBookmarkAddForm: BoardBookmarkAddForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             addBoardContentBookmarkUseCase(
                 boardBookmarkAddForm = boardBookmarkAddForm,
-                boardEntity = viewState.value.boardEntity
+                boardEntity = viewState.value.boardEntity ?: error("")
             )
         }.onFailure {
 
@@ -133,11 +132,11 @@ class BoardContentViewModel @Inject constructor(
 
     suspend fun deleteBoardContentBookmark(
         boardBookmarkDeleteForm: BoardBookmarkDeleteForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             deleteBoardContentBookmarkUseCase(
                 boardBookmarkDeleteForm = boardBookmarkDeleteForm,
-                boardEntity = viewState.value.boardEntity
+                boardEntity = viewState.value.boardEntity ?: error("")
             )
         }.onFailure {
 
@@ -152,12 +151,12 @@ class BoardContentViewModel @Inject constructor(
     suspend fun addBoardContentLike(
         boardLikeAddForm: BoardLikeAddForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm,
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             addBoardContentLikeUseCase(
                 boardLikeAddForm = boardLikeAddForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
-                boardEntity = viewState.value.boardEntity
+                boardEntity = viewState.value.boardEntity ?: error("")
             )
         }.onFailure {
 
@@ -172,12 +171,12 @@ class BoardContentViewModel @Inject constructor(
     suspend fun deleteBoardContentLike(
         boardLikeDeleteForm: BoardLikeDeleteForm,
         boardLikeCountLoadForm: BoardLikeCountLoadForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             deleteBoardContentLikeUseCase(
                 boardLikeDeleteForm = boardLikeDeleteForm,
                 boardLikeCountLoadForm = boardLikeCountLoadForm,
-                boardEntity = viewState.value.boardEntity
+                boardEntity = viewState.value.boardEntity ?: error("")
             )
 
         }.onFailure {
@@ -206,14 +205,11 @@ class BoardContentViewModel @Inject constructor(
         val result = kotlin.runCatching {
             val commentListEntity =
                 loadCommentListUseCase(commentMetaListLoadForm = commentMetaListLoadForm)
-            if(commentListEntity.commentList.isEmpty()) Log.d("comment", "에러다")
-            commentListEntity.commentList.map {
-                Log.d("comment", "뷰모델 데이터 체크" + it.commentMetaEntity.content)
-            }
 
             when (commentMetaListLoadForm.reload) {
                 true -> commentListEntity.commentList
-                false -> viewState.value.commentListEntity.commentList + commentListEntity.commentList
+                false -> viewState.value.commentListEntity?.let { it.commentList + commentListEntity.commentList }
+                    ?: run { commentListEntity.commentList }
             }
         }.onFailure {
 
@@ -247,12 +243,12 @@ class BoardContentViewModel @Inject constructor(
     suspend fun addCommentLike(
         commentLikeAddForm: CommentLikeAddForm,
         commentLikeCountLoadForm: CommentLikeCountLoadForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             addCommentLikeUseCase(
                 commentLikeAddForm = commentLikeAddForm,
                 commentLikeCountLoadForm = commentLikeCountLoadForm,
-                commentListEntity = viewState.value.commentListEntity
+                commentListEntity = viewState.value.commentListEntity ?: error("")
             )
         }.onFailure {
 
@@ -267,12 +263,12 @@ class BoardContentViewModel @Inject constructor(
     suspend fun deleteCommentLike(
         commentLikeDeleteForm: CommentLikeDeleteForm,
         commentLikeCountLoadForm: CommentLikeCountLoadForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             deleteCommentLikeUseCase(
                 commentLikeDeleteForm = commentLikeDeleteForm,
                 commentLikeCountLoadForm = commentLikeCountLoadForm,
-                commentListEntity = _viewState.value.commentListEntity
+                commentListEntity = viewState.value.commentListEntity ?: error("")
             )
 
         }.onFailure {
@@ -287,11 +283,11 @@ class BoardContentViewModel @Inject constructor(
 
     suspend fun addCommentBookmark(
         commentBookmarkAddForm: CommentBookmarkAddForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             addCommentBookmarkUseCase(
                 commentBookmarkAddForm = commentBookmarkAddForm,
-                commentListEntity = viewState.value.commentListEntity
+                commentListEntity = viewState.value.commentListEntity ?: error("")
             )
         }.onFailure {
 
@@ -305,11 +301,11 @@ class BoardContentViewModel @Inject constructor(
 
     suspend fun deleteCommentBookmark(
         commentBookmarkDeleteForm: CommentBookmarkDeleteForm
-    ):BoardContentViewState {
+    ): BoardContentViewState {
         val result = kotlin.runCatching {
             deleteCommentBookmarkUseCase(
                 commentBookmarkDeleteForm = commentBookmarkDeleteForm,
-                commentListEntity = viewState.value.commentListEntity
+                commentListEntity = viewState.value.commentListEntity ?: error("")
             )
 
         }.onFailure {
