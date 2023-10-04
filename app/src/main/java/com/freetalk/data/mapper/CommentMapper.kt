@@ -19,7 +19,8 @@ fun CommentMetaResponse.toEntity(): CommentMetaEntity {
         content = content.orEmpty(),
         boardAuthorEmail = boardAuthorEmail.orEmpty(),
         boardCreateTime = boardCreateTime ?: Date(),
-        editTime = editTime ?: Date()
+        editTime = editTime ?: Date(),
+        isPage = isPage ?: false
     )
 }
 

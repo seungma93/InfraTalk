@@ -11,7 +11,8 @@ data class CommentMetaEntity(
     val images: ImagesResultEntity? = null,
     val boardAuthorEmail: String = "",
     val boardCreateTime: Date = Date(),
-    val editTime: Date? = null
+    val editTime: Date? = null,
+    val isPage: Boolean = false
 ) : Serializable {
     val commentPrimaryKey: String get() = author.email + createTime
 }
