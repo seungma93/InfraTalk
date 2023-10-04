@@ -30,6 +30,7 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikeLoadForm
+import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
@@ -320,6 +321,20 @@ class BoardContentFragment : Fragment() {
                     }
 
                 }
+            }
+
+            lyRefreshSwipe.setOnRefreshListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    kotlin.runCatching {
+                        val viewState = reloadBoardContent()
+                        commentAdapter.submitList(createListItem(viewState)) {
+                            binding.rvComment.scrollToPosition(0)
+                            hideProgressBar()
+                        }
+                    }
+                    lyRefreshSwipe.isRefreshing = false
+                }
+
             }
 
             //recyclerviewImage.adapter = boardContentImageAdapter
