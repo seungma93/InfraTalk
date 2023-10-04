@@ -328,50 +328,11 @@ class BoardContentFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
-            //TODO("뷰모델에 펑션으로 수정")
-            boardContentPrimaryKeyEntity.apply {
-                val asyncBoard = async {
-                    boardContentViewModel.loadBoardContent(
-                        boardLoadForm = BoardLoadForm(
-                            boardAuthorEmail = boardAuthorEmail,
-                            boardCreateTime = boardCreateTime
-                        ),
-                        boardBookmarkLoadForm = BoardBookmarkLoadForm(
-                            boardAuthorEmail = boardAuthorEmail,
-                            boardCreateTime = boardCreateTime
-                        ),
-                        boardLikeLoadForm = BoardLikeLoadForm(
-                            boardAuthorEmail = boardAuthorEmail,
-                            boardCreateTime = boardCreateTime
-                        ),
-                        boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                            boardAuthorEmail = boardAuthorEmail,
-                            boardCreateTime = boardCreateTime
-                        )
-                    )
-                }
-                val asyncComment = async {
-                    boardContentViewModel.loadCommentList(
-                        commentMetaListLoadForm = CommentMetaListLoadForm(
-                            boardAuthorEmail = boardAuthorEmail,
-                            boardCreateTime = boardCreateTime,
-                            reload = false
-                        )
-                    )
-                }
-                val boardViewState = asyncBoard.await()
-                val commentViewState = asyncComment.await()
-
-                val viewState = BoardContentViewModel.BoardContentViewState(
-                    boardEntity = boardViewState.boardEntity,
-                    commentListEntity = commentViewState.commentListEntity
-                )
-
+                val viewState = reloadBoardContent()
                 commentAdapter.submitList(createListItem(viewState)) {
                     binding.rvComment.scrollToPosition(0)
                     hideProgressBar()
                 }
-            }
         }
 
         initScrollListener()
@@ -390,12 +351,39 @@ class BoardContentFragment : Fragment() {
         }
     }
 
+    private suspend fun reloadBoardContent(): BoardContentViewModel.BoardContentViewState {
+        return boardContentPrimaryKeyEntity.let {
+            boardContentViewModel.loadBoardAndComment(
+                boardLoadForm = BoardLoadForm(
+                    boardAuthorEmail = it.boardAuthorEmail,
+                    boardCreateTime = it.boardCreateTime
+                ),
+                boardBookmarkLoadForm = BoardBookmarkLoadForm(
+                    boardAuthorEmail = it.boardAuthorEmail,
+                    boardCreateTime = it.boardCreateTime
+                ),
+                boardLikeLoadForm = BoardLikeLoadForm(
+                    boardAuthorEmail = it.boardAuthorEmail,
+                    boardCreateTime = it.boardCreateTime
+                ),
+                boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                    boardAuthorEmail = it.boardAuthorEmail,
+                    boardCreateTime = it.boardCreateTime
+                ),
+                commentMetaListLoadForm = CommentMetaListLoadForm(
+                    boardAuthorEmail = it.boardAuthorEmail,
+                    boardCreateTime = it.boardCreateTime,
+                    reload = true
+                )
+            )
+        }
+    }
+
     private fun initScrollListener() {
         binding.rvComment.addOnScrollListener(onCommentScrollListener)
     }
 
     private fun moreItems() {
-        Log.d("seungma", "moreItems 수행")
         showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch {
             val viewState = boardContentViewModel.loadCommentList(
