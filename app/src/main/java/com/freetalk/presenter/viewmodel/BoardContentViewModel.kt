@@ -44,6 +44,8 @@ import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
 import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -91,6 +93,52 @@ class BoardContentViewModel @Inject constructor(
         val commentListEntity: CommentListEntity?
     )
 
+    suspend fun loadBoardAndComment(
+        boardLoadForm: BoardLoadForm,
+        boardBookmarkLoadForm: BoardBookmarkLoadForm,
+        boardLikeLoadForm: BoardLikeLoadForm,
+        boardLikeCountLoadForm: BoardLikeCountLoadForm,
+        commentMetaListLoadForm: CommentMetaListLoadForm
+    ): BoardContentViewState = coroutineScope {
+        val result = kotlin.runCatching {
+
+            val asyncBoard = async {
+                loadBoardContentUseCase(
+                    boardLoadForm = boardLoadForm,
+                    boardBookmarkLoadForm = boardBookmarkLoadForm,
+                    boardLikeLoadForm = boardLikeLoadForm,
+                    boardLikeCountLoadForm = boardLikeCountLoadForm
+                )
+            }
+
+            val asyncComment =
+                async { loadCommentListUseCase(commentMetaListLoadForm = commentMetaListLoadForm) }
+
+            val boardEntity = asyncBoard.await()
+            val commentListEntity = asyncComment.await()
+
+            val commentList = when (commentMetaListLoadForm.reload) {
+                true -> commentListEntity.commentList
+                false -> viewState.value.commentListEntity?.let { it.commentList + commentListEntity.commentList }
+                    ?: run { commentListEntity.commentList }
+            }
+            Pair(boardEntity, commentList)
+        }.onFailure {
+
+        }.getOrNull()
+
+        result?.let {
+            val boardEntity = it.first
+            val commentList = it.second
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(
+                    boardEntity = boardEntity,
+                    commentListEntity = CommentListEntity(commentList = commentList)
+                )
+            }
+        } ?: viewState.value
+    }
+
     suspend fun loadBoardContent(
         boardLoadForm: BoardLoadForm,
         boardBookmarkLoadForm: BoardBookmarkLoadForm,
@@ -98,7 +146,7 @@ class BoardContentViewModel @Inject constructor(
         boardLikeCountLoadForm: BoardLikeCountLoadForm
     ): BoardContentViewState {
         val result = kotlin.runCatching {
-            loadBoardContentUseCase.invoke(
+            loadBoardContentUseCase(
                 boardLoadForm = boardLoadForm,
                 boardBookmarkLoadForm = boardBookmarkLoadForm,
                 boardLikeLoadForm = boardLikeLoadForm,
@@ -321,29 +369,29 @@ class BoardContentViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-        suspend fun deleteComment(
-            commentDeleteForm: CommentDeleteForm,
-            commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom,
-            commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm
-        ): BoardContentViewState {
-            val result = kotlin.runCatching {
-                deleteCommentUseCase(
-                    commentDeleteForm = commentDeleteForm,
-                    commentRelatedBookmarksDeleteForm = commentRelatedBookmarksDeleteForm,
-                    commentRelatedLikesDeleteForm = commentRelatedLikesDeleteForm,
-                    commentListEntity = viewState.value.commentListEntity ?: error("")
-                )
+    suspend fun deleteComment(
+        commentDeleteForm: CommentDeleteForm,
+        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom,
+        commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm
+    ): BoardContentViewState {
+        val result = kotlin.runCatching {
+            deleteCommentUseCase(
+                commentDeleteForm = commentDeleteForm,
+                commentRelatedBookmarksDeleteForm = commentRelatedBookmarksDeleteForm,
+                commentRelatedLikesDeleteForm = commentRelatedLikesDeleteForm,
+                commentListEntity = viewState.value.commentListEntity ?: error("")
+            )
 
-            }.onFailure {
-                Log.d("BoardViewModel", "북마크 딜리트 실패")
-            }.getOrNull()
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 딜리트 실패")
+        }.getOrNull()
 
-            return result?.let {
-                _viewState.updateAndGet { _->
-                    viewState.value.copy(commentListEntity = it)
-                }
-            } ?: viewState.value
-        }
+        return result?.let {
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(commentListEntity = it)
+            }
+        } ?: viewState.value
+    }
 
 
     fun getUserInfo(): UserEntity {
