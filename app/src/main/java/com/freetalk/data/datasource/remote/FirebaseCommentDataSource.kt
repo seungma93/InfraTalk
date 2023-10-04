@@ -104,7 +104,8 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                         },
                         boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
                         boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
-                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate(),
+                        isPage = snapshot.size() % 10 == 0
                     )
                 }.let {
                     CommentMetaListResponse(it)
@@ -147,7 +148,8 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                     },
                     boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
                     boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
-                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate(),
+                    isPage = snapshot.size() % 10 == 0
                 )
             }.let {
                 CommentMetaListResponse(it)

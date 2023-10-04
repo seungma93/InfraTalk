@@ -10,5 +10,6 @@ data class CommentMetaResponse(
     val images: ImagesResultEntity? = null,
     val boardAuthorEmail: String? = null,
     val boardCreateTime: Date? = null,
-    val editTime: Date? = null
+    val editTime: Date? = null,
+    val isPage: Boolean? = null,
 )

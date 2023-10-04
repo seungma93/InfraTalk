@@ -76,7 +76,10 @@ class BoardContentFragment : Fragment() {
     private val boardContentImageAdapter get() = _boardContentImageAdapter!!
     private var _commentAdapter: CommentListAdapter? = null
     private val commentAdapter get() = _commentAdapter!!
-    private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
+    private val onCommentScrollListener: OnCommentScrollListener = OnCommentScrollListener({
+        Log.d("seungma", "람다 전달")
+        moreItems()
+    }, {
         Toast.makeText(
             requireContext(),
             "마지막 페이지 입니다.",
@@ -185,7 +188,7 @@ class BoardContentFragment : Fragment() {
                     }
                 }
             },
-            commentDeleteClick = {commentEntity ->
+            commentDeleteClick = { commentEntity ->
                 commentEntity.apply {
                     viewLifecycleOwner.lifecycleScope.launch {
                         showProgressBar()
@@ -325,6 +328,7 @@ class BoardContentFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
+            //TODO("뷰모델에 펑션으로 수정")
             boardContentPrimaryKeyEntity.apply {
                 val asyncBoard = async {
                     boardContentViewModel.loadBoardContent(
@@ -357,6 +361,7 @@ class BoardContentFragment : Fragment() {
                 }
                 val boardViewState = asyncBoard.await()
                 val commentViewState = asyncComment.await()
+
                 val viewState = BoardContentViewModel.BoardContentViewState(
                     boardEntity = boardViewState.boardEntity,
                     commentListEntity = commentViewState.commentListEntity
@@ -386,10 +391,11 @@ class BoardContentFragment : Fragment() {
     }
 
     private fun initScrollListener() {
-        binding.rvComment.addOnScrollListener(onScrollListener)
+        binding.rvComment.addOnScrollListener(onCommentScrollListener)
     }
 
     private fun moreItems() {
+        Log.d("seungma", "moreItems 수행")
         showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch {
             val viewState = boardContentViewModel.loadCommentList(

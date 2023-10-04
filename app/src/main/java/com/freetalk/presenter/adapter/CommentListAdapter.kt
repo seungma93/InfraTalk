@@ -113,6 +113,9 @@ class CommentListAdapter(
         }
     }
 
+    fun getItemAt(position: Int): ListItem {
+        return getItem(position)
+    }
 }
 
 
