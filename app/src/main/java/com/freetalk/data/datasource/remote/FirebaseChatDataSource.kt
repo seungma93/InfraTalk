@@ -10,11 +10,13 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
+import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
 import com.freetalk.domain.entity.ImagesResultEntity
 import com.freetalk.domain.entity.UserEntity
@@ -33,6 +35,7 @@ import javax.inject.Inject
 
 interface ChatDataSource {
     suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse
+    suspend fun checkChatRoom(chatRoomCheckRequest: ChatRoomCheckRequest): ChatRoomCheckResponse
 }
 
 
@@ -40,7 +43,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val userDataSource: UserDataSource
 ) : ChatDataSource {
-    private var lastDocument: DocumentSnapshot? = null
 
     override suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse {
         return kotlin.runCatching {
@@ -57,5 +59,30 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             throw FailInsertException("인서트에 실패 했습니다")
         }.getOrThrow()
     }
+
+    override suspend fun checkChatRoom(chatRoomCheckRequest: ChatRoomCheckRequest): ChatRoomCheckResponse =
+        with(chatRoomCheckRequest) {
+            return kotlin.runCatching {
+
+                val snapshot = database.collection("ChatRoom")
+                    .whereArrayContains("member", chatRoomCheckRequest.member)
+                    .get().await()
+
+                snapshot.documents.firstOrNull()?.let {
+                    ChatRoomCheckResponse(
+                        member = chatRoomCheckRequest.member,
+                        isChatRoom = true
+                    )
+                } ?: run {
+                    ChatRoomCheckResponse(
+                        member = chatRoomCheckRequest.member,
+                        isChatRoom = false
+                    )
+                }
+            }.onFailure {
+                throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+            }.getOrThrow()
+
+        }
 
 }
