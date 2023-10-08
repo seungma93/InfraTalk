@@ -60,7 +60,7 @@ class ChatDataRepositoryImpl @Inject constructor(
             ).toEntity()
         }
 
-    suspend fun checkChatRoom(chatRoomCheckForm: ChatRoomCheckForm): ChatRoomCheckEntity {
+    override suspend fun checkChatRoom(chatRoomCheckForm: ChatRoomCheckForm): ChatRoomCheckEntity {
         return chatDataSource.checkChatRoom(
             chatRoomCheckRequest = ChatRoomCheckRequest(
                 member = chatRoomCheckForm.member
