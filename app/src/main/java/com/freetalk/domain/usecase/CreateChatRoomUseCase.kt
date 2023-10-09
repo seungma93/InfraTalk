@@ -1,5 +1,6 @@
 package com.freetalk.domain.usecase
 
+import android.util.Log
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardListEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity

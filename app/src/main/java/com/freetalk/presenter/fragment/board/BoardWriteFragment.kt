@@ -227,6 +227,7 @@ class BoardWriteFragment : Fragment() {
                             ).show()
                         }
                     }
+                    else -> {}
                 }
             }
         }
