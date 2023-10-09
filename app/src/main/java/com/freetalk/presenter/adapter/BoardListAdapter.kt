@@ -15,13 +15,14 @@ import com.freetalk.domain.entity.BoardMetaEntity
 class BoardListAdapter(
     private val itemClick: (BoardMetaEntity) -> Unit,
     private val bookmarkClick: (BoardEntity) -> Unit,
-    private val likeClick: (BoardEntity) -> Unit
+    private val likeClick: (BoardEntity) -> Unit,
+    private val chatClick: (BoardMetaEntity) -> Unit,
 ) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, chatClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,7 +33,8 @@ class BoardListAdapter(
         private val binding: BoardListItemBinding,
         private val itemClick: (BoardMetaEntity) -> Unit,
         private val bookmarkClick: (BoardEntity) -> Unit,
-        private val likeClick: (BoardEntity) -> Unit
+        private val likeClick: (BoardEntity) -> Unit,
+        private val chatClick: (BoardMetaEntity) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var boardEntity: BoardEntity? = null
@@ -56,6 +58,11 @@ class BoardListAdapter(
                     btnLike.isEnabled = false
                     boardEntity?.let {
                         likeClick(it)
+                    }
+                }
+                btnChat.setOnClickListener {
+                    boardEntity?.let {
+                        chatClick(it.boardMetaEntity)
                     }
                 }
             }

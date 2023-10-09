@@ -6,11 +6,13 @@ import com.freetalk.domain.entity.BoardListEntity
 import com.freetalk.domain.entity.BoardWriteEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatStartEntity
+import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
 import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
+import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.WriteBoardContentUseCase
@@ -47,7 +49,8 @@ class BoardViewModel @Inject constructor(
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-    private val createChatRoomUseCase: CreateChatRoomUseCase
+    private val createChatRoomUseCase: CreateChatRoomUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -228,5 +231,9 @@ class BoardViewModel @Inject constructor(
         }.onFailure {
             _viewEvent.emit(BoardViewEvent.Error(it))
         }
+    }
+
+    fun getUserInfo(): UserEntity {
+        return getUserInfoUseCase()
     }
 }
