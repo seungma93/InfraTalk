@@ -65,20 +65,16 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             return kotlin.runCatching {
 
                 val snapshot = database.collection("ChatRoom")
-                    .whereArrayContains("member", chatRoomCheckRequest.member)
+                    .whereArrayContains("member", member[0])
                     .get().await()
 
-                snapshot.documents.firstOrNull()?.let {
-                    ChatRoomCheckResponse(
-                        member = chatRoomCheckRequest.member,
-                        isChatRoom = true
-                    )
-                } ?: run {
-                    ChatRoomCheckResponse(
-                        member = chatRoomCheckRequest.member,
-                        isChatRoom = false
-                    )
-                }
+                ChatRoomCheckResponse(
+                    member = chatRoomCheckRequest.member,
+                    isChatRoom = snapshot.documents.mapNotNull {
+                        it.data?.get("member") as? List<String>
+                    }.any { it.contains(member[1]) }
+                )
+
             }.onFailure {
                 throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
             }.getOrThrow()

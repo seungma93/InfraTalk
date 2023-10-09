@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.freetalk.data.datasource.remote.BoardDataSource
 import com.freetalk.data.datasource.remote.BookmarkDataSource
+import com.freetalk.data.datasource.remote.ChatDataSource
 import com.freetalk.data.datasource.remote.CommentDataSource
 import com.freetalk.data.datasource.remote.FirebaseBoardRemoteDataSourceImpl
 import com.freetalk.data.datasource.remote.FirebaseBookmarkRemoteDataSourceImpl
+import com.freetalk.data.datasource.remote.FirebaseChatRemoteDataSourceImpl
 import com.freetalk.data.datasource.remote.FirebaseCommentRemoteDataSourceImpl
 import com.freetalk.data.datasource.remote.FirebaseImageRemoteDataSourceImpl
 import com.freetalk.data.datasource.remote.FirebaseLikeRemoteDataSourceImpl
@@ -20,6 +22,8 @@ import com.freetalk.domain.repository.BookmarkDataRepository
 import com.freetalk.domain.repository.BookmarkDataRepositoryImpl
 import com.freetalk.domain.repository.CommentDataRepository
 import com.freetalk.data.repository.CommentDataRepositoryImpl
+import com.freetalk.domain.repository.ChatDataRepository
+import com.freetalk.domain.repository.ChatDataRepositoryImpl
 import com.freetalk.domain.repository.ImageDataRepository
 import com.freetalk.domain.repository.ImageDataRepositoryImpl
 import com.freetalk.domain.repository.LikeDataRepository
@@ -32,6 +36,7 @@ import com.freetalk.domain.usecase.AddBoardContentLikeUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
 import com.freetalk.domain.usecase.AddCommentBookmarkUseCase
 import com.freetalk.domain.usecase.AddCommentLikeUseCase
+import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardContentBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardContentLikeUseCase
@@ -79,6 +84,7 @@ import dagger.multibindings.IntoMap
 
 class Modules {
 
+    // Firebase
     @Module
     class FirebaseAuthModule {
         @Provides
@@ -103,6 +109,7 @@ class Modules {
         }
     }
 
+    // DataSource
     @Module
     class FirebaseBoardDataSourceModule {
         @Provides
@@ -162,6 +169,17 @@ class Modules {
     }
 
     @Module
+    class FirebaseChatDataSourceModule {
+        @Provides
+        fun providesFirebaseChatRemoteDataSource(
+            database: FirebaseFirestore
+        ): ChatDataSource {
+            return FirebaseChatRemoteDataSourceImpl(database)
+        }
+    }
+
+    // Repository
+    @Module
     class BoardDataRepositoryModule {
         @Provides
         fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
@@ -211,6 +229,18 @@ class Modules {
         }
     }
 
+    @Module
+    class ChatDataRepositoryModule {
+        @Provides
+        fun providesChatDataRepository(
+            chatDataSource: ChatDataSource,
+            userDataSource: UserDataSource
+        ): ChatDataRepository {
+            return ChatDataRepositoryImpl(chatDataSource, userDataSource)
+        }
+    }
+
+    // UseCase
     @Module
     class LogInUseCaseModule {
         @Provides
@@ -491,6 +521,31 @@ class Modules {
     }
 
     @Module
+    class CreateChatRoomUseCaseModule {
+        @Provides
+        fun providesCreateChatRoomUseCase(
+            chatDataRepository: ChatDataRepository
+        ): CreateChatRoomUseCase {
+            return CreateChatRoomUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
+    @Module
+    class GetUserInfoUseCaseModule {
+        @Provides
+        fun providesGetUserInfoUseCase(
+            userDataRepository: UserDataRepository
+        ): GetUserInfoUseCase {
+            return GetUserInfoUseCase(
+                userDataRepository
+            )
+        }
+    }
+
+    // ViewModel
+    @Module
     abstract class ViewModelFactoryModule {
         @Binds
         abstract fun bindViewModelFactory(viewModelFactory: ViewModelFactory): ViewModelProvider.Factory
@@ -508,7 +563,9 @@ class Modules {
             addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
-            deleteBoardLikeUseCase: DeleteBoardLikeUseCase
+            deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
+            createChatRoomUseCase: CreateChatRoomUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
         ): ViewModel {
             return BoardViewModel(
                 writeBoardContentUseCase,
@@ -517,7 +574,9 @@ class Modules {
                 addBoardBookmarkUseCase,
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
-                deleteBoardLikeUseCase
+                deleteBoardLikeUseCase,
+                createChatRoomUseCase,
+                getUserInfoUseCase
             )
         }
     }

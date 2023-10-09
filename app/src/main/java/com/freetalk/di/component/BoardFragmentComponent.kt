@@ -10,21 +10,27 @@ import dagger.Component
 
 @Component(
     modules = [
+        // Firebase
         Modules.FirebaseFirestoreModule::class,
         Modules.FirebaseStorageModule::class,
         Modules.FirebaseAuthModule::class,
+        // DataSource
         Modules.FirebaseBoardDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
         Modules.FirebaseUserDataSourceModule::class,
         Modules.FirebaseLikeDataSourceModule::class,
         Modules.FirebaseBookmarkDataSourceModule::class,
         Modules.FirebaseCommentDataSourceModule::class,
+        Modules.FirebaseChatDataSourceModule::class,
+        // Repository
         Modules.BoardDataRepositoryModule::class,
         Modules.UserDataRepositoryModule::class,
         Modules.ImageDataRepositoryModule::class,
         Modules.LikeDataRepositoryModule::class,
         Modules.BookmarkDataRepositoryModule::class,
         Modules.CommentDataRepositoryModule::class,
+        Modules.ChatDataRepositoryModule::class,
+        // UseCase
         Modules.WriteContentUseCaseModule::class,
         Modules.UploadImagesUseCaseModule::class,
         Modules.UpdateBoardContentUseCaseModule::class,
@@ -42,6 +48,9 @@ import dagger.Component
         Modules.BoardContentViewModelModule::class,
         Modules.WriteCommentUesCaseModule::class,
         Modules.DeleteCommentUseCaseModule::class,
+        Modules.CreateChatRoomUseCaseModule::class,
+        Modules.GetUserInfoUseCaseModule::class,
+        // ViewModel
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
