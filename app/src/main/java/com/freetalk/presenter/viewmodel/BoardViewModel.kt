@@ -4,8 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.freetalk.domain.entity.BoardListEntity
 import com.freetalk.domain.entity.BoardWriteEntity
+import com.freetalk.domain.entity.ChatRoomCheckEntity
+import com.freetalk.domain.entity.ChatStartEntity
 import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
+import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
@@ -19,6 +22,8 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
+import com.freetalk.presenter.form.ChatRoomCheckForm
+import com.freetalk.presenter.form.ChatRoomCreateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,6 +34,8 @@ import javax.inject.Inject
 
 sealed class BoardViewEvent {
     data class Register(val boardWriteEntity: BoardWriteEntity) : BoardViewEvent()
+
+    data class ChatStart(val chatStartEntity: ChatStartEntity) : BoardViewEvent()
     data class Error(val errorCode: Throwable) : BoardViewEvent()
 }
 
@@ -39,7 +46,8 @@ class BoardViewModel @Inject constructor(
     private val addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
-    private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase
+    private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
+    private val createChatRoomUseCase: CreateChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -155,7 +163,7 @@ class BoardViewModel @Inject constructor(
 
     suspend fun addBookMark(
         boardBookmarkAddForm: BoardBookmarkAddForm
-    ):BoardViewState {
+    ): BoardViewState {
         val result = kotlin.runCatching {
             addBoardBookmarkUseCase(
                 boardBookmarkAddForm = boardBookmarkAddForm,
@@ -174,7 +182,7 @@ class BoardViewModel @Inject constructor(
 
     suspend fun deleteBookMark(
         boardBookmarkDeleteForm: BoardBookmarkDeleteForm
-    ):BoardViewState {
+    ): BoardViewState {
         val result = kotlin.runCatching {
             deleteBoardBookmarkUseCase(
                 boardBookmarkDeleteForm = boardBookmarkDeleteForm,
@@ -188,5 +196,37 @@ class BoardViewModel @Inject constructor(
                 _viewState.value = this
             }
         } ?: viewState.value
+    }
+
+    suspend fun startChat(
+        chatRoomCreateForm: ChatRoomCreateForm,
+        chatRoomCheckForm: ChatRoomCheckForm
+    ) {
+        kotlin.runCatching {
+            val chatRoomCreateEntity = createChatRoomUseCase(
+                chatRoomCreateForm = chatRoomCreateForm,
+                chatRoomCheckForm = chatRoomCheckForm
+            )
+
+            when (chatRoomCreateEntity.isSuccess) {
+                true -> _viewEvent.emit(
+                    BoardViewEvent.ChatStart(
+                        chatStartEntity = ChatStartEntity(
+                            isSuccess = true
+                        )
+                    )
+                )
+                false -> _viewEvent.emit(
+                    BoardViewEvent.ChatStart(
+                        chatStartEntity = ChatStartEntity(
+                            isSuccess = false
+                        )
+                    )
+                )
+            }
+
+        }.onFailure {
+            _viewEvent.emit(BoardViewEvent.Error(it))
+        }
     }
 }

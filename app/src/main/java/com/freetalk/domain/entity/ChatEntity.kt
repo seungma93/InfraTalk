@@ -9,3 +9,7 @@ data class ChatRoomCheckEntity(
     val member: List<String>,
     val isChatRoom: Boolean
 )
+
+data class ChatStartEntity(
+    val isSuccess: Boolean
+)
