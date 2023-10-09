@@ -27,8 +27,11 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
+import com.freetalk.presenter.form.ChatRoomCheckForm
+import com.freetalk.presenter.form.ChatRoomCreateForm
 import com.freetalk.presenter.fragment.ChildFragmentNavigable
 import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
+import com.freetalk.presenter.viewmodel.BoardViewEvent
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -147,6 +150,15 @@ class BoardFragment : Fragment() {
                         }
                     }
                 }
+            },
+            chatClick = { boardMetaEntity ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val member = listOf(boardViewModel.getUserInfo().email, boardMetaEntity.author.email)
+                    boardViewModel.startChat(
+                        chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                        chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                    )
+                }
             }
         )
 
@@ -175,14 +187,23 @@ class BoardFragment : Fragment() {
             recyclerviewBoardList.adapter = adapter
             recyclerviewBoardList.itemAnimator = null
         }
+        subscribe()
         loadBoardList()
         initScrollListener()
     }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
-            boardViewModel.viewState.collect {
-                adapter.submitList(it.boardListEntity.boardList)
+            boardViewModel.viewEvent.collect {
+                when(it) {
+                    is BoardViewEvent.ChatStart -> {
+                        when(it.chatStartEntity.isSuccess) {
+                            true -> Log.d("seungma", "채팅방 생성 성공")
+                            false -> Log.d("seungma", "채팅방 생성 실패")
+                        }
+                    }
+                    else -> {}
+                }
             }
         }
     }
