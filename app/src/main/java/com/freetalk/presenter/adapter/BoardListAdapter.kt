@@ -2,6 +2,7 @@ package com.freetalk.presenter.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.freetalk.databinding.BoardListItemBinding
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardMetaEntity
+import com.freetalk.domain.entity.UserEntity
 
 
 class BoardListAdapter(
@@ -17,12 +19,13 @@ class BoardListAdapter(
     private val bookmarkClick: (BoardEntity) -> Unit,
     private val likeClick: (BoardEntity) -> Unit,
     private val chatClick: (BoardMetaEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, chatClick)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, chatClick, userEntity)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -34,7 +37,8 @@ class BoardListAdapter(
         private val itemClick: (BoardMetaEntity) -> Unit,
         private val bookmarkClick: (BoardEntity) -> Unit,
         private val likeClick: (BoardEntity) -> Unit,
-        private val chatClick: (BoardMetaEntity) -> Unit
+        private val chatClick: (BoardMetaEntity) -> Unit,
+        private val userEntity: UserEntity
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var boardEntity: BoardEntity? = null
@@ -87,6 +91,10 @@ class BoardListAdapter(
                         .into(ivSingleImage)
 
                      */
+                    btnChat.visibility = when ( userEntity.email != it.boardMetaEntity.author.email) {
+                        true -> View.VISIBLE
+                        else -> View.GONE
+                    }
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
                 }
