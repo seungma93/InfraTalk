@@ -159,7 +159,8 @@ class BoardFragment : Fragment() {
                         chatRoomCheckForm = ChatRoomCheckForm(member = member)
                     )
                 }
-            }
+            },
+            userEntity = boardViewModel.getUserInfo()
         )
 
         binding.apply {
