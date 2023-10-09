@@ -40,15 +40,15 @@ interface ChatDataSource {
 
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
-    private val database: FirebaseFirestore,
-    private val userDataSource: UserDataSource
+    private val database: FirebaseFirestore
 ) : ChatDataSource {
 
     override suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse {
         return kotlin.runCatching {
-            val createTime = chatRoomCreateRequest.createTime
+            chatRoomCreateRequest.createTime
             database.collection("ChatRoom")
-                .add(chatRoomCreateRequest)
+                .document(chatRoomCreateRequest.member.joinToString(separator = "|"))
+                .set(chatRoomCreateRequest)
                 .await()
 
             ChatRoomCreateResponse(
