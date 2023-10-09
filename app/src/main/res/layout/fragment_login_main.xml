@@ -31,6 +31,7 @@
         android:layout_height="70dp"
         android:layout_margin="4dp"
         android:hint="@string/shr_hint_email"
+        style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toTopOf="@id/guideline_top"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
 
@@ -47,6 +48,7 @@
         android:layout_height="70dp"
         android:layout_margin="4dp"
         android:hint="@string/shr_hint_password"
+        style="@style/Widget.FreeTalk.TextInputLayout"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@+id/email_text_input"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left"
@@ -60,6 +62,7 @@
 
     <Button
         android:id="@+id/btn_login"
+        style="@style/Widget.FreeTalk.Button"
         android:layout_width="230dp"
         android:layout_height="50dp"
         android:text="로그인"
@@ -68,8 +71,22 @@
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@+id/password_text_input"
         />
+
+    <Button
+        android:id="@+id/btn_test"
+        style="@style/Widget.FreeTalk.Button"
+        android:layout_width="230dp"
+        android:layout_height="50dp"
+        android:text="테스트"
+        android:textSize="20dp"
+        app:layout_constraintLeft_toRightOf="@+id/guideline_left"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/btn_login"
+        />
+
     <Button
         android:id="@+id/btn_sign_up"
+        style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="110dp"
         android:layout_height="40dp"
         android:text="회원가입"
@@ -80,6 +97,7 @@
 
     <Button
         android:id="@+id/btn_find_account"
+        style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="110dp"
         android:layout_height="40dp"
         android:text="계정찾기"
@@ -88,5 +106,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="30dp"
         />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
