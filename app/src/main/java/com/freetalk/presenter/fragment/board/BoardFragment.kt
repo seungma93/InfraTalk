@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.freetalk.databinding.FragmentBoardBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
+import com.freetalk.domain.entity.ChatPartnerEntity
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
@@ -199,7 +200,14 @@ class BoardFragment : Fragment() {
                 when(it) {
                     is BoardViewEvent.ChatStart -> {
                         when(it.chatStartEntity.isSuccess) {
-                            true -> Log.d("seungma", "채팅방 생성 성공")
+                            true -> { Log.d("seungma", "채팅방 생성 성공")
+                                val endPoint = EndPoint.ChatRoom(
+                                    chatPartnerEntity = ChatPartnerEntity(
+                                        partnerEmail = it.chatStartEntity.chatPartner,
+                                    )
+                                )
+                                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                            }
                             false -> Log.d("seungma", "채팅방 생성 실패")
                         }
                     }
