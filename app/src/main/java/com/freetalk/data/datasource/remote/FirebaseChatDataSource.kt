@@ -1,35 +1,15 @@
 package com.freetalk.data.datasource.remote
 
-import android.net.Uri
-import android.util.Log
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.FailSelectBoardContentException
-import com.freetalk.data.FailSelectException
-import com.freetalk.data.FailUpdatetException
-import com.freetalk.data.model.request.BoardInsertRequest
-import com.freetalk.data.model.request.BoardMetaListSelectRequest
-import com.freetalk.data.model.request.BoardSelectRequest
-import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
-import com.freetalk.data.model.request.UserSelectRequest
-import com.freetalk.data.model.response.BoardInsertResponse
-import com.freetalk.data.model.response.BoardMetaListResponse
-import com.freetalk.data.model.response.BoardMetaResponse
+import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
-import com.freetalk.domain.entity.ImagesResultEntity
-import com.freetalk.domain.entity.UserEntity
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
-import toEntity
-import java.util.Date
 import javax.inject.Inject
 
 
@@ -79,6 +59,27 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
             }.getOrThrow()
 
+        }
+
+    suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse =
+        with(chatMessageSendRequest) {
+            kotlin.runCatching {
+                val sendTime = sendTime
+                database.collection("ChatRoom")
+                    .document(chatRoomId).collection("Chat")
+                    .add(this)
+                    .await()
+
+                ChatMessageSendResponse(
+                    senderEmail = senderEmail,
+                    sendTime = sendTime,
+                    content = content,
+                    isSuccess = true
+                )
+
+            }.onFailure {
+
+            }.getOrThrow()
         }
 
 }
