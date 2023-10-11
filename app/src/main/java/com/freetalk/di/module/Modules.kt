@@ -36,6 +36,7 @@ import com.freetalk.domain.usecase.AddBoardContentLikeUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
 import com.freetalk.domain.usecase.AddCommentBookmarkUseCase
 import com.freetalk.domain.usecase.AddCommentLikeUseCase
+import com.freetalk.domain.usecase.CheckChatRoomUseCase
 import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardContentBookmarkUseCase
@@ -544,6 +545,18 @@ class Modules {
         }
     }
 
+    @Module
+    class CheckChatRoomUseCaseModule {
+        @Provides
+        fun providesCheckChatRoomUseCase(
+            chatDataRepository: ChatDataRepository
+        ): CheckChatRoomUseCase {
+            return CheckChatRoomUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -565,7 +578,8 @@ class Modules {
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserInfoUseCase: GetUserInfoUseCase,
+            checkChatRoomUseCase: CheckChatRoomUseCase
         ): ViewModel {
             return BoardViewModel(
                 writeBoardContentUseCase,
@@ -576,7 +590,8 @@ class Modules {
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
                 createChatRoomUseCase,
-                getUserInfoUseCase
+                getUserInfoUseCase,
+                checkChatRoomUseCase
             )
         }
     }

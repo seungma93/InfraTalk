@@ -200,7 +200,7 @@ class BoardFragment : Fragment() {
                 when(it) {
                     is BoardViewEvent.ChatStart -> {
                         when(it.chatStartEntity.isSuccess) {
-                            true -> { Log.d("seungma", "채팅방 생성 성공")
+                            true -> { Log.d("seungma", "채팅 시작 성공")
                                 val endPoint = EndPoint.ChatRoom(
                                     chatPartnerEntity = ChatPartnerEntity(
                                         partnerEmail = it.chatStartEntity.chatPartner,
@@ -208,7 +208,7 @@ class BoardFragment : Fragment() {
                                 )
                                 (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                             }
-                            false -> Log.d("seungma", "채팅방 생성 실패")
+                            false -> Log.d("seungma", "채팅방 시작 실패")
                         }
                     }
                     else -> {}
