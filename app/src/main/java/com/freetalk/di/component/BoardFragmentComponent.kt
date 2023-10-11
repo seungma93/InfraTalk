@@ -50,6 +50,7 @@ import dagger.Component
         Modules.DeleteCommentUseCaseModule::class,
         Modules.CreateChatRoomUseCaseModule::class,
         Modules.GetUserInfoUseCaseModule::class,
+        Modules.CheckChatRoomUseCaseModule::class,
         // ViewModel
         Modules.BoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class

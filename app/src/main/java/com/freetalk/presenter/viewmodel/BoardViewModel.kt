@@ -9,6 +9,7 @@ import com.freetalk.domain.entity.ChatStartEntity
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
 import com.freetalk.domain.usecase.AddBoardLikeUseCase
+import com.freetalk.domain.usecase.CheckChatRoomUseCase
 import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
@@ -50,7 +51,8 @@ class BoardViewModel @Inject constructor(
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
     private val createChatRoomUseCase: CreateChatRoomUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val checkChatRoomUseCase: CheckChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -206,28 +208,43 @@ class BoardViewModel @Inject constructor(
         chatRoomCheckForm: ChatRoomCheckForm
     ) {
         kotlin.runCatching {
-            val chatRoomCreateEntity = createChatRoomUseCase(
-                chatRoomCreateForm = chatRoomCreateForm,
-                chatRoomCheckForm = chatRoomCheckForm
-            )
 
-            when (chatRoomCreateEntity.isSuccess) {
-                true -> _viewEvent.emit(
-                    BoardViewEvent.ChatStart(
-                        chatStartEntity = ChatStartEntity(
-                            chatPartner = chatRoomCheckForm.member[1],
-                            isSuccess = true
+            val chatRoomCheckEntity = checkChatRoomUseCase(chatRoomCheckForm = chatRoomCheckForm)
+
+            when(chatRoomCheckEntity.isChatRoom) {
+                true -> {
+                    _viewEvent.emit(
+                        BoardViewEvent.ChatStart(
+                            chatStartEntity = ChatStartEntity(
+                                chatPartner = chatRoomCheckForm.member[1],
+                                isSuccess = true
+                            )
                         )
                     )
-                )
-                false -> _viewEvent.emit(
-                    BoardViewEvent.ChatStart(
-                        chatStartEntity = ChatStartEntity(
-                            chatPartner = chatRoomCheckForm.member[1],
-                            isSuccess = false
+                }
+
+                false -> {
+                    val chatRoomCreateEntity = createChatRoomUseCase(chatRoomCreateForm = chatRoomCreateForm)
+
+                    when (chatRoomCreateEntity.isSuccess) {
+                        true -> _viewEvent.emit(
+                            BoardViewEvent.ChatStart(
+                                chatStartEntity = ChatStartEntity(
+                                    chatPartner = chatRoomCheckForm.member[1],
+                                    isSuccess = true
+                                )
+                            )
                         )
-                    )
-                )
+                        false -> _viewEvent.emit(
+                            BoardViewEvent.ChatStart(
+                                chatStartEntity = ChatStartEntity(
+                                    chatPartner = chatRoomCheckForm.member[1],
+                                    isSuccess = false
+                                )
+                            )
+                        )
+                    }
+                }
             }
 
         }.onFailure {
