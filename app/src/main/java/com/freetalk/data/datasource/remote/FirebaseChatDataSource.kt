@@ -1,5 +1,6 @@
 package com.freetalk.data.datasource.remote
 
+import android.util.Log
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.FailSelectBoardContentException
 import com.freetalk.data.model.request.ChatMessageSendRequest
@@ -16,6 +17,7 @@ import javax.inject.Inject
 interface ChatDataSource {
     suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse
     suspend fun checkChatRoom(chatRoomCheckRequest: ChatRoomCheckRequest): ChatRoomCheckResponse
+    suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse
 }
 
 
@@ -26,13 +28,13 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     override suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse {
         return kotlin.runCatching {
             chatRoomCreateRequest.createTime
-            database.collection("ChatRoom")
-                .document(chatRoomCreateRequest.member.joinToString(separator = "|"))
-                .set(chatRoomCreateRequest)
+            val snapshot = database.collection("ChatRoom")
+                .add(chatRoomCreateRequest)
                 .await()
 
             ChatRoomCreateResponse(
                 member = chatRoomCreateRequest.member,
+                chatRoomId = snapshot.id ,
                 isSuccess = true
             )
         }.onFailure {
@@ -48,11 +50,17 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     .whereArrayContains("member", member[0])
                     .get().await()
 
+                val documentId = snapshot.documents.map { documentSnapshot ->
+                    val list = documentSnapshot.data?.get("member") as? List<String>
+                    list?.let {
+                        if(it.contains(member[1])) documentSnapshot.id else null
+                    }
+                }.find { it != null }
+
                 ChatRoomCheckResponse(
                     member = chatRoomCheckRequest.member,
-                    isChatRoom = snapshot.documents.mapNotNull {
-                        it.data?.get("member") as? List<String>
-                    }.any { it.contains(member[1]) }
+                    chatRoomId = documentId,
+                    isChatRoom = documentId != null
                 )
 
             }.onFailure {
@@ -61,7 +69,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
         }
 
-    suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse =
+    override suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse =
         with(chatMessageSendRequest) {
             kotlin.runCatching {
                 val sendTime = sendTime

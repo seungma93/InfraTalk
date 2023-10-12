@@ -217,6 +217,7 @@ class BoardViewModel @Inject constructor(
                         BoardViewEvent.ChatStart(
                             chatStartEntity = ChatStartEntity(
                                 chatPartner = chatRoomCheckForm.member[1],
+                                chatRoomId = chatRoomCheckEntity.chatRoomId,
                                 isSuccess = true
                             )
                         )
@@ -231,6 +232,7 @@ class BoardViewModel @Inject constructor(
                             BoardViewEvent.ChatStart(
                                 chatStartEntity = ChatStartEntity(
                                     chatPartner = chatRoomCheckForm.member[1],
+                                    chatRoomId = chatRoomCreateEntity.chatRoomId,
                                     isSuccess = true
                                 )
                             )
@@ -239,6 +241,7 @@ class BoardViewModel @Inject constructor(
                             BoardViewEvent.ChatStart(
                                 chatStartEntity = ChatStartEntity(
                                     chatPartner = chatRoomCheckForm.member[1],
+                                    chatRoomId = null,
                                     isSuccess = false
                                 )
                             )

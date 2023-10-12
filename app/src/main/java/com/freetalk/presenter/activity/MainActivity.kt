@@ -1,32 +1,24 @@
 package com.freetalk.presenter.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.freetalk.R
-import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.databinding.ActivityMainBinding
 import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
-import com.freetalk.domain.entity.ChatPartnerEntity
-import com.freetalk.presenter.fragment.*
+import com.freetalk.domain.entity.ChatPrimaryKeyEntity
+import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.fragment.board.BoardContentFragment
+import com.freetalk.presenter.fragment.chat.ChatRoomFragment
 import com.freetalk.presenter.fragment.sign.LoginMainFragment
 import com.freetalk.presenter.fragment.sign.SignUpFragment
-import com.freetalk.presenter.fragment.board.BoardFragment
-import com.freetalk.presenter.fragment.board.BoardWriteFragment
-import com.freetalk.presenter.fragment.chat.ChatFragment
-import com.freetalk.presenter.fragment.chat.ChatRoomFragment
-import com.freetalk.presenter.fragment.home.HomeFragment
-import com.freetalk.presenter.fragment.mypage.MyPageFragment
 
 sealed class EndPoint {
     object LoginMain : EndPoint()
     object SignUp : EndPoint()
     object Main: EndPoint()
     data class BoardContent(val boardContentPrimaryKeyEntity: BoardContentPrimaryKeyEntity): EndPoint()
-    data class ChatRoom(val chatPartnerEntity: ChatPartnerEntity): EndPoint()
+    data class ChatRoom(val chatPrimaryKeyEntity: ChatPrimaryKeyEntity): EndPoint()
     object Error : EndPoint()
 }
 
@@ -80,7 +72,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
                     setFragment(fragment, R.id.activity_frame_layout, true)
                 }
                 is EndPoint.ChatRoom -> {
-                    val fragment = ChatRoomFragment.newInstance(endPoint.chatPartnerEntity)
+                    val fragment = ChatRoomFragment.newInstance(endPoint.chatPrimaryKeyEntity)
                     setFragment(fragment, R.id.activity_frame_layout, true)
                 }
                 is EndPoint.Error -> {

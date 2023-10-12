@@ -8,6 +8,7 @@ import com.freetalk.domain.entity.ChatRoomCreateEntity
 fun ChatRoomCreateResponse.toEntity(): ChatRoomCreateEntity {
     return ChatRoomCreateEntity(
         member = member.orEmpty(),
+        chatRoomId = chatRoomId.orEmpty(),
         isSuccess = isSuccess ?: false
     )
 }
@@ -15,6 +16,7 @@ fun ChatRoomCreateResponse.toEntity(): ChatRoomCreateEntity {
 fun ChatRoomCheckResponse.toEntity(): ChatRoomCheckEntity {
     return ChatRoomCheckEntity(
         member = member.orEmpty(),
+        chatRoomId = chatRoomId.orEmpty(),
         isChatRoom = isChatRoom ?: false
     )
 }
