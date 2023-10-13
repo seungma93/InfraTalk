@@ -1,6 +1,7 @@
 package com.freetalk.domain.entity
 
 import java.io.Serializable
+import java.util.Date
 
 data class ChatRoomCreateEntity(
     val member: List<String>,
@@ -24,3 +25,10 @@ data class ChatPrimaryKeyEntity(
     val partnerEmail: String,
     val chatRoomId: String
 ): Serializable
+
+data class ChatMessageSendEntity(
+    val senderEmail: String,
+    val sendTime: Date,
+    val content: String,
+    val isSuccess: Boolean
+)
