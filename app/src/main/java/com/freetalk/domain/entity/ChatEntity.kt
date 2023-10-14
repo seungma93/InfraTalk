@@ -32,3 +32,7 @@ data class ChatMessageSendEntity(
     val content: String,
     val isSuccess: Boolean
 )
+
+data class ChatMessageSend(
+    val isSuccess: Boolean
+)

@@ -9,6 +9,7 @@ import com.freetalk.data.model.request.ChatRoomCreateRequest
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
             ChatRoomCreateResponse(
                 member = chatRoomCreateRequest.member,
-                chatRoomId = snapshot.id ,
+                chatRoomId = snapshot.id,
                 isSuccess = true
             )
         }.onFailure {
@@ -50,17 +51,21 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     .whereArrayContains("member", member[0])
                     .get().await()
 
-                val documentId = snapshot.documents.map { documentSnapshot ->
-                    val list = documentSnapshot.data?.get("member") as? List<String>
-                    list?.let {
-                        if(it.contains(member[1])) documentSnapshot.id else null
-                    }
-                }.find { it != null }
+                val chatRoomId = snapshot.documents.mapNotNull { chatRoom ->
+                    val members = chatRoom.data?.get("member") as? List<String>
+                    if (members.isNullOrEmpty()) null else (chatRoom to members)
+                }.find { (_, members) ->
+                    members.contains(member[1])
+                }?.let { (chatRoom, _) ->
+                    chatRoom.id
+                }
+
+
 
                 ChatRoomCheckResponse(
                     member = chatRoomCheckRequest.member,
-                    chatRoomId = documentId,
-                    isChatRoom = documentId != null
+                    chatRoomId = chatRoomId,
+                    isChatRoom = chatRoomId != null
                 )
 
             }.onFailure {
