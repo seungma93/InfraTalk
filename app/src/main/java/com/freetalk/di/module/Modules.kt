@@ -56,6 +56,7 @@ import com.freetalk.domain.usecase.LogInUseCase
 import com.freetalk.domain.usecase.LogInUseCaseImpl
 import com.freetalk.domain.usecase.ResetPasswordUseCase
 import com.freetalk.domain.usecase.ResetPasswordUseCaseImpl
+import com.freetalk.domain.usecase.SendChatMessageUseCase
 import com.freetalk.domain.usecase.SendEmailUseCase
 import com.freetalk.domain.usecase.SendEmailUseCaseImpl
 import com.freetalk.domain.usecase.SignUpUseCase
@@ -72,6 +73,7 @@ import com.freetalk.domain.usecase.WriteBoardContentUseCase
 import com.freetalk.domain.usecase.WriteCommentUseCase
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModel
+import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
 import com.freetalk.presenter.viewmodel.ViewModelKey
@@ -557,6 +559,18 @@ class Modules {
         }
     }
 
+    @Module
+    class SendChatMessageUseCaseModule {
+        @Provides
+        fun providesSendChatMessageUseCase(
+            chatDataRepository: ChatDataRepository
+        ): SendChatMessageUseCase {
+            return SendChatMessageUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -656,6 +670,20 @@ class Modules {
                 logInUseCase,
                 resetPasswordUseCase,
                 deleteUserInfoUseCase
+            )
+        }
+    }
+
+    @Module
+    class ChatViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(ChatViewModel::class)
+        fun providesChatViewModel(
+            sendChatMessageUseCase: SendChatMessageUseCase
+        ): ViewModel {
+            return ChatViewModel(
+                sendChatMessageUseCase
             )
         }
     }

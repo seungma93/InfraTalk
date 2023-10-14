@@ -71,11 +71,12 @@ class ChatDataRepositoryImpl @Inject constructor(
         ).toEntity()
     }
 
-    override suspend fun sendChatMessage(chatMessageSendForm: ChatMessageSendForm): ChatMessageSendEntity = with(chatMessageSendForm) {
+    override suspend fun sendChatMessage(chatMessageSendForm: ChatMessageSendForm): ChatMessageSendEntity =
+        with(chatMessageSendForm) {
             return chatDataSource.sendChatMessage(
                 chatMessageSendRequest = ChatMessageSendRequest(
                     chatRoomId = chatRoomId,
-                    senderEmail = senderEmail,
+                    senderEmail = userDataSource.getUserInfo().email,
                     content = content
                 )
             ).toEntity()
