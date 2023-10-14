@@ -10,26 +10,9 @@ import com.freetalk.databinding.FragmentChatRoomBinding
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 
 class ChatRoomFragment : Fragment() {
-    companion object {
-        const val CHAT_PRIMARY_KEY = "CHAT_PRIMARY_KEY"
-
-        fun newInstance(
-            chatPrimaryKeyEntity: ChatPrimaryKeyEntity
-        ): ChatRoomFragment {
-            return ChatRoomFragment().apply {
-                arguments = bundleOf(
-                    CHAT_PRIMARY_KEY to chatPrimaryKeyEntity
-                )
-            }
-        }
-    }
 
     private var _binding: FragmentChatRoomBinding? = null
     private val binding get() = _binding!!
-    private val chatPartnerEntity
-        get() = requireArguments().getSerializable(
-            CHAT_PRIMARY_KEY
-        ) as ChatPrimaryKeyEntity
 
     override fun onCreateView(
         inflater: LayoutInflater,

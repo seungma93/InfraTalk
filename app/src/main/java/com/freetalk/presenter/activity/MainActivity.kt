@@ -9,6 +9,7 @@ import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 import com.freetalk.presenter.fragment.MainFragment
 import com.freetalk.presenter.fragment.board.BoardContentFragment
+import com.freetalk.presenter.fragment.chat.ChatFragment
 import com.freetalk.presenter.fragment.chat.ChatRoomFragment
 import com.freetalk.presenter.fragment.sign.LoginMainFragment
 import com.freetalk.presenter.fragment.sign.SignUpFragment
@@ -18,7 +19,7 @@ sealed class EndPoint {
     object SignUp : EndPoint()
     object Main: EndPoint()
     data class BoardContent(val boardContentPrimaryKeyEntity: BoardContentPrimaryKeyEntity): EndPoint()
-    data class ChatRoom(val chatPrimaryKeyEntity: ChatPrimaryKeyEntity): EndPoint()
+    data class Chat(val chatPrimaryKeyEntity: ChatPrimaryKeyEntity): EndPoint()
     object Error : EndPoint()
 }
 
@@ -71,8 +72,8 @@ class MainActivity() : AppCompatActivity(), Navigable {
                     val fragment = BoardContentFragment.newInstance(endPoint.boardContentPrimaryKeyEntity)
                     setFragment(fragment, R.id.activity_frame_layout, true)
                 }
-                is EndPoint.ChatRoom -> {
-                    val fragment = ChatRoomFragment.newInstance(endPoint.chatPrimaryKeyEntity)
+                is EndPoint.Chat -> {
+                    val fragment = ChatFragment.newInstance(endPoint.chatPrimaryKeyEntity)
                     setFragment(fragment, R.id.activity_frame_layout, true)
                 }
                 is EndPoint.Error -> {

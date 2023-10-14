@@ -5,6 +5,7 @@ import com.freetalk.di.module.Modules
 import com.freetalk.presenter.fragment.board.BoardContentFragment
 import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
+import com.freetalk.presenter.fragment.chat.ChatFragment
 import dagger.BindsInstance
 import dagger.Component
 
@@ -29,7 +30,7 @@ import dagger.Component
 
 
 interface ChatFragmentComponent {
-    fun inject(fragment: BoardFragment)
+    fun inject(fragment: ChatFragment)
 
     @Component.Factory
     interface Factory {

@@ -201,7 +201,7 @@ class BoardFragment : Fragment() {
                     is BoardViewEvent.ChatStart -> {
                         when(it.chatStartEntity.isSuccess) {
                             true -> { Log.d("seungma", "채팅 시작 성공")
-                                val endPoint = EndPoint.ChatRoom(
+                                val endPoint = EndPoint.Chat(
                                     chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
                                         partnerEmail = it.chatStartEntity.chatPartner,
                                         chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
