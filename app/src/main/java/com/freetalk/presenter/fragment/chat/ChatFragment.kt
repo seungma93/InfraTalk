@@ -2,12 +2,15 @@ package com.freetalk.presenter.fragment.chat
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -72,6 +75,25 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
+
+            chatEditText.addTextChangedListener (object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    // 텍스트 변경 전에 호출되는 메서드
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // 텍스트가 변경될 때 호출되는 메서드
+                    when(s.isNullOrBlank()) {
+                        true -> btnSendChat.isEnabled = false
+                        false -> btnSendChat.isEnabled = true
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    // 텍스트 변경 후에 호출되는 메서드
+                }
+            })
+
             btnSendChat.setOnClickListener {
                 val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
                 when (inputChatMessage.isEmpty()) {
@@ -109,7 +131,6 @@ class ChatFragment : Fragment() {
                     is ChatViewEvent.SendMessage -> {
                         when(it.chatMessageSend.isSuccess) {
                             true -> { Log.d("seungma", "메시지 전송 성공")
-                                binding.btnSendChat.isEnabled = true
                             }
                             false -> Log.d("seungma", "메시지 전송 실패")
                         }
