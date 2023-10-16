@@ -1,5 +1,6 @@
 package com.freetalk.domain.entity
 
+import com.freetalk.data.model.response.UserResponse
 import java.io.Serializable
 import java.util.Date
 
@@ -35,4 +36,14 @@ data class ChatMessageSendEntity(
 
 data class ChatMessageSend(
     val isSuccess: Boolean
+)
+
+data class ChatMessageEntity(
+    val sender: UserEntity,
+    val sendTime: Date,
+    val content: String,
+    val chatRoomId: String
+)
+data class ChatMessageListEntity(
+    val chatMessageList: List<ChatMessageEntity>
 )

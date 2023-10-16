@@ -77,8 +77,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     chatRoom.id
                 }
 
-
-
                 ChatRoomCheckResponse(
                     member = chatRoomCheckRequest.member,
                     chatRoomId = chatRoomId,

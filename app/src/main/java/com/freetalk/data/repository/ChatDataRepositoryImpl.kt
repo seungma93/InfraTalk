@@ -9,6 +9,7 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
@@ -16,6 +17,7 @@ import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.BoardMetaListEntity
+import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
@@ -23,6 +25,7 @@ import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardUpdateForm
+import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
@@ -82,4 +85,13 @@ class ChatDataRepositoryImpl @Inject constructor(
             ).toEntity()
 
         }
+
+    override suspend fun loadChatMessageList(chatMessageListLoadForm: ChatMessageListLoadForm): ChatMessageListEntity {
+        return chatDataSource.loadChatMessageList(
+            chatMessageListLoadRequest = ChatMessageListLoadRequest(
+                chatRoomId = chatMessageListLoadForm.chatRoomId,
+                reload = chatMessageListLoadForm.reload
+            )
+        ).toEntity()
+    }
 }
