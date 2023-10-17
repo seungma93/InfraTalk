@@ -43,7 +43,9 @@ data class ChatMessageEntity(
     val sendTime: Date,
     val content: String,
     val chatRoomId: String
-)
+) {
+    val chatMessagePrimaryKey: String get() = sender.email + sendTime
+}
 data class ChatMessageListEntity(
     val chatMessageList: List<ChatMessageEntity>
 )
