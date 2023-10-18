@@ -51,6 +51,7 @@ import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadBoardContentUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
+import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LogInUseCase
 import com.freetalk.domain.usecase.LogInUseCaseImpl
@@ -175,9 +176,10 @@ class Modules {
     class FirebaseChatDataSourceModule {
         @Provides
         fun providesFirebaseChatRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): ChatDataSource {
-            return FirebaseChatRemoteDataSourceImpl(database)
+            return FirebaseChatRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -571,6 +573,18 @@ class Modules {
         }
     }
 
+    @Module
+    class LoadChatMessageListUseCaseModule {
+        @Provides
+        fun providesLoadChatMessageListUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LoadChatMessageListUseCase {
+            return LoadChatMessageListUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -680,10 +694,12 @@ class Modules {
         @IntoMap
         @ViewModelKey(ChatViewModel::class)
         fun providesChatViewModel(
-            sendChatMessageUseCase: SendChatMessageUseCase
+            sendChatMessageUseCase: SendChatMessageUseCase,
+            loadChatMessageListUseCase: LoadChatMessageListUseCase
         ): ViewModel {
             return ChatViewModel(
-                sendChatMessageUseCase
+                sendChatMessageUseCase,
+                loadChatMessageListUseCase
             )
         }
     }

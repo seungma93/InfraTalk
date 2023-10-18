@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.freetalk.databinding.FragmentChatBinding
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
@@ -22,6 +24,10 @@ import com.freetalk.di.component.DaggerChatFragmentComponent
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
+import com.freetalk.presenter.adapter.ChatItem
+import com.freetalk.presenter.adapter.ChatListAdapter
+import com.freetalk.presenter.adapter.ListItem
+import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.viewmodel.BoardViewEvent
 import com.freetalk.presenter.viewmodel.BoardViewModel
@@ -47,6 +53,8 @@ class ChatFragment : Fragment() {
 
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
+    private var _chatListAdapter: ChatListAdapter? = null
+    private val chatListAdapter get() = _chatListAdapter!!
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
@@ -73,17 +81,23 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _chatListAdapter = ChatListAdapter()
 
         binding.apply {
 
-            chatEditText.addTextChangedListener (object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            chatEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
                     // 텍스트 변경 전에 호출되는 메서드
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     // 텍스트가 변경될 때 호출되는 메서드
-                    when(s.isNullOrBlank()) {
+                    when (s.isNullOrBlank()) {
                         true -> btnSendChat.isEnabled = false
                         false -> btnSendChat.isEnabled = true
                     }
@@ -120,21 +134,56 @@ class ChatFragment : Fragment() {
                 }
 
             }
+            val layoutManager = LinearLayoutManager(requireContext())
+            layoutManager.reverseLayout = true;
+            layoutManager.stackFromEnd = true;
+            rvChat.layoutManager = layoutManager
+            rvChat.adapter = chatListAdapter
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            //showProgressBar()
+            val viewState = chatViewModel.loadChatMessage(
+                chatMessageListLoadForm = ChatMessageListLoadForm(
+                    chatRoomId = chatPrimaryKeyEntity.chatRoomId,
+                    reload = true
+                )
+            )
+            chatListAdapter.submitList(createChatItem(viewState)) {
+                binding.rvChat.scrollToPosition(viewState.chatMessageListEntity.chatMessageList.size - 1 )
+                //hideProgressBar()
+            }
+        }
+
         subscribe()
+
     }
+
+    private fun createChatItem(viewState: ChatViewModel.ChatViewState): List<ChatItem> =
+        with(viewState) {
+            return mutableListOf<ChatItem>().apply {
+                chatMessageListEntity.chatMessageList.map {
+                    when (it.sender.email == chatPrimaryKeyEntity.partnerEmail) {
+                        true -> add(ChatItem.Partner(it))
+                        false -> add(ChatItem.Owner(it))
+                    }
+                }
+            }
+        }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
             chatViewModel.viewEvent.collect {
-                when(it) {
+                when (it) {
                     is ChatViewEvent.SendMessage -> {
-                        when(it.chatMessageSend.isSuccess) {
-                            true -> { Log.d("seungma", "메시지 전송 성공")
+                        when (it.chatMessageSend.isSuccess) {
+                            true -> {
+                                Log.d("seungma", "메시지 전송 성공")
                             }
+
                             false -> Log.d("seungma", "메시지 전송 실패")
                         }
                     }
+
                     else -> {}
                 }
             }
