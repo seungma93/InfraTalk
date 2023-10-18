@@ -88,14 +88,14 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is BoardContentViewHolder -> {
-                val item = getItem(position) as ListItem.BoardItem
-                holder.bind(item.boardEntity)
+            is ChatMessageOwnerViewHolder -> {
+                val item = getItem(position) as ChatItem.Owner
+                holder.bind(item.chatMessageEntity)
             }
 
-            is CommentViewHolder -> {
-                val item = getItem(position) as ListItem.CommentItem
-                holder.bind(item.commentEntity)
+            is ChatMessagePartnerViewHolder -> {
+                val item = getItem(position) as ChatItem.Partner
+                holder.bind(item.chatMessageEntity)
             }
         }
     }
@@ -130,6 +130,8 @@ class ChatMessageOwnerViewHolder(
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
+                content.text = it.content
+                date.text = it.sendTime.toString()
                 /*
                 title.text = it.boardMetaEntity.title
                 date.text = it.boardMetaEntity.createTime.toString()
@@ -163,6 +165,8 @@ class ChatMessagePartnerViewHolder(
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
+                content.text = it.content
+                date.text = it.sendTime.toString()
                 /*
                 Log.d("CommentListAdapter", "바인딩")
                 context.text = it.commentMetaEntity.content
