@@ -22,6 +22,7 @@ import dagger.Component
         Modules.ChatDataRepositoryModule::class,
         // UseCase
         Modules.SendChatMessageUseCaseModule::class,
+        Modules.LoadChatMessageListUseCaseModule::class,
         // ViewModel
         Modules.ChatViewModelModule::class,
         Modules.ViewModelFactoryModule::class
