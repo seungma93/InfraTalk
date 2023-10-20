@@ -22,9 +22,9 @@ class OnCommentScrollListener(
             if (!recyclerView.canScrollVertically(1) && itemCount == lastVisibleItemPosition) {
                 when (val item = adapter.getItemAt(lastVisibleItemPosition)) {
                     is ListItem.CommentItem -> {
-                        when (item.commentEntity.commentMetaEntity.isPage) {
-                            true -> moreItems()
-                            false -> showToast()
+                        when (item.commentEntity.commentMetaEntity.isLastPage) {
+                            true -> showToast()
+                            false -> moreItems()
                         }
                     }
 

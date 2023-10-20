@@ -43,7 +43,8 @@ fun ChatMessageResponse.toEntity(): ChatMessageEntity {
         sender = sender?.let { it.toEntity() } ?: error(""),
         sendTime = sendTime ?: Date(),
         content = content.orEmpty(),
-        chatRoomId = chatRoomId ?: error("")
+        chatRoomId = chatRoomId ?: error(""),
+        isLastPage = isLastPage ?: false
     )
 }
 

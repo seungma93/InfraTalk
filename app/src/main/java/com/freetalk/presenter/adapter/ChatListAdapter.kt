@@ -21,8 +21,11 @@ import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.google.firebase.firestore.auth.User
 
 sealed class ChatItem {
-    data class Owner(val chatMessageEntity: ChatMessageEntity) : ChatItem()
-    data class Partner(val chatMessageEntity: ChatMessageEntity) : ChatItem()
+    abstract val chatMessageEntity: ChatMessageEntity
+
+    data class Owner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+
+    data class Partner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 }
 
 class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUtil) {

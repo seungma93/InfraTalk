@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,6 +31,8 @@ import com.freetalk.presenter.adapter.ChatListAdapter
 import com.freetalk.presenter.adapter.ListItem
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.presenter.form.CommentMetaListLoadForm
+import com.freetalk.presenter.fragment.board.OnCommentScrollListener
 import com.freetalk.presenter.viewmodel.BoardViewEvent
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatViewEvent
@@ -55,6 +59,18 @@ class ChatFragment : Fragment() {
     private val binding get() = _binding!!
     private var _chatListAdapter: ChatListAdapter? = null
     private val chatListAdapter get() = _chatListAdapter!!
+
+    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener({
+        Log.d("seungma", "람다 전달")
+        moreItems()
+    }, {
+        Toast.makeText(
+            requireContext(),
+            "마지막 페이지 입니다.",
+            Toast.LENGTH_SHORT
+        ).show()
+    },
+        { showProgressBar() })
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
@@ -149,12 +165,13 @@ class ChatFragment : Fragment() {
                 )
             )
             chatListAdapter.submitList(createChatItem(viewState)) {
-                binding.rvChat.scrollToPosition(viewState.chatMessageListEntity.chatMessageList.size - 1 )
+                binding.rvChat.scrollToPosition(0)
                 //hideProgressBar()
             }
         }
 
         subscribe()
+        initScrollListener()
 
     }
 
@@ -188,5 +205,47 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun initScrollListener() {
+        binding.rvChat.addOnScrollListener(onChatScrollListener)
+    }
+
+    private fun moreItems() {
+        Log.d("seungma", "moreItems")
+        viewLifecycleOwner.lifecycleScope.launch {
+            val viewState = chatViewModel.loadChatMessage(
+                chatMessageListLoadForm = ChatMessageListLoadForm(
+                    chatRoomId = chatPrimaryKeyEntity.chatRoomId,
+                    reload = false
+                )
+            )
+            chatListAdapter.submitList(createChatItem(viewState)) {
+                hideProgressBar()
+            }
+        }
+    }
+
+    private fun showProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 시작")
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }
