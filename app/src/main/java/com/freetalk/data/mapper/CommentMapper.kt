@@ -20,7 +20,7 @@ fun CommentMetaResponse.toEntity(): CommentMetaEntity {
         boardAuthorEmail = boardAuthorEmail.orEmpty(),
         boardCreateTime = boardCreateTime ?: Date(),
         editTime = editTime ?: Date(),
-        isPage = isPage ?: false
+        isLastPage = isLastPage ?: false
     )
 }
 

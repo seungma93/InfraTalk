@@ -94,7 +94,7 @@ class ChatViewModel @Inject constructor(
         }.onFailure {
 
         }.getOrNull()
-
+            Log.d("seungma", "플로우 갯수" + viewState.value.chatMessageListEntity.chatMessageList.size)
         return result?.let {
             _viewState.updateAndGet { _ ->
                 viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(it))

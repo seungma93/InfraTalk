@@ -11,5 +11,5 @@ data class CommentMetaResponse(
     val boardAuthorEmail: String? = null,
     val boardCreateTime: Date? = null,
     val editTime: Date? = null,
-    val isPage: Boolean? = null,
+    val isLastPage: Boolean? = null,
 )

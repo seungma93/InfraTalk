@@ -9,6 +9,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
@@ -17,6 +18,7 @@ import com.freetalk.data.model.response.ChatMessageResponse
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
+import com.freetalk.domain.entity.ChatMessageEntity
 import com.freetalk.domain.entity.ImagesResultEntity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -25,6 +27,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -132,14 +135,14 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             kotlin.runCatching {
                 val snapshot = getChatMessageDocuments(
                     chatRoomId = chatMessageListLoadRequest.chatRoomId,
-                    limit = 10,
+                    limit = 20,
                     startAfter = when (chatMessageListLoadRequest.reload) {
-                        true -> lastDocument
-                        false -> null
+                        true -> null
+                        false -> lastDocument
                     }
                 )
                 lastDocument = snapshot.documents.lastOrNull()
-
+                Log.d("seungma", "Snapshot 사이즈" + snapshot.size())
                 snapshot.documents.map {
                     val senderEmail = it.data?.get("senderEmail")?.let { it as String } ?: error("")
                     val asyncUserInfo = async {
@@ -152,14 +155,56 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         sender = deferred.await(),
                         content = it.data?.get("content") as? String,
                         sendTime = (it.data?.get("sendTime") as? Timestamp)?.toDate(),
-                        chatRoomId = it.data?.get("chatRoomId") as? String
+                        chatRoomId = it.data?.get("chatRoomId") as? String,
+                        isLastPage = snapshot.size() < 20
                     )
                 }.let {
                     ChatMessageListResponse(it)
+
                 }
             }.onFailure {
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
-    
+/*
+    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): ChatMessageResponse =
+        coroutineScope {
+            kotlin.runCatching {
+                val collection = database.collection("ChatRoom")
+                    .document(realTimeChatMessageLoadRequest.chatRoomId)
+                    .collection("Chat")
+
+                collection.addSnapshotListener{ snapshot, e ->
+
+                }
+                callbackFlow<> {  }
+
+                lastDocument = snapshot.documents.lastOrNull()
+                Log.d("seungma", "Snapshot 사이즈" + snapshot.size())
+                snapshot.documents.map {
+                    val senderEmail = it.data?.get("senderEmail")?.let { it as String } ?: error("")
+                    val asyncUserInfo = async {
+                        userDataSource
+                            .selectUserInfo(UserSelectRequest(userEmail = senderEmail))
+                    }
+                    it to asyncUserInfo
+                }.map { (it, deferred) ->
+                    ChatMessageResponse(
+                        sender = deferred.await(),
+                        content = it.data?.get("content") as? String,
+                        sendTime = (it.data?.get("sendTime") as? Timestamp)?.toDate(),
+                        chatRoomId = it.data?.get("chatRoomId") as? String,
+                        isLastPage = snapshot.size() < 20
+                    )
+                }.let {
+                    ChatMessageListResponse(it)
+
+                }
+            }.onFailure {
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
+            }.getOrThrow()
+        }
+
+ */
+
 }

@@ -7,5 +7,6 @@ data class ChatMessageResponse(
     val sender: UserResponse?,
     val sendTime: Date?,
     val content: String?,
-    val chatRoomId: String?
+    val chatRoomId: String?,
+    val isLastPage: Boolean?
 )

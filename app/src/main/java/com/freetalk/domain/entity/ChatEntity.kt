@@ -42,7 +42,8 @@ data class ChatMessageEntity(
     val sender: UserEntity,
     val sendTime: Date,
     val content: String,
-    val chatRoomId: String
+    val chatRoomId: String,
+    val isLastPage: Boolean
 ) {
     val chatMessagePrimaryKey: String get() = sender.email + sendTime
 }
