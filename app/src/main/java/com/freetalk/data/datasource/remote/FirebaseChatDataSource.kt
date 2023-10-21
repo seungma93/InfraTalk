@@ -21,13 +21,20 @@ import com.freetalk.data.model.response.ChatRoomCreateResponse
 import com.freetalk.domain.entity.ChatMessageEntity
 import com.freetalk.domain.entity.ImagesResultEntity
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firestore.v1.Document
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -160,51 +167,67 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     )
                 }.let {
                     ChatMessageListResponse(it)
-
                 }
             }.onFailure {
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
-/*
-    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): ChatMessageResponse =
-        coroutineScope {
+
+    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse> =
+        callbackFlow {
             kotlin.runCatching {
-                val collection = database.collection("ChatRoom")
+                val snapshotListener = database.collection("ChatRoom")
                     .document(realTimeChatMessageLoadRequest.chatRoomId)
                     .collection("Chat")
+                    .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
+                    .orderBy("sendTime", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            close(error.cause ?: error(""))
+                            return@addSnapshotListener
+                        }
 
-                collection.addSnapshotListener{ snapshot, e ->
+                        val documents =
+                            snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                                ?.map { it.document }
+                                ?: emptyList()
 
-                }
-                callbackFlow<> {  }
+                        val channel = Channel<ChatMessageResponse>(Channel.UNLIMITED)
 
-                lastDocument = snapshot.documents.lastOrNull()
-                Log.d("seungma", "Snapshot 사이즈" + snapshot.size())
-                snapshot.documents.map {
-                    val senderEmail = it.data?.get("senderEmail")?.let { it as String } ?: error("")
-                    val asyncUserInfo = async {
-                        userDataSource
-                            .selectUserInfo(UserSelectRequest(userEmail = senderEmail))
+                        documents.forEach { document ->
+                            launch {
+                                val senderEmail = document.getString("senderEmail") ?: ""
+                                val userInfo =
+                                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = senderEmail))
+
+                                val chatMessage = ChatMessageResponse(
+                                    sender = userInfo,
+                                    content = document.getString("content"),
+                                    sendTime = document.getTimestamp("sendTime")?.toDate(),
+                                    chatRoomId = document.getString("chatRoomId"),
+                                    isLastPage = true
+                                )
+
+                                channel.send(chatMessage)
+                            }
+                        }
+
+                        launch {
+                            // 모든 작업이 완료될 때까지 기다린 후 Flow로 결과를 보냄
+                            val result = mutableListOf<ChatMessageResponse>()
+                            repeat(documents.size) {
+                                result.add(channel.receive())
+                            }
+
+                            trySend(ChatMessageListResponse(result))
+                        }
                     }
-                    it to asyncUserInfo
-                }.map { (it, deferred) ->
-                    ChatMessageResponse(
-                        sender = deferred.await(),
-                        content = it.data?.get("content") as? String,
-                        sendTime = (it.data?.get("sendTime") as? Timestamp)?.toDate(),
-                        chatRoomId = it.data?.get("chatRoomId") as? String,
-                        isLastPage = snapshot.size() < 20
-                    )
-                }.let {
-                    ChatMessageListResponse(it)
 
+                awaitClose {
+                    snapshotListener.remove()
                 }
             }.onFailure {
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
-
- */
-
 }
