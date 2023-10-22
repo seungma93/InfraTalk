@@ -8,10 +8,13 @@ import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
+import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
+import kotlinx.coroutines.flow.Flow
 
 interface ChatDataRepository {
     suspend fun createChatRoom(chatRoomCreateForm: ChatRoomCreateForm): ChatRoomCreateEntity
     suspend fun checkChatRoom(chatRoomCheckForm: ChatRoomCheckForm): ChatRoomCheckEntity
     suspend fun sendChatMessage(chatMessageSendForm: ChatMessageSendForm): ChatMessageSendEntity
     suspend fun loadChatMessageList(chatMessageListLoadForm: ChatMessageListLoadForm): ChatMessageListEntity
+    fun loadRealTimeChatMessage(realTimeChatMessageLoadForm: RealTimeChatMessageLoadForm): Flow<ChatMessageListEntity>
 }
