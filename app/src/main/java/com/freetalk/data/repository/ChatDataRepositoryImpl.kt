@@ -13,6 +13,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
@@ -29,8 +30,11 @@ import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
+import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import toEntity
 import java.util.Date
 import javax.inject.Inject
@@ -93,5 +97,13 @@ class ChatDataRepositoryImpl @Inject constructor(
                 reload = chatMessageListLoadForm.reload
             )
         ).toEntity()
+    }
+
+    override fun loadRealTimeChatMessage(realTimeChatMessageLoadForm: RealTimeChatMessageLoadForm): Flow<ChatMessageListEntity> {
+        return chatDataSource.loadRealTimeChatMessage(
+            realTimeChatMessageLoadRequest = RealTimeChatMessageLoadRequest(
+                chatRoomId = realTimeChatMessageLoadForm.chatRoomId
+            )
+        ).map { it.toEntity() }
     }
 }

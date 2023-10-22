@@ -29,13 +29,18 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firestore.v1.Document
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.lang.IllegalStateException
 import javax.inject.Inject
 
 
@@ -44,8 +49,8 @@ interface ChatDataSource {
     suspend fun checkChatRoom(chatRoomCheckRequest: ChatRoomCheckRequest): ChatRoomCheckResponse
     suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse
     suspend fun loadChatMessageList(chatMessageListLoadRequest: ChatMessageListLoadRequest): ChatMessageListResponse
+    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
 }
-
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
@@ -173,8 +178,8 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
         }
 
-    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse> =
-        callbackFlow {
+    override fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse> {
+        return callbackFlow<List<QueryDocumentSnapshot>> {
             kotlin.runCatching {
                 val snapshotListener = database.collection("ChatRoom")
                     .document(realTimeChatMessageLoadRequest.chatRoomId)
@@ -183,44 +188,13 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     .orderBy("sendTime", Query.Direction.DESCENDING)
                     .addSnapshotListener { snapshot, error ->
                         if (error != null) {
-                            close(error.cause ?: error(""))
+                            //close(error.cause ?: error(""))
                             return@addSnapshotListener
                         }
 
-                        val documents =
-                            snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
-                                ?.map { it.document }
-                                ?: emptyList()
-
-                        val channel = Channel<ChatMessageResponse>(Channel.UNLIMITED)
-
-                        documents.forEach { document ->
-                            launch {
-                                val senderEmail = document.getString("senderEmail") ?: ""
-                                val userInfo =
-                                    userDataSource.selectUserInfo(UserSelectRequest(userEmail = senderEmail))
-
-                                val chatMessage = ChatMessageResponse(
-                                    sender = userInfo,
-                                    content = document.getString("content"),
-                                    sendTime = document.getTimestamp("sendTime")?.toDate(),
-                                    chatRoomId = document.getString("chatRoomId"),
-                                    isLastPage = true
-                                )
-
-                                channel.send(chatMessage)
-                            }
-                        }
-
-                        launch {
-                            // 모든 작업이 완료될 때까지 기다린 후 Flow로 결과를 보냄
-                            val result = mutableListOf<ChatMessageResponse>()
-                            repeat(documents.size) {
-                                result.add(channel.receive())
-                            }
-
-                            trySend(ChatMessageListResponse(result))
-                        }
+                        snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                            ?.map { it.document }
+                            ?: emptyList()
                     }
 
                 awaitClose {
@@ -229,5 +203,27 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }.onFailure {
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
+        }.map { documents ->
+            coroutineScope {
+                documents.map { document ->
+                    val senderEmail = document.getString("senderEmail") ?: ""
+                    val userInfo =
+                        async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = senderEmail)) }
+                    userInfo to document
+                }.map { (userInfo, document) ->
+                    ChatMessageResponse(
+                        sender = userInfo.await(),
+                        content = document.getString("content"),
+                        sendTime = document.getTimestamp("sendTime")?.toDate(),
+                        chatRoomId = document.getString("chatRoomId"),
+                        isLastPage = true
+                    )
+                }.let {
+                    ChatMessageListResponse(it)
+                }
+            }
         }
+    }
+
+
 }
