@@ -179,7 +179,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }
 
     override fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse> {
-        return callbackFlow<List<QueryDocumentSnapshot>> {
+        return callbackFlow {
             kotlin.runCatching {
                 val snapshotListener = database.collection("ChatRoom")
                     .document(realTimeChatMessageLoadRequest.chatRoomId)
@@ -192,15 +192,18 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                             return@addSnapshotListener
                         }
 
-                        snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                        val documents = snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
                             ?.map { it.document }
                             ?: emptyList()
+
+                        trySend(documents)
                     }
 
                 awaitClose {
                     snapshotListener.remove()
                 }
             }.onFailure {
+                it.printStackTrace()
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }.map { documents ->
