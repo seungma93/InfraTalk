@@ -1,5 +1,6 @@
 package com.freetalk.di.module
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.freetalk.data.datasource.remote.BoardDataSource
@@ -52,7 +53,9 @@ import com.freetalk.domain.usecase.LoadBoardContentUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
+import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LogInUseCase
 import com.freetalk.domain.usecase.LogInUseCaseImpl
 import com.freetalk.domain.usecase.ResetPasswordUseCase
@@ -74,6 +77,7 @@ import com.freetalk.domain.usecase.WriteBoardContentUseCase
 import com.freetalk.domain.usecase.WriteCommentUseCase
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModel
+import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
@@ -585,6 +589,30 @@ class Modules {
         }
     }
 
+    @Module
+    class LoadRealTimeChatMessageUseCaseModule {
+        @Provides
+        fun providesLoadRealTimeChatMessageUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LoadRealTimeChatMessageUseCase {
+            return LoadRealTimeChatMessageUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
+    @Module
+    class LoadChatRoomListUseCaseModule {
+        @Provides
+        fun providesLoadChatRoomListUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LoadChatRoomListUseCase {
+            return LoadChatRoomListUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -694,12 +722,30 @@ class Modules {
         @IntoMap
         @ViewModelKey(ChatViewModel::class)
         fun providesChatViewModel(
+            savedStateHandle: SavedStateHandle,
             sendChatMessageUseCase: SendChatMessageUseCase,
-            loadChatMessageListUseCase: LoadChatMessageListUseCase
+            loadChatMessageListUseCase: LoadChatMessageListUseCase,
+            loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
         ): ViewModel {
             return ChatViewModel(
+                savedStateHandle,
                 sendChatMessageUseCase,
-                loadChatMessageListUseCase
+                loadChatMessageListUseCase,
+                loadRealTimeChatMessageUseCase
+            )
+        }
+    }
+
+    @Module
+    class ChatRoomViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(ChatRoomViewModel::class)
+        fun providesChatRoomViewModel(
+            loadChatRoomListUseCase: LoadChatRoomListUseCase
+        ): ViewModel {
+            return ChatRoomViewModel(
+                loadChatRoomListUseCase
             )
         }
     }

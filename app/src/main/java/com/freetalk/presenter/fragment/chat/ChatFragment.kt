@@ -12,31 +12,21 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.freetalk.databinding.FragmentChatBinding
-import com.freetalk.databinding.FragmentHomeBinding
-import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.di.component.DaggerChatFragmentComponent
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
-import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.ChatItem
 import com.freetalk.presenter.adapter.ChatListAdapter
-import com.freetalk.presenter.adapter.ListItem
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
-import com.freetalk.presenter.form.CommentMetaListLoadForm
-import com.freetalk.presenter.fragment.board.OnCommentScrollListener
-import com.freetalk.presenter.viewmodel.BoardViewEvent
-import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatViewEvent
 import com.freetalk.presenter.viewmodel.ChatViewModel
+import com.freetalk.presenter.viewmodel.ChatViewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,7 +68,7 @@ class ChatFragment : Fragment() {
         ) as ChatPrimaryKeyEntity
 
     @Inject
-    lateinit var chatViewModelFactory: ViewModelProvider.Factory
+    lateinit var chatViewModelFactory: ChatViewModelFactory
     private val chatViewModel: ChatViewModel by viewModels { chatViewModelFactory }
 
     override fun onAttach(context: Context) {
@@ -167,6 +157,19 @@ class ChatFragment : Fragment() {
             chatListAdapter.submitList(createChatItem(viewState)) {
                 binding.rvChat.scrollToPosition(0)
                 //hideProgressBar()
+            }
+        }
+
+
+
+        chatViewModel.viewModelScope.launch {
+            chatViewModel.viewState.collect {
+                Log.d("seungma", "콜렉트 호출")
+
+                chatListAdapter.submitList(createChatItem(it)) {
+                    if(it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                }
+
             }
         }
 
