@@ -1,45 +1,34 @@
 package com.freetalk.presenter.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.freetalk.domain.entity.BoardListEntity
-import com.freetalk.domain.entity.BoardWriteEntity
+import androidx.lifecycle.viewModelScope
 import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSend
-import com.freetalk.domain.entity.ChatRoomCheckEntity
-import com.freetalk.domain.entity.ChatStartEntity
-import com.freetalk.domain.entity.UserEntity
-import com.freetalk.domain.usecase.AddBoardBookmarkUseCase
-import com.freetalk.domain.usecase.AddBoardLikeUseCase
-import com.freetalk.domain.usecase.CheckChatRoomUseCase
-import com.freetalk.domain.usecase.CreateChatRoomUseCase
-import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
-import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
-import com.freetalk.domain.usecase.GetUserInfoUseCase
-import com.freetalk.domain.usecase.LoadBoardListUseCase
+import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.SendChatMessageUseCase
-import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
-import com.freetalk.domain.usecase.WriteBoardContentUseCase
-import com.freetalk.presenter.form.BoardBookmarkAddForm
-import com.freetalk.presenter.form.BoardBookmarkDeleteForm
-import com.freetalk.presenter.form.BoardContentImagesUpdateForm
-import com.freetalk.presenter.form.BoardContentInsertForm
-import com.freetalk.presenter.form.BoardLikeAddForm
-import com.freetalk.presenter.form.BoardLikeCountLoadForm
-import com.freetalk.presenter.form.BoardLikeDeleteForm
-import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
-import com.freetalk.presenter.form.ChatRoomCheckForm
-import com.freetalk.presenter.form.ChatRoomCreateForm
+import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class ChatViewEvent {
@@ -47,19 +36,68 @@ sealed class ChatViewEvent {
     data class Error(val errorCode: Throwable) : ChatViewEvent()
 }
 
-class ChatViewModel @Inject constructor(
+class ChatViewModelFactory @Inject constructor(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
-    private val loadChatMessageListUseCase: LoadChatMessageListUseCase
+    private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
+    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
+) : AbstractSavedStateViewModelFactory() {
+    override fun <T : ViewModel> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+    ): T {
+        @Suppress("UNCHECKED_CAST")
+        return ChatViewModel(
+            handle,
+            sendChatMessageUseCase,
+            loadChatMessageListUseCase,
+            loadRealTimeChatMessageUseCase
+        ) as T
+    }
+}
+
+class ChatViewModel @Inject constructor(
+    private val stateHandle: SavedStateHandle,
+    private val sendChatMessageUseCase: SendChatMessageUseCase,
+    private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
+    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatViewEvent>()
     val viewEvent: SharedFlow<ChatViewEvent> = _viewEvent.asSharedFlow()
 
+    private val chatEntity = requireNotNull(
+        stateHandle.get("CHAT_PRIMARY_KEY") as? ChatPrimaryKeyEntity
+    )
+
     private val _viewState =
-        MutableStateFlow(ChatViewState(ChatMessageListEntity(emptyList())))
-    val viewState: StateFlow<ChatViewState> = _viewState.asStateFlow()
+        MutableStateFlow(ChatViewState(ChatMessageListEntity(emptyList()), false))
+    val viewState: StateFlow<ChatViewState> = _viewState
+        .catch {
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            ChatViewState(ChatMessageListEntity(emptyList()), false)
+        )
+
+    init {
+        viewModelScope.launch {
+            loadRealTimeChatMessageUseCase(
+                RealTimeChatMessageLoadForm(
+                    chatRoomId = chatEntity.chatRoomId
+                )
+            ).collect { newChat ->
+                _viewState.update {
+                    val newChatList =
+                        newChat.chatMessageList + it.chatMessageListEntity.chatMessageList
+                    viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(chatMessageList = newChatList), isNewChatMessage = true)
+                }
+            }
+        }
+    }
 
     data class ChatViewState(
-        val chatMessageListEntity: ChatMessageListEntity
+        val chatMessageListEntity: ChatMessageListEntity,
+        val isNewChatMessage: Boolean
     )
 
     suspend fun sendChatMessage(
@@ -86,7 +124,8 @@ class ChatViewModel @Inject constructor(
         chatMessageListLoadForm: ChatMessageListLoadForm
     ): ChatViewState {
         val result = kotlin.runCatching {
-            val chatMessageListEntity = loadChatMessageListUseCase(chatMessageListLoadForm = chatMessageListLoadForm)
+            val chatMessageListEntity =
+                loadChatMessageListUseCase(chatMessageListLoadForm = chatMessageListLoadForm)
             when (chatMessageListLoadForm.reload) {
                 true -> chatMessageListEntity.chatMessageList
                 false -> viewState.value.chatMessageListEntity.chatMessageList + chatMessageListEntity.chatMessageList
@@ -94,10 +133,10 @@ class ChatViewModel @Inject constructor(
         }.onFailure {
 
         }.getOrNull()
-            Log.d("seungma", "플로우 갯수" + viewState.value.chatMessageListEntity.chatMessageList.size)
+
         return result?.let {
             _viewState.updateAndGet { _ ->
-                viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(it))
+                viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(it), isNewChatMessage = chatMessageListLoadForm.reload)
             }
         } ?: viewState.value
     }
