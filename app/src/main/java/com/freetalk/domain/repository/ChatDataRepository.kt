@@ -4,6 +4,7 @@ import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
+import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
@@ -17,4 +18,5 @@ interface ChatDataRepository {
     suspend fun sendChatMessage(chatMessageSendForm: ChatMessageSendForm): ChatMessageSendEntity
     suspend fun loadChatMessageList(chatMessageListLoadForm: ChatMessageListLoadForm): ChatMessageListEntity
     fun loadRealTimeChatMessage(realTimeChatMessageLoadForm: RealTimeChatMessageLoadForm): Flow<ChatMessageListEntity>
+    suspend fun loadChatRoomList(): ChatRoomListEntity
 }

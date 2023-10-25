@@ -1,5 +1,6 @@
 package com.freetalk.domain.entity
 
+import android.net.Uri
 import com.freetalk.data.model.response.UserResponse
 import java.io.Serializable
 import java.util.Date
@@ -49,4 +50,18 @@ data class ChatMessageEntity(
 }
 data class ChatMessageListEntity(
     val chatMessageList: List<ChatMessageEntity>
+)
+
+data class ChatRoomEntity(
+    val primaryKey: String,
+    val roomId: String,
+    val roomThumbnail: Uri?,
+    val createTime: Date,
+    val member: List<String>,
+    val lastMessage: String?,
+    val lastMessageTime: Date?
+) {}
+
+data class ChatRoomListEntity(
+    val chatRoomList: List<ChatRoomEntity>
 )

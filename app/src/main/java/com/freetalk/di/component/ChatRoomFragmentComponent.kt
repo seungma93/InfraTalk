@@ -26,21 +26,21 @@ import dagger.Component
 //        Modules.LoadChatMessageListUseCaseModule::class,
 //        Modules.LoadRealTimeChatMessageUseCaseModule::class,
         // ViewModel
-        Modules.ChatViewModelModule::class,
-        //Modules.ChatRoomViewModelModule::class,
+        //Modules.ChatViewModelModule::class,
+        Modules.ChatRoomViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
 )
 
 
-interface ChatFragmentComponent {
-    fun inject(fragment: ChatFragment)
+interface ChatRoomFragmentComponent {
+    fun inject(fragment: ChatRoomFragment)
 
     @Component.Factory
     interface Factory {
         fun create(
             @BindsInstance context: Context
-        ): ChatFragmentComponent
+        ): ChatRoomFragmentComponent
     }
 }
 
