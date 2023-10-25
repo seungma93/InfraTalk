@@ -1,15 +1,20 @@
 package com.freetalk.data.mapper
 
+import android.net.Uri
 import com.freetalk.data.model.response.ChatMessageListResponse
 import com.freetalk.data.model.response.ChatMessageResponse
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
+import com.freetalk.data.model.response.ChatRoomListResponse
+import com.freetalk.data.model.response.ChatRoomResponse
 import com.freetalk.domain.entity.ChatMessageEntity
 import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
+import com.freetalk.domain.entity.ChatRoomEntity
+import com.freetalk.domain.entity.ChatRoomListEntity
 import toEntity
 import java.util.Date
 
@@ -51,6 +56,26 @@ fun ChatMessageResponse.toEntity(): ChatMessageEntity {
 fun ChatMessageListResponse.toEntity(): ChatMessageListEntity {
     return ChatMessageListEntity(
         chatMessageList = chatMessageList?.let { list ->
+            list.map { it.toEntity() }
+        } ?: emptyList()
+    )
+}
+
+fun ChatRoomResponse.toEntity(): ChatRoomEntity {
+    return ChatRoomEntity(
+        primaryKey = primaryKey ?: error(""),
+        roomId = roomId.orEmpty(),
+        roomThumbnail = roomThumbnail ?: Uri.parse(""),
+        createTime = createTime ?: Date(),
+        member = member ?: error(""),
+        lastMessage = lastMessage.orEmpty(),
+        lastMessageTime = lastMessageTime ?: Date()
+    )
+}
+
+fun ChatRoomListResponse.toEntity(): ChatRoomListEntity {
+    return ChatRoomListEntity(
+        chatRoomList = chatRoomList?.let { list ->
             list.map { it.toEntity() }
         } ?: emptyList()
     )

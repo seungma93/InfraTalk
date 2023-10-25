@@ -22,6 +22,7 @@ import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
+import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
@@ -105,5 +106,9 @@ class ChatDataRepositoryImpl @Inject constructor(
                 chatRoomId = realTimeChatMessageLoadForm.chatRoomId
             )
         ).map { it.toEntity() }
+    }
+
+    override suspend fun loadChatRoomList(): ChatRoomListEntity {
+        return chatDataSource.loadChatRoomList().toEntity()
     }
 }

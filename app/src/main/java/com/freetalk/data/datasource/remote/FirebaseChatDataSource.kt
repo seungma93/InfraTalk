@@ -11,36 +11,26 @@ import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
-import com.freetalk.data.model.response.BoardMetaListResponse
-import com.freetalk.data.model.response.BoardMetaResponse
 import com.freetalk.data.model.response.ChatMessageListResponse
 import com.freetalk.data.model.response.ChatMessageResponse
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
-import com.freetalk.domain.entity.ChatMessageEntity
-import com.freetalk.domain.entity.ImagesResultEntity
+import com.freetalk.data.model.response.ChatRoomListResponse
+import com.freetalk.data.model.response.ChatRoomResponse
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firestore.v1.Document
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 
@@ -50,6 +40,7 @@ interface ChatDataSource {
     suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse
     suspend fun loadChatMessageList(chatMessageListLoadRequest: ChatMessageListLoadRequest): ChatMessageListResponse
     fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
+    suspend fun loadChatRoomList(): ChatRoomListResponse
 }
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -192,9 +183,10 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                             return@addSnapshotListener
                         }
 
-                        val documents = snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
-                            ?.map { it.document }
-                            ?: emptyList()
+                        val documents =
+                            snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                                ?.map { it.document }
+                                ?: emptyList()
 
                         trySend(documents)
                     }
@@ -228,5 +220,77 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+    override suspend fun loadChatRoomList(): ChatRoomListResponse {
+        return kotlin.runCatching {
+            val snapshot = database.collection("ChatRoom")
+                .whereArrayContains("member", userDataSource.getUserInfo().email)
+                .get().await()
 
+            snapshot.documents.map {
+                ChatRoomResponse(
+                    primaryKey = it.id,
+                    roomId = it.data?.get("roomId") as? String,
+                    roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    member = it.data?.get("member") as? List<String>,
+                    lastMessage = it.data?.get("lastMessage") as? String,
+                    lastMessageTime = (it.data?.get("lastMessageTime") as? Timestamp)?.toDate()
+                )
+            }.sortedByDescending {
+                it.lastMessageTime
+            }.let {
+                ChatRoomListResponse(it)
+            }
+
+        }.onFailure {
+            throw FailSelectException("셀렉트에 실패 했습니다", it)
+        }.getOrThrow()
+    }
+/*
+    fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
+        return callbackFlow {
+            kotlin.runCatching {
+                val snapshotListener = database.collection("ChatRoom")
+                    .whereArrayContains("member", userDataSource.getUserInfo().email)
+                    .whereGreaterThanOrEqualTo("lastMessageTime", Timestamp.now())
+                    .orderBy("lastMessageTime", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            //close(error.cause ?: error(""))
+                            return@addSnapshotListener
+                        }
+
+                        val documents =
+                            snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.MODIFIED }
+                                ?.map { it.document }
+                                ?: emptyList()
+
+                        val chatRoomListResponse = documents.map {
+                            ChatRoomResponse(
+                                primaryKey = it.id,
+                                roomId = it.getString("roomId"),
+                                roomThumbnail = it.get("roomThumbnail") as? Uri,
+                                createTime = it.getTimestamp("createTime")?.toDate(),
+                                member = it.data?.get("memeber") as? List<String>,
+                                lastMessage = it.getString("lastMessage"),
+                                lastMessageTime = it.getTimestamp("lastMessageTime")?.toDate()
+                            )
+                        }.let {
+                            ChatRoomListResponse(it)
+                        }
+
+                        trySend(chatRoomListResponse)
+                    }
+
+                awaitClose {
+                    snapshotListener.remove()
+                }
+            }.onFailure {
+                it.printStackTrace()
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
+            }.getOrThrow()
+        }
+    }
+
+ */
 }
