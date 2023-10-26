@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ChatRoomFragment : Fragment() {
-
     private var _binding: FragmentChatRoomBinding? = null
     private val binding get() = _binding!!
     private var _adapter: ChatRoomListAdapter? = null
@@ -48,7 +47,7 @@ class ChatRoomFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentChatRoomBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,15 +55,13 @@ class ChatRoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
-            /*
             viewLifecycleOwner.lifecycleScope.launch {
-                val member = chatRoomEntity.member
+                val userEmail = chatRoomViewModel.getUserInfo().email
+                val partnerEmail = chatRoomEntity.member.find { it != userEmail } ?: error("")
                 chatRoomViewModel.startChat(
-                    chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                    chatRoomCheckForm = ChatRoomCheckForm(member = listOf(userEmail, partnerEmail))
                 )
             }
-
-             */
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -76,34 +73,36 @@ class ChatRoomFragment : Fragment() {
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
-            chatRoomViewModel.viewState.collect {
-                Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
-                adapter.submitList(it.chatRoomListEntity.chatRoomList)
-            }
-/*
-            chatRoomViewModel.viewEvent.collect {
-                when (it) {
-                    is ChatRoomViewEvent.ChatStart -> {
-                        when (it.chatStartEntity.isSuccess) {
-                            true -> {
-                                Log.d("seungma", "채팅 시작 성공")
-                                val endPoint = EndPoint.Chat(
-                                    chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
-                                        partnerEmail = it.chatStartEntity.chatPartner,
-                                        chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
-                                    )
-                                )
-                                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-                            }
-
-                            false -> Log.d("seungma", "채팅방 시작 실패")
-                        }
-                    }
-
-                    else -> {}
+            launch {
+                chatRoomViewModel.viewState.collect {
+                    Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
+                    adapter.submitList(it.chatRoomListEntity.chatRoomList)
                 }
             }
-            */
+            launch {
+                chatRoomViewModel.viewEvent.collect {
+                    when (it) {
+                        is ChatRoomViewEvent.ChatStart -> {
+                            when (it.chatStartEntity.isSuccess) {
+                                true -> {
+                                    Log.d("seungma", "채팅 시작 성공")
+                                    val endPoint = EndPoint.Chat(
+                                        chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                                            partnerEmail = it.chatStartEntity.chatPartner,
+                                            chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
+                                        )
+                                    )
+                                    (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                                }
+
+                                false -> Log.d("seungma", "채팅방 시작 실패")
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
         }
     }
 }
