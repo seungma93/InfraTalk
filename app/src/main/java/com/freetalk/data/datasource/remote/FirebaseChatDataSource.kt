@@ -18,6 +18,7 @@ import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
 import com.freetalk.data.model.response.ChatRoomListResponse
 import com.freetalk.data.model.response.ChatRoomResponse
+import com.freetalk.data.model.response.LastChatMessageResponse
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import java.sql.Time
 import javax.inject.Inject
 
 
@@ -41,6 +43,7 @@ interface ChatDataSource {
     suspend fun loadChatMessageList(chatMessageListLoadRequest: ChatMessageListLoadRequest): ChatMessageListResponse
     fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
     suspend fun loadChatRoomList(): ChatRoomListResponse
+    fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse>
 }
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -227,17 +230,29 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 .get().await()
 
             snapshot.documents.map {
+
+                val chatSnapshot = database.collection("ChatRoom")
+                    .document(it.id)
+                    .collection("Chat")
+                    .orderBy("sendTime", Query.Direction.DESCENDING)
+                    .limit(1).get().await()
+
+                val chatDocument = chatSnapshot.firstOrNull()
+
                 ChatRoomResponse(
                     primaryKey = it.id,
                     roomId = it.data?.get("roomId") as? String,
                     roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     member = it.data?.get("member") as? List<String>,
-                    lastMessage = it.data?.get("lastMessage") as? String,
-                    lastMessageTime = (it.data?.get("lastMessageTime") as? Timestamp)?.toDate()
+                    lastChatMessageResponse = LastChatMessageResponse(
+                        senderEmail = chatDocument?.data?.get("senderEmail") as? String,
+                        content = chatDocument?.data?.get("content") as? String,
+                        sendTime = (chatDocument?.data?.get("senderEmail") as? Timestamp)?.toDate()
+                    )
                 )
             }.sortedByDescending {
-                it.lastMessageTime
+                it.lastChatMessageResponse?.sendTime
             }.let {
                 ChatRoomListResponse(it)
             }
@@ -246,40 +261,56 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             throw FailSelectException("셀렉트에 실패 했습니다", it)
         }.getOrThrow()
     }
-/*
-    fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
+
+    override fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
         return callbackFlow {
             kotlin.runCatching {
-                val snapshotListener = database.collection("ChatRoom")
+                val snapshotListener = database.collection("chatRoom")
                     .whereArrayContains("member", userDataSource.getUserInfo().email)
-                    .whereGreaterThanOrEqualTo("lastMessageTime", Timestamp.now())
-                    .orderBy("lastMessageTime", Query.Direction.DESCENDING)
-                    .addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            //close(error.cause ?: error(""))
+                    .addSnapshotListener { snapshot, e ->
+                        if (e != null) {
                             return@addSnapshotListener
                         }
 
-                        val documents =
-                            snapshot?.documentChanges?.filter { it.type == DocumentChange.Type.MODIFIED }
-                                ?.map { it.document }
-                                ?: emptyList()
+                        for (documentChange in snapshot?.documentChanges ?: emptyList()) {
 
-                        val chatRoomListResponse = documents.map {
-                            ChatRoomResponse(
-                                primaryKey = it.id,
-                                roomId = it.getString("roomId"),
-                                roomThumbnail = it.get("roomThumbnail") as? Uri,
-                                createTime = it.getTimestamp("createTime")?.toDate(),
-                                member = it.data?.get("memeber") as? List<String>,
-                                lastMessage = it.getString("lastMessage"),
-                                lastMessageTime = it.getTimestamp("lastMessageTime")?.toDate()
-                            )
-                        }.let {
-                            ChatRoomListResponse(it)
+                            val chatRoomDocument = documentChange.document
+                            val chatRoomId = chatRoomDocument.id
+
+                            database.collection("chatRoom/$chatRoomId/chat")
+                                .addSnapshotListener { chatSnapshot, chatError ->
+                                    if (chatError != null) {
+
+                                        return@addSnapshotListener
+                                    }
+
+                                    val documents =
+                                        chatSnapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                                            ?.map { it.document }
+                                            ?: emptyList()
+
+
+                                    val chatRoomListResponse = documents.map {
+                                        ChatRoomResponse(
+                                            primaryKey = chatRoomDocument.id,
+                                            roomId = chatRoomDocument.getString("roomId"),
+                                            roomThumbnail = chatRoomDocument.get("roomThumbnail") as? Uri,
+                                            createTime = chatRoomDocument.getTimestamp("createTime")
+                                                ?.toDate(),
+                                            member = chatRoomDocument.data?.get("memeber") as? List<String>,
+                                            lastChatMessageResponse = LastChatMessageResponse(
+                                                senderEmail = it.getString("senderEmail"),
+                                                content = it.getString("content"),
+                                                sendTime = it.getTimestamp("sendTime")?.toDate()
+                                            )
+                                        )
+                                    }.let {
+                                        ChatRoomListResponse(it)
+                                    }
+                                    trySend(chatRoomListResponse)
+
+                                }
                         }
-
-                        trySend(chatRoomListResponse)
                     }
 
                 awaitClose {
@@ -292,5 +323,4 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }
     }
 
- */
 }
