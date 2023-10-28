@@ -9,6 +9,5 @@ data class ChatRoomResponse(
     val roomThumbnail: Uri?,
     val createTime: Date?,
     val member: List<String>?,
-    val lastMessage: String?,
-    val lastMessageTime: Date?
+    val lastChatMessageResponse: LastChatMessageResponse?
 )

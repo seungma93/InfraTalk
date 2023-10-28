@@ -19,4 +19,5 @@ interface ChatDataRepository {
     suspend fun loadChatMessageList(chatMessageListLoadForm: ChatMessageListLoadForm): ChatMessageListEntity
     fun loadRealTimeChatMessage(realTimeChatMessageLoadForm: RealTimeChatMessageLoadForm): Flow<ChatMessageListEntity>
     suspend fun loadChatRoomList(): ChatRoomListEntity
+    fun loadRealTimeChatRoom(): Flow<ChatRoomListEntity>
 }
