@@ -111,4 +111,8 @@ class ChatDataRepositoryImpl @Inject constructor(
     override suspend fun loadChatRoomList(): ChatRoomListEntity {
         return chatDataSource.loadChatRoomList().toEntity()
     }
+
+    override fun loadRealTimeChatRoom(): Flow<ChatRoomListEntity> {
+        return chatDataSource.loadRealTimeChatRoom().map { it.toEntity() }
+    }
 }
