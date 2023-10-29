@@ -12,16 +12,20 @@ import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.domain.entity.ChatStartEntity
+import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.usecase.CheckChatRoomUseCase
+import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
 import com.freetalk.domain.usecase.SendChatMessageUseCase
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
+import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -45,8 +49,10 @@ sealed class ChatRoomViewEvent {
 }
 
 class ChatRoomViewModel @Inject constructor(
-    private val loadChatRoomListUseCase: LoadChatRoomListUseCase
-    //private val checkChatRoomUseCase: CheckChatRoomUseCase
+    private val loadChatRoomListUseCase: LoadChatRoomListUseCase,
+    private val checkChatRoomUseCase: CheckChatRoomUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatRoomViewEvent>()
     val viewEvent: SharedFlow<ChatRoomViewEvent> = _viewEvent.asSharedFlow()
@@ -60,24 +66,30 @@ class ChatRoomViewModel @Inject constructor(
             SharingStarted.Eagerly,
             ChatRoomViewState(ChatRoomListEntity(emptyList()))
         )
-/*
+
     init {
         viewModelScope.launch {
-            loadRealTimeChatMessageUseCase(
-                RealTimeChatMessageLoadForm(
-                    chatRoomId = chatEntity.chatRoomId
-                )
-            ).collect { newChat ->
+            loadRealTimeChatRoomUseCase().collect { changedChatRoomListEntity ->
                 _viewState.update {
-                    val newChatList =
-                        newChat.chatMessageList + it.chatMessageListEntity.chatMessageList
-                    viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(chatMessageList = newChatList), isNewChatMessage = true)
+                    val oldChatRoomList = it.chatRoomListEntity.chatRoomList
+
+                    val filterRoomList = oldChatRoomList.filterNot { oldChatRoom ->
+                        changedChatRoomListEntity.chatRoomList.any { changedChatRoom -> oldChatRoom.primaryKey == changedChatRoom.primaryKey }
+                    }
+                    val newChatRoomList =
+                        (filterRoomList + changedChatRoomListEntity.chatRoomList).sortedByDescending { it.lastChatMessageEntity?.sendTime }
+
+
+                    viewState.value.copy(
+                        chatRoomListEntity = ChatRoomListEntity(
+                            chatRoomList = newChatRoomList
+                        )
+                    )
                 }
             }
         }
     }
 
- */
 
     data class ChatRoomViewState(
         val chatRoomListEntity: ChatRoomListEntity,
@@ -92,19 +104,18 @@ class ChatRoomViewModel @Inject constructor(
 
         return result?.let {
             _viewState.updateAndGet { _ ->
+                Log.d("seungma", "loadChatRoom" + it.chatRoomList.size)
                 viewState.value.copy(chatRoomListEntity = it)
             }
         } ?: viewState.value
     }
-/*
-    suspend fun startChat(
-        chatRoomCheckForm: ChatRoomCheckForm
-    ) {
+
+    suspend fun startChat(chatRoomCheckForm: ChatRoomCheckForm) {
         kotlin.runCatching {
+            val chatRoomCheckEntity =
+                checkChatRoomUseCase(chatRoomCheckForm = chatRoomCheckForm)
 
-            val chatRoomCheckEntity = checkChatRoomUseCase(chatRoomCheckForm = chatRoomCheckForm)
-
-            when(chatRoomCheckEntity.isChatRoom) {
+            when (chatRoomCheckEntity.isChatRoom) {
                 true -> {
                     _viewEvent.emit(
                         ChatRoomViewEvent.ChatStart(
@@ -117,9 +128,7 @@ class ChatRoomViewModel @Inject constructor(
                     )
                 }
 
-                false -> {
-
-                }
+                false -> {}
             }
 
         }.onFailure {
@@ -127,6 +136,7 @@ class ChatRoomViewModel @Inject constructor(
         }
     }
 
- */
-
+    fun getUserInfo(): UserEntity {
+        return getUserInfoUseCase()
+    }
 }

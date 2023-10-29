@@ -21,10 +21,12 @@ import dagger.Component
         Modules.FirebaseChatDataSourceModule::class,
         // Repository
         Modules.ChatDataRepositoryModule::class,
+        Modules.UserDataRepositoryModule::class,
         // UseCase
 //        Modules.SendChatMessageUseCaseModule::class,
 //        Modules.LoadChatMessageListUseCaseModule::class,
 //        Modules.LoadRealTimeChatMessageUseCaseModule::class,
+        //Modules.GetUserInfoUseCaseModule::class,
         // ViewModel
         //Modules.ChatViewModelModule::class,
         Modules.ChatRoomViewModelModule::class,

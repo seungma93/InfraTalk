@@ -19,6 +19,7 @@ import com.freetalk.data.model.response.ChatRoomCreateResponse
 import com.freetalk.data.model.response.ChatRoomListResponse
 import com.freetalk.data.model.response.ChatRoomResponse
 import com.freetalk.data.model.response.LastChatMessageResponse
+import com.freetalk.domain.entity.BoardMetaEntity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
@@ -248,7 +249,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     lastChatMessageResponse = LastChatMessageResponse(
                         senderEmail = chatDocument?.data?.get("senderEmail") as? String,
                         content = chatDocument?.data?.get("content") as? String,
-                        sendTime = (chatDocument?.data?.get("senderEmail") as? Timestamp)?.toDate()
+                        sendTime = (chatDocument?.data?.get("sendTime") as? Timestamp)?.toDate()
                     )
                 )
             }.sortedByDescending {
@@ -265,7 +266,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     override fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
         return callbackFlow {
             kotlin.runCatching {
-                val snapshotListener = database.collection("chatRoom")
+                val snapshotListener = database.collection("ChatRoom")
                     .whereArrayContains("member", userDataSource.getUserInfo().email)
                     .addSnapshotListener { snapshot, e ->
                         if (e != null) {
@@ -277,7 +278,9 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                             val chatRoomDocument = documentChange.document
                             val chatRoomId = chatRoomDocument.id
 
-                            database.collection("chatRoom/$chatRoomId/chat")
+                            database.collection("ChatRoom/$chatRoomId/Chat")
+                                .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
+                                .orderBy("sendTime", Query.Direction.DESCENDING)
                                 .addSnapshotListener { chatSnapshot, chatError ->
                                     if (chatError != null) {
 
@@ -297,7 +300,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                             roomThumbnail = chatRoomDocument.get("roomThumbnail") as? Uri,
                                             createTime = chatRoomDocument.getTimestamp("createTime")
                                                 ?.toDate(),
-                                            member = chatRoomDocument.data?.get("memeber") as? List<String>,
+                                            member = chatRoomDocument.data?.get("member") as? List<String>,
                                             lastChatMessageResponse = LastChatMessageResponse(
                                                 senderEmail = it.getString("senderEmail"),
                                                 content = it.getString("content"),
@@ -308,7 +311,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                         ChatRoomListResponse(it)
                                     }
                                     trySend(chatRoomListResponse)
-
                                 }
                         }
                     }

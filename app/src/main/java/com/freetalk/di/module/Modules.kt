@@ -56,6 +56,7 @@ import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
 import com.freetalk.domain.usecase.LogInUseCase
 import com.freetalk.domain.usecase.LogInUseCaseImpl
 import com.freetalk.domain.usecase.ResetPasswordUseCase
@@ -121,7 +122,10 @@ class Modules {
     @Module
     class FirebaseBoardDataSourceModule {
         @Provides
-        fun providesFirebaseBoardRemoteDataSource(database: FirebaseFirestore, userDataSource: UserDataSource): BoardDataSource {
+        fun providesFirebaseBoardRemoteDataSource(
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
+        ): BoardDataSource {
             return FirebaseBoardRemoteDataSourceImpl(database, userDataSource)
         }
     }
@@ -613,6 +617,18 @@ class Modules {
         }
     }
 
+    @Module
+    class LoadRealTimeChatRoomUseCaseModule {
+        @Provides
+        fun providesLoadRealTimeChatRoomUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LoadRealTimeChatRoomUseCase {
+            return LoadRealTimeChatRoomUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -742,10 +758,16 @@ class Modules {
         @IntoMap
         @ViewModelKey(ChatRoomViewModel::class)
         fun providesChatRoomViewModel(
-            loadChatRoomListUseCase: LoadChatRoomListUseCase
+            loadChatRoomListUseCase: LoadChatRoomListUseCase,
+            checkChatRoomUseCase: CheckChatRoomUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase,
+            loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
         ): ViewModel {
             return ChatRoomViewModel(
-                loadChatRoomListUseCase
+                loadChatRoomListUseCase,
+                checkChatRoomUseCase,
+                getUserInfoUseCase,
+                loadRealTimeChatRoomUseCase
             )
         }
     }
