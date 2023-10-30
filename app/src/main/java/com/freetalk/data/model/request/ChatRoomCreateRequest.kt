@@ -4,7 +4,7 @@ import android.net.Uri
 import java.util.Date
 
 data class ChatRoomCreateRequest(
-    val roomID: String,
+    val roomId: String,
     val member: List<String>,
     val roomThumbnail: Uri?,
     val chatDocument: String?,
