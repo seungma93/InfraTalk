@@ -19,6 +19,9 @@ import com.freetalk.domain.entity.CommentEntity
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.google.firebase.firestore.auth.User
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 sealed class ChatItem {
     abstract val chatMessageEntity: ChatMessageEntity
@@ -134,7 +137,7 @@ class ChatMessageOwnerViewHolder(
         binding.apply {
             chatMessageEntity.let {
                 content.text = it.content
-                date.text = it.sendTime.toString()
+                date.text = modifiedDate(it.sendTime)
                 /*
                 title.text = it.boardMetaEntity.title
                 date.text = it.boardMetaEntity.createTime.toString()
@@ -149,6 +152,29 @@ class ChatMessageOwnerViewHolder(
                  */
             }
         }
+    }
+
+    private fun modifiedDate(date: Date?): String {
+
+        // 현재 날짜
+        val currentDate = Date()
+
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // 날짜를 문자열로 변환
+        val dateFromDatabaseString = sdf.format(date)
+        val currentDateString = sdf.format(currentDate)
+
+        // 날짜를 비교하여 표시할 내용 결정
+        val displayText = if (dateFromDatabaseString == currentDateString) {
+            // 같은 날짜인 경우, 시간으로 표시
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+        } else {
+            // 하루가 지났으면 일자로 표시
+            dateFromDatabaseString
+        }
+        return displayText
     }
 }
 
@@ -169,7 +195,7 @@ class ChatMessagePartnerViewHolder(
         binding.apply {
             chatMessageEntity.let {
                 content.text = it.content
-                date.text = it.sendTime.toString()
+                date.text = modifiedDate(it.sendTime)
                 /*
                 Log.d("CommentListAdapter", "바인딩")
                 context.text = it.commentMetaEntity.content
@@ -190,5 +216,28 @@ class ChatMessagePartnerViewHolder(
                  */
             }
         }
+    }
+
+    private fun modifiedDate(date: Date?): String {
+
+        // 현재 날짜
+        val currentDate = Date()
+
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // 날짜를 문자열로 변환
+        val dateFromDatabaseString = sdf.format(date)
+        val currentDateString = sdf.format(currentDate)
+
+        // 날짜를 비교하여 표시할 내용 결정
+        val displayText = if (dateFromDatabaseString == currentDateString) {
+            // 같은 날짜인 경우, 시간으로 표시
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+        } else {
+            // 하루가 지났으면 일자로 표시
+            dateFromDatabaseString
+        }
+        return displayText
     }
 }

@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import java.lang.Exception
 import java.sql.Time
 import javax.inject.Inject
 
@@ -200,7 +202,11 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 }
             }.onFailure {
                 it.printStackTrace()
-                throw FailSelectException("셀렉트에 실패 했습니다", it)
+
+                if(it is CancellationException) {
+                    Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+                } else throw FailSelectException("셀렉트에 실패 했습니다", it)
+
             }.getOrThrow()
         }.map { documents ->
             coroutineScope {
@@ -315,13 +321,19 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         }
                     }
 
-                awaitClose {
-                    snapshotListener.remove()
-                }
+                    awaitClose {
+                            snapshotListener.remove()
+                    }
+
             }.onFailure {
-                it.printStackTrace()
-                throw FailSelectException("셀렉트에 실패 했습니다", it)
+
+                if(it is CancellationException) {
+                    Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+                } else throw FailSelectException("셀렉트에 실패 했습니다", it)
+
             }.getOrThrow()
+
+
         }
     }
 
