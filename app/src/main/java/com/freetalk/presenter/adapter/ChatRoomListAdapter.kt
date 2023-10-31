@@ -103,7 +103,7 @@ class ChatRoomListAdapter(
                 SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
             } else {
                 // 하루가 지났으면 일자로 표시
-                dateFromDatabaseString
+                SimpleDateFormat("MM월 dd일", Locale.getDefault()).format(date)
             }
             return displayText
         }

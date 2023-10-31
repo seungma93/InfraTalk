@@ -61,7 +61,7 @@ class ChatDataRepositoryImpl @Inject constructor(
 
             chatDataSource.createChatRoom(
                 chatRoomCreateRequest = ChatRoomCreateRequest(
-                    roomId = userNicknameList.joinToString(separator = "|"),
+                    roomId = userNicknameList.joinToString(separator = ", "),
                     member = chatRoomCreateForm.member,
                     roomThumbnail = null,
                     chatDocument = null,
