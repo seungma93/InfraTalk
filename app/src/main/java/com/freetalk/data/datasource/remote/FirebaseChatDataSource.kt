@@ -203,7 +203,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }.onFailure {
                 it.printStackTrace()
 
-                if(it is CancellationException) {
+                if (it is CancellationException) {
                     Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
                 } else throw FailSelectException("셀렉트에 실패 했습니다", it)
 
@@ -258,9 +258,12 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         sendTime = (chatDocument?.data?.get("sendTime") as? Timestamp)?.toDate()
                     )
                 )
-            }.sortedByDescending {
-                it.lastChatMessageResponse?.sendTime
-            }.let {
+            }.sortedWith(
+                compareByDescending {
+                    it.lastChatMessageResponse?.sendTime
+                        ?: it.createTime // sendTime이 null이면 createTime으로 비교, 아니면 sendTime으로 비교
+                }
+            ).let {
                 ChatRoomListResponse(it)
             }
 
@@ -272,17 +275,54 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     override fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
         return callbackFlow {
             kotlin.runCatching {
-                val snapshotListener = database.collection("ChatRoom")
+
+                val chatRoomListener = database.collection("ChatRoom")
+                    .whereArrayContains("member", userDataSource.getUserInfo().email)
+                    .whereGreaterThanOrEqualTo("createTime", Timestamp.now())
+                    .orderBy("createTime", Query.Direction.DESCENDING)
+                    .addSnapshotListener { chatSnapshot, chatError ->
+                        if (chatError != null) {
+
+                            return@addSnapshotListener
+                        }
+
+                        val documents =
+                            chatSnapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                                ?.map { it.document }
+                                ?: emptyList()
+
+
+                        val chatRoomListResponse = documents.map {
+                            ChatRoomResponse(
+                                primaryKey = it.id,
+                                roomId = it.getString("roomId"),
+                                roomThumbnail = it.get("roomThumbnail") as? Uri,
+                                createTime = it.getTimestamp("createTime")
+                                    ?.toDate(),
+                                member = it.data?.get("member") as? List<String>,
+                                lastChatMessageResponse = null
+                            )
+                        }.let {
+                            ChatRoomListResponse(it)
+                        }
+                        trySend(chatRoomListResponse)
+                    }
+
+                val chatListener = database.collection("ChatRoom")
                     .whereArrayContains("member", userDataSource.getUserInfo().email)
                     .addSnapshotListener { snapshot, e ->
                         if (e != null) {
                             return@addSnapshotListener
                         }
 
+                        Log.d("seungma", "실시간 채팅방 로드" + snapshot?.documentChanges?.size)
+
                         for (documentChange in snapshot?.documentChanges ?: emptyList()) {
 
                             val chatRoomDocument = documentChange.document
                             val chatRoomId = chatRoomDocument.id
+
+
 
                             database.collection("ChatRoom/$chatRoomId/Chat")
                                 .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
@@ -321,13 +361,14 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         }
                     }
 
-                    awaitClose {
-                            snapshotListener.remove()
-                    }
+                awaitClose {
+                    chatRoomListener.remove()
+                    chatListener.remove()
+                }
 
             }.onFailure {
 
-                if(it is CancellationException) {
+                if (it is CancellationException) {
                     Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
                 } else throw FailSelectException("셀렉트에 실패 했습니다", it)
 
