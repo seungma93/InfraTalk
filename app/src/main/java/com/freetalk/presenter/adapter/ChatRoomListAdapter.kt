@@ -57,9 +57,8 @@ class ChatRoomListAdapter(
                 chatRoomEntity.let {
                     Log.d("BoardListAdpater", "셀렉트 바인딩")
                     tvChatRoomTitle.text = it.roomId
-                    tvLastChatContent.text = it.lastChatMessageEntity?.content.toString()
-                    tvLastChatTime.text =
-                        modifiedDate(it.lastChatMessageEntity?.sendTime)
+                    tvLastChatContent.text = it.lastChatMessageEntity?.let { it.content } ?: "대화 없음"
+                    tvLastChatTime.text = it.lastChatMessageEntity?.let { modifiedDate(it.sendTime) } ?: modifiedDate(it.createTime)
                     /*
                     context.text = it.boardMetaEntity.content
                     date.text = it.boardMetaEntity.createTime.toString()
