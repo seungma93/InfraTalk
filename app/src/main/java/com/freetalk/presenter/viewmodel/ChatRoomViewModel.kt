@@ -68,8 +68,10 @@ class ChatRoomViewModel @Inject constructor(
         )
 
     init {
+        Log.d("seungma", "init")
         viewModelScope.launch {
             loadRealTimeChatRoomUseCase().collect { changedChatRoomListEntity ->
+                Log.d("seungma", "뷰모델" + changedChatRoomListEntity.chatRoomList.size)
                 _viewState.update {
                     val oldChatRoomList = it.chatRoomListEntity.chatRoomList
 
@@ -77,7 +79,13 @@ class ChatRoomViewModel @Inject constructor(
                         changedChatRoomListEntity.chatRoomList.any { changedChatRoom -> oldChatRoom.primaryKey == changedChatRoom.primaryKey }
                     }
                     val newChatRoomList =
-                        (filterRoomList + changedChatRoomListEntity.chatRoomList).sortedByDescending { it.lastChatMessageEntity?.sendTime }
+                        (filterRoomList + changedChatRoomListEntity.chatRoomList).sortedWith(
+                            compareByDescending { chatRoom ->
+                                chatRoom.lastChatMessageEntity?.sendTime ?: chatRoom.createTime
+                            }
+                        )
+
+                    //.sortedByDescending { it.lastChatMessageEntity?.sendTime }
 
 
                     viewState.value.copy(
