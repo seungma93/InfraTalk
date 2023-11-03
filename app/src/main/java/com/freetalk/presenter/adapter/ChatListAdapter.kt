@@ -194,7 +194,8 @@ class ChatMessagePartnerViewHolder(
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
-                content.text = it.content
+                tvName.text = it.sender.nickname
+                tvContent.text = it.content
                 date.text = modifiedDate(it.sendTime)
                 /*
                 Log.d("CommentListAdapter", "바인딩")
@@ -224,7 +225,7 @@ class ChatMessagePartnerViewHolder(
         val currentDate = Date()
 
         // 날짜 포맷 지정
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
 
         // 날짜를 문자열로 변환
         val dateFromDatabaseString = sdf.format(date)
