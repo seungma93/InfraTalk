@@ -252,11 +252,15 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     member = it.data?.get("member") as? List<String>,
-                    lastChatMessageResponse = LastChatMessageResponse(
-                        senderEmail = chatDocument?.data?.get("senderEmail") as? String,
-                        content = chatDocument?.data?.get("content") as? String,
-                        sendTime = (chatDocument?.data?.get("sendTime") as? Timestamp)?.toDate()
-                    )
+                    lastChatMessageResponse = if (chatDocument?.data?.get("senderEmail") != null) {
+                        LastChatMessageResponse(
+                            senderEmail = chatDocument.data["senderEmail"] as String,
+                            content = chatDocument.data["content"] as? String,
+                            sendTime = (chatDocument.data["sendTime"] as? Timestamp)?.toDate()
+                        )
+                    } else {
+                        null
+                    }
                 )
             }.sortedWith(
                 compareByDescending {
