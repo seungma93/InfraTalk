@@ -136,7 +136,7 @@ class ChatMessageOwnerViewHolder(
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
-                content.text = it.content
+                tvMessage.text = it.content
                 date.text = modifiedDate(it.sendTime)
                 /*
                 title.text = it.boardMetaEntity.title
