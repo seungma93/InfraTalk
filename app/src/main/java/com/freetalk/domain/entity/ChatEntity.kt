@@ -55,7 +55,7 @@ data class ChatMessageListEntity(
 
 data class ChatRoomEntity(
     val primaryKey: String,
-    val roomId: String,
+    val roomName: String,
     val roomThumbnail: Uri?,
     val createTime: Date,
     val member: List<String>,

@@ -5,7 +5,7 @@ import java.util.Date
 
 data class ChatRoomResponse(
     val primaryKey: String?,
-    val roomId: String?,
+    val roomName: String?,
     val roomThumbnail: Uri?,
     val createTime: Date?,
     val member: List<String>?,

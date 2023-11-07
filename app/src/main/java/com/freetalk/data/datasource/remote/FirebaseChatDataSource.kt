@@ -248,7 +248,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
                 ChatRoomResponse(
                     primaryKey = it.id,
-                    roomId = it.data?.get("roomId") as? String,
+                    roomName = it.data?.get("roomName") as? String,
                     roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     member = it.data?.get("member") as? List<String>,
@@ -299,7 +299,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         val chatRoomListResponse = documents.map {
                             ChatRoomResponse(
                                 primaryKey = it.id,
-                                roomId = it.getString("roomId"),
+                                roomName = it.getString("roomName"),
                                 roomThumbnail = it.get("roomThumbnail") as? Uri,
                                 createTime = it.getTimestamp("createTime")
                                     ?.toDate(),
@@ -346,7 +346,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                     val chatRoomListResponse = documents.map {
                                         ChatRoomResponse(
                                             primaryKey = chatRoomDocument.id,
-                                            roomId = chatRoomDocument.getString("roomId"),
+                                            roomName = chatRoomDocument.getString("roomName"),
                                             roomThumbnail = chatRoomDocument.get("roomThumbnail") as? Uri,
                                             createTime = chatRoomDocument.getTimestamp("createTime")
                                                 ?.toDate(),

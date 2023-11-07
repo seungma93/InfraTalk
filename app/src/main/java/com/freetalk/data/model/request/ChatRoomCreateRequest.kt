@@ -4,12 +4,9 @@ import android.net.Uri
 import java.util.Date
 
 data class ChatRoomCreateRequest(
-    val roomId: String,
+    val roomName: String,
     val member: List<String>,
-    val roomThumbnail: Uri?,
-    val chatDocument: String?,
-    val lastMessage: String?,
-    val lastMessageTime: Date?
+    val roomThumbnail: Uri?
     ) {
     val createTime: Date get() = Date(System.currentTimeMillis())
 }

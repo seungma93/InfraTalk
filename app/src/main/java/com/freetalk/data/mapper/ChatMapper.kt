@@ -66,7 +66,7 @@ fun ChatMessageListResponse.toEntity(): ChatMessageListEntity {
 fun ChatRoomResponse.toEntity(): ChatRoomEntity {
     return ChatRoomEntity(
         primaryKey = primaryKey ?: error(""),
-        roomId = roomId.orEmpty(),
+        roomName = roomName.orEmpty(),
         roomThumbnail = roomThumbnail ?: Uri.parse(""),
         createTime = createTime ?: Date(),
         member = member ?: error(""),
