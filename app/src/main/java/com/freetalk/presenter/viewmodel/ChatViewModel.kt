@@ -1,6 +1,5 @@
 package com.freetalk.presenter.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -8,11 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSend
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
+import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
+import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.SendChatMessageUseCase
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,11 +22,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.getAndUpdate
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -39,7 +37,8 @@ sealed class ChatViewEvent {
 class ChatViewModelFactory @Inject constructor(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
-    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
+    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
+    private val loadChatRoomUseCase: LoadChatRoomUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
         key: String,
@@ -51,7 +50,8 @@ class ChatViewModelFactory @Inject constructor(
             handle,
             sendChatMessageUseCase,
             loadChatMessageListUseCase,
-            loadRealTimeChatMessageUseCase
+            loadRealTimeChatMessageUseCase,
+            loadChatRoomUseCase
         ) as T
     }
 }
@@ -60,7 +60,8 @@ class ChatViewModel @Inject constructor(
     private val stateHandle: SavedStateHandle,
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
-    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
+    private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
+    private val loadChatRoomUseCase: LoadChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatViewEvent>()
     val viewEvent: SharedFlow<ChatViewEvent> = _viewEvent.asSharedFlow()
@@ -70,13 +71,13 @@ class ChatViewModel @Inject constructor(
     )
 
     private val _viewState =
-        MutableStateFlow(ChatViewState(ChatMessageListEntity(emptyList()), false))
+        MutableStateFlow(ChatViewState(ChatMessageListEntity(emptyList()), false, null))
     val viewState: StateFlow<ChatViewState> = _viewState
         .catch {
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            ChatViewState(ChatMessageListEntity(emptyList()), false)
+            ChatViewState(ChatMessageListEntity(emptyList()), false, null)
         )
 
     init {
@@ -97,7 +98,8 @@ class ChatViewModel @Inject constructor(
 
     data class ChatViewState(
         val chatMessageListEntity: ChatMessageListEntity,
-        val isNewChatMessage: Boolean
+        val isNewChatMessage: Boolean,
+        val chatRoomEntity: ChatRoomEntity?
     )
 
     suspend fun sendChatMessage(
@@ -140,5 +142,23 @@ class ChatViewModel @Inject constructor(
             }
         } ?: viewState.value
     }
+
+    suspend fun loadChatRoomName(
+        chatRoomLoadForm: ChatRoomLoadForm
+    ): ChatViewState {
+        val result = kotlin.runCatching {
+                loadChatRoomUseCase(chatRoomLoadForm = chatRoomLoadForm)
+
+        }.onFailure {
+
+        }.getOrNull()
+
+        return result?.let {
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(chatRoomEntity = it)
+            }
+        } ?: viewState.value
+    }
+
 
 }
