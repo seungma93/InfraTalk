@@ -13,6 +13,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.domain.entity.BoardInsertEntity
@@ -22,6 +23,7 @@ import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
+import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.form.BoardListLoadForm
@@ -31,10 +33,12 @@ import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
+import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import toEntity
 import java.util.Date
@@ -111,5 +115,13 @@ class ChatDataRepositoryImpl @Inject constructor(
 
     override fun loadRealTimeChatRoom(): Flow<ChatRoomListEntity> {
         return chatDataSource.loadRealTimeChatRoom().map { it.toEntity() }
+    }
+
+    override suspend fun loadChatRoom(chatRoomLoadForm: ChatRoomLoadForm): ChatRoomEntity {
+        return chatDataSource.loadChatRoom(
+            chatRoomLoadRequest = ChatRoomLoadRequest(
+                chatRoomId = chatRoomLoadForm.chatRoomId
+            )
+        ).toEntity()
     }
 }

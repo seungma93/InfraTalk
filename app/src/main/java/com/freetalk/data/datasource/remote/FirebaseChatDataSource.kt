@@ -9,6 +9,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.ChatMessageListResponse
@@ -47,6 +48,7 @@ interface ChatDataSource {
     fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
     suspend fun loadChatRoomList(): ChatRoomListResponse
     fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse>
+    suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
 }
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -380,6 +382,37 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
 
         }
+    }
+
+    override suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse {
+        return kotlin.runCatching {
+            val snapshot = database.collection("ChatRoom")
+                .document(chatRoomLoadRequest.chatRoomId)
+                .get().await()
+
+            snapshot?.let {
+                ChatRoomResponse(
+                    primaryKey = it.id,
+                    roomName = it.data?.get("roomName") as? String,
+                    roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    member = it.data?.get("member") as? List<String>,
+                    lastChatMessageResponse = null
+                )
+            } ?: run {
+                throw error("")//FailSelectException("셀렉트에 실패 했습니다", it)
+            }
+
+
+
+        }.onFailure {
+
+            if (it is CancellationException) {
+                Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+            } else throw FailSelectException("셀렉트에 실패 했습니다", it)
+
+        }.getOrThrow()
+
     }
 
 }

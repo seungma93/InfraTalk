@@ -24,6 +24,7 @@ import com.freetalk.presenter.adapter.ChatItem
 import com.freetalk.presenter.adapter.ChatListAdapter
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.viewmodel.ChatViewEvent
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModelFactory
@@ -148,6 +149,11 @@ class ChatFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             //showProgressBar()
+
+            val chatRoomEntity = chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
+
+            chatRoomEntity?.let { binding.tvChatTitle.text = it.roomName }
+
             val viewState = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
@@ -167,7 +173,7 @@ class ChatFragment : Fragment() {
                 Log.d("seungma", "콜렉트 호출")
 
                 chatListAdapter.submitList(createChatItem(it)) {
-                    if(it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                    if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
                 }
 
             }

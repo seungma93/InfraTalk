@@ -54,6 +54,7 @@ import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomListUseCase
+import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -629,6 +630,18 @@ class Modules {
         }
     }
 
+    @Module
+    class LoadChatRoomUseCaseModule {
+        @Provides
+        fun providesLoadChatRoomUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LoadChatRoomUseCase {
+            return LoadChatRoomUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -741,13 +754,15 @@ class Modules {
             savedStateHandle: SavedStateHandle,
             sendChatMessageUseCase: SendChatMessageUseCase,
             loadChatMessageListUseCase: LoadChatMessageListUseCase,
-            loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase
+            loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
+            loadChatRoomUseCase: LoadChatRoomUseCase
         ): ViewModel {
             return ChatViewModel(
                 savedStateHandle,
                 sendChatMessageUseCase,
                 loadChatMessageListUseCase,
-                loadRealTimeChatMessageUseCase
+                loadRealTimeChatMessageUseCase,
+                loadChatRoomUseCase
             )
         }
     }
