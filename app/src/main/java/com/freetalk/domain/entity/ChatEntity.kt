@@ -71,3 +71,7 @@ data class LastChatMessageEntity(
     val content: String,
     val sendTime: Date
 )
+
+data class ChatRoomLeaveEntity(
+    val isSuccess: Boolean
+)

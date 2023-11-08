@@ -1,5 +1,6 @@
 package com.freetalk.domain.repository
 
+import androidx.compose.runtime.rememberUpdatedState
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.datasource.remote.BoardDataSource
 import com.freetalk.data.datasource.remote.ChatDataSource
@@ -13,6 +14,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.ChatRoomLeaveRequest
 import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
@@ -24,6 +26,7 @@ import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
 import com.freetalk.domain.entity.ChatRoomEntity
+import com.freetalk.domain.entity.ChatRoomLeaveEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.form.BoardListLoadForm
@@ -33,6 +36,7 @@ import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
+import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.async
@@ -123,5 +127,10 @@ class ChatDataRepositoryImpl @Inject constructor(
                 chatRoomId = chatRoomLoadForm.chatRoomId
             )
         ).toEntity()
+    }
+
+    override suspend fun leaveChatRoom(chatRoomLeaveForm: ChatRoomLeaveForm): ChatRoomLeaveEntity {
+        return chatDataSource.leaveChatRoom(chatRoomLeaveRequest = ChatRoomLeaveRequest(chatRoomId = chatRoomLeaveForm.chatRoomId))
+            .toEntity()
     }
 }
