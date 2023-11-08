@@ -6,6 +6,7 @@ import com.freetalk.data.model.response.ChatMessageResponse
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
+import com.freetalk.data.model.response.ChatRoomLeaveResponse
 import com.freetalk.data.model.response.ChatRoomListResponse
 import com.freetalk.data.model.response.ChatRoomResponse
 import com.freetalk.data.model.response.LastChatMessageResponse
@@ -15,6 +16,7 @@ import com.freetalk.domain.entity.ChatMessageSendEntity
 import com.freetalk.domain.entity.ChatRoomCheckEntity
 import com.freetalk.domain.entity.ChatRoomCreateEntity
 import com.freetalk.domain.entity.ChatRoomEntity
+import com.freetalk.domain.entity.ChatRoomLeaveEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.domain.entity.LastChatMessageEntity
 import toEntity
@@ -87,5 +89,11 @@ fun LastChatMessageResponse.toEntity(): LastChatMessageEntity {
         senderEmail = senderEmail.orEmpty(),
         content = content.orEmpty(),
         sendTime = sendTime ?: Date()
+    )
+}
+
+fun ChatRoomLeaveResponse.toEntity(): ChatRoomLeaveEntity {
+    return ChatRoomLeaveEntity(
+        isSuccess = isSuccess ?: false
     )
 }

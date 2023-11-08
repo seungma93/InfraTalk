@@ -9,6 +9,7 @@ import com.freetalk.data.model.request.ChatMessageListLoadRequest
 import com.freetalk.data.model.request.ChatMessageSendRequest
 import com.freetalk.data.model.request.ChatRoomCheckRequest
 import com.freetalk.data.model.request.ChatRoomCreateRequest
+import com.freetalk.data.model.request.ChatRoomLeaveRequest
 import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
@@ -17,6 +18,7 @@ import com.freetalk.data.model.response.ChatMessageResponse
 import com.freetalk.data.model.response.ChatMessageSendResponse
 import com.freetalk.data.model.response.ChatRoomCheckResponse
 import com.freetalk.data.model.response.ChatRoomCreateResponse
+import com.freetalk.data.model.response.ChatRoomLeaveResponse
 import com.freetalk.data.model.response.ChatRoomListResponse
 import com.freetalk.data.model.response.ChatRoomResponse
 import com.freetalk.data.model.response.LastChatMessageResponse
@@ -49,6 +51,7 @@ interface ChatDataSource {
     suspend fun loadChatRoomList(): ChatRoomListResponse
     fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse>
     suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
+    suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
 }
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -404,7 +407,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }
 
 
-
         }.onFailure {
 
             if (it is CancellationException) {
@@ -413,6 +415,48 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
         }.getOrThrow()
 
+    }
+
+    override suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse {
+        return kotlin.runCatching {
+            val snapshot = database.collection("ChatRoom")
+                .document(chatRoomLeaveRequest.chatRoomId)
+                .get().await()
+
+            data class Member(
+                val member: List<String>
+            )
+
+            snapshot?.let {
+                val member = it.data?.get("member") as? List<String>
+                when (member?.size) {
+                    1 -> {
+                        database.collection("ChatRoom")
+                            .document(chatRoomLeaveRequest.chatRoomId)
+                            .delete().await()
+                    }
+
+                    2 -> {
+                        database.collection("ChatRoom")
+                            .document(chatRoomLeaveRequest.chatRoomId)
+                            .set(Member(member = member.filterNot { user -> user == userDataSource.getUserInfo().email }))
+                            .await()
+                    }
+
+                    else -> {
+
+                    }
+                }
+                ChatRoomLeaveResponse(
+                    isSuccess = true
+                )
+
+            } ?: run {
+                throw error("")
+            }
+        }.onFailure {
+            throw FailSelectException("셀렉트에 실패 했습니다", it)
+        }.getOrThrow()
     }
 
 }
