@@ -425,24 +425,20 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
             snapshot?.let {
                 val member = it.data?.get("member") as? List<String>
-                when (member?.size) {
-                    1 -> {
-                        database.collection("ChatRoom")
-                            .document(chatRoomLeaveRequest.chatRoomId)
-                            .delete().await()
-                    }
 
-                    2 -> {
-                        database.collection("ChatRoom")
-                            .document(chatRoomLeaveRequest.chatRoomId)
-                            .update("member", member.filterNot { user -> user == userDataSource.getUserInfo().email })
-                            .await()
+                val updateField = hashMapOf(
+                    "member" to member?.filterNot { user -> user == userDataSource.getUserInfo().email },
+                    "leaveMember" to member?.filter { user -> user == userDataSource.getUserInfo().email },
+                    "roomName" to when (member?.size) {
+                        2 -> "대화 상대 없음"
+                        else -> "빈 대화"
                     }
+                )
+                database.collection("ChatRoom")
+                    .document(chatRoomLeaveRequest.chatRoomId)
+                    .update(updateField)
+                    .await()
 
-                    else -> {
-
-                    }
-                }
                 ChatRoomLeaveResponse(
                     isSuccess = true
                 )
