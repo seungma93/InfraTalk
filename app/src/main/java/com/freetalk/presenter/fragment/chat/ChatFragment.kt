@@ -20,10 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.freetalk.databinding.FragmentChatBinding
 import com.freetalk.di.component.DaggerChatFragmentComponent
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
+import com.freetalk.domain.entity.ChatRoomLeave
 import com.freetalk.presenter.adapter.ChatItem
 import com.freetalk.presenter.adapter.ChatListAdapter
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.viewmodel.ChatViewEvent
 import com.freetalk.presenter.viewmodel.ChatViewModel
@@ -141,6 +143,17 @@ class ChatFragment : Fragment() {
                 }
 
             }
+
+            ivChatExit.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    chatViewModel.leaveChatRoom(
+                        chatRoomLeaveForm = ChatRoomLeaveForm(
+                            chatRoomId = chatPrimaryKeyEntity.chatRoomId
+                        )
+                    )
+                }
+            }
+
             val layoutManager = LinearLayoutManager(requireContext())
             layoutManager.reverseLayout = true;
             layoutManager.stackFromEnd = true;
@@ -207,6 +220,13 @@ class ChatFragment : Fragment() {
                             }
 
                             false -> Log.d("seungma", "메시지 전송 실패")
+                        }
+                    }
+
+                    is ChatViewEvent.LeaveChat -> {
+                        when(it.chatRoomLeave.isSuccess) {
+                            true -> parentFragmentManager.popBackStack()
+                            false -> {}
                         }
                     }
 
