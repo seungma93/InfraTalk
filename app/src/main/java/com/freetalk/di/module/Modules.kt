@@ -49,6 +49,7 @@ import com.freetalk.domain.usecase.DeleteCommentUseCase
 import com.freetalk.domain.usecase.DeleteUserInfoUseCase
 import com.freetalk.domain.usecase.DeleteUserInfoUseCaseImpl
 import com.freetalk.domain.usecase.GetUserInfoUseCase
+import com.freetalk.domain.usecase.LeaveChatRoomUseCase
 import com.freetalk.domain.usecase.LoadBoardContentUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.LoadBoardRelatedAllCommentListUseCase
@@ -642,6 +643,18 @@ class Modules {
         }
     }
 
+    @Module
+    class LeaveChatRoomUseCaseModule {
+        @Provides
+        fun providesLeaveChatRoomUseCase(
+            chatDataRepository: ChatDataRepository
+        ): LeaveChatRoomUseCase {
+            return LeaveChatRoomUseCase(
+                chatDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -755,14 +768,16 @@ class Modules {
             sendChatMessageUseCase: SendChatMessageUseCase,
             loadChatMessageListUseCase: LoadChatMessageListUseCase,
             loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
-            loadChatRoomUseCase: LoadChatRoomUseCase
+            loadChatRoomUseCase: LoadChatRoomUseCase,
+            leaveChatRoomUseCase: LeaveChatRoomUseCase
         ): ViewModel {
             return ChatViewModel(
                 savedStateHandle,
                 sendChatMessageUseCase,
                 loadChatMessageListUseCase,
                 loadRealTimeChatMessageUseCase,
-                loadChatRoomUseCase
+                loadChatRoomUseCase,
+                leaveChatRoomUseCase
             )
         }
     }

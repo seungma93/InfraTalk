@@ -75,3 +75,7 @@ data class LastChatMessageEntity(
 data class ChatRoomLeaveEntity(
     val isSuccess: Boolean
 )
+
+data class ChatRoomLeave(
+    val isSuccess: Boolean
+)

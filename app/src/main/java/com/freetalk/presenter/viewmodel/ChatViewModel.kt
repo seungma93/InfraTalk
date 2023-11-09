@@ -8,12 +8,15 @@ import com.freetalk.domain.entity.ChatMessageListEntity
 import com.freetalk.domain.entity.ChatMessageSend
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
 import com.freetalk.domain.entity.ChatRoomEntity
+import com.freetalk.domain.entity.ChatRoomLeave
+import com.freetalk.domain.usecase.LeaveChatRoomUseCase
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.SendChatMessageUseCase
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,6 +34,7 @@ import javax.inject.Inject
 
 sealed class ChatViewEvent {
     data class SendMessage(val chatMessageSend: ChatMessageSend) : ChatViewEvent()
+    data class LeaveChat(val chatRoomLeave: ChatRoomLeave) : ChatViewEvent()
     data class Error(val errorCode: Throwable) : ChatViewEvent()
 }
 
@@ -38,7 +42,8 @@ class ChatViewModelFactory @Inject constructor(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
     private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
-    private val loadChatRoomUseCase: LoadChatRoomUseCase
+    private val loadChatRoomUseCase: LoadChatRoomUseCase,
+    private val leaveChatRoomUseCase: LeaveChatRoomUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
         key: String,
@@ -51,7 +56,8 @@ class ChatViewModelFactory @Inject constructor(
             sendChatMessageUseCase,
             loadChatMessageListUseCase,
             loadRealTimeChatMessageUseCase,
-            loadChatRoomUseCase
+            loadChatRoomUseCase,
+            leaveChatRoomUseCase
         ) as T
     }
 }
@@ -61,7 +67,8 @@ class ChatViewModel @Inject constructor(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
     private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
-    private val loadChatRoomUseCase: LoadChatRoomUseCase
+    private val loadChatRoomUseCase: LoadChatRoomUseCase,
+    private val leaveChatRoomUseCase: LeaveChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatViewEvent>()
     val viewEvent: SharedFlow<ChatViewEvent> = _viewEvent.asSharedFlow()
@@ -158,6 +165,25 @@ class ChatViewModel @Inject constructor(
                 viewState.value.copy(chatRoomEntity = it)
             }
         } ?: viewState.value
+    }
+
+    suspend fun leaveChatRoom(
+        chatRoomLeaveForm: ChatRoomLeaveForm
+    ) {
+        kotlin.runCatching {
+            val chatRoomLeaveEntity = leaveChatRoomUseCase(chatRoomLeaveForm = chatRoomLeaveForm)
+
+            _viewEvent.emit(
+                ChatViewEvent.LeaveChat(
+                    chatRoomLeave = ChatRoomLeave(
+                        isSuccess = chatRoomLeaveEntity.isSuccess
+                    )
+                )
+            )
+
+        }.onFailure {
+            _viewEvent.emit(ChatViewEvent.Error(it))
+        }
     }
 
 

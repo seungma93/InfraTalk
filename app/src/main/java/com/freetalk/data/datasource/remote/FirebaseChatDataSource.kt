@@ -240,7 +240,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             val snapshot = database.collection("ChatRoom")
                 .whereArrayContains("member", userDataSource.getUserInfo().email)
                 .get().await()
-
+            Log.d("seungma", "채팅방 갯수" + snapshot.documents.size)
             snapshot.documents.map {
 
                 val chatSnapshot = database.collection("ChatRoom")
@@ -423,10 +423,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 .document(chatRoomLeaveRequest.chatRoomId)
                 .get().await()
 
-            data class Member(
-                val member: List<String>
-            )
-
             snapshot?.let {
                 val member = it.data?.get("member") as? List<String>
                 when (member?.size) {
@@ -439,7 +435,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     2 -> {
                         database.collection("ChatRoom")
                             .document(chatRoomLeaveRequest.chatRoomId)
-                            .set(Member(member = member.filterNot { user -> user == userDataSource.getUserInfo().email }))
+                            .update("member", member.filterNot { user -> user == userDataSource.getUserInfo().email })
                             .await()
                     }
 
