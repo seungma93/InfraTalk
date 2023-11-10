@@ -257,6 +257,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     member = it.data?.get("member") as? List<String>,
+                    leaveMember = it.data?.get("leaveMember") as? List<String>,
                     lastChatMessageResponse = if (chatDocument?.data?.get("senderEmail") != null) {
                         LastChatMessageResponse(
                             senderEmail = chatDocument.data["senderEmail"] as String,
@@ -309,6 +310,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                 createTime = it.getTimestamp("createTime")
                                     ?.toDate(),
                                 member = it.data?.get("member") as? List<String>,
+                                leaveMember = it.data?.get("leaveMember") as? List<String>,
                                 lastChatMessageResponse = null
                             )
                         }.let {
@@ -356,6 +358,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                             createTime = chatRoomDocument.getTimestamp("createTime")
                                                 ?.toDate(),
                                             member = chatRoomDocument.data?.get("member") as? List<String>,
+                                            leaveMember = chatRoomDocument.data?.get("leaveMember") as? List<String>,
                                             lastChatMessageResponse = LastChatMessageResponse(
                                                 senderEmail = it.getString("senderEmail"),
                                                 content = it.getString("content"),
@@ -400,6 +403,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
                     createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                     member = it.data?.get("member") as? List<String>,
+                    leaveMember = it.data?.get("leaveMember") as? List<String>,
                     lastChatMessageResponse = null
                 )
             } ?: run {
@@ -425,10 +429,19 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
             snapshot?.let {
                 val member = it.data?.get("member") as? List<String>
-
+                val leaveMember = it.data?.get("leaveMember") as? List<String>
+                val user = userDataSource.getUserInfo().email
                 val updateField = hashMapOf(
                     "member" to member?.filterNot { user -> user == userDataSource.getUserInfo().email },
-                    "leaveMember" to member?.filter { user -> user == userDataSource.getUserInfo().email },
+                    "leaveMember" to when (leaveMember.isNullOrEmpty()) {
+                        false -> {
+                            val mutableList = leaveMember.toMutableList()
+                            mutableList.add(user)
+                            mutableList.toList()
+                        }
+
+                        true -> member?.filter { user -> user == userDataSource.getUserInfo().email }
+                    },
                     "roomName" to when (member?.size) {
                         2 -> "대화 상대 없음"
                         else -> "빈 대화"
