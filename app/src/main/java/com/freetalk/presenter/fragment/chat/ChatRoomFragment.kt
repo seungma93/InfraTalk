@@ -55,6 +55,18 @@ class ChatRoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
+            val userEmail = chatRoomViewModel.getUserInfo().email
+            val endPoint = EndPoint.Chat(
+                chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                    partnerEmail = when(chatRoomEntity.leaveMember?.size) {
+                        1 -> chatRoomEntity.leaveMember.first()
+                        else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
+                    },
+                    chatRoomId = chatRoomEntity.primaryKey
+                )
+            )
+            (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+            /*
             viewLifecycleOwner.lifecycleScope.launch {
                 val userEmail = chatRoomViewModel.getUserInfo().email
                 val partnerEmail = chatRoomEntity.member.find { it != userEmail } ?: error("")
@@ -62,6 +74,8 @@ class ChatRoomFragment : Fragment() {
                     chatRoomCheckForm = ChatRoomCheckForm(member = listOf(userEmail, partnerEmail))
                 )
             }
+
+             */
         })
 
         viewLifecycleOwner.lifecycleScope.launch {

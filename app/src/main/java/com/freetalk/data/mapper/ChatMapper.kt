@@ -71,7 +71,8 @@ fun ChatRoomResponse.toEntity(): ChatRoomEntity {
         roomName = roomName.orEmpty(),
         roomThumbnail = roomThumbnail ?: Uri.parse(""),
         createTime = createTime ?: Date(),
-        member = member ?: error(""),
+        member = member ?: emptyList(),
+        leaveMember = leaveMember ?: emptyList(),
         lastChatMessageEntity = lastChatMessageResponse?.toEntity()
     )
 }
