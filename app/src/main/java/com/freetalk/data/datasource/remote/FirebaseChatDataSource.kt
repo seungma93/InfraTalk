@@ -432,7 +432,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 val leaveMember = it.data?.get("leaveMember") as? List<String>
                 val user = userDataSource.getUserInfo().email
                 val updateField = hashMapOf(
-                    "member" to member?.filterNot { user -> user == userDataSource.getUserInfo().email },
+                    "member" to member?.filterNot { item -> item == user },
                     "leaveMember" to when (leaveMember.isNullOrEmpty()) {
                         false -> {
                             val mutableList = leaveMember.toMutableList()
@@ -440,7 +440,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                             mutableList.toList()
                         }
 
-                        true -> member?.filter { user -> user == userDataSource.getUserInfo().email }
+                        true -> member?.filter { item -> item == user }
                     },
                     "roomName" to when (member?.size) {
                         2 -> "대화 상대 없음"
