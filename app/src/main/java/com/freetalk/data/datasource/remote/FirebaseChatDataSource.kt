@@ -297,7 +297,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         }
 
                         val documents =
-                            chatSnapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED }
+                            chatSnapshot?.documentChanges?.filter { it.type == DocumentChange.Type.ADDED || it.type == DocumentChange.Type.MODIFIED }
                                 ?.map { it.document }
                                 ?: emptyList()
 
