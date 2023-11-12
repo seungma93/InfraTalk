@@ -1,42 +1,23 @@
 package com.freetalk.presenter.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.freetalk.domain.entity.BoardWriteEntity
-import com.freetalk.domain.entity.ChatMessageListEntity
-import com.freetalk.domain.entity.ChatMessageSend
-import com.freetalk.domain.entity.ChatPrimaryKeyEntity
-import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.domain.entity.ChatStartEntity
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.usecase.CheckChatRoomUseCase
 import com.freetalk.domain.usecase.GetUserInfoUseCase
-import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomListUseCase
-import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
-import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
-import com.freetalk.domain.usecase.SendChatMessageUseCase
-import com.freetalk.presenter.form.ChatMessageListLoadForm
-import com.freetalk.presenter.form.ChatMessageSendForm
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.presenter.form.ChatRoomCheckForm
-import com.freetalk.presenter.form.ChatRoomCreateForm
-import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
-import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.getAndUpdate
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -52,7 +33,7 @@ class ChatRoomViewModel @Inject constructor(
     private val loadChatRoomListUseCase: LoadChatRoomListUseCase,
     private val checkChatRoomUseCase: CheckChatRoomUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
+    private val loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatRoomViewEvent>()
     val viewEvent: SharedFlow<ChatRoomViewEvent> = _viewEvent.asSharedFlow()
@@ -70,7 +51,7 @@ class ChatRoomViewModel @Inject constructor(
     init {
         Log.d("seungma", "init")
         viewModelScope.launch {
-            loadRealTimeChatRoomUseCase().collect { changedChatRoomListEntity ->
+            loadRealTimeChatRoomListUseCase().collect { changedChatRoomListEntity ->
                 Log.d("seungma", "뷰모델" + changedChatRoomListEntity.chatRoomList.size)
                 _viewState.update {
                     val oldChatRoomList = it.chatRoomListEntity.chatRoomList

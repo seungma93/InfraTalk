@@ -12,6 +12,7 @@ import com.freetalk.data.model.request.ChatRoomCreateRequest
 import com.freetalk.data.model.request.ChatRoomLeaveRequest
 import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
+import com.freetalk.data.model.request.RealTimeChatRoomLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.ChatMessageListResponse
 import com.freetalk.data.model.response.ChatMessageResponse
@@ -49,9 +50,10 @@ interface ChatDataSource {
     suspend fun loadChatMessageList(chatMessageListLoadRequest: ChatMessageListLoadRequest): ChatMessageListResponse
     fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
     suspend fun loadChatRoomList(): ChatRoomListResponse
-    fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse>
+    fun loadRealTimeChatRoomList(): Flow<ChatRoomListResponse>
     suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
     suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
+    fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse>
 }
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -282,7 +284,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override fun loadRealTimeChatRoom(): Flow<ChatRoomListResponse> {
+    override fun loadRealTimeChatRoomList(): Flow<ChatRoomListResponse> {
         return callbackFlow {
             kotlin.runCatching {
 
@@ -421,6 +423,51 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
     }
 
+    override fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse> {
+        return callbackFlow {
+            kotlin.runCatching {
+                val snapshotListener = database.collection("ChatRoom")
+                    .document(realTimeChatRoomLoadRequest.chatRoomId)
+                    .addSnapshotListener { snapshot, e ->
+
+                        if (e != null) {
+
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            // ChatRoom 데이터를 가져와서 ChatRoom 객체로 변환
+                            val chatRoomResponse = snapshot?.let {
+                                ChatRoomResponse(
+                                    primaryKey = it.id,
+                                    roomName = it.data?.get("roomName") as? String,
+                                    roomThumbnail = it.data?.get("roomThumbnail") as? Uri,
+                                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                                    member = it.data?.get("member") as? List<String>,
+                                    leaveMember = it.data?.get("leaveMember") as? List<String>,
+                                    lastChatMessageResponse = null
+                                )
+                            } ?: run {
+                                throw error("")//FailSelectException("셀렉트에 실패 했습니다", it)
+                            }
+                            trySend(chatRoomResponse)
+                        }
+                    }
+
+                awaitClose {
+                    snapshotListener.remove()
+                }
+            }.onFailure {
+
+                if (it is CancellationException) {
+                    Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+                } else throw FailSelectException("셀렉트에 실패 했습니다", it)
+
+            }.getOrThrow()
+
+        }
+    }
+
     override suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse {
         return kotlin.runCatching {
             val snapshot = database.collection("ChatRoom")
@@ -463,5 +510,6 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             throw FailSelectException("셀렉트에 실패 했습니다", it)
         }.getOrThrow()
     }
+
 
 }

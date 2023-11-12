@@ -17,14 +17,14 @@ import com.freetalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
 import com.freetalk.data.datasource.remote.ImageDataSource
 import com.freetalk.data.datasource.remote.LikeDataSource
 import com.freetalk.data.datasource.remote.UserDataSource
+import com.freetalk.data.repository.CommentDataRepositoryImpl
 import com.freetalk.domain.repository.BoardDataRepository
 import com.freetalk.domain.repository.BoardDataRepositoryImpl
 import com.freetalk.domain.repository.BookmarkDataRepository
 import com.freetalk.domain.repository.BookmarkDataRepositoryImpl
-import com.freetalk.domain.repository.CommentDataRepository
-import com.freetalk.data.repository.CommentDataRepositoryImpl
 import com.freetalk.domain.repository.ChatDataRepository
 import com.freetalk.domain.repository.ChatDataRepositoryImpl
+import com.freetalk.domain.repository.CommentDataRepository
 import com.freetalk.domain.repository.ImageDataRepository
 import com.freetalk.domain.repository.ImageDataRepositoryImpl
 import com.freetalk.domain.repository.LikeDataRepository
@@ -58,7 +58,7 @@ import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
-import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LogInUseCase
 import com.freetalk.domain.usecase.LogInUseCaseImpl
 import com.freetalk.domain.usecase.ResetPasswordUseCase
@@ -620,12 +620,12 @@ class Modules {
     }
 
     @Module
-    class LoadRealTimeChatRoomUseCaseModule {
+    class LoadRealTimeChatRoomListUseCaseModule {
         @Provides
         fun providesLoadRealTimeChatRoomUseCase(
             chatDataRepository: ChatDataRepository
-        ): LoadRealTimeChatRoomUseCase {
-            return LoadRealTimeChatRoomUseCase(
+        ): LoadRealTimeChatRoomListUseCase {
+            return LoadRealTimeChatRoomListUseCase(
                 chatDataRepository
             )
         }
@@ -791,13 +791,13 @@ class Modules {
             loadChatRoomListUseCase: LoadChatRoomListUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             getUserInfoUseCase: GetUserInfoUseCase,
-            loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
+            loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
         ): ViewModel {
             return ChatRoomViewModel(
                 loadChatRoomListUseCase,
                 checkChatRoomUseCase,
                 getUserInfoUseCase,
-                loadRealTimeChatRoomUseCase
+                loadRealTimeChatRoomListUseCase
             )
         }
     }

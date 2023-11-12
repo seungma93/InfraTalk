@@ -17,6 +17,7 @@ import com.freetalk.data.model.request.ChatRoomCreateRequest
 import com.freetalk.data.model.request.ChatRoomLeaveRequest
 import com.freetalk.data.model.request.ChatRoomLoadRequest
 import com.freetalk.data.model.request.RealTimeChatMessageLoadRequest
+import com.freetalk.data.model.request.RealTimeChatRoomLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
@@ -39,6 +40,7 @@ import com.freetalk.presenter.form.ChatRoomCreateForm
 import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
+import com.freetalk.presenter.form.RealTimeChatRoomLoadForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -117,8 +119,8 @@ class ChatDataRepositoryImpl @Inject constructor(
         return chatDataSource.loadChatRoomList().toEntity()
     }
 
-    override fun loadRealTimeChatRoom(): Flow<ChatRoomListEntity> {
-        return chatDataSource.loadRealTimeChatRoom().map { it.toEntity() }
+    override fun loadRealTimeChatRoomList(): Flow<ChatRoomListEntity> {
+        return chatDataSource.loadRealTimeChatRoomList().map { it.toEntity() }
     }
 
     override suspend fun loadChatRoom(chatRoomLoadForm: ChatRoomLoadForm): ChatRoomEntity {
@@ -132,5 +134,13 @@ class ChatDataRepositoryImpl @Inject constructor(
     override suspend fun leaveChatRoom(chatRoomLeaveForm: ChatRoomLeaveForm): ChatRoomLeaveEntity {
         return chatDataSource.leaveChatRoom(chatRoomLeaveRequest = ChatRoomLeaveRequest(chatRoomId = chatRoomLeaveForm.chatRoomId))
             .toEntity()
+    }
+
+    override fun loadRealTimeChatRoom(realTimeChatRoomLoadForm: RealTimeChatRoomLoadForm):  Flow<ChatRoomEntity> {
+        return chatDataSource.loadRealTimeChatRoom(
+            realTimeChatRoomLoadRequest = RealTimeChatRoomLoadRequest(
+                chatRoomId = realTimeChatRoomLoadForm.chatRoomId
+            )
+        ).map { it.toEntity() }
     }
 }
