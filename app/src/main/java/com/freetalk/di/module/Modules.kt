@@ -83,6 +83,7 @@ import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
+import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
 import com.freetalk.presenter.viewmodel.ViewModelKey
@@ -813,6 +814,20 @@ class Modules {
                 checkChatRoomUseCase,
                 getUserInfoUseCase,
                 loadRealTimeChatRoomListUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyPageViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyPageViewModel::class)
+        fun providesMyPageViewModel(
+            getUserInfoUseCase: GetUserInfoUseCase
+        ): ViewModel {
+            return MyPageViewModel(
+                getUserInfoUseCase
             )
         }
     }
