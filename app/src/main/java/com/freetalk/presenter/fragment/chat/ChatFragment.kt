@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.freetalk.databinding.FragmentChatBinding
 import com.freetalk.di.component.DaggerChatFragmentComponent
 import com.freetalk.domain.entity.ChatPrimaryKeyEntity
+import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.entity.ChatRoomLeave
 import com.freetalk.presenter.adapter.ChatItem
 import com.freetalk.presenter.adapter.ChatListAdapter
@@ -30,6 +31,10 @@ import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.viewmodel.ChatViewEvent
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModelFactory
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -163,7 +168,8 @@ class ChatFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             //showProgressBar()
 
-            val chatRoomEntity = chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
+            val chatRoomEntity =
+                chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
 
             chatRoomEntity?.let { binding.tvChatTitle.text = it.roomName }
 
@@ -182,14 +188,37 @@ class ChatFragment : Fragment() {
 
 
         chatViewModel.viewModelScope.launch {
-            chatViewModel.viewState.collect {
-                Log.d("seungma", "콜렉트 호출")
 
-                chatListAdapter.submitList(createChatItem(it)) {
-                    if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+            launch {
+                /*
+                chatViewModel.viewState.map {
+                    it.chatRoomEntity?.roomName
+                }.distinctUntilChanged().collect {
+                    Log.d("seungma", "챗프레그먼트 콜렉트1")
+                    binding.tvChatTitle.text = it
                 }
 
+                 */
+                chatViewModel.viewState.map { it.chatRoomEntity?.roomName }
+                    .stateIn(this)
+                    .collect {
+                        Log.d("seungma", "챗프레그먼트 콜렉트1")
+                        binding.tvChatTitle.text = it
+                    }
             }
+
+            launch {
+                chatViewModel.viewState.map { createChatItem(it) to it.isNewChatMessage }
+                    .stateIn(this)
+                    .collect { (chatList, isNewChatMessage) ->
+                        Log.d("seungma", "챗프레그먼트 콜렉트2")
+                        chatListAdapter.submitList(chatList) {
+                            if (isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                        }
+                    }
+            }
+
+            Log.d("seungma", "챗프레그먼트 콜렉트")
         }
 
         subscribe()
@@ -224,7 +253,7 @@ class ChatFragment : Fragment() {
                     }
 
                     is ChatViewEvent.LeaveChat -> {
-                        when(it.chatRoomLeave.isSuccess) {
+                        when (it.chatRoomLeave.isSuccess) {
                             true -> parentFragmentManager.popBackStack()
                             false -> {}
                         }
