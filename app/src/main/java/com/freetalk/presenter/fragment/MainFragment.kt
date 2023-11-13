@@ -11,6 +11,7 @@ import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import com.freetalk.presenter.fragment.chat.ChatFragment
 import com.freetalk.presenter.fragment.chat.ChatRoomFragment
 import com.freetalk.presenter.fragment.home.HomeFragment
+import com.freetalk.presenter.fragment.mypage.MyBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
 
 interface ChildFragmentNavigable {
@@ -23,6 +24,7 @@ sealed class MainChildFragmentEndPoint {
     object ChatRoom : MainChildFragmentEndPoint()
     object MyPage : MainChildFragmentEndPoint()
     object BoardWrite : MainChildFragmentEndPoint()
+    object MyBoard : MainChildFragmentEndPoint()
     object Error : MainChildFragmentEndPoint()
 }
 
@@ -111,6 +113,10 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
             }
             is MainChildFragmentEndPoint.BoardWrite -> {
                 val fragment = BoardWriteFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is MainChildFragmentEndPoint.MyBoard -> {
+                val fragment = MyBoardFragment()
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.Error -> {
