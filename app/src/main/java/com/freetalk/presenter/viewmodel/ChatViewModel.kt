@@ -1,5 +1,6 @@
 package com.freetalk.presenter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,12 +14,15 @@ import com.freetalk.domain.usecase.LeaveChatRoomUseCase
 import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
+import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
 import com.freetalk.domain.usecase.SendChatMessageUseCase
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
 import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
+import com.freetalk.presenter.form.RealTimeChatRoomLoadForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,6 +30,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -43,7 +48,8 @@ class ChatViewModelFactory @Inject constructor(
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
     private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
     private val loadChatRoomUseCase: LoadChatRoomUseCase,
-    private val leaveChatRoomUseCase: LeaveChatRoomUseCase
+    private val leaveChatRoomUseCase: LeaveChatRoomUseCase,
+    private val loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
 ) : AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel> create(
         key: String,
@@ -57,7 +63,8 @@ class ChatViewModelFactory @Inject constructor(
             loadChatMessageListUseCase,
             loadRealTimeChatMessageUseCase,
             loadChatRoomUseCase,
-            leaveChatRoomUseCase
+            leaveChatRoomUseCase,
+            loadRealTimeChatRoomUseCase
         ) as T
     }
 }
@@ -68,7 +75,8 @@ class ChatViewModel @Inject constructor(
     private val loadChatMessageListUseCase: LoadChatMessageListUseCase,
     private val loadRealTimeChatMessageUseCase: LoadRealTimeChatMessageUseCase,
     private val loadChatRoomUseCase: LoadChatRoomUseCase,
-    private val leaveChatRoomUseCase: LeaveChatRoomUseCase
+    private val leaveChatRoomUseCase: LeaveChatRoomUseCase,
+    private val loadRealTimeChatRoomUseCase: LoadRealTimeChatRoomUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatViewEvent>()
     val viewEvent: SharedFlow<ChatViewEvent> = _viewEvent.asSharedFlow()
@@ -89,15 +97,29 @@ class ChatViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            loadRealTimeChatMessageUseCase(
-                RealTimeChatMessageLoadForm(
-                    chatRoomId = chatEntity.chatRoomId
-                )
-            ).collect { newChat ->
-                _viewState.update {
-                    val newChatList =
-                        newChat.chatMessageList + it.chatMessageListEntity.chatMessageList
-                    viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(chatMessageList = newChatList), isNewChatMessage = true)
+            launch {
+                loadRealTimeChatMessageUseCase(
+                    RealTimeChatMessageLoadForm(
+                        chatRoomId = chatEntity.chatRoomId
+                    )
+                ).collect { newChat ->
+                    _viewState.update {
+                        val newChatList =
+                            newChat.chatMessageList + it.chatMessageListEntity.chatMessageList
+                        viewState.value.copy(chatMessageListEntity = ChatMessageListEntity(chatMessageList = newChatList), isNewChatMessage = true)
+                    }
+                }
+            }
+            launch {
+                loadRealTimeChatRoomUseCase(
+                    RealTimeChatRoomLoadForm(
+                        chatRoomId = chatEntity.chatRoomId
+                    )
+                ).collect { chatRoomEntity ->
+                    Log.d("seungma", "챗 뷰모델 실시간채팅방 그랩")
+                    _viewState.update {
+                        viewState.value.copy(chatRoomEntity = chatRoomEntity)
+                    }
                 }
             }
         }
