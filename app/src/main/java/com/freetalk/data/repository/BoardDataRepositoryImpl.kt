@@ -7,6 +7,7 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.MyBoardListLoadRequest
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.BoardMetaListEntity
@@ -14,6 +15,7 @@ import com.freetalk.presenter.form.BoardContentInsertForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardUpdateForm
+import com.freetalk.presenter.form.MyBoardListLoadForm
 import toEntity
 import java.util.Date
 import javax.inject.Inject
@@ -60,6 +62,14 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
             BoardSelectRequest(
                 boardAuthorEmail = boardLoadForm.boardAuthorEmail,
                 boardCreateTime = boardLoadForm.boardCreateTime
+            )
+        ).toEntity()
+    }
+
+    override suspend fun loadMyBoardList(myBoardListLoadForm: MyBoardListLoadForm): BoardMetaListEntity {
+        return dataSource.loadMyBoardList(
+            myBoardListLoadRequest = MyBoardListLoadRequest(
+                reload = myBoardListLoadForm.reload
             )
         ).toEntity()
     }

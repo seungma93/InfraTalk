@@ -57,6 +57,7 @@ import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
+import com.freetalk.domain.usecase.LoadMyBoardListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -83,6 +84,7 @@ import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
+import com.freetalk.presenter.viewmodel.MyBoardViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
@@ -669,6 +671,22 @@ class Modules {
         }
     }
 
+    @Module
+    class LoadMyBoardListUseCaseModule {
+        @Provides
+        fun providesLoadMyBoardListUseCase(
+            boardDataRepository: BoardDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): LoadMyBoardListUseCase {
+            return LoadMyBoardListUseCase(
+                boardDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -827,6 +845,30 @@ class Modules {
             getUserInfoUseCase: GetUserInfoUseCase
         ): ViewModel {
             return MyPageViewModel(
+                getUserInfoUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyBoardViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyBoardViewModel::class)
+        fun providesMyBoardViewModel(
+            loadMyBoardListUseCase: LoadMyBoardListUseCase,
+            addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
+            deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
+            addBoardLikeUseCase: AddBoardLikeUseCase,
+            deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
+        ): ViewModel {
+            return MyBoardViewModel(
+                loadMyBoardListUseCase,
+                addBoardBookmarkUseCase,
+                deleteBoardBookmarkUseCase,
+                addBoardLikeUseCase,
+                deleteBoardLikeUseCase,
                 getUserInfoUseCase
             )
         }

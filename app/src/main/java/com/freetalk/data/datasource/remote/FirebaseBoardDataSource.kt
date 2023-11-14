@@ -10,6 +10,7 @@ import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.MyBoardListLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
@@ -34,6 +35,7 @@ interface BoardDataSource {
     suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse
     suspend fun selectBoard(boardSelectRequest: BoardSelectRequest): BoardMetaResponse
     suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
+    suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
 }
 
 
@@ -42,6 +44,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val userDataSource: UserDataSource
 ) : BoardDataSource {
     private var lastDocument: DocumentSnapshot? = null
+    private var myBoardLastDocument: DocumentSnapshot? = null
 
     override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse {
         return kotlin.runCatching {
@@ -198,4 +201,48 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
 
         }
+
+    private suspend fun getMyBoardDocuments(
+        limit: Long,
+        startAfter: DocumentSnapshot?
+    ): QuerySnapshot {
+        val query = database.collection("Board")
+            .whereEqualTo("authorEmail", userDataSource.getUserInfo().email)
+            .orderBy("createTime", Query.Direction.DESCENDING)
+            .limit(limit)
+        return if (startAfter != null) {
+            query.startAfter(startAfter).get().await()
+        } else {
+            query.get().await()
+        }
+    }
+
+    override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse =
+        coroutineScope {
+            kotlin.runCatching {
+                val snapshot = when (myBoardListLoadRequest.reload) {
+                    true -> getMyBoardDocuments(10, null)
+                    false -> getMyBoardDocuments(10, myBoardLastDocument)
+                }
+                myBoardLastDocument = snapshot.documents.lastOrNull()
+
+                snapshot.documents.map {
+                    BoardMetaResponse(
+                        author = userDataSource.getUserInfo(),
+                        title = it.data?.get("title") as? String,
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    )
+                }.let {
+                    BoardMetaListResponse(it)
+                }
+            }.onFailure {
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
+            }.getOrThrow()
+        }
+
 }
