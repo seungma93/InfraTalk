@@ -2,19 +2,24 @@ package com.freetalk.data.datasource.remote
 
 import android.net.Uri
 import android.util.Log
+import com.freetalk.data.FailDeleteCommentException
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.FailSelectBoardContentException
 import com.freetalk.data.FailSelectException
 import com.freetalk.data.FailUpdatetException
+import com.freetalk.data.model.request.BoardDeleteRequest
 import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
+import com.freetalk.data.model.request.CommentDeleteRequest
 import com.freetalk.data.model.request.MyBoardListLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
+import com.freetalk.data.model.response.BoardDeleteResponse
 import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
+import com.freetalk.data.model.response.CommentDeleteResponse
 import com.freetalk.domain.entity.ImagesResultEntity
 import com.freetalk.domain.entity.UserEntity
 import com.google.firebase.Timestamp
@@ -36,6 +41,7 @@ interface BoardDataSource {
     suspend fun selectBoard(boardSelectRequest: BoardSelectRequest): BoardMetaResponse
     suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
     suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
+    suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse
 }
 
 
@@ -244,5 +250,24 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
+
+    override suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse {
+        return kotlin.runCatching {
+            database.collection("Board")
+                .whereEqualTo("authorEmail", boardDeleteRequest.boardAuthorEmail)
+                .whereEqualTo("createTime", boardDeleteRequest.boardCreateTime)
+                .get().await().apply {
+                    documents.forEach { it.reference.delete().await() }
+                }
+
+            BoardDeleteResponse(
+                boardAuthorEmail = boardDeleteRequest.boardAuthorEmail,
+                boardCreateTime = boardDeleteRequest.boardCreateTime,
+                isSuccess = true
+            )
+        }.onFailure {
+            throw FailDeleteCommentException("댓글 셀렉트에 실패 했습니다")
+        }.getOrThrow()
+    }
 
 }

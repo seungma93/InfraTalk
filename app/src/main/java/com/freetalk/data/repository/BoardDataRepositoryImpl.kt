@@ -3,15 +3,18 @@ package com.freetalk.domain.repository
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.datasource.remote.BoardDataSource
 import com.freetalk.data.mapper.toEntity
+import com.freetalk.data.model.request.BoardDeleteRequest
 import com.freetalk.data.model.request.BoardInsertRequest
 import com.freetalk.data.model.request.BoardMetaListSelectRequest
 import com.freetalk.data.model.request.BoardSelectRequest
 import com.freetalk.data.model.request.BoardUpdateRequest
 import com.freetalk.data.model.request.MyBoardListLoadRequest
+import com.freetalk.domain.entity.BoardDeleteEntity
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.BoardMetaListEntity
 import com.freetalk.presenter.form.BoardContentInsertForm
+import com.freetalk.presenter.form.BoardDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardUpdateForm
@@ -74,4 +77,12 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
         ).toEntity()
     }
 
+    override suspend fun deleteBoard(boardDeleteForm: BoardDeleteForm): BoardDeleteEntity {
+        return dataSource.deleteBoard(
+            boardDeleteRequest = BoardDeleteRequest(
+                boardAuthorEmail = boardDeleteForm.boardAuthorEmail,
+                boardCreateTime = boardDeleteForm.boardCreateTime
+            )
+        ).toEntity()
+    }
 }
