@@ -7,11 +7,13 @@ import com.freetalk.data.model.request.BoardLikeCountSelectRequest
 import com.freetalk.data.model.request.BoardLikeDeleteRequest
 import com.freetalk.data.model.request.BoardLikeInsertRequest
 import com.freetalk.data.model.request.BoardLikeSelectRequest
+import com.freetalk.data.model.request.BoardLikesDeleteRequest
 import com.freetalk.data.model.request.CommentLikeCountSelectRequest
 import com.freetalk.data.model.request.CommentLikeDeleteRequest
 import com.freetalk.data.model.request.CommentLikeInsertRequest
 import com.freetalk.data.model.request.CommentLikeSelectRequest
 import com.freetalk.data.model.request.CommentRelatedLikesDeleteRequest
+import com.freetalk.domain.entity.BoardLikesDeleteEntity
 import com.freetalk.domain.entity.CommentRelatedLikesEntity
 import com.freetalk.domain.entity.LikeCountEntity
 import com.freetalk.domain.entity.LikeEntity
@@ -19,6 +21,7 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikeLoadForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
@@ -120,4 +123,15 @@ class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDat
         ).toEntity()
     }
 
+    override suspend fun deleteBoardLikes(
+        boardLikesDeleteForm: BoardLikesDeleteForm
+    ): BoardLikesDeleteEntity {
+        return dataSource.deleteBoardLikes(
+            boardLikesDeleteRequest = BoardLikesDeleteRequest(
+                boardAuthorEmail = boardLikesDeleteForm.boardAuthorEmail,
+                boardCreateTime = boardLikesDeleteForm.boardCreateTime
+
+            )
+        ).toEntity()
+    }
 }

@@ -1,5 +1,6 @@
 package com.freetalk.domain.repository
 
+import com.freetalk.domain.entity.BoardLikesDeleteEntity
 import com.freetalk.domain.entity.CommentRelatedLikesEntity
 import com.freetalk.domain.entity.LikeCountEntity
 import com.freetalk.domain.entity.LikeEntity
@@ -7,6 +8,7 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikeLoadForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
@@ -26,4 +28,7 @@ interface LikeDataRepository {
     suspend fun deleteCommentRelatedLikes(
         commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm
     ): CommentRelatedLikesEntity
+    suspend fun deleteBoardLikes(
+        boardLikesDeleteForm: BoardLikesDeleteForm
+    ): BoardLikesDeleteEntity
 }
