@@ -4,6 +4,7 @@ import com.freetalk.data.FailDeleteBookMarkException
 import com.freetalk.data.FailInsertBookMarkException
 import com.freetalk.data.FailLoadBookMarkException
 import com.freetalk.data.UserSingleton
+import com.freetalk.data.model.request.BoardBookMarksDeleteRequest
 import com.freetalk.data.model.request.BoardBookmarkDeleteRequest
 import com.freetalk.data.model.request.BoardBookmarkInsertRequest
 import com.freetalk.data.model.request.BoardBookmarkSelectRequest
@@ -11,6 +12,7 @@ import com.freetalk.data.model.request.CommentBookmarkDeleteRequest
 import com.freetalk.data.model.request.CommentBookmarkInsertRequest
 import com.freetalk.data.model.request.CommentBookmarkSelectRequest
 import com.freetalk.data.model.request.CommentRelatedBookmarksDeleteRequest
+import com.freetalk.data.model.response.BoardBookmarksDeleteResponse
 import com.freetalk.data.model.response.BookmarkResponse
 import com.freetalk.data.model.response.CommentRelatedBookmarksResponse
 import com.google.firebase.firestore.FirebaseFirestore
@@ -31,7 +33,13 @@ interface BookmarkDataSource {
     suspend fun insertCommentBookmark(commentBookmarkInsertRequest: CommentBookmarkInsertRequest): BookmarkResponse
     suspend fun deleteCommentBookmark(commentBookmarkDeleteRequest: CommentBookmarkDeleteRequest): BookmarkResponse
     suspend fun selectCommentBookmark(commentBookmarkSelectRequest: CommentBookmarkSelectRequest): BookmarkResponse
-    suspend fun deleteCommentRelatedBookMarks(commentRelatedBookmarksDeleteRequest: CommentRelatedBookmarksDeleteRequest): CommentRelatedBookmarksResponse
+    suspend fun deleteCommentRelatedBookMarks(
+        commentRelatedBookmarksDeleteRequest: CommentRelatedBookmarksDeleteRequest
+    ): CommentRelatedBookmarksResponse
+
+    suspend fun deleteBoardBookMarks(
+        boardBookMarksDeleteRequest: BoardBookMarksDeleteRequest
+    ): BoardBookmarksDeleteResponse
 }
 
 class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
@@ -154,6 +162,29 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
                     }
                 }.join()
                 CommentRelatedBookmarksResponse(isBookmarks = false)
+            }.onFailure {
+                throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
+            }.getOrThrow()
+        }
+    }
+
+    override suspend fun deleteBoardBookMarks(
+        boardBookMarksDeleteRequest: BoardBookMarksDeleteRequest
+    ): BoardBookmarksDeleteResponse = coroutineScope {
+        with(boardBookMarksDeleteRequest) {
+            kotlin.runCatching {
+                val snapshot = database.collection("BoardBookmark")
+                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
+                    .whereEqualTo("boardCreateTime", boardCreateTime)
+                    .get().await()
+                launch(Dispatchers.IO) {
+                    snapshot.documents.map {
+                        launch {
+                            database.collection("BoardBookmark").document(it.id).delete()
+                        }
+                    }
+                }.join()
+                BoardBookmarksDeleteResponse(isBoardBookmarks = false)
             }.onFailure {
                 throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
             }.getOrThrow()

@@ -1,10 +1,12 @@
 package com.freetalk.domain.repository
 
+import com.freetalk.domain.entity.BoardBookmarksDeleteEntity
 import com.freetalk.domain.entity.BookmarkEntity
 import com.freetalk.domain.entity.CommentRelatedBookmarksEntity
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
 import com.freetalk.presenter.form.BoardBookmarkLoadForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkLoadForm
@@ -20,4 +22,7 @@ interface BookmarkDataRepository {
     suspend fun deleteCommentRelatedBookmarks(
         commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom
     ): CommentRelatedBookmarksEntity
+    suspend fun deleteBoardBookmarks(
+        boardBookmarksDeleteForm: BoardBookmarksDeleteForm
+    ): BoardBookmarksDeleteEntity
 }
