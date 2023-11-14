@@ -20,6 +20,7 @@ import com.freetalk.domain.usecase.CheckChatRoomUseCase
 import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
+import com.freetalk.domain.usecase.DeleteBoardUseCase
 import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LeaveChatRoomUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
@@ -34,11 +35,14 @@ import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.WriteBoardContentUseCase
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.BoardContentImagesUpdateForm
 import com.freetalk.presenter.form.BoardContentInsertForm
+import com.freetalk.presenter.form.BoardDeleteForm
 import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.ChatMessageListLoadForm
 import com.freetalk.presenter.form.ChatMessageSendForm
@@ -46,6 +50,9 @@ import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
 import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
+import com.freetalk.presenter.form.CommentDeleteForm
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import com.freetalk.presenter.form.MyBoardListLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
 import com.freetalk.presenter.form.RealTimeChatRoomLoadForm
@@ -70,7 +77,8 @@ class MyBoardViewModel @Inject constructor(
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val deleteBoardUseCase: DeleteBoardUseCase
 ) : ViewModel() {
     private val _viewState =
         MutableStateFlow(MyBoardViewState(BoardListEntity(emptyList())))
@@ -180,6 +188,30 @@ class MyBoardViewModel @Inject constructor(
 
     fun getUserInfo(): UserEntity {
         return getUserInfoUseCase()
+    }
+
+    suspend fun deleteBoard(
+        boardDeleteForm: BoardDeleteForm,
+        boardBookmarksDeleteForm: BoardBookmarksDeleteForm,
+        boardLikesDeleteForm: BoardLikesDeleteForm
+    ): MyBoardViewState {
+        val result = kotlin.runCatching {
+            deleteBoardUseCase(
+                boardDeleteForm = boardDeleteForm,
+                boardBookmarksDeleteForm = boardBookmarksDeleteForm,
+                boardLikesDeleteForm = boardLikesDeleteForm,
+                boardListEntity = viewState.value.boardListEntity
+            )
+
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 딜리트 실패")
+        }.getOrNull()
+
+        return result?.let {
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardListEntity = it)
+            }
+        } ?: viewState.value
     }
 
 }
