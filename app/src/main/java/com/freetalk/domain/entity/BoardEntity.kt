@@ -54,5 +54,11 @@ data class BoardWriteEntity(
     val isSuccess: Boolean
 )
 
+data class BoardDeleteEntity(
+    val boardAuthorEmail: String,
+    val boardCreateTime: Date,
+    val isSuccess: Boolean
+)
+
 
 

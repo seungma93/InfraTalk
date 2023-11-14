@@ -1,10 +1,12 @@
 package com.freetalk.data.mapper
 
 import android.net.Uri
+import com.freetalk.data.model.response.BoardDeleteResponse
 import com.freetalk.data.model.response.BoardInsertResponse
 import com.freetalk.data.model.response.BoardMetaListResponse
 import com.freetalk.data.model.response.BoardMetaResponse
 import com.freetalk.data.model.response.BoardResponse
+import com.freetalk.domain.entity.BoardDeleteEntity
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardInsertEntity
 import com.freetalk.domain.entity.BoardMetaEntity
@@ -49,6 +51,14 @@ fun BoardInsertResponse.toEntity(): BoardInsertEntity {
     return BoardInsertEntity(
         boardAuthorEmail = boardAuthorEmail.orEmpty(),
         boardCreteTime = boardCreteTime ?: Date(),
+        isSuccess = isSuccess ?: false
+    )
+}
+
+fun BoardDeleteResponse.toEntity(): BoardDeleteEntity {
+    return BoardDeleteEntity(
+        boardAuthorEmail = boardAuthorEmail.orEmpty(),
+        boardCreateTime = boardCreateTime ?: Date(),
         isSuccess = isSuccess ?: false
     )
 }
