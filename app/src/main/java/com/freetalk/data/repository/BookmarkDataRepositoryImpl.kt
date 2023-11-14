@@ -3,6 +3,7 @@ package com.freetalk.domain.repository
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.datasource.remote.BookmarkDataSource
 import com.freetalk.data.mapper.toEntity
+import com.freetalk.data.model.request.BoardBookMarksDeleteRequest
 import com.freetalk.data.model.request.BoardBookmarkDeleteRequest
 import com.freetalk.data.model.request.BoardBookmarkInsertRequest
 import com.freetalk.data.model.request.BoardBookmarkSelectRequest
@@ -10,11 +11,13 @@ import com.freetalk.data.model.request.CommentBookmarkDeleteRequest
 import com.freetalk.data.model.request.CommentBookmarkInsertRequest
 import com.freetalk.data.model.request.CommentBookmarkSelectRequest
 import com.freetalk.data.model.request.CommentRelatedBookmarksDeleteRequest
+import com.freetalk.domain.entity.BoardBookmarksDeleteEntity
 import com.freetalk.domain.entity.BookmarkEntity
 import com.freetalk.domain.entity.CommentRelatedBookmarksEntity
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
 import com.freetalk.presenter.form.BoardBookmarkLoadForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkLoadForm
@@ -94,4 +97,14 @@ class BookmarkDataRepositoryImpl @Inject constructor(private val dataSource: Boo
         ).toEntity()
     }
 
+    override suspend fun deleteBoardBookmarks(
+        boardBookmarksDeleteForm: BoardBookmarksDeleteForm
+    ): BoardBookmarksDeleteEntity {
+        return dataSource.deleteBoardBookMarks(
+            boardBookMarksDeleteRequest = BoardBookMarksDeleteRequest(
+                boardAuthorEmail = boardBookmarksDeleteForm.boardAuthorEmail,
+                boardCreateTime = boardBookmarksDeleteForm.boardCreateTime
+            )
+        ).toEntity()
+    }
 }

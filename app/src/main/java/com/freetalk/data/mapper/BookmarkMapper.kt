@@ -1,7 +1,9 @@
 package com.freetalk.data.mapper
 
+import com.freetalk.data.model.response.BoardBookmarksDeleteResponse
 import com.freetalk.data.model.response.BookmarkResponse
 import com.freetalk.data.model.response.CommentRelatedBookmarksResponse
+import com.freetalk.domain.entity.BoardBookmarksDeleteEntity
 import com.freetalk.domain.entity.BookmarkEntity
 import com.freetalk.domain.entity.CommentRelatedBookmarksEntity
 
@@ -14,6 +16,12 @@ fun BookmarkResponse.toEntity(): BookmarkEntity {
 fun CommentRelatedBookmarksResponse.toEntity(): CommentRelatedBookmarksEntity {
     return CommentRelatedBookmarksEntity(
         isBookmarks = isBookmarks ?: false
+    )
+}
+
+fun BoardBookmarksDeleteResponse.toEntity(): BoardBookmarksDeleteEntity {
+    return BoardBookmarksDeleteEntity(
+        isBoardBookmarks = isBoardBookmarks ?: false
     )
 }
 

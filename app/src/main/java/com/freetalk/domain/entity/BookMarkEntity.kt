@@ -9,3 +9,7 @@ data class BookmarkEntity(
 data class CommentRelatedBookmarksEntity(
     val isBookmarks: Boolean = false
 )
+
+data class BoardBookmarksDeleteEntity(
+    val isBoardBookmarks: Boolean = false
+)
