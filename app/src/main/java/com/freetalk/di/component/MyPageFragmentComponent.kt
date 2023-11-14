@@ -7,6 +7,7 @@ import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import com.freetalk.presenter.fragment.chat.ChatFragment
 import com.freetalk.presenter.fragment.chat.ChatRoomFragment
+import com.freetalk.presenter.fragment.mypage.MyBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
 import dagger.BindsInstance
 import dagger.Component
@@ -19,15 +20,21 @@ import dagger.Component
         Modules.FirebaseAuthModule::class,
         // DataSource
         Modules.FirebaseUserDataSourceModule::class,
+        Modules.FirebaseBoardDataSourceModule::class,
+        Modules.FirebaseBookmarkDataSourceModule::class,
+        Modules.FirebaseLikeDataSourceModule::class,
         // Repository
         Modules.UserDataRepositoryModule::class,
+        Modules.BoardDataRepositoryModule::class,
+        Modules.BookmarkDataRepositoryModule::class,
+        Modules.LikeDataRepositoryModule::class,
         // UseCase
 //        Modules.SendChatMessageUseCaseModule::class,
 //        Modules.LoadChatMessageListUseCaseModule::class,
 //        Modules.LoadRealTimeChatMessageUseCaseModule::class,
         // ViewModel
         Modules.MyPageViewModelModule::class,
-        //Modules.ChatRoomViewModelModule::class,
+        Modules.MyBoardViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
 )
@@ -35,6 +42,7 @@ import dagger.Component
 
 interface MyPageFragmentComponent {
     fun inject(fragment: MyPageFragment)
+    fun inject(fragment: MyBoardFragment)
 
     @Component.Factory
     interface Factory {

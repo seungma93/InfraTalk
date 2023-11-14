@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.databinding.FragmentMyPageBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
+import com.freetalk.di.component.DaggerMyPageFragmentComponent
 import com.freetalk.presenter.fragment.ChildFragmentNavigable
 import com.freetalk.presenter.fragment.MainChildFragmentEndPoint
 import com.freetalk.presenter.viewmodel.BoardViewModel
@@ -27,7 +28,7 @@ class MyPageFragment: Fragment() {
 
 
     override fun onAttach(context: Context) {
-        //Dagger.factory().create(context).inject(this)
+        DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
 
@@ -43,7 +44,7 @@ class MyPageFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btnMyBoard.setOnClickListener {
-            val endPoint = MainChildFragmentEndPoint.MyBoard
+            val endPoint = MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
             (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
         }
     }
