@@ -12,3 +12,7 @@ data class LikeCountEntity(
 data class CommentRelatedLikesEntity(
     val isLikes: Boolean = false
 )
+
+data class BoardLikesDeleteEntity(
+    val isBoardLikes: Boolean = false
+)

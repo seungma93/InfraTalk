@@ -10,11 +10,13 @@ import com.freetalk.data.model.request.BoardLikeCountSelectRequest
 import com.freetalk.data.model.request.BoardLikeDeleteRequest
 import com.freetalk.data.model.request.BoardLikeInsertRequest
 import com.freetalk.data.model.request.BoardLikeSelectRequest
+import com.freetalk.data.model.request.BoardLikesDeleteRequest
 import com.freetalk.data.model.request.CommentLikeCountSelectRequest
 import com.freetalk.data.model.request.CommentLikeDeleteRequest
 import com.freetalk.data.model.request.CommentLikeInsertRequest
 import com.freetalk.data.model.request.CommentLikeSelectRequest
 import com.freetalk.data.model.request.CommentRelatedLikesDeleteRequest
+import com.freetalk.data.model.response.BoardLikesDeleteResponse
 import com.freetalk.data.model.response.CommentRelatedLikesResponse
 import com.freetalk.data.model.response.LikeCountResponse
 import com.freetalk.data.model.response.LikeResponse
@@ -35,6 +37,7 @@ interface LikeDataSource {
     suspend fun selectCommentLike(commentLikeSelectRequest: CommentLikeSelectRequest): LikeResponse
     suspend fun selectCommentLikeCount(commentLikeCountSelectRequest: CommentLikeCountSelectRequest): LikeCountResponse
     suspend fun deleteCommentRelatedLikes(commentRelatedLikesDeleteRequest: CommentRelatedLikesDeleteRequest): CommentRelatedLikesResponse
+    suspend fun deleteBoardLikes(boardLikesDeleteRequest: BoardLikesDeleteRequest): BoardLikesDeleteResponse
 }
 
 
@@ -190,6 +193,24 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
                 }
 
                 CommentRelatedLikesResponse(isLikes = false)
+            }.onFailure {
+                throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
+            }.getOrThrow()
+        }
+
+    override suspend fun deleteBoardLikes(boardLikesDeleteRequest: BoardLikesDeleteRequest): BoardLikesDeleteResponse =
+        with(boardLikesDeleteRequest) {
+            return kotlin.runCatching {
+                val snapshot = database.collection("BoardLike")
+                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
+                    .whereEqualTo("boardCreateTime", boardCreateTime)
+                    .get().await()
+
+                snapshot.documents.map {
+                    database.collection("BoardLike").document(it.id).delete().await()
+                }
+
+                BoardLikesDeleteResponse(isBoardLikes = false)
             }.onFailure {
                 throw FailDeleteLikeException("좋아요 딜리트를 실패 했습니다")
             }.getOrThrow()
