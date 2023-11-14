@@ -27,9 +27,12 @@ import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.MyBoardListAdapter
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
+import com.freetalk.presenter.form.BoardDeleteForm
 import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.MyBoardListLoadForm
 import com.freetalk.presenter.fragment.board.OnScrollListener
@@ -163,6 +166,27 @@ class MyBoardFragment: Fragment() {
                                 adapter.submitList(boardViewState.boardListEntity.boardList)
                             }
                         }
+                    }
+                }
+            },
+            deleteClick = { boardEntity ->
+                boardEntity.apply {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val myBoardViewState = myBoardViewModel.deleteBoard(
+                            boardDeleteForm = BoardDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            ),
+                            boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            ),
+                            boardLikesDeleteForm = BoardLikesDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            )
+                        )
+                        adapter.submitList(myBoardViewState.boardListEntity.boardList)
                     }
                 }
             }

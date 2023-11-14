@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.freetalk.databinding.BoardListItemBinding
+import com.freetalk.databinding.ListItemMyBoardBinding
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.UserEntity
@@ -17,13 +18,14 @@ import com.freetalk.domain.entity.UserEntity
 class MyBoardListAdapter(
     private val itemClick: (BoardMetaEntity) -> Unit,
     private val bookmarkClick: (BoardEntity) -> Unit,
-    private val likeClick: (BoardEntity) -> Unit
+    private val likeClick: (BoardEntity) -> Unit,
+    private val deleteClick: (BoardEntity) -> Unit
 ) : ListAdapter<BoardEntity, MyBoardListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick)
+            ListItemMyBoardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -31,10 +33,11 @@ class MyBoardListAdapter(
     }
 
     class ViewHolder(
-        private val binding: BoardListItemBinding,
+        private val binding: ListItemMyBoardBinding,
         private val itemClick: (BoardMetaEntity) -> Unit,
         private val bookmarkClick: (BoardEntity) -> Unit,
-        private val likeClick: (BoardEntity) -> Unit
+        private val likeClick: (BoardEntity) -> Unit,
+        private val deleteClick: (BoardEntity) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var boardEntity: BoardEntity? = null
@@ -58,6 +61,11 @@ class MyBoardListAdapter(
                     btnLike.isEnabled = false
                     boardEntity?.let {
                         likeClick(it)
+                    }
+                }
+                btnDelete.setOnClickListener {
+                    boardEntity?.let {
+                        deleteClick(it)
                     }
                 }
             }

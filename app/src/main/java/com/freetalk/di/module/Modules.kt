@@ -43,6 +43,7 @@ import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardContentBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardContentLikeUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
+import com.freetalk.domain.usecase.DeleteBoardUseCase
 import com.freetalk.domain.usecase.DeleteCommentBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteCommentLikeUseCase
 import com.freetalk.domain.usecase.DeleteCommentUseCase
@@ -687,6 +688,22 @@ class Modules {
         }
     }
 
+    @Module
+    class DeleteBoardUseCaseModule {
+        @Provides
+        fun providesDeleteBoardUseCase(
+            boardDataRepository: BoardDataRepository,
+            bookmarkDataRepository: BookmarkDataRepository,
+            likeDataRepository: LikeDataRepository
+        ): DeleteBoardUseCase {
+            return DeleteBoardUseCase(
+                boardDataRepository,
+                bookmarkDataRepository,
+                likeDataRepository
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -861,7 +878,8 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserInfoUseCase: GetUserInfoUseCase,
+            deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
             return MyBoardViewModel(
                 loadMyBoardListUseCase,
@@ -869,7 +887,8 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase
+                getUserInfoUseCase,
+                deleteBoardUseCase
             )
         }
     }
