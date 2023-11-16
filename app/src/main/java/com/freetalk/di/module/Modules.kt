@@ -726,7 +726,8 @@ class Modules {
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase,
             getUserInfoUseCase: GetUserInfoUseCase,
-            checkChatRoomUseCase: CheckChatRoomUseCase
+            checkChatRoomUseCase: CheckChatRoomUseCase,
+            deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
             return BoardViewModel(
                 writeBoardContentUseCase,
@@ -738,7 +739,8 @@ class Modules {
                 deleteBoardLikeUseCase,
                 createChatRoomUseCase,
                 getUserInfoUseCase,
-                checkChatRoomUseCase
+                checkChatRoomUseCase,
+                deleteBoardUseCase
             )
         }
     }
