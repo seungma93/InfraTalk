@@ -13,17 +13,21 @@ import com.freetalk.domain.usecase.CheckChatRoomUseCase
 import com.freetalk.domain.usecase.CreateChatRoomUseCase
 import com.freetalk.domain.usecase.DeleteBoardBookmarkUseCase
 import com.freetalk.domain.usecase.DeleteBoardLikeUseCase
+import com.freetalk.domain.usecase.DeleteBoardUseCase
 import com.freetalk.domain.usecase.GetUserInfoUseCase
 import com.freetalk.domain.usecase.LoadBoardListUseCase
 import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.WriteBoardContentUseCase
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.BoardContentImagesUpdateForm
 import com.freetalk.presenter.form.BoardContentInsertForm
+import com.freetalk.presenter.form.BoardDeleteForm
 import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
@@ -33,6 +37,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.updateAndGet
 import javax.inject.Inject
 
 sealed class BoardViewEvent {
@@ -52,7 +57,8 @@ class BoardViewModel @Inject constructor(
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
     private val createChatRoomUseCase: CreateChatRoomUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val checkChatRoomUseCase: CheckChatRoomUseCase
+    private val checkChatRoomUseCase: CheckChatRoomUseCase,
+    private val deleteBoardUseCase: DeleteBoardUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardViewEvent>()
     val viewEvent: SharedFlow<BoardViewEvent> = _viewEvent.asSharedFlow()
@@ -257,5 +263,29 @@ class BoardViewModel @Inject constructor(
 
     fun getUserInfo(): UserEntity {
         return getUserInfoUseCase()
+    }
+
+    suspend fun deleteBoard(
+        boardDeleteForm: BoardDeleteForm,
+        boardBookmarksDeleteForm: BoardBookmarksDeleteForm,
+        boardLikesDeleteForm: BoardLikesDeleteForm
+    ): BoardViewState {
+        val result = kotlin.runCatching {
+            deleteBoardUseCase(
+                boardDeleteForm = boardDeleteForm,
+                boardBookmarksDeleteForm = boardBookmarksDeleteForm,
+                boardLikesDeleteForm = boardLikesDeleteForm,
+                boardListEntity = viewState.value.boardListEntity
+            )
+
+        }.onFailure {
+            Log.d("BoardViewModel", "북마크 딜리트 실패")
+        }.getOrNull()
+
+        return result?.let {
+            _viewState.updateAndGet { _ ->
+                viewState.value.copy(boardListEntity = it)
+            }
+        } ?: viewState.value
     }
 }
