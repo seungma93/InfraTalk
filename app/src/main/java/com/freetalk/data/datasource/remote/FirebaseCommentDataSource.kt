@@ -6,7 +6,11 @@ import com.freetalk.data.*
 import com.freetalk.data.model.request.BoardRelatedAllCommentMetaListSelectRequest
 import com.freetalk.data.model.request.CommentDeleteRequest
 import com.freetalk.data.model.request.CommentMetaListSelectRequest
+import com.freetalk.data.model.request.MyBoardListLoadRequest
+import com.freetalk.data.model.request.MyCommentListLoadRequest
 import com.freetalk.data.model.request.UserSelectRequest
+import com.freetalk.data.model.response.BoardMetaListResponse
+import com.freetalk.data.model.response.BoardMetaResponse
 import com.freetalk.data.model.response.CommentDeleteResponse
 import com.freetalk.data.model.response.CommentMetaListResponse
 import com.freetalk.data.model.response.CommentMetaResponse
@@ -31,8 +35,8 @@ interface CommentDataSource {
     suspend fun selectRelatedAllCommentMetaList(
         boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
     ): CommentMetaListResponse
-
     suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
+    suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse
 }
 
 
@@ -41,6 +45,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
     private val userDataSource: UserDataSource
 ) : CommentDataSource {
     private var lastDocument: DocumentSnapshot? = null
+    private var myCommentLastDocument: DocumentSnapshot? = null
 
     override suspend fun insertComment(commentInsertRequest: CommentInsertRequest): CommentMetaResponse =
         with(commentInsertRequest) {
@@ -177,4 +182,48 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
             throw FailDeleteCommentException("댓글 셀렉트에 실패 했습니다")
         }.getOrThrow()
     }
+
+    private suspend fun getMyCommentDocuments(
+        limit: Long,
+        startAfter: DocumentSnapshot?
+    ): QuerySnapshot {
+        val query = database.collection("Comment")
+            .whereEqualTo("authorEmail", userDataSource.getUserInfo().email)
+            .orderBy("createTime", Query.Direction.DESCENDING)
+            .limit(limit)
+        return if (startAfter != null) {
+            query.startAfter(startAfter).get().await()
+        } else {
+            query.get().await()
+        }
+    }
+    override suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse =
+        coroutineScope {
+            kotlin.runCatching {
+                val snapshot = when (myCommentListLoadRequest.reload) {
+                    true -> getMyCommentDocuments(10, null)
+                    false -> getMyCommentDocuments(10, myCommentLastDocument)
+                }
+                myCommentLastDocument = snapshot.documents.lastOrNull()
+
+                snapshot.documents.map {
+                    CommentMetaResponse(
+                        author = null,
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String ?: "",
+                        boardCreateTime = (it.data?.get("boardCreateTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate(),
+                        isLastPage = snapshot.size() < 10
+                    )
+                }.let {
+                    CommentMetaListResponse(it)
+                }
+            }.onFailure {
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
+            }.getOrThrow()
+        }
 }
