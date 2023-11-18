@@ -6,15 +6,19 @@ import com.freetalk.data.mapper.toEntity
 import com.freetalk.data.model.request.BoardRelatedAllCommentMetaListSelectRequest
 import com.freetalk.data.model.request.CommentDeleteRequest
 import com.freetalk.data.model.request.CommentMetaListSelectRequest
+import com.freetalk.data.model.request.MyCommentListLoadRequest
 import com.freetalk.domain.entity.CommentDeleteEntity
+import com.freetalk.domain.entity.CommentListEntity
 import com.freetalk.domain.entity.CommentMetaEntity
 import com.freetalk.domain.entity.CommentMetaListEntity
+import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.repository.CommentDataRepository
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
 import com.freetalk.presenter.form.CommentInsertRequest
 import com.freetalk.presenter.form.CommentMetaListLoadForm
+import com.freetalk.presenter.form.MyCommentListLoadForm
 import java.util.Date
 import javax.inject.Inject
 
@@ -64,6 +68,14 @@ class CommentDataRepositoryImpl @Inject constructor(
             commentDeleteRequest = CommentDeleteRequest(
                 commentAuthorEmail = commentDeleteForm.commentAuthorEmail,
                 commentCreateTime = commentDeleteForm.commentCreateTime
+            )
+        ).toEntity()
+    }
+
+    override suspend fun loadMyCommentList(myCommentListLoadForm: MyCommentListLoadForm): CommentMetaListEntity {
+        return commentDataSource.loadMyCommentList(
+            myCommentListLoadRequest = MyCommentListLoadRequest(
+                reload = myCommentListLoadForm.reload
             )
         ).toEntity()
     }

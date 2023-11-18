@@ -8,6 +8,7 @@ import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentInsertForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
+import com.freetalk.presenter.form.MyCommentListLoadForm
 
 interface CommentDataRepository {
     suspend fun insertComment(commentInsertForm: CommentInsertForm): CommentMetaEntity
@@ -16,8 +17,6 @@ interface CommentDataRepository {
     suspend fun loadBoardRelatedAllCommentMetaList(boardRelatedAllCommentMetaListSelectForm: BoardRelatedAllCommentMetaListSelectForm): CommentMetaListEntity
 
     suspend fun deleteComment(commentDeleteForm: CommentDeleteForm): CommentDeleteEntity
-
-    //suspend fun update(boardUpdateForm: BoardUpdateForm): BoardEntity
-    //suspend fun selectCommentContent(commentContentSelectForm: CommentContentSelectForm): CommentEntity
+    suspend fun loadMyCommentList(myCommentListLoadForm: MyCommentListLoadForm): CommentMetaListEntity
 
 }
