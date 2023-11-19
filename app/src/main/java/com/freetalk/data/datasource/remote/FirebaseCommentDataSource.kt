@@ -208,7 +208,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
                 snapshot.documents.map {
                     CommentMetaResponse(
-                        author = null,
+                        author = userDataSource.obtainUser(),
                         createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {

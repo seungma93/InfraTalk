@@ -27,6 +27,7 @@ interface UserDataSource {
     fun getUserInfo(): UserEntity
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
 
+    fun obtainUser(): UserResponse
 }
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
@@ -217,6 +218,15 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.onFailure {
 
         }.getOrThrow()
+    }
+
+    override fun obtainUser(): UserResponse {
+        val userEntity = UserSingleton.userEntity
+        return UserResponse(
+            email = userEntity.email,
+            nickname = userEntity.nickname,
+            image = userEntity.image
+        )
     }
 }
 
