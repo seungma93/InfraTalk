@@ -21,7 +21,7 @@ import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkLoadForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 import java.util.Date
 import javax.inject.Inject
 
@@ -86,12 +86,12 @@ class BookmarkDataRepositoryImpl @Inject constructor(private val dataSource: Boo
     }
 
     override suspend fun deleteCommentRelatedBookmarks(
-        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom
+        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteForm
     ): CommentRelatedBookmarksEntity {
         return dataSource.deleteCommentRelatedBookMarks(
             CommentRelatedBookmarksDeleteRequest(
-                boardAuthorEmail = commentRelatedBookmarksDeleteForm.boardAuthorEmail,
-                boardCreateTime = commentRelatedBookmarksDeleteForm.boardCreateTime
+                commentAuthorEmail = commentRelatedBookmarksDeleteForm.commentAuthorEmail,
+                commentCreateTime = commentRelatedBookmarksDeleteForm.commentCreateTime
 
             )
         ).toEntity()

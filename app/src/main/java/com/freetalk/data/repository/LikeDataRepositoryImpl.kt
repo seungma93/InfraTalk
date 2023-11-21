@@ -116,8 +116,8 @@ class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDat
     ): CommentRelatedLikesEntity {
         return dataSource.deleteCommentRelatedLikes(
             CommentRelatedLikesDeleteRequest(
-                boardAuthorEmail = commentRelatedLikesDeleteForm.boardAuthorEmail,
-                boardCreateTime = commentRelatedLikesDeleteForm.boardCreateTime
+                commentAuthorEmail = commentRelatedLikesDeleteForm.commentAuthorEmail,
+                commentCreateTime = commentRelatedLikesDeleteForm.commentCreateTime
 
             )
         ).toEntity()
