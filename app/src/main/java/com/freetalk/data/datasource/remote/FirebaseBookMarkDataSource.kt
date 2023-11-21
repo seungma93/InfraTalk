@@ -151,8 +151,8 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
         with(commentRelatedBookmarksDeleteRequest) {
             kotlin.runCatching {
                 val snapshot = database.collection("CommentBookmark")
-                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
-                    .whereEqualTo("boardCreateTime", boardCreateTime)
+                    .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
+                    .whereEqualTo("commentCreateTime", commentCreateTime)
                     .get().await()
                 launch(Dispatchers.IO) {
                     snapshot.documents.map {

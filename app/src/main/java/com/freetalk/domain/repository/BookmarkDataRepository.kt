@@ -10,7 +10,7 @@ import com.freetalk.presenter.form.BoardBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
 import com.freetalk.presenter.form.CommentBookmarkDeleteForm
 import com.freetalk.presenter.form.CommentBookmarkLoadForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 
 interface BookmarkDataRepository {
     suspend fun addBoardBookmark(boardBookmarkAddForm: BoardBookmarkAddForm): BookmarkEntity
@@ -20,7 +20,7 @@ interface BookmarkDataRepository {
     suspend fun deleteCommentBookmark(commentBookmarkDeleteForm: CommentBookmarkDeleteForm): BookmarkEntity
     suspend fun loadCommentBookmark(commentBookmarkLoadForm: CommentBookmarkLoadForm): BookmarkEntity
     suspend fun deleteCommentRelatedBookmarks(
-        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom
+        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteForm
     ): CommentRelatedBookmarksEntity
     suspend fun deleteBoardBookmarks(
         boardBookmarksDeleteForm: BoardBookmarksDeleteForm

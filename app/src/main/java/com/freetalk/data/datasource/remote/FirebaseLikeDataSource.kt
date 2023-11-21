@@ -184,8 +184,8 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
         with(commentRelatedLikesDeleteRequest) {
             return kotlin.runCatching {
                 val snapshot = database.collection("CommentLike")
-                    .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
-                    .whereEqualTo("boardCreateTime", boardCreateTime)
+                    .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
+                    .whereEqualTo("commentCreateTime", commentCreateTime)
                     .get().await()
 
                 snapshot.documents.map {
