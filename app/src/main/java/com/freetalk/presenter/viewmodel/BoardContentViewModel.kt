@@ -42,7 +42,7 @@ import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -371,7 +371,7 @@ class BoardContentViewModel @Inject constructor(
 
     suspend fun deleteComment(
         commentDeleteForm: CommentDeleteForm,
-        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom,
+        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteForm,
         commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm
     ): BoardContentViewState {
         val result = kotlin.runCatching {

@@ -43,9 +43,16 @@ class MyPageFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btnMyBoard.setOnClickListener {
-            val endPoint = MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
-            (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+
+        binding.apply {
+            btnMyBoard.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
+                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
+            btnMyComment.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyComment(userEntity = myPageViewModel.getUserInfo())
+                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
         }
     }
 }

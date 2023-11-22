@@ -5,7 +5,7 @@ import com.freetalk.domain.repository.BookmarkDataRepository
 import com.freetalk.domain.repository.CommentDataRepository
 import com.freetalk.domain.repository.LikeDataRepository
 import com.freetalk.presenter.form.CommentDeleteForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +18,7 @@ class DeleteCommentUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         commentDeleteForm: CommentDeleteForm,
-        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteFrom,
+        commentRelatedBookmarksDeleteForm: CommentRelatedBookmarksDeleteForm,
         commentRelatedLikesDeleteForm: CommentRelatedLikesDeleteForm,
         commentListEntity: CommentListEntity
     ): CommentListEntity = coroutineScope {
