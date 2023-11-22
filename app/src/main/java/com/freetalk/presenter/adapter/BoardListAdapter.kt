@@ -19,13 +19,14 @@ class BoardListAdapter(
     private val bookmarkClick: (BoardEntity) -> Unit,
     private val likeClick: (BoardEntity) -> Unit,
     private val chatClick: (BoardMetaEntity) -> Unit,
-    private val userEntity: UserEntity
+    private val userEntity: UserEntity,
+    private val deleteClick: (BoardMetaEntity) -> Unit
 ) : ListAdapter<BoardEntity, BoardListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, chatClick, userEntity)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, chatClick, userEntity, deleteClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -38,7 +39,8 @@ class BoardListAdapter(
         private val bookmarkClick: (BoardEntity) -> Unit,
         private val likeClick: (BoardEntity) -> Unit,
         private val chatClick: (BoardMetaEntity) -> Unit,
-        private val userEntity: UserEntity
+        private val userEntity: UserEntity,
+        private val deleteClick: (BoardMetaEntity) -> Unit
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var boardEntity: BoardEntity? = null
@@ -69,6 +71,11 @@ class BoardListAdapter(
                         chatClick(it.boardMetaEntity)
                     }
                 }
+                btnDelete.setOnClickListener {
+                    boardEntity?.let {
+                        deleteClick(it.boardMetaEntity)
+                    }
+                }
             }
 
         }
@@ -95,8 +102,14 @@ class BoardListAdapter(
                         true -> View.VISIBLE
                         else -> View.GONE
                     }
+                    btnDelete.visibility =
+                        when ( userEntity.email == it.boardMetaEntity.author.email) {
+                            true -> View.VISIBLE
+                            else -> View.GONE
+                        }
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
+
                 }
             }
         }
