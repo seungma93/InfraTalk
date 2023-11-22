@@ -24,9 +24,12 @@ import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.adapter.BoardListAdapter
 import com.freetalk.presenter.form.BoardBookmarkAddForm
 import com.freetalk.presenter.form.BoardBookmarkDeleteForm
+import com.freetalk.presenter.form.BoardBookmarksDeleteForm
+import com.freetalk.presenter.form.BoardDeleteForm
 import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
+import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.ChatRoomCheckForm
 import com.freetalk.presenter.form.ChatRoomCreateForm
@@ -161,7 +164,26 @@ class BoardFragment : Fragment() {
                     )
                 }
             },
-            userEntity = boardViewModel.getUserInfo()
+            userEntity = boardViewModel.getUserInfo(),
+            deleteClick = { boardMetaEntity ->  
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val boardViewState = boardViewModel.deleteBoard(
+                        boardDeleteForm = BoardDeleteForm(
+                            boardAuthorEmail = boardMetaEntity.author.email,
+                            boardCreateTime = boardMetaEntity.createTime
+                        ),
+                        boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                            boardAuthorEmail = boardMetaEntity.author.email,
+                            boardCreateTime = boardMetaEntity.createTime
+                        ),
+                        boardLikesDeleteForm = BoardLikesDeleteForm(
+                            boardAuthorEmail = boardMetaEntity.author.email,
+                            boardCreateTime = boardMetaEntity.createTime
+                        )
+                    )
+                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                }
+            }
         )
 
         binding.apply {
