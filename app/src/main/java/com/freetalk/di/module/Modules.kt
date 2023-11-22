@@ -59,6 +59,7 @@ import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyBoardListUseCase
+import com.freetalk.domain.usecase.LoadMyCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -86,6 +87,7 @@ import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.MyBoardViewModel
+import com.freetalk.presenter.viewmodel.MyCommentViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
@@ -889,6 +891,32 @@ class Modules {
                 deleteBoardLikeUseCase,
                 getUserInfoUseCase,
                 deleteBoardUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyCommentViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyCommentViewModel::class)
+        fun providesMyCommentViewModel(
+            loadMyCommentListUseCase: LoadMyCommentListUseCase,
+            deleteCommentUseCase: DeleteCommentUseCase,
+            addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
+            deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
+            addCommentLikeUseCase: AddCommentLikeUseCase,
+            deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
+        ): ViewModel {
+            return MyCommentViewModel(
+                loadMyCommentListUseCase,
+                deleteCommentUseCase,
+                addCommentBookmarkUseCase,
+                deleteCommentBookmarkUseCase,
+                addCommentLikeUseCase,
+                deleteCommentLikeUseCase,
+                getUserInfoUseCase
             )
         }
     }

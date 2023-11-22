@@ -18,8 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import com.freetalk.databinding.FragmentBoardContentBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
 import com.freetalk.domain.entity.BoardContentPrimaryKeyEntity
-import com.freetalk.domain.entity.BoardEntity
-import com.freetalk.domain.entity.CommentRelatedLikesEntity
 import com.freetalk.presenter.adapter.BoardContentImageAdapter
 import com.freetalk.presenter.adapter.CommentListAdapter
 import com.freetalk.presenter.adapter.ListItem
@@ -30,7 +28,6 @@ import com.freetalk.presenter.form.BoardLikeAddForm
 import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikeLoadForm
-import com.freetalk.presenter.form.BoardListLoadForm
 import com.freetalk.presenter.form.BoardLoadForm
 import com.freetalk.presenter.form.BoardRelatedAllCommentMetaListSelectForm
 import com.freetalk.presenter.form.CommentBookmarkAddForm
@@ -41,13 +38,10 @@ import com.freetalk.presenter.form.CommentLikeAddForm
 import com.freetalk.presenter.form.CommentLikeCountLoadForm
 import com.freetalk.presenter.form.CommentLikeDeleteForm
 import com.freetalk.presenter.form.CommentMetaListLoadForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
+import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
-import com.freetalk.presenter.viewmodel.BoardViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.util.Collections.list
 import javax.inject.Inject
 
 
@@ -198,13 +192,13 @@ class BoardContentFragment : Fragment() {
                                 commentAuthorEmail = commentMetaEntity.author.email,
                                 commentCreateTime = commentMetaEntity.createTime
                             ),
-                            commentRelatedBookmarksDeleteForm = CommentRelatedBookmarksDeleteFrom(
-                                boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
-                                boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
+                            commentRelatedBookmarksDeleteForm = CommentRelatedBookmarksDeleteForm(
+                                commentAuthorEmail = commentMetaEntity.author.email,
+                                commentCreateTime = commentMetaEntity.createTime
                             ),
                             commentRelatedLikesDeleteForm = CommentRelatedLikesDeleteForm(
-                                boardAuthorEmail = boardContentPrimaryKeyEntity.boardAuthorEmail,
-                                boardCreateTime = boardContentPrimaryKeyEntity.boardCreateTime
+                                commentAuthorEmail = commentMetaEntity.author.email,
+                                commentCreateTime = commentMetaEntity.createTime
                             )
                         )
                         commentAdapter.submitList(createListItem(viewState)) {

@@ -51,7 +51,6 @@ import com.freetalk.presenter.form.ChatRoomCreateForm
 import com.freetalk.presenter.form.ChatRoomLeaveForm
 import com.freetalk.presenter.form.ChatRoomLoadForm
 import com.freetalk.presenter.form.CommentDeleteForm
-import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteFrom
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import com.freetalk.presenter.form.MyBoardListLoadForm
 import com.freetalk.presenter.form.RealTimeChatMessageLoadForm
