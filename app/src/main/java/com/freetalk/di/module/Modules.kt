@@ -696,12 +696,14 @@ class Modules {
         fun providesDeleteBoardUseCase(
             boardDataRepository: BoardDataRepository,
             bookmarkDataRepository: BookmarkDataRepository,
-            likeDataRepository: LikeDataRepository
+            likeDataRepository: LikeDataRepository,
+            commentDataRepository: CommentDataRepository
         ): DeleteBoardUseCase {
             return DeleteBoardUseCase(
                 boardDataRepository,
                 bookmarkDataRepository,
-                likeDataRepository
+                likeDataRepository,
+                commentDataRepository
             )
         }
     }
