@@ -165,7 +165,8 @@ class BoardFragment : Fragment() {
                 }
             },
             userEntity = boardViewModel.getUserInfo(),
-            deleteClick = { boardMetaEntity ->  
+            deleteClick = { boardMetaEntity ->
+                showProgressBar()
                 viewLifecycleOwner.lifecycleScope.launch {
                     val boardViewState = boardViewModel.deleteBoard(
                         boardDeleteForm = BoardDeleteForm(
@@ -181,7 +182,9 @@ class BoardFragment : Fragment() {
                             boardCreateTime = boardMetaEntity.createTime
                         )
                     )
-                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                    adapter.submitList(boardViewState.boardListEntity.boardList) {
+                        hideProgressBar()
+                    }
                 }
             }
         )
