@@ -2,6 +2,7 @@ package com.freetalk.data.datasource.remote
 
 import android.net.Uri
 import android.util.Log
+import com.freetalk.data.FailDeleteBookMarkException
 import com.freetalk.data.FailDeleteCommentException
 import com.freetalk.data.FailInsertException
 import com.freetalk.data.FailSelectBoardContentException
@@ -42,6 +43,7 @@ interface BoardDataSource {
     suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
     suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
     suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse
+    suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse
 }
 
 
@@ -267,6 +269,57 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             )
         }.onFailure {
             throw FailDeleteCommentException("댓글 셀렉트에 실패 했습니다")
+        }.getOrThrow()
+    }
+
+    override suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse = coroutineScope {
+        kotlin.runCatching {
+            val userEntity = userDataSource.getUserInfo()
+            val snapshot = database.collection("BoardBookmark")
+                .whereEqualTo("userEmail", userEntity.email )
+                .get().await()
+
+            snapshot.documents.map {
+                val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
+                val boardCreateTime = it.data?.get("boardCreateTime") as? Date
+                boardAuthorEmail to boardCreateTime
+            }.map { (boardAuthorEmail, boardCreateTime) ->
+                val asyncBoard = async { database.collection("Board")
+                    .whereEqualTo("authorEmail", boardAuthorEmail)
+                    .whereEqualTo("createTime", boardCreateTime)
+                    .get().await()}
+                asyncBoard
+            }.map {
+                val boardSnapshot = it.await()
+                val asyncUserInfo = boardSnapshot.documents.firstOrNull()?.let {
+                    val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                    async {
+                        userDataSource
+                            .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
+                    }
+                } ?: run {
+                    throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+                }
+                boardSnapshot to asyncUserInfo
+            }.map { (it, deferred) ->
+                it.documents.firstNotNullOf {
+                    BoardMetaResponse(
+                        author = deferred.await().toEntity(),
+                        title = it.data?.get("title") as? String,
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    )
+                }
+            }.let {
+                BoardMetaListResponse(it)
+            }
+
+        }.onFailure {
+            throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
         }.getOrThrow()
     }
 
