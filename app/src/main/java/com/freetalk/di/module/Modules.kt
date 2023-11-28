@@ -59,6 +59,7 @@ import com.freetalk.domain.usecase.LoadChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyBoardListUseCase
+import com.freetalk.domain.usecase.LoadMyBookmarkBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
@@ -87,6 +88,7 @@ import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.MyBoardViewModel
+import com.freetalk.presenter.viewmodel.MyBookmarkBoardViewModel
 import com.freetalk.presenter.viewmodel.MyCommentViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
@@ -921,6 +923,32 @@ class Modules {
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
                 getUserInfoUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyBookmarkBoardViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyBookmarkBoardViewModel::class)
+        fun providesMyBookmarkBoardViewModel(
+            loadMyBookmarkBoardListUseCase: LoadMyBookmarkBoardListUseCase,
+            addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
+            deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
+            addBoardLikeUseCase: AddBoardLikeUseCase,
+            deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase,
+            deleteBoardUseCase: DeleteBoardUseCase
+        ): ViewModel {
+            return MyBookmarkBoardViewModel(
+                loadMyBookmarkBoardListUseCase,
+                addBoardBookmarkUseCase,
+                deleteBoardBookmarkUseCase,
+                addBoardLikeUseCase,
+                deleteBoardLikeUseCase,
+                getUserInfoUseCase,
+                deleteBoardUseCase
             )
         }
     }
