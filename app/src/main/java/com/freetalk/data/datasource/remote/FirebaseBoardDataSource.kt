@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.getField
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
@@ -278,12 +279,14 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             val snapshot = database.collection("BoardBookmark")
                 .whereEqualTo("userEmail", userEntity.email )
                 .get().await()
-
             snapshot.documents.map {
                 val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
-                val boardCreateTime = it.data?.get("boardCreateTime") as? Date
+                val boardCreateTime = it.data?.get("boardCreateTime") as? Timestamp
+                Log.d("seungma", "보드이메일" + boardAuthorEmail)
+                Log.d("seungma", "보드시간" + boardCreateTime)
                 boardAuthorEmail to boardCreateTime
             }.map { (boardAuthorEmail, boardCreateTime) ->
+
                 val asyncBoard = async { database.collection("Board")
                     .whereEqualTo("authorEmail", boardAuthorEmail)
                     .whereEqualTo("createTime", boardCreateTime)
