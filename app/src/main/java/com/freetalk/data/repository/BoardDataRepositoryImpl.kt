@@ -88,4 +88,7 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
     override suspend fun loadMyBookmarkBoardList(): BoardMetaListEntity {
         return dataSource.loadMyBookmarkBoardList().toEntity()
     }
+    override suspend fun loadMyLikeBoardList(): BoardMetaListEntity {
+        return dataSource.loadMyLikeBoardList().toEntity()
+    }
 }

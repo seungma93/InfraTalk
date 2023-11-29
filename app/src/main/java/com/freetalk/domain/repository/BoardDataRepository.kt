@@ -19,4 +19,5 @@ interface BoardDataRepository {
     suspend fun loadMyBoardList(myBoardListLoadForm: MyBoardListLoadForm): BoardMetaListEntity
     suspend fun deleteBoard(boardDeleteForm: BoardDeleteForm): BoardDeleteEntity
     suspend fun loadMyBookmarkBoardList(): BoardMetaListEntity
+    suspend fun loadMyLikeBoardList(): BoardMetaListEntity
 }

@@ -36,7 +36,6 @@ import toEntity
 import java.util.Date
 import javax.inject.Inject
 
-
 interface BoardDataSource {
     suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse
     suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse
@@ -45,8 +44,8 @@ interface BoardDataSource {
     suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
     suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse
     suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse
+    suspend fun loadMyLikeBoardList(): BoardMetaListResponse
 }
-
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
@@ -277,7 +276,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         kotlin.runCatching {
             val userEntity = userDataSource.getUserInfo()
             val snapshot = database.collection("BoardBookmark")
-                .whereEqualTo("userEmail", userEntity.email )
+                .whereEqualTo("userEmail", userEntity.email)
                 .get().await()
             snapshot.documents.map {
                 val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
@@ -287,10 +286,64 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 boardAuthorEmail to boardCreateTime
             }.map { (boardAuthorEmail, boardCreateTime) ->
 
-                val asyncBoard = async { database.collection("Board")
-                    .whereEqualTo("authorEmail", boardAuthorEmail)
-                    .whereEqualTo("createTime", boardCreateTime)
-                    .get().await()}
+                val asyncBoard = async {
+                    database.collection("Board")
+                        .whereEqualTo("authorEmail", boardAuthorEmail)
+                        .whereEqualTo("createTime", boardCreateTime)
+                        .get().await()
+                }
+                asyncBoard
+            }.map {
+                val boardSnapshot = it.await()
+                val asyncUserInfo = boardSnapshot.documents.firstOrNull()?.let {
+                    val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                    async {
+                        userDataSource
+                            .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
+                    }
+                } ?: run {
+                    throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+                }
+                boardSnapshot to asyncUserInfo
+            }.map { (it, deferred) ->
+                it.documents.firstNotNullOf {
+                    BoardMetaResponse(
+                        author = deferred.await().toEntity(),
+                        title = it.data?.get("title") as? String,
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    )
+                }
+            }.let {
+                BoardMetaListResponse(it)
+            }
+
+        }.onFailure {
+            throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
+        }.getOrThrow()
+    }
+
+    override suspend fun loadMyLikeBoardList(): BoardMetaListResponse = coroutineScope {
+        kotlin.runCatching {
+            val userEntity = userDataSource.getUserInfo()
+            val snapshot = database.collection("BoardLike")
+                .whereEqualTo("userEmail", userEntity.email)
+                .get().await()
+            snapshot.documents.map {
+                val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
+                val boardCreateTime = it.data?.get("boardCreateTime") as? Timestamp
+                boardAuthorEmail to boardCreateTime
+            }.map { (boardAuthorEmail, boardCreateTime) ->
+                val asyncBoard = async {
+                    database.collection("Board")
+                        .whereEqualTo("authorEmail", boardAuthorEmail)
+                        .whereEqualTo("createTime", boardCreateTime)
+                        .get().await()
+                }
                 asyncBoard
             }.map {
                 val boardSnapshot = it.await()
