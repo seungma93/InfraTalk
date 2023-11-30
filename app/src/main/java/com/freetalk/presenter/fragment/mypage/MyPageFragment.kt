@@ -57,6 +57,10 @@ class MyPageFragment: Fragment() {
                 val endPoint = MainChildFragmentEndPoint.MyBookmarkBoard
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
+            btnMyLikeBoard.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyLikeBoard
+                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
         }
     }
 }
