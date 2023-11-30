@@ -28,6 +28,7 @@ import com.freetalk.domain.usecase.LoadChatMessageListUseCase
 import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadMyBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyBookmarkBoardListUseCase
+import com.freetalk.domain.usecase.LoadMyLikeBoardListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -72,7 +73,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MyLikeBoardViewModel @Inject constructor(
-    private val loadMyLikeBoardListUseCase: LoadMyBookmarkBoardListUseCase,
+    private val loadMyLikeBoardListUseCase: LoadMyLikeBoardListUseCase,
     private val addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
     private val addBoardLikeUseCase: AddBoardLikeUseCase,

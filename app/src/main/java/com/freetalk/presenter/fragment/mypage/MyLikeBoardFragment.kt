@@ -31,6 +31,7 @@ import com.freetalk.presenter.form.BoardLikeCountLoadForm
 import com.freetalk.presenter.form.BoardLikeDeleteForm
 import com.freetalk.presenter.form.BoardLikesDeleteForm
 import com.freetalk.presenter.viewmodel.MyBookmarkBoardViewModel
+import com.freetalk.presenter.viewmodel.MyLikeBoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,10 +44,10 @@ class MyLikeBoardFragment: Fragment() {
 
     @Inject
     lateinit var myLikeBoardViewModelFactory: ViewModelProvider.Factory
-    private val myLikeBoardViewModel: MyBookmarkBoardViewModel by viewModels { myLikeBoardViewModelFactory }
+    private val myLikeBoardViewModel: MyLikeBoardViewModel by viewModels { myLikeBoardViewModelFactory }
 
     override fun onAttach(context: Context) {
-        //DaggerMyPageFragmentComponent.factory().create(context).inject(this)
+        DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
     }
     override fun onCreateView(
@@ -165,7 +166,7 @@ class MyLikeBoardFragment: Fragment() {
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     kotlin.runCatching {
-                        myLikeBoardViewModel.loadMyBookmarkBoardList()
+                        myLikeBoardViewModel.loadMyLikeBoardList()
                     }
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -180,7 +181,7 @@ class MyLikeBoardFragment: Fragment() {
     private fun loadBoardList() {
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
-            val boardViewState = myLikeBoardViewModel.loadMyBookmarkBoardList()
+            val boardViewState = myLikeBoardViewModel.loadMyLikeBoardList()
             adapter.submitList(boardViewState.boardListEntity.boardList) {
                 binding.rvMyLikeBoardList.scrollToPosition(0)
                 hideProgressBar()

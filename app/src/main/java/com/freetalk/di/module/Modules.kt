@@ -61,6 +61,7 @@ import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyBookmarkBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyCommentListUseCase
+import com.freetalk.domain.usecase.LoadMyLikeBoardListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -90,6 +91,7 @@ import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.MyBoardViewModel
 import com.freetalk.presenter.viewmodel.MyBookmarkBoardViewModel
 import com.freetalk.presenter.viewmodel.MyCommentViewModel
+import com.freetalk.presenter.viewmodel.MyLikeBoardViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
@@ -943,6 +945,32 @@ class Modules {
         ): ViewModel {
             return MyBookmarkBoardViewModel(
                 loadMyBookmarkBoardListUseCase,
+                addBoardBookmarkUseCase,
+                deleteBoardBookmarkUseCase,
+                addBoardLikeUseCase,
+                deleteBoardLikeUseCase,
+                getUserInfoUseCase,
+                deleteBoardUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyLikeBoardViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyLikeBoardViewModel::class)
+        fun providesMyLikeBoardViewModel(
+            loadMyLikeBoardListUseCase: LoadMyLikeBoardListUseCase,
+            addBoardBookmarkUseCase: AddBoardBookmarkUseCase,
+            deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
+            addBoardLikeUseCase: AddBoardLikeUseCase,
+            deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase,
+            deleteBoardUseCase: DeleteBoardUseCase
+        ): ViewModel {
+            return MyLikeBoardViewModel(
+                loadMyLikeBoardListUseCase,
                 addBoardBookmarkUseCase,
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
