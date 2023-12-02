@@ -37,6 +37,7 @@ interface CommentDataSource {
     ): CommentMetaListResponse
     suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
     suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse
+    suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse
 }
 
 
@@ -227,7 +228,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
         }
 
-    suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse = coroutineScope {
+    override suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse = coroutineScope {
             kotlin.runCatching {
                 val userEntity = userDataSource.getUserInfo()
                 val snapshot = database.collection("CommentBookmark")
