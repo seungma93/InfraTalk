@@ -22,10 +22,16 @@
         android:text="내가누른 북마크 게시글"
         app:layout_constraintTop_toBottomOf="@+id/btn_my_comment"/>
     <Button
-        android:id="@+id/btn_my_Like_board"
+        android:id="@+id/btn_my_like_board"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="내가누른 좋아요 게시글"
         app:layout_constraintTop_toBottomOf="@+id/btn_my_bookmark_board"/>
+    <Button
+        android:id="@+id/btn_my_bookmakr_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="내가누른 북마크 댓글"
+        app:layout_constraintTop_toBottomOf="@+id/btn_my_like_board"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
