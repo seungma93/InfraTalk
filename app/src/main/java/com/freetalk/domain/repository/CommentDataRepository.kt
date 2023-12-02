@@ -18,5 +18,6 @@ interface CommentDataRepository {
 
     suspend fun deleteComment(commentDeleteForm: CommentDeleteForm): CommentDeleteEntity
     suspend fun loadMyCommentList(myCommentListLoadForm: MyCommentListLoadForm): CommentMetaListEntity
+    suspend fun loadMyBookmarkCommentList(): CommentMetaListEntity
 
 }

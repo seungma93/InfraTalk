@@ -80,4 +80,7 @@ class CommentDataRepositoryImpl @Inject constructor(
         ).toEntity()
     }
 
+    override suspend fun loadMyBookmarkCommentList(): CommentMetaListEntity {
+        return commentDataSource.loadMyBookmarkCommentList().toEntity()
+    }
 }
