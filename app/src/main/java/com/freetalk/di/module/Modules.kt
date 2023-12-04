@@ -60,6 +60,7 @@ import com.freetalk.domain.usecase.LoadChatRoomUseCase
 import com.freetalk.domain.usecase.LoadCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyBookmarkBoardListUseCase
+import com.freetalk.domain.usecase.LoadMyBookmarkCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyLikeBoardListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
@@ -90,6 +91,7 @@ import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import com.freetalk.presenter.viewmodel.ChatViewModel
 import com.freetalk.presenter.viewmodel.MyBoardViewModel
 import com.freetalk.presenter.viewmodel.MyBookmarkBoardViewModel
+import com.freetalk.presenter.viewmodel.MyBookmarkCommentViewModel
 import com.freetalk.presenter.viewmodel.MyCommentViewModel
 import com.freetalk.presenter.viewmodel.MyLikeBoardViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
@@ -977,6 +979,32 @@ class Modules {
                 deleteBoardLikeUseCase,
                 getUserInfoUseCase,
                 deleteBoardUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyBookmarkCommentViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyBookmarkCommentViewModel::class)
+        fun providesMyBookmarkCommentViewModel(
+            loadMyBookmarkCommentListUseCase: LoadMyBookmarkCommentListUseCase,
+            deleteCommentUseCase: DeleteCommentUseCase,
+            addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
+            deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
+            addCommentLikeUseCase: AddCommentLikeUseCase,
+            deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
+        ): ViewModel {
+            return MyBookmarkCommentViewModel(
+                loadMyBookmarkCommentListUseCase,
+                deleteCommentUseCase,
+                addCommentBookmarkUseCase,
+                deleteCommentBookmarkUseCase,
+                addCommentLikeUseCase,
+                deleteCommentLikeUseCase,
+                getUserInfoUseCase
             )
         }
     }
