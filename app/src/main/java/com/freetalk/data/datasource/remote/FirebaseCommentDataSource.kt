@@ -38,6 +38,7 @@ interface CommentDataSource {
     suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
     suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse
     suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse
+    suspend fun loadMyLikeCommentList(): CommentMetaListResponse
 }
 
 
@@ -278,5 +279,56 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
                 throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
             }.getOrThrow()
         }
+
+    override suspend fun loadMyLikeCommentList(): CommentMetaListResponse = coroutineScope {
+        kotlin.runCatching {
+            val userEntity = userDataSource.getUserInfo()
+            val snapshot = database.collection("CommentLike")
+                .whereEqualTo("userEmail", userEntity.email)
+                .get().await()
+            snapshot.documents.map {
+                val commentAuthorEmail = it.data?.get("commentAuthorEmail") as? String
+                val commentCreateTime = it.data?.get("commentCreateTime") as? Timestamp
+                commentAuthorEmail to commentCreateTime
+            }.map { (commentAuthorEmail, commentCreateTime) ->
+                val asyncComment = async {
+                    database.collection("Comment")
+                        .whereEqualTo("authorEmail", commentAuthorEmail)
+                        .whereEqualTo("createTime", commentCreateTime)
+                        .get().await()
+                }
+                asyncComment
+            }.map {
+                val commentSnapshot = it.await()
+                val asyncUserInfo = commentSnapshot.documents.firstOrNull()?.let {
+                    val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
+                    async {
+                        userDataSource
+                            .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
+                    }
+                } ?: run {
+                    throw FailSelectBoardContentException("보드 콘텐츠 셀렉트 실패")
+                }
+                commentSnapshot to asyncUserInfo
+            }.map { (it, deferred) ->
+                it.documents.firstNotNullOf {
+                    CommentMetaResponse(
+                        author = deferred.await(),
+                        content = it.data?.get("content") as? String,
+                        images = (it.data?.get("images") as? List<String>)?.let {
+                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                        },
+                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                    )
+                }
+            }.let {
+                CommentMetaListResponse(it)
+            }
+
+        }.onFailure {
+            throw FailDeleteBookMarkException("북마크 딜리트에 실패했습니다")
+        }.getOrThrow()
+    }
 
 }
