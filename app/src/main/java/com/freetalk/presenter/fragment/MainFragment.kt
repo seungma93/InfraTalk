@@ -17,6 +17,7 @@ import com.freetalk.presenter.fragment.mypage.MyBookmarkBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyBookmarkCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyLikeBoardFragment
+import com.freetalk.presenter.fragment.mypage.MyLikeCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
 
 interface ChildFragmentNavigable {
@@ -34,6 +35,7 @@ sealed class MainChildFragmentEndPoint {
     object MyBookmarkBoard : MainChildFragmentEndPoint()
     object MyLikeBoard : MainChildFragmentEndPoint()
     object MyBookmarkComment : MainChildFragmentEndPoint()
+    object MyLikeComment : MainChildFragmentEndPoint()
     object Error : MainChildFragmentEndPoint()
 }
 
@@ -142,6 +144,10 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
             }
             is MainChildFragmentEndPoint.MyBookmarkComment -> {
                 val fragment = MyBookmarkCommentFragment()
+                setFragment(fragment, R.id.fragment_frame_layout, true)
+            }
+            is MainChildFragmentEndPoint.MyLikeComment -> {
+                val fragment = MyLikeCommentFragment()
                 setFragment(fragment, R.id.fragment_frame_layout, true)
             }
             is MainChildFragmentEndPoint.Error -> {
