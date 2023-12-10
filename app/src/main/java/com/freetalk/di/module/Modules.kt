@@ -63,6 +63,7 @@ import com.freetalk.domain.usecase.LoadMyBookmarkBoardListUseCase
 import com.freetalk.domain.usecase.LoadMyBookmarkCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyCommentListUseCase
 import com.freetalk.domain.usecase.LoadMyLikeBoardListUseCase
+import com.freetalk.domain.usecase.LoadMyLikeCommentListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatMessageUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomListUseCase
 import com.freetalk.domain.usecase.LoadRealTimeChatRoomUseCase
@@ -94,6 +95,7 @@ import com.freetalk.presenter.viewmodel.MyBookmarkBoardViewModel
 import com.freetalk.presenter.viewmodel.MyBookmarkCommentViewModel
 import com.freetalk.presenter.viewmodel.MyCommentViewModel
 import com.freetalk.presenter.viewmodel.MyLikeBoardViewModel
+import com.freetalk.presenter.viewmodel.MyLikeCommentViewModel
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewModelFactory
@@ -999,6 +1001,32 @@ class Modules {
         ): ViewModel {
             return MyBookmarkCommentViewModel(
                 loadMyBookmarkCommentListUseCase,
+                deleteCommentUseCase,
+                addCommentBookmarkUseCase,
+                deleteCommentBookmarkUseCase,
+                addCommentLikeUseCase,
+                deleteCommentLikeUseCase,
+                getUserInfoUseCase
+            )
+        }
+    }
+
+    @Module
+    class MyLikeCommentViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(MyLikeCommentViewModel::class)
+        fun providesMyLikeCommentViewModel(
+            loadMyLikeCommentListUseCase: LoadMyLikeCommentListUseCase,
+            deleteCommentUseCase: DeleteCommentUseCase,
+            addCommentBookmarkUseCase: AddCommentBookmarkUseCase,
+            deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
+            addCommentLikeUseCase: AddCommentLikeUseCase,
+            deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
+            getUserInfoUseCase: GetUserInfoUseCase
+        ): ViewModel {
+            return MyLikeCommentViewModel(
+                loadMyLikeCommentListUseCase,
                 deleteCommentUseCase,
                 addCommentBookmarkUseCase,
                 deleteCommentBookmarkUseCase,
