@@ -12,6 +12,7 @@ import com.freetalk.presenter.fragment.mypage.MyBookmarkBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyBookmarkCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyLikeBoardFragment
+import com.freetalk.presenter.fragment.mypage.MyLikeCommentFragment
 import com.freetalk.presenter.fragment.mypage.MyPageFragment
 import dagger.BindsInstance
 import dagger.Component
@@ -45,6 +46,7 @@ import dagger.Component
         Modules.MyBookmarkBoardViewModelModule::class,
         Modules.MyLikeBoardViewModelModule::class,
         Modules.MyBookmarkCommentViewModelModule::class,
+        Modules.MyLikeCommentViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
 )
@@ -57,6 +59,7 @@ interface MyPageFragmentComponent {
     fun inject(fragment: MyBookmarkBoardFragment)
     fun inject(fragment: MyLikeBoardFragment)
     fun inject(fragment: MyBookmarkCommentFragment)
+    fun inject(fragment: MyLikeCommentFragment)
 
     @Component.Factory
     interface Factory {
