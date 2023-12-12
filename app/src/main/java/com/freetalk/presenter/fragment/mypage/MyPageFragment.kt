@@ -44,7 +44,19 @@ class MyPageFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val userEntity = myPageViewModel.getUserInfo()
+
         binding.apply {
+
+            userEntity.apply {
+                tvEmail.text = email
+                tvNickname.text = nickname
+            }
+
+            btnEditMyInfo.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyAccountInfoEdit
+                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
             btnMyBoard.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
