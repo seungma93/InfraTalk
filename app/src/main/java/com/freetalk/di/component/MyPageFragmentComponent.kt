@@ -7,6 +7,7 @@ import com.freetalk.presenter.fragment.board.BoardFragment
 import com.freetalk.presenter.fragment.board.BoardWriteFragment
 import com.freetalk.presenter.fragment.chat.ChatFragment
 import com.freetalk.presenter.fragment.chat.ChatRoomFragment
+import com.freetalk.presenter.fragment.mypage.MyAccountInfoEditFragment
 import com.freetalk.presenter.fragment.mypage.MyBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyBookmarkBoardFragment
 import com.freetalk.presenter.fragment.mypage.MyBookmarkCommentFragment
@@ -60,6 +61,7 @@ interface MyPageFragmentComponent {
     fun inject(fragment: MyLikeBoardFragment)
     fun inject(fragment: MyBookmarkCommentFragment)
     fun inject(fragment: MyLikeCommentFragment)
+    fun inject(fragment: MyAccountInfoEditFragment)
 
     @Component.Factory
     interface Factory {
