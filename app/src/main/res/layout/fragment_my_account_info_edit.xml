@@ -60,47 +60,13 @@
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/password_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
-        android:hint="@string/shr_hint_password"
-        style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@id/tv_email"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/password_check_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
-        android:hint="@string/shr_hint_check_password"
-        style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/password_text_input"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password_check_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nickname_text_input"
         android:layout_width="230dp"
         android:layout_height="70dp"
         android:layout_margin="4dp"
         android:hint="@string/shr_hint_nickname"
         style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/password_check_text_input"
+        app:layout_constraintTop_toBottomOf="@+id/tv_email"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -113,7 +79,7 @@
 
 
     <Button
-        android:id="@+id/btn_sign_up"
+        android:id="@+id/btn_edit_complete"
         style="@style/Widget.FreeTalk.Button"
         android:layout_width="200dp"
         android:layout_height="40dp"

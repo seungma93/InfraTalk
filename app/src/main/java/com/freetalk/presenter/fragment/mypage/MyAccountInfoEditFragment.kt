@@ -33,10 +33,12 @@ import com.freetalk.data.NoImageException
 import com.freetalk.data.model.request.ImagesRequest
 import com.freetalk.databinding.FragmentMyAccountInfoEditBinding
 import com.freetalk.databinding.FragmentSignUpBinding
+import com.freetalk.di.component.DaggerMyPageFragmentComponent
 import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.form.SignUpForm
+import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
@@ -49,11 +51,11 @@ class MyAccountInfoEditFragment : Fragment() {
     private lateinit var activityResult: ActivityResultLauncher<Intent>
 
     @Inject
-    lateinit var signViewModelFactory: ViewModelProvider.Factory
-    private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
+    lateinit var myPageViewModelFactory: ViewModelProvider.Factory
+    private val myPageViewModel: MyPageViewModel by viewModels { myPageViewModelFactory }
 
     override fun onAttach(context: Context) {
-        //DaggerSignFragmentComponent.factory().create(context).inject(this)
+        DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
         activityResultLauncher =
@@ -89,37 +91,33 @@ class MyAccountInfoEditFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*
-        binding.let {
 
-            it.btnSignUp.setOnClickListener { view ->
-                val inputId = it.emailTextInput.editText!!.text.toString()
-                val inputPassword = it.passwordTextInput.editText!!.text.toString()
-                val inputPasswordCheck = it.passwordCheckTextInput.editText!!.text.toString()
-                val inputNickname = it.nicknameTextInput.editText!!.text.toString()
+        val userEntity = myPageViewModel.getUserInfo()
+        val email = userEntity.email
+        val nickname = userEntity.nickname
+        val profileUri = userEntity.image
+
+
+
+        binding.apply {
+
+            nicknameEditText.setText(nickname)
+            profileImage.setImageURI(profileUri)
+
+            btnEditComplete.setOnClickListener { view ->
+                val inputNickname = nicknameTextInput.editText?.text?.toString()
 
                 when {
-                    inputId.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "이메일을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    inputPassword.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "비밀번호를 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    inputPasswordCheck.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "비밀번호 확인을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
                     inputNickname.isNullOrEmpty() -> Toast.makeText(
                         requireActivity(), "닉네임을 입력하세요",
                         Toast.LENGTH_SHORT
                     ).show()
-                    inputPassword != inputPasswordCheck -> Toast.makeText(
-                        requireActivity(), "비밀번호 확인이 일치하지 않습니다",
+                    inputNickname == nickname -> Toast.makeText(
+                        requireActivity(), "기존 닉네임과 동일합니다",
                         Toast.LENGTH_SHORT
                     ).show()
                     else -> {
+                        /*
                         viewLifecycleOwner.lifecycleScope.launch {
                             showProgressBar()
                             when (binding.profileImage.tag) {
@@ -141,11 +139,12 @@ class MyAccountInfoEditFragment : Fragment() {
                             }
 
                         }
+                        */
                     }
                 }
             }
 
-            it.profileImage.setOnClickListener {
+            profileImage.setOnClickListener {
                 when {
                     ContextCompat.checkSelfPermission(
                         requireActivity(),
@@ -168,12 +167,6 @@ class MyAccountInfoEditFragment : Fragment() {
                     }
                 }
             }
-        }
-
-         */
-
-        binding.apply {
-            //tvEmail.text =
         }
 
         subscribe()
