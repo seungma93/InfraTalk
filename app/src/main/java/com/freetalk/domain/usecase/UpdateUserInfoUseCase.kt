@@ -2,16 +2,12 @@ package com.freetalk.domain.usecase
 
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.domain.repository.UserDataRepository
-import com.freetalk.presenter.form.UpdateForm
+import com.freetalk.presenter.form.UserInfoUpdateForm
 import javax.inject.Inject
 
-interface UpdateUserInfoUseCase {
-    suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity
-}
-
-class UpdateUserInfoUseCaseImpl @Inject constructor(private val repository: UserDataRepository) :UpdateUserInfoUseCase{
-    override suspend fun updateUserInfo(updateForm: UpdateForm): UserEntity {
-        return repository.updateUserInfo(updateForm)
+class UpdateUserInfoUseCase @Inject constructor(private val repository: UserDataRepository) {
+    suspend operator fun invoke(userInfoUpdateForm: UserInfoUpdateForm): UserEntity {
+        return repository.updateUserInfo(userInfoUpdateForm)
     }
 
 }

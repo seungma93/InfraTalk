@@ -13,7 +13,7 @@ import com.freetalk.domain.usecase.UpdateProfileImageUseCase
 import com.freetalk.presenter.form.LogInForm
 import com.freetalk.presenter.form.ResetPasswordForm
 import com.freetalk.presenter.form.SignUpForm
-import com.freetalk.presenter.form.UpdateForm
+import com.freetalk.presenter.form.UserInfoUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,9 +40,9 @@ class SignViewModel @Inject constructor(
     suspend fun signUp(signUpForm: SignUpForm, imagesRequest: ImagesRequest?) {
         kotlin.runCatching {
             val signUpResult = signUpUseCase.signUp(signUpForm)
-            val updateProfileResult = updateProfileImageUseCase.updateProfileImage(
+            val updateProfileResult = updateProfileImageUseCase(
                 imagesRequest,
-                UpdateForm(signUpResult.email, signUpForm.nickname, null)
+                UserInfoUpdateForm(signUpResult.email, signUpForm.nickname, null)
             )
 
             sendEmailUseCase.sendVerifiedEmail()

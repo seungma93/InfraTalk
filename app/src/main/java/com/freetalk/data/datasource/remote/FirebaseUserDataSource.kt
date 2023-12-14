@@ -4,13 +4,13 @@ package com.freetalk.data.datasource.remote
 import android.net.Uri
 import android.util.Log
 import com.freetalk.data.*
+import com.freetalk.data.model.request.UserInfoUpdateRequest
 import com.freetalk.data.model.request.UserSelectRequest
 import com.freetalk.data.model.response.UserResponse
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.form.LogInForm
 import com.freetalk.presenter.form.ResetPasswordForm
 import com.freetalk.presenter.form.SignUpForm
-import com.freetalk.presenter.form.UpdateForm
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,7 +21,7 @@ interface UserDataSource {
     suspend fun signUp(signUpForm: SignUpForm): UserResponse
     suspend fun logIn(logInForm: LogInForm): UserResponse
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
-    suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse
+    suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
     fun getUserInfo(): UserEntity
@@ -64,17 +64,18 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
     }
 
-    override suspend fun updateUserInfo(updateForm: UpdateForm): UserResponse {
-        return kotlin.runCatching {
-            database.collection("User")
-                .whereEqualTo("email", updateForm.email).get().await().let {
-                    it.documents.firstOrNull()?.reference?.set(updateForm)?.await()
-                }
-            UserResponse(updateForm.email, updateForm.nickname, updateForm.image)
-        }.onFailure {
-            throw FailUpdatetException("업데이트 실패")
-        }.getOrThrow()
-    }
+    override suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse =
+        with(userInfoUpdateRequest) {
+            return kotlin.runCatching {
+                database.collection("User")
+                    .whereEqualTo("email", email).get().await().let {
+                        it.documents.firstOrNull()?.reference?.set(userInfoUpdateRequest)?.await()
+                    }
+                UserResponse(email, nickname, image)
+            }.onFailure {
+                throw FailUpdatetException("업데이트 실패")
+            }.getOrThrow()
+        }
 
     override suspend fun sendVerifiedEmail(): UserResponse {
         return kotlin.runCatching {
@@ -150,7 +151,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     nickname = it.data?.get("nickname") as? String,
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
-            } ?: run{
+            } ?: run {
                 throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
             }
         }.onFailure {
@@ -212,7 +213,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     nickname = it.data?.get("nickname") as? String,
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
-            } ?: run{
+            } ?: run {
                 throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
             }
         }.onFailure {
