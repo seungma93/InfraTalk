@@ -67,11 +67,23 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     override suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse =
         with(userInfoUpdateRequest) {
             return kotlin.runCatching {
+
+                val updateMap = nickname?.let {
+                    image?.let {
+                        mapOf("nickname" to nickname, "image" to image)
+                    } ?: mapOf("nickname" to nickname)
+                } ?: run {
+                    image?.let {
+                        mapOf("image" to image)
+                    } ?: error("")
+                }
+
                 database.collection("User")
                     .whereEqualTo("email", email).get().await().let {
-                        it.documents.firstOrNull()?.reference?.set(userInfoUpdateRequest)?.await()
+                        it.documents.firstOrNull()?.reference?.update(updateMap)?.await()
                     }
-                UserResponse(email, nickname, image)
+
+                selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = email))
             }.onFailure {
                 throw FailUpdatetException("업데이트 실패")
             }.getOrThrow()
