@@ -30,16 +30,19 @@ import dagger.Component
         Modules.FirebaseBookmarkDataSourceModule::class,
         Modules.FirebaseLikeDataSourceModule::class,
         Modules.FirebaseCommentDataSourceModule::class,
+        Modules.FirebaseImageDataSourceModule::class,
         // Repository
         Modules.UserDataRepositoryModule::class,
         Modules.BoardDataRepositoryModule::class,
         Modules.BookmarkDataRepositoryModule::class,
         Modules.LikeDataRepositoryModule::class,
         Modules.CommentDataRepositoryModule::class,
+        Modules.ImageDataRepositoryModule::class,
         // UseCase
 //        Modules.SendChatMessageUseCaseModule::class,
 //        Modules.LoadChatMessageListUseCaseModule::class,
 //        Modules.LoadRealTimeChatMessageUseCaseModule::class,
+        Modules.UploadImagesUseCaseModule::class,
         // ViewModel
         Modules.MyPageViewModelModule::class,
         Modules.MyBoardViewModelModule::class,

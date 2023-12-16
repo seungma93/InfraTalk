@@ -158,6 +158,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     .whereEqualTo("email", logInAuthResult).get()
                     .await()
             snapshot.documents.firstOrNull()?.let {
+                Log.d("seungma", "로그인에서 uri" +  (it.data?.get("image") as? String)?.let { Uri.parse(it) } )
                 UserResponse(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,

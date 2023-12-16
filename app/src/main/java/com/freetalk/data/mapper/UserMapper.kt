@@ -6,6 +6,6 @@ fun UserResponse.toEntity(): UserEntity {
     return UserEntity(
         email = email.orEmpty(),
         nickname = nickname.orEmpty(),
-        image = null
+        image = image
     )
 }
