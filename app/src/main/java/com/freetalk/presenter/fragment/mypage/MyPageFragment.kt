@@ -2,12 +2,14 @@ package com.freetalk.presenter.fragment.mypage
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.databinding.FragmentMyPageBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
@@ -49,8 +51,14 @@ class MyPageFragment: Fragment() {
         binding.apply {
 
             userEntity.apply {
+                Log.d("seungma", "수행")
                 tvEmail.text = email
                 tvNickname.text = nickname
+                Log.d("seungma", image.toString())
+
+                Glide.with(requireContext())
+                    .load(image)
+                    .into(profileImage);
             }
 
             btnEditMyInfo.setOnClickListener {

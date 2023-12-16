@@ -79,9 +79,7 @@ import com.freetalk.domain.usecase.SignUpUseCaseImpl
 import com.freetalk.domain.usecase.UpdateBoardContentImagesUseCase
 import com.freetalk.domain.usecase.UpdateBoardContentUseCase
 import com.freetalk.domain.usecase.UpdateProfileImageUseCase
-import com.freetalk.domain.usecase.UpdateProfileImageUseCaseImpl
 import com.freetalk.domain.usecase.UpdateUserInfoUseCase
-import com.freetalk.domain.usecase.UpdateUserInfoUseCaseImpl
 import com.freetalk.domain.usecase.UploadImagesUseCase
 import com.freetalk.domain.usecase.UploadImagesUseCaseImpl
 import com.freetalk.domain.usecase.WriteBoardContentUseCase
@@ -329,17 +327,19 @@ class Modules {
             uploadImagesUseCase: UploadImagesUseCase,
             updateUserInfoUseCase: UpdateUserInfoUseCase
         ): UpdateProfileImageUseCase {
-            return UpdateProfileImageUseCaseImpl(uploadImagesUseCase, updateUserInfoUseCase)
+            return UpdateProfileImageUseCase(uploadImagesUseCase, updateUserInfoUseCase)
         }
     }
-
+/*
     @Module
     class UpdateUserInfoUseCaseModule {
         @Provides
-        fun providesUpdateUserInfoUseCase(repository: UserDataRepository): UpdateUserInfoUseCase {
-            return UpdateUserInfoUseCaseImpl(repository)
+        fun providesUpdateUserInfoUseCase(userDataRepository: UserDataRepository, uploadImageUseCase: UploadImagesUseCase): UpdateUserInfoUseCase {
+            return UpdateUserInfoUseCase(userDataRepository, uploadImageUseCase)
         }
     }
+
+ */
 
     @Module
     class UploadImagesUseCaseModule {
@@ -716,6 +716,20 @@ class Modules {
         }
     }
 
+    @Module
+    class UpdateUserInfoUseCaseModule {
+        @Provides
+        fun providesUpdateUserInfoUseCase(
+            userDataRepository: UserDataRepository,
+            uploadImagesUseCase: UploadImagesUseCase
+        ): UpdateUserInfoUseCase {
+            return UpdateUserInfoUseCase(
+                userDataRepository,
+                uploadImagesUseCase
+            )
+        }
+    }
+
     // ViewModel
     @Module
     abstract class ViewModelFactoryModule {
@@ -873,10 +887,12 @@ class Modules {
         @IntoMap
         @ViewModelKey(MyPageViewModel::class)
         fun providesMyPageViewModel(
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserInfoUseCase: GetUserInfoUseCase,
+            updateUserInfoUseCase: UpdateUserInfoUseCase
         ): ViewModel {
             return MyPageViewModel(
-                getUserInfoUseCase
+                getUserInfoUseCase,
+                updateUserInfoUseCase
             )
         }
     }

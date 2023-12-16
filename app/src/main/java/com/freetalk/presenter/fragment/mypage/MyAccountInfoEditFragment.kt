@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.freetalk.data.BlockedRequestException
 import com.freetalk.data.ExistEmailException
 import com.freetalk.data.FailInsertException
@@ -38,9 +39,12 @@ import com.freetalk.di.component.DaggerSignFragmentComponent
 import com.freetalk.presenter.activity.EndPoint
 import com.freetalk.presenter.activity.Navigable
 import com.freetalk.presenter.form.SignUpForm
+import com.freetalk.presenter.form.UserInfoUpdateForm
+import com.freetalk.presenter.viewmodel.MyPageViewEvent
 import com.freetalk.presenter.viewmodel.MyPageViewModel
 import com.freetalk.presenter.viewmodel.SignViewModel
 import com.freetalk.presenter.viewmodel.ViewEvent
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -99,10 +103,16 @@ class MyAccountInfoEditFragment : Fragment() {
 
 
 
+
+
         binding.apply {
 
             nicknameEditText.setText(nickname)
-            profileImage.setImageURI(profileUri)
+
+            Glide.with(requireContext())
+                .load(profileUri)
+                .into(profileImage)
+
 
             btnEditComplete.setOnClickListener { view ->
                 val inputNickname = nicknameTextInput.editText?.text?.toString()
@@ -112,37 +122,93 @@ class MyAccountInfoEditFragment : Fragment() {
                         requireActivity(), "닉네임을 입력하세요",
                         Toast.LENGTH_SHORT
                     ).show()
-                    inputNickname == nickname -> Toast.makeText(
-                        requireActivity(), "기존 닉네임과 동일합니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
                     else -> {
-                        /*
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            showProgressBar()
-                            when (binding.profileImage.tag) {
-                                null -> {
-                                    Log.d("SignUpF", "사진 x")
-                                    signViewModel.signUp(
-                                        SignUpForm(inputId, inputPassword, inputNickname), null
-                                    )
-                                }
-                                else -> {
-                                    Log.d("SignUpF", "사진 o")
-                                    signViewModel.signUp(
-                                        SignUpForm(inputId, inputPassword, inputNickname),
-                                        ImagesRequest(
-                                            listOf(it.profileImage.tag as Uri)
+                        when (inputNickname == nickname) {
+
+                            true -> {
+                                binding.profileImage.tag?.let {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        showProgressBar()
+                                        myPageViewModel.updateUserInfo(
+                                            userInfoUpdateForm = UserInfoUpdateForm(
+                                                email = email,
+                                                nickname = null,
+                                                image = binding.profileImage.tag as Uri
+                                            )
                                         )
-                                    )
+                                    }
+                                } ?: run {
+                                    Toast.makeText(
+                                        requireActivity(), "변경된 내용이 없습니다",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+/*
+                                when (binding.profileImage.tag == profileUri) {
+
+                                    true -> {
+                                        Toast.makeText(
+                                            requireActivity(), "변경된 내용이 없습니다",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    false -> {
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            showProgressBar()
+                                            myPageViewModel.updateUserInfo(
+                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                    email = email,
+                                                    nickname = null,
+                                                    image = binding.profileImage.tag as Uri
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+
+ */
+
+                            }
+
+                            false -> {
+
+                                when (binding.profileImage == profileUri) {
+
+                                    true -> {
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            showProgressBar()
+                                            myPageViewModel.updateUserInfo(
+                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                    email = email,
+                                                    nickname = inputNickname,
+                                                    image = null
+                                                )
+                                            )
+                                        }
+                                    }
+
+                                    false -> {
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            showProgressBar()
+                                            myPageViewModel.updateUserInfo(
+                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                    email = email,
+                                                    nickname = inputNickname,
+                                                    image = binding.profileImage.tag as Uri
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
                         }
-                        */
                     }
                 }
             }
+
 
             profileImage.setOnClickListener {
                 when {
@@ -155,11 +221,13 @@ class MyAccountInfoEditFragment : Fragment() {
                         // 권한이 존재하는 경우
                         navigateImage()
                     }
+
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
                         // 권한이 거부 되어 있는 경우
                         Log.d("BoardWriteFragment", "권한 없음")
                         showPermissionContextPopup()
                     }
+
                     else -> {
                         // 처음 권한을 시도했을 때 띄움
                         Log.d("BoardWriteFragment", "처음 시도")
@@ -191,8 +259,19 @@ class MyAccountInfoEditFragment : Fragment() {
     }
 
     private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
+            myPageViewModel.viewEvent.collect {
+                hideProgressBar()
+                when (it) {
+                    is MyPageViewEvent.UpdateUserInfo -> {
+                        parentFragmentManager.popBackStack()
+                    }
 
+                    else -> {
+
+                    }
+                }
+            }
         }
     }
 
