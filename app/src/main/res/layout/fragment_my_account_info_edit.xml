@@ -51,12 +51,20 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_top"
         android:src="@drawable/ic_baseline_person_24"/>
 
+    <Button
+        android:id="@+id/btn_default_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="기본 이미지"
+        app:layout_constraintTop_toBottomOf="@+id/profile_image"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"/>
+
     <TextView
         android:id="@+id/tv_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="이메일"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/btn_default_profile"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_left"/>
 
     <com.google.android.material.textfield.TextInputLayout
