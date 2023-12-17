@@ -11,6 +11,7 @@ import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.form.LogInForm
 import com.freetalk.presenter.form.ResetPasswordForm
 import com.freetalk.presenter.form.SignUpForm
+import com.freetalk.presenter.fragment.mypage.MyAccountInfoEditFragment
 import com.google.firebase.auth.*
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -70,11 +71,15 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 val updateMap = nickname?.let {
                     image?.let {
-                        mapOf("nickname" to nickname, "image" to image)
+                        if(image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)){
+                            mapOf("nickname" to nickname, "image" to image)
+                        } else mapOf("nickname" to nickname, "image" to null)
                     } ?: mapOf("nickname" to nickname)
                 } ?: run {
                     image?.let {
-                        mapOf("image" to image)
+                        if(image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            mapOf("image" to image)
+                        } else mapOf("image" to null)
                     } ?: error("")
                 }
 

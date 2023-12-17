@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.freetalk.R
 import com.freetalk.data.BlockedRequestException
 import com.freetalk.data.ExistEmailException
 import com.freetalk.data.FailInsertException
@@ -49,6 +51,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MyAccountInfoEditFragment : Fragment() {
+    companion object {
+        const val DEFAULT_PROFILE_IMAGE = "DEFAULT_PROFILE_IMAGE"
+    }
+
     private var _binding: FragmentMyAccountInfoEditBinding? = null
     private val binding get() = _binding!!
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
@@ -102,9 +108,6 @@ class MyAccountInfoEditFragment : Fragment() {
         val profileUri = userEntity.image
 
 
-
-
-
         binding.apply {
 
             nicknameEditText.setText(nickname)
@@ -113,6 +116,10 @@ class MyAccountInfoEditFragment : Fragment() {
                 .load(profileUri)
                 .into(profileImage)
 
+            btnDefaultProfile.setOnClickListener {
+                val resourceId = R.drawable.ic_baseline_person_24
+                profileImage.setImageResource(resourceId)
+            }
 
             btnEditComplete.setOnClickListener { view ->
                 val inputNickname = nicknameTextInput.editText?.text?.toString()
@@ -130,33 +137,6 @@ class MyAccountInfoEditFragment : Fragment() {
                                 binding.profileImage.tag?.let {
                                     viewLifecycleOwner.lifecycleScope.launch {
                                         showProgressBar()
-                                        myPageViewModel.updateUserInfo(
-                                            userInfoUpdateForm = UserInfoUpdateForm(
-                                                email = email,
-                                                nickname = null,
-                                                image = binding.profileImage.tag as Uri
-                                            )
-                                        )
-                                    }
-                                } ?: run {
-                                    Toast.makeText(
-                                        requireActivity(), "변경된 내용이 없습니다",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-/*
-                                when (binding.profileImage.tag == profileUri) {
-
-                                    true -> {
-                                        Toast.makeText(
-                                            requireActivity(), "변경된 내용이 없습니다",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    false -> {
-                                        viewLifecycleOwner.lifecycleScope.launch {
-                                            showProgressBar()
                                             myPageViewModel.updateUserInfo(
                                                 userInfoUpdateForm = UserInfoUpdateForm(
                                                     email = email,
@@ -164,16 +144,67 @@ class MyAccountInfoEditFragment : Fragment() {
                                                     image = binding.profileImage.tag as Uri
                                                 )
                                             )
-                                        }
                                     }
+                                } ?: run {
+                                    Toast.makeText(
+                                        requireActivity(), "변경된 내용이 없습니다",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
+                                /*
+                                                                when (binding.profileImage.tag == profileUri) {
 
- */
+                                                                    true -> {
+                                                                        Toast.makeText(
+                                                                            requireActivity(), "변경된 내용이 없습니다",
+                                                                            Toast.LENGTH_SHORT
+                                                                        ).show()
+                                                                    }
+
+                                                                    false -> {
+                                                                        viewLifecycleOwner.lifecycleScope.launch {
+                                                                            showProgressBar()
+                                                                            myPageViewModel.updateUserInfo(
+                                                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                                                    email = email,
+                                                                                    nickname = null,
+                                                                                    image = binding.profileImage.tag as Uri
+                                                                                )
+                                                                            )
+                                                                        }
+                                                                    }
+                                                                }
+
+                                 */
 
                             }
 
                             false -> {
 
+                                binding.profileImage.tag?.let {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        showProgressBar()
+                                        myPageViewModel.updateUserInfo(
+                                            userInfoUpdateForm = UserInfoUpdateForm(
+                                                email = email,
+                                                nickname = inputNickname,
+                                                image = binding.profileImage.tag as Uri
+                                            )
+                                        )
+                                    }
+                                } ?: run {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        showProgressBar()
+                                        myPageViewModel.updateUserInfo(
+                                            userInfoUpdateForm = UserInfoUpdateForm(
+                                                email = email,
+                                                nickname = inputNickname,
+                                                image = null
+                                            )
+                                        )
+                                    }
+                                }
+                                /*
                                 when (binding.profileImage == profileUri) {
 
                                     true -> {
@@ -202,6 +233,7 @@ class MyAccountInfoEditFragment : Fragment() {
                                         }
                                     }
                                 }
+                                */
                             }
 
                         }
