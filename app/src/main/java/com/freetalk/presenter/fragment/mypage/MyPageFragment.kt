@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.freetalk.R
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.databinding.FragmentMyPageBinding
 import com.freetalk.di.component.DaggerBoardFragmentComponent
@@ -56,9 +57,17 @@ class MyPageFragment: Fragment() {
                 tvNickname.text = nickname
                 Log.d("seungma", image.toString())
 
-                Glide.with(requireContext())
-                    .load(image)
-                    .into(profileImage);
+                image?.let {
+                    Glide.with(requireContext())
+                        .load(it)
+                        .into(profileImage)
+
+                } ?: run {
+                    val resourceId = R.drawable.ic_baseline_person_24
+                    profileImage.setImageResource(resourceId)
+                }
+
+
             }
 
             btnEditMyInfo.setOnClickListener {

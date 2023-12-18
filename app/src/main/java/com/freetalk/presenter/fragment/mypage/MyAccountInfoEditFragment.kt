@@ -112,13 +112,21 @@ class MyAccountInfoEditFragment : Fragment() {
 
             nicknameEditText.setText(nickname)
 
-            Glide.with(requireContext())
-                .load(profileUri)
-                .into(profileImage)
+            profileUri?.let {
+                Glide.with(requireContext())
+                    .load(it)
+                    .into(profileImage)
+            } ?: run {
+                val resourceId = R.drawable.ic_baseline_person_24
+                profileImage.setImageResource(resourceId)
+            }
+
+
 
             btnDefaultProfile.setOnClickListener {
                 val resourceId = R.drawable.ic_baseline_person_24
                 profileImage.setImageResource(resourceId)
+                profileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
             }
 
             btnEditComplete.setOnClickListener { view ->
