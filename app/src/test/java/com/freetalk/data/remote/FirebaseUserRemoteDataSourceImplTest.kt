@@ -1,21 +1,19 @@
 package com.freetalk.data.remote
 
 import com.freetalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
-import com.freetalk.data.datasource.remote.SignUpForm
 import com.freetalk.domain.entity.UserEntity
+import com.freetalk.presenter.form.SignUpForm
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import io.mockk.*
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.test.runBlockingTest
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.*
 
 
 class FirebaseUserRemoteDataSourceImplTest {
