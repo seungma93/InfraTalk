@@ -13,6 +13,7 @@ import com.freetalk.presenter.form.CommentDeleteForm
 import com.freetalk.presenter.form.CommentRelatedBookmarksDeleteForm
 import com.freetalk.presenter.form.CommentRelatedLikesDeleteForm
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
@@ -60,12 +61,9 @@ class DeleteBoardUseCase @Inject constructor(
                     )
                 )
             }
-            Triple(commentDeleteAsync, commentLikesDeleteAsync, commentBookmarksAsync)
+            listOf(commentDeleteAsync, commentLikesDeleteAsync, commentBookmarksAsync)
         }.map { deferred ->
-            deferred.first.await()
-            deferred.second.await()
-            deferred.third.await()
-
+            deferred.awaitAll()
         }
 
         val asyncBoardDelete = async {
