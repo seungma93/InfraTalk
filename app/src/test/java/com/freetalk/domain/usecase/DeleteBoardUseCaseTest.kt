@@ -33,7 +33,7 @@ class DeleteBoardUseCaseTest {
     }
 
     @Test
-    fun `테스트`() = runTest {
+    fun `게시글 삭제 테스트`() = runTest {
         // given
         val current = System.currentTimeMillis()
         val boardDeleteForm: BoardDeleteForm = mockk(relaxed = true) {
@@ -46,8 +46,7 @@ class DeleteBoardUseCaseTest {
                     every { boardMetaEntity } returns mockk(relaxed = true) {
                         every { boardPrimaryKey } returns "email" + Date(current)
                     }
-                },
-                mockk(relaxed = true)
+                }
             )
         )
 
@@ -70,8 +69,8 @@ class DeleteBoardUseCaseTest {
         val result = useCase.invoke(boardDeleteForm, mockk(), mockk(), entity)
 
         // then
-        assert(result.boardList.isNotEmpty())
-        assert(result.boardList.size == 1)
+        assert(result.boardList.isEmpty())
+
 
         coVerify(exactly = 1) {
             commentDataRepository.loadBoardRelatedAllCommentMetaList(any())
