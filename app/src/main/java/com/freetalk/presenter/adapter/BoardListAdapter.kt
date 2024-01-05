@@ -12,6 +12,9 @@ import com.freetalk.databinding.BoardListItemBinding
 import com.freetalk.domain.entity.BoardEntity
 import com.freetalk.domain.entity.BoardMetaEntity
 import com.freetalk.domain.entity.UserEntity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class BoardListAdapter(
@@ -87,7 +90,7 @@ class BoardListAdapter(
                     Log.d("BoardListAdpater", "셀렉트 바인딩")
                     title.text = it.boardMetaEntity.title
                     context.text = it.boardMetaEntity.content
-                    date.text = it.boardMetaEntity.createTime.toString()
+                    date.text = modifiedDate(it.boardMetaEntity.createTime)
                     author.text = it.boardMetaEntity.author.nickname
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
@@ -98,9 +101,9 @@ class BoardListAdapter(
                         .into(ivSingleImage)
 
                      */
-                    btnChat.visibility = when ( userEntity.email != it.boardMetaEntity.author.email) {
-                        true -> View.VISIBLE
-                        else -> View.GONE
+                    btnChat.isEnabled = when ( userEntity.email != it.boardMetaEntity.author.email) {
+                        true -> true
+                        else -> false
                     }
                     btnDelete.visibility =
                         when ( userEntity.email == it.boardMetaEntity.author.email) {
@@ -112,6 +115,29 @@ class BoardListAdapter(
 
                 }
             }
+        }
+
+        private fun modifiedDate(date: Date?): String {
+
+            // 현재 날짜
+            val currentDate = Date()
+
+            // 날짜 포맷 지정
+            val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+
+            // 날짜를 문자열로 변환
+            val dateFromDatabaseString = sdf.format(date)
+            val currentDateString = sdf.format(currentDate)
+
+            // 날짜를 비교하여 표시할 내용 결정
+            val displayText = if (dateFromDatabaseString == currentDateString) {
+                // 같은 날짜인 경우, 시간으로 표시
+                SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+            } else {
+                // 하루가 지났으면 일자로 표시
+                dateFromDatabaseString
+            }
+            return displayText
         }
     }
     companion object {
@@ -136,4 +162,6 @@ class BoardListAdapter(
 
         }
     }
+
+
 }
