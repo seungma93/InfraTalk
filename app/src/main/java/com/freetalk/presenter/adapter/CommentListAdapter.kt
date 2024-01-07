@@ -16,6 +16,9 @@ import com.freetalk.domain.entity.CommentEntity
 import com.freetalk.domain.entity.UserEntity
 import com.freetalk.presenter.viewmodel.BoardContentViewModel
 import com.google.firebase.firestore.auth.User
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 sealed class ListItem {
     data class BoardItem(val boardEntity: BoardEntity) : ListItem()
@@ -148,7 +151,7 @@ class BoardContentViewHolder(
         binding.apply {
             boardEntity.let {
                 title.text = it.boardMetaEntity.title
-                date.text = it.boardMetaEntity.createTime.toString()
+                date.text = modifiedDate(it.boardMetaEntity.createTime)
                 author.text = it.boardMetaEntity.author.nickname
                 content.text = it.boardMetaEntity.content
                 btnBookmark.isSelected = it.bookmarkEntity.isBookmark
@@ -158,6 +161,29 @@ class BoardContentViewHolder(
                 btnBookmark.isEnabled = true
             }
         }
+    }
+
+    private fun modifiedDate(date: Date?): String {
+
+        // 현재 날짜
+        val currentDate = Date()
+
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+
+        // 날짜를 문자열로 변환
+        val dateFromDatabaseString = sdf.format(date)
+        val currentDateString = sdf.format(currentDate)
+
+        // 날짜를 비교하여 표시할 내용 결정
+        val displayText = if (dateFromDatabaseString == currentDateString) {
+            // 같은 날짜인 경우, 시간으로 표시
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+        } else {
+            // 하루가 지났으면 일자로 표시
+            dateFromDatabaseString
+        }
+        return displayText
     }
 }
 
@@ -205,7 +231,7 @@ class CommentViewHolder(
             commentEntity.let {
                 Log.d("CommentListAdapter", "바인딩")
                 context.text = it.commentMetaEntity.content
-                date.text = it.commentMetaEntity.createTime.toString()
+                date.text = modifiedDate(it.commentMetaEntity.createTime)
                 author.text = it.commentMetaEntity.author.nickname
                 btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                 btnLike.isSelected = it.likeEntity.isLike
@@ -220,5 +246,28 @@ class CommentViewHolder(
                 btnDelete.isEnabled = true
             }
         }
+    }
+
+    private fun modifiedDate(date: Date?): String {
+
+        // 현재 날짜
+        val currentDate = Date()
+
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+
+        // 날짜를 문자열로 변환
+        val dateFromDatabaseString = sdf.format(date)
+        val currentDateString = sdf.format(currentDate)
+
+        // 날짜를 비교하여 표시할 내용 결정
+        val displayText = if (dateFromDatabaseString == currentDateString) {
+            // 같은 날짜인 경우, 시간으로 표시
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+        } else {
+            // 하루가 지났으면 일자로 표시
+            dateFromDatabaseString
+        }
+        return displayText
     }
 }
