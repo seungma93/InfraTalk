@@ -38,41 +38,46 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ly_comment_text_input"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent">
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:background="@drawable/comment_layout_bg"
+        >
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/comment_text_input"
             style="@style/Widget.FreeTalk.TextInputLayout"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginRight="4dp"
-            android:layout_marginBottom="6dp"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/btn_submit_comment"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/comment_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="text" />
+                android:layout_height="wrap_content"
+                android:maxHeight="140dp"
+                android:inputType="textMultiLine"
+                android:padding="10dp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/btn_submit_comment"
             style="@style/Widget.FreeTalk.Button"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="4dp"
-            android:text="등록"
-            android:textSize="20dp"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ic_send"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="3dp"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

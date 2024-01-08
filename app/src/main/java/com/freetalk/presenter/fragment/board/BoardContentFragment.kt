@@ -2,6 +2,8 @@ package com.freetalk.presenter.fragment.board
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -333,6 +335,29 @@ class BoardContentFragment : Fragment() {
 
             //recyclerviewImage.adapter = boardContentImageAdapter
             rvComment.adapter = commentAdapter
+
+            commentEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                    // 텍스트 변경 전에 호출되는 메서드
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    // 텍스트가 변경될 때 호출되는 메서드
+                    when (s.isNullOrBlank()) {
+                        true -> btnSubmitComment.isEnabled = false
+                        false -> btnSubmitComment.isEnabled = true
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    // 텍스트 변경 후에 호출되는 메서드
+                }
+            })
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
