@@ -1,5 +1,6 @@
 package com.freetalk.domain.repository
 
+import android.util.Log
 import androidx.compose.runtime.rememberUpdatedState
 import com.freetalk.data.UserSingleton
 import com.freetalk.data.datasource.remote.BoardDataSource
@@ -69,9 +70,11 @@ class ChatDataRepositoryImpl @Inject constructor(
                 userResponse.nickname
             }
 
+            val defaultRoomName = userNicknameList.filter { it != userDataSource.getUserInfo().nickname }.joinToString()
+
             chatDataSource.createChatRoom(
                 chatRoomCreateRequest = ChatRoomCreateRequest(
-                    roomName = userNicknameList.joinToString(separator = ", "),
+                    roomName = defaultRoomName,
                     member = chatRoomCreateForm.member,
                     roomThumbnail = null
                 )

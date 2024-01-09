@@ -88,7 +88,7 @@ class LoginMainFragment : Fragment() {
                 dialogFragment.show(childFragmentManager, "CustomDialog")
             }
             btnTest.setOnClickListener {
-                UserSingleton.userEntity = UserEntity(email = "test@naver.com", image = null, nickname = "ff")
+                UserSingleton.userEntity = UserEntity(email = "test@naver.com", image = null, nickname = "상실이")
                 (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
             }
         }
