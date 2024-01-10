@@ -3,6 +3,7 @@ package com.freetalk.presenter.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.freetalk.domain.entity.ChatRoomEntity
 import com.freetalk.domain.entity.ChatRoomListEntity
 import com.freetalk.domain.entity.ChatStartEntity
 import com.freetalk.domain.entity.UserEntity
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 sealed class ChatRoomViewEvent {
@@ -29,23 +31,40 @@ sealed class ChatRoomViewEvent {
     data class Error(val errorCode: Throwable) : ChatRoomViewEvent()
 }
 
+data class ChatRoomViewState(
+    val chatRoomListEntity: ChatRoomListEntity
+)
+
 class ChatRoomViewModel @Inject constructor(
     private val loadChatRoomListUseCase: LoadChatRoomListUseCase,
-    private val checkChatRoomUseCase: CheckChatRoomUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatRoomViewEvent>()
     val viewEvent: SharedFlow<ChatRoomViewEvent> = _viewEvent.asSharedFlow()
 
+    private val initChatRoomListEntity = ChatRoomListEntity(
+        chatRoomList = listOf(
+            ChatRoomEntity(
+                primaryKey = "",
+                roomName = "",
+                roomThumbnail = null,
+                createTime = Date(System.currentTimeMillis()),
+                member = emptyList(),
+                leaveMember = emptyList(),
+                lastChatMessageEntity = null
+            )
+        )
+    )
+
     private val _viewState =
-        MutableStateFlow(ChatRoomViewState(ChatRoomListEntity(emptyList())))
+        MutableStateFlow(ChatRoomViewState(initChatRoomListEntity))
     val viewState: StateFlow<ChatRoomViewState> = _viewState
         .catch {
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            ChatRoomViewState(ChatRoomListEntity(emptyList()))
+            ChatRoomViewState(initChatRoomListEntity)
         )
 
     init {
@@ -65,10 +84,6 @@ class ChatRoomViewModel @Inject constructor(
                                 chatRoom.lastChatMessageEntity?.sendTime ?: chatRoom.createTime
                             }
                         )
-
-                    //.sortedByDescending { it.lastChatMessageEntity?.sendTime }
-
-
                     viewState.value.copy(
                         chatRoomListEntity = ChatRoomListEntity(
                             chatRoomList = newChatRoomList
@@ -78,11 +93,6 @@ class ChatRoomViewModel @Inject constructor(
             }
         }
     }
-
-
-    data class ChatRoomViewState(
-        val chatRoomListEntity: ChatRoomListEntity,
-    )
 
     suspend fun loadChatRoom(): ChatRoomViewState {
         val result = kotlin.runCatching {
@@ -97,32 +107,6 @@ class ChatRoomViewModel @Inject constructor(
                 viewState.value.copy(chatRoomListEntity = it)
             }
         } ?: viewState.value
-    }
-
-    suspend fun startChat(chatRoomCheckForm: ChatRoomCheckForm) {
-        kotlin.runCatching {
-            val chatRoomCheckEntity =
-                checkChatRoomUseCase(chatRoomCheckForm = chatRoomCheckForm)
-
-            when (chatRoomCheckEntity.isChatRoom) {
-                true -> {
-                    _viewEvent.emit(
-                        ChatRoomViewEvent.ChatStart(
-                            chatStartEntity = ChatStartEntity(
-                                chatPartner = chatRoomCheckForm.member[1],
-                                chatRoomId = chatRoomCheckEntity.chatRoomId,
-                                isSuccess = true
-                            )
-                        )
-                    )
-                }
-
-                false -> {}
-            }
-
-        }.onFailure {
-            _viewEvent.emit(ChatRoomViewEvent.Error(it))
-        }
     }
 
     fun getUserInfo(): UserEntity {

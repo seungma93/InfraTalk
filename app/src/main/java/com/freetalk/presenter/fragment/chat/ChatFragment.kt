@@ -67,12 +67,11 @@ class ChatFragment : Fragment() {
             "마지막 페이지 입니다.",
             Toast.LENGTH_SHORT
         ).show()
-    },
-        { showProgressBar() })
+    }, { showProgressBar() })
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
-            ChatFragment.CHAT_PRIMARY_KEY
+            CHAT_PRIMARY_KEY
         ) as ChatPrimaryKeyEntity
 
     @Inject
@@ -166,7 +165,7 @@ class ChatFragment : Fragment() {
             rvChat.adapter = chatListAdapter
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            //showProgressBar()
+            hideProgressBar()
 
             val chatRoomEntity =
                 chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
@@ -181,7 +180,7 @@ class ChatFragment : Fragment() {
             )
             chatListAdapter.submitList(createChatItem(viewState)) {
                 binding.rvChat.scrollToPosition(0)
-                //hideProgressBar()
+                hideProgressBar()
             }
         }
 

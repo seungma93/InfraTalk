@@ -6,7 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +27,7 @@ import com.freetalk.presenter.viewmodel.BoardViewModel
 import com.freetalk.presenter.viewmodel.ChatRoomViewEvent
 import com.freetalk.presenter.viewmodel.ChatRoomViewModel
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,7 +61,7 @@ class ChatRoomFragment : Fragment() {
             val userEmail = chatRoomViewModel.getUserInfo().email
             val endPoint = EndPoint.Chat(
                 chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
-                    partnerEmail = when(chatRoomEntity.leaveMember?.size) {
+                    partnerEmail = when (chatRoomEntity.leaveMember?.size) {
                         1 -> chatRoomEntity.leaveMember.first()
                         else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
                     },
@@ -66,19 +69,10 @@ class ChatRoomFragment : Fragment() {
                 )
             )
             (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-            /*
-            viewLifecycleOwner.lifecycleScope.launch {
-                val userEmail = chatRoomViewModel.getUserInfo().email
-                val partnerEmail = chatRoomEntity.member.find { it != userEmail } ?: error("")
-                chatRoomViewModel.startChat(
-                    chatRoomCheckForm = ChatRoomCheckForm(member = listOf(userEmail, partnerEmail))
-                )
-            }
-
-             */
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
+            showProgressBar()
             chatRoomViewModel.loadChatRoom()
         }
         binding.rvChatRoom.adapter = adapter
@@ -90,7 +84,19 @@ class ChatRoomFragment : Fragment() {
             launch {
                 chatRoomViewModel.viewState.collect {
                     Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
-                    adapter.submitList(it.chatRoomListEntity.chatRoomList)
+                    if (it.chatRoomListEntity.chatRoomList.isNotEmpty()) {
+                        if (it.chatRoomListEntity.chatRoomList.first().primaryKey.isNotEmpty()) {
+                            adapter.submitList(it.chatRoomListEntity.chatRoomList) {
+                                hideProgressBar()
+                                binding.rvChatRoom.scrollToPosition(0)
+                            }
+                        }
+                    } else {
+                        adapter.submitList(it.chatRoomListEntity.chatRoomList) {
+                            hideProgressBar()
+                            binding.rvChatRoom.scrollToPosition(0)
+                        }
+                    }
                 }
             }
             launch {
@@ -118,5 +124,28 @@ class ChatRoomFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 시작")
+        blockLayoutTouch()
+        binding.progressBar.isVisible = true
+    }
+
+    private fun blockLayoutTouch() {
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
+    private fun clearBlockLayoutTouch() {
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }
