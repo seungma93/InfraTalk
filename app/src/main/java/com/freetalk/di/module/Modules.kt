@@ -868,13 +868,11 @@ class Modules {
         @ViewModelKey(ChatRoomViewModel::class)
         fun providesChatRoomViewModel(
             loadChatRoomListUseCase: LoadChatRoomListUseCase,
-            checkChatRoomUseCase: CheckChatRoomUseCase,
             getUserInfoUseCase: GetUserInfoUseCase,
             loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
         ): ViewModel {
             return ChatRoomViewModel(
                 loadChatRoomListUseCase,
-                checkChatRoomUseCase,
                 getUserInfoUseCase,
                 loadRealTimeChatRoomListUseCase
             )
