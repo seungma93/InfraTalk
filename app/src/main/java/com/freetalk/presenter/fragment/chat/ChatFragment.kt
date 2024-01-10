@@ -164,9 +164,9 @@ class ChatFragment : Fragment() {
             rvChat.layoutManager = layoutManager
             rvChat.adapter = chatListAdapter
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            hideProgressBar()
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            showProgressBar()
             val chatRoomEntity =
                 chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
 
@@ -180,7 +180,6 @@ class ChatFragment : Fragment() {
             )
             chatListAdapter.submitList(createChatItem(viewState)) {
                 binding.rvChat.scrollToPosition(0)
-                hideProgressBar()
             }
         }
 
@@ -189,15 +188,6 @@ class ChatFragment : Fragment() {
         chatViewModel.viewModelScope.launch {
 
             launch {
-                /*
-                chatViewModel.viewState.map {
-                    it.chatRoomEntity?.roomName
-                }.distinctUntilChanged().collect {
-                    Log.d("seungma", "챗프레그먼트 콜렉트1")
-                    binding.tvChatTitle.text = it
-                }
-
-                 */
                 chatViewModel.viewState.map { it.chatRoomEntity?.roomName }
                     .stateIn(this)
                     .collect {
@@ -213,6 +203,7 @@ class ChatFragment : Fragment() {
                         Log.d("seungma", "챗프레그먼트 콜렉트2")
                         chatListAdapter.submitList(chatList) {
                             if (isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                            hideProgressBar()
                         }
                     }
             }
