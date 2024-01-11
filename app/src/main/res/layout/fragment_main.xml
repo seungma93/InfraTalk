@@ -14,7 +14,7 @@
         tools:context=".ProductGridFragment"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
-        app:layout_constraintVertical_weight="9"
+        app:layout_constraintVertical_weight="11"
         >
 
     </FrameLayout>
