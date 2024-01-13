@@ -6,10 +6,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.freetalk.R
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.databinding.FragmentMyPageBinding
@@ -53,24 +56,28 @@ class MyPageFragment: Fragment() {
 
             userEntity.apply {
                 Log.d("seungma", "수행")
-                tvEmail.text = email
-                tvNickname.text = nickname
+                tvNickname.text = "[infratalk@mypage] id \n[infratalk@mypage] $nickname"
                 Log.d("seungma", image.toString())
 
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
                 image?.let {
                     Glide.with(requireContext())
                         .load(it)
-                        .into(profileImage)
+                        .apply(requestOptions)
+                        .into(ivProfileImage)
 
                 } ?: run {
-                    val resourceId = R.drawable.ic_baseline_person_24
-                    profileImage.setImageResource(resourceId)
+                    val resourceId = R.drawable.ic_avatar
+                    Glide.with(requireContext())
+                        .load(resourceId)
+                        .apply(requestOptions)
+                        .into(ivProfileImage)
                 }
 
 
             }
 
-            btnEditMyInfo.setOnClickListener {
+            lyEditMyInfo.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyAccountInfoEdit
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
@@ -99,5 +106,25 @@ class MyPageFragment: Fragment() {
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
         }
+    }
+
+    fun ImageView.loadProfileImage(
+        url: String?,
+        @DrawableRes defaultImage: Int = 0
+    ) {
+        val requestOptions = RequestOptions.circleCropTransform().autoClone()
+        Glide.with(this)
+            .load(url)
+            .apply(requestOptions)
+            .apply {
+                if (defaultImage != 0) {
+                    error(
+                        Glide.with(this@loadProfileImage)
+                            .load(defaultImage)
+                            .apply(requestOptions)
+                    )
+                }
+            }
+            .into(this)
     }
 }
