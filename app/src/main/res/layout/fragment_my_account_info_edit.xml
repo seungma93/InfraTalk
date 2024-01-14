@@ -43,21 +43,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/profile_image"
-        android:layout_width="230dp"
-        android:layout_height="200dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left"
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_profile_image"
+        android:layout_width="0dp"
+        android:layout_height="230dp"
+        android:background="@drawable/ic_avatar"
+        android:scaleType="center"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
         app:layout_constraintTop_toTopOf="@+id/guideline_top"
-        android:src="@drawable/ic_baseline_person_24"/>
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        />
+
 
     <Button
         android:id="@+id/btn_default_profile"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="기본 이미지"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image"
-        app:layout_constraintStart_toStartOf="@id/guideline_left"/>
+        app:layout_constraintTop_toBottomOf="@+id/iv_profile_image"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"/>
 
     <TextView
         android:id="@+id/tv_email"
