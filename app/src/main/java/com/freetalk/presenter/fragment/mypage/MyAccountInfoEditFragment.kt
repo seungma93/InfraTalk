@@ -83,8 +83,8 @@ class MyAccountInfoEditFragment : Fragment() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == Activity.RESULT_OK) {
                     it.data?.let { intent ->
-                        binding.profileImage.setImageURI(intent.data)
-                        binding.profileImage.tag = intent.data
+                        binding.ivProfileImage.setImageURI(intent.data)
+                        binding.ivProfileImage.tag = intent.data
                     }
                 }
             }
@@ -115,18 +115,18 @@ class MyAccountInfoEditFragment : Fragment() {
             profileUri?.let {
                 Glide.with(requireContext())
                     .load(it)
-                    .into(profileImage)
+                    .into(ivProfileImage)
             } ?: run {
                 val resourceId = R.drawable.ic_baseline_person_24
-                profileImage.setImageResource(resourceId)
+                ivProfileImage.setImageResource(resourceId)
             }
 
 
 
             btnDefaultProfile.setOnClickListener {
                 val resourceId = R.drawable.ic_baseline_person_24
-                profileImage.setImageResource(resourceId)
-                profileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
+                ivProfileImage.setImageResource(resourceId)
+                ivProfileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
             }
 
             btnEditComplete.setOnClickListener { view ->
@@ -142,14 +142,14 @@ class MyAccountInfoEditFragment : Fragment() {
                         when (inputNickname == nickname) {
 
                             true -> {
-                                binding.profileImage.tag?.let {
+                                binding.ivProfileImage.tag?.let {
                                     viewLifecycleOwner.lifecycleScope.launch {
                                         showProgressBar()
                                             myPageViewModel.updateUserInfo(
                                                 userInfoUpdateForm = UserInfoUpdateForm(
                                                     email = email,
                                                     nickname = null,
-                                                    image = binding.profileImage.tag as Uri
+                                                    image = binding.ivProfileImage.tag as Uri
                                                 )
                                             )
                                     }
@@ -189,14 +189,14 @@ class MyAccountInfoEditFragment : Fragment() {
 
                             false -> {
 
-                                binding.profileImage.tag?.let {
+                                binding.ivProfileImage.tag?.let {
                                     viewLifecycleOwner.lifecycleScope.launch {
                                         showProgressBar()
                                         myPageViewModel.updateUserInfo(
                                             userInfoUpdateForm = UserInfoUpdateForm(
                                                 email = email,
                                                 nickname = inputNickname,
-                                                image = binding.profileImage.tag as Uri
+                                                image = binding.ivProfileImage.tag as Uri
                                             )
                                         )
                                     }
@@ -250,7 +250,7 @@ class MyAccountInfoEditFragment : Fragment() {
             }
 
 
-            profileImage.setOnClickListener {
+            ivProfileImage.setOnClickListener {
                 when {
                     ContextCompat.checkSelfPermission(
                         requireActivity(),
