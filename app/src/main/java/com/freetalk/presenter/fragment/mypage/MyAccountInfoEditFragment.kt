@@ -24,6 +24,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.freetalk.R
 import com.freetalk.data.BlockedRequestException
 import com.freetalk.data.ExistEmailException
@@ -83,7 +85,12 @@ class MyAccountInfoEditFragment : Fragment() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == Activity.RESULT_OK) {
                     it.data?.let { intent ->
-                        binding.ivProfileImage.setImageURI(intent.data)
+                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                        Glide.with(requireContext())
+                            .load(intent.data)
+                            .apply(requestOptions)
+                            .into(binding.ivProfileImage)
+
                         binding.ivProfileImage.tag = intent.data
                     }
                 }
@@ -112,20 +119,22 @@ class MyAccountInfoEditFragment : Fragment() {
 
             nicknameEditText.setText(nickname)
 
+            val requestOptions = RequestOptions.circleCropTransform().autoClone()
             profileUri?.let {
                 Glide.with(requireContext())
                     .load(it)
+                    .apply(requestOptions)
                     .into(ivProfileImage)
-            } ?: run {
-                val resourceId = R.drawable.ic_baseline_person_24
-                ivProfileImage.setImageResource(resourceId)
             }
 
-
-
             btnDefaultProfile.setOnClickListener {
-                val resourceId = R.drawable.ic_baseline_person_24
-                ivProfileImage.setImageResource(resourceId)
+                val resourceId = R.drawable.ic_avatar
+                Glide.with(requireContext())
+                    .load(resourceId)
+                    .apply(requestOptions)
+                    .centerCrop()
+                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                    .into(ivProfileImage)
                 ivProfileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
             }
 

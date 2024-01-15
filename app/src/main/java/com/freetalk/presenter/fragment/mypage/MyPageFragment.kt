@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.freetalk.R
 import com.freetalk.databinding.FragmentHomeBinding
 import com.freetalk.databinding.FragmentMyPageBinding
@@ -66,15 +67,7 @@ class MyPageFragment: Fragment() {
                         .apply(requestOptions)
                         .into(ivProfileImage)
 
-                } ?: run {
-                    val resourceId = R.drawable.ic_avatar
-                    Glide.with(requireContext())
-                        .load(resourceId)
-                        .apply(requestOptions)
-                        .into(ivProfileImage)
                 }
-
-
             }
 
             lyEditMyInfo.setOnClickListener {
