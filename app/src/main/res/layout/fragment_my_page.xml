@@ -74,7 +74,7 @@
                         android:id="@+id/tv_nickname"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:text="[infratalk@mypage] id \n[infratalk@mypage] 닉네임"
+                        android:text="[infratalk@mypage] nickname \n[infratalk@mypage] 닉네임"
                         android:textColor="#ffffff"
                         android:textSize="20dp"
                         app:layout_constraintTop_toTopOf="parent"
