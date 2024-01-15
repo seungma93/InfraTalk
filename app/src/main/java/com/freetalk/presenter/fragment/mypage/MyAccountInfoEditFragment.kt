@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -27,28 +26,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.freetalk.R
-import com.freetalk.data.BlockedRequestException
-import com.freetalk.data.ExistEmailException
-import com.freetalk.data.FailInsertException
-import com.freetalk.data.FailSendEmailException
-import com.freetalk.data.FailUpdatetException
-import com.freetalk.data.InvalidEmailException
-import com.freetalk.data.InvalidPasswordException
-import com.freetalk.data.NoImageException
-import com.freetalk.data.model.request.ImagesRequest
 import com.freetalk.databinding.FragmentMyAccountInfoEditBinding
-import com.freetalk.databinding.FragmentSignUpBinding
 import com.freetalk.di.component.DaggerMyPageFragmentComponent
-import com.freetalk.di.component.DaggerSignFragmentComponent
-import com.freetalk.presenter.activity.EndPoint
-import com.freetalk.presenter.activity.Navigable
-import com.freetalk.presenter.form.SignUpForm
 import com.freetalk.presenter.form.UserInfoUpdateForm
 import com.freetalk.presenter.viewmodel.MyPageViewEvent
 import com.freetalk.presenter.viewmodel.MyPageViewModel
-import com.freetalk.presenter.viewmodel.SignViewModel
-import com.freetalk.presenter.viewmodel.ViewEvent
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -116,7 +98,7 @@ class MyAccountInfoEditFragment : Fragment() {
 
 
         binding.apply {
-
+            tvEmail.text = "[infratalk@mypage] email \n[infratalk@mypage] $email"
             nicknameEditText.setText(nickname)
 
             val requestOptions = RequestOptions.circleCropTransform().autoClone()

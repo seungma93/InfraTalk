@@ -57,7 +57,7 @@ class MyPageFragment: Fragment() {
 
             userEntity.apply {
                 Log.d("seungma", "수행")
-                tvNickname.text = "[infratalk@mypage] id \n[infratalk@mypage] $nickname"
+                tvNickname.text = "[infratalk@mypage] nickname \n[infratalk@mypage] $nickname"
                 Log.d("seungma", image.toString())
 
                 val requestOptions = RequestOptions.circleCropTransform().autoClone()
