@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace 'com.freetalk'
+    namespace 'com.seungma.infratalk'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.freetalk"
+        applicationId "com.seungma.infratalk"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -65,6 +65,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0"
     implementation 'androidx.media3:media3-common:1.1.1'
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     // coroutine
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'

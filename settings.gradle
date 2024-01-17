@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "FreeTalk"
+rootProject.name = "InfraTalk"
 include ':app'

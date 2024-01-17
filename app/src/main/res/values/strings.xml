@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FreeTalk</string>
+    <string name="app_name">InfraTalk</string>
     <string name="shr_hint_email">Email</string>
     <string name="shr_hint_password">Password</string>
     <string name="shr_hint_check_password">Check Password</string>
