@@ -28,42 +28,42 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text_title"
-        style="@style/Widget.FreeTalk.TextTitle"
-        android:text="글 작성"/>
+            <TextView
+                android:id="@+id/text_title"
+                style="@style/Widget.FreeTalk.TextTitle"
+                android:text="글 작성" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/title_input"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_margin="10dp"
-        android:hint="제목을 작성해 주세요"
-        style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/text_title"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/title_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/title_input"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_margin="10dp"
+                android:hint="제목을 작성해 주세요"
+                style="@style/Widget.FreeTalk.TextInputLayout"
+                app:layout_constraintTop_toBottomOf="@+id/text_title">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/context_input"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_margin="10dp"
-        android:hint="내용을 작성해 주세요"
-        style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/title_input"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/context_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/title_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/context_input"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_margin="10dp"
+                android:hint="내용을 작성해 주세요"
+                style="@style/Widget.FreeTalk.TextInputLayout"
+                app:layout_constraintTop_toBottomOf="@+id/title_input">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/context_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/btn_upload_image"
@@ -74,15 +74,16 @@
                 android:text="사진 등록"
                 android:textSize="20dp"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/context_input"
-                 />
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerview_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    app:layout_constraintTop_toBottomOf="@+id/btn_upload_image"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+                app:layout_constraintTop_toBottomOf="@+id/context_input" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_image"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                app:layout_constraintTop_toBottomOf="@+id/btn_upload_image"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
             <Button
                 android:id="@+id/btn_insert"
                 style="@style/Widget.FreeTalk.Button"
@@ -92,8 +93,7 @@
                 android:text="등록"
                 android:textSize="20dp"
                 app:layout_constraintTop_toBottomOf="@+id/recyclerview_image"
-                app:layout_constraintRight_toRightOf="parent"
-                />
+                app:layout_constraintRight_toRightOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

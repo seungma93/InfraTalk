@@ -5,8 +5,8 @@
         style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="게시판"
-        />
+        android:text="게시판" />
+
     <View
         android:layout_width="56dp"
         android:layout_height="1dp"
@@ -17,7 +17,6 @@
         style="@style/Widget.FreeTalk.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="도서검색"
-         />
+        android:text="도서검색" />
 
 </merge>
