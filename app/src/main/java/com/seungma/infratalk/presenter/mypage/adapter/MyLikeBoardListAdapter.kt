@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.ListItemMyLikeBoardBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
@@ -83,12 +85,14 @@ class MyLikeBoardListAdapter(
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
                     likeCount.text = it.likeCountEntity.likeCount.toString()
-                    /*
-                    Glide.with(itemView.context)
-                        .load(it.boardMetaEntity.images?.successUris?.firstOrNull())
-                        .into(ivSingleImage)
+                    val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                    it.boardMetaEntity.author.image?.let {
+                        Glide.with(itemView.context)
+                            .load(it)
+                            .apply(requestOptions)
+                            .into(ivProfile)
 
-                     */
+                    }
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
                 }
