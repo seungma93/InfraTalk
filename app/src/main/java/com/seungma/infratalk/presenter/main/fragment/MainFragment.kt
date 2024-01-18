@@ -62,6 +62,8 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
 
+            navigateFragment(MainChildFragmentEndPoint.Home)
+
             navigation.setOnItemSelectedListener {
                 when (it.itemId) {
                     R.id.home_fragment -> {
