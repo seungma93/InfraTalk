@@ -53,9 +53,7 @@ class ChatDataRepositoryImpl @Inject constructor(
                 userResponse.nickname
             }
 
-            val defaultRoomName =
-                userNicknameList.filter { it != userDataSource.getUserInfo().nickname }
-                    .joinToString()
+            val defaultRoomName = userNicknameList.joinToString(separator = ", ")
 
             chatDataSource.createChatRoom(
                 chatRoomCreateRequest = ChatRoomCreateRequest(

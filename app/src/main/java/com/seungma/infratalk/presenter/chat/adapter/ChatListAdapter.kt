@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.ListItemChatMessageOwnerBinding
 import com.seungma.infratalk.databinding.ListItemChatMessagePartnerBinding
 import com.seungma.infratalk.domain.chat.entity.ChatMessageEntity
@@ -188,6 +190,15 @@ class ChatMessagePartnerViewHolder(
                 tvName.text = it.sender.nickname
                 tvContent.text = it.content
                 date.text = modifiedDate(it.sendTime)
+
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                it.sender.image?.let {
+                    Glide.with(itemView.context)
+                        .load(it)
+                        .apply(requestOptions)
+                        .into(ivProfile)
+
+                }
                 /*
                 Log.d("CommentListAdapter", "바인딩")
                 context.text = it.commentMetaEntity.content
