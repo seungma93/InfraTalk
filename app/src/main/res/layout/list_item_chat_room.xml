@@ -27,7 +27,9 @@
                 android:id="@+id/iv_profile"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@drawable/ic_avatar" />
+                android:src="@drawable/ic_avatar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

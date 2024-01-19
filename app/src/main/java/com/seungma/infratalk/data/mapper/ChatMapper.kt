@@ -1,6 +1,5 @@
 package com.seungma.infratalk.data.mapper
 
-import android.net.Uri
 import com.seungma.infratalk.data.model.response.chat.ChatMessageListResponse
 import com.seungma.infratalk.data.model.response.chat.ChatMessageResponse
 import com.seungma.infratalk.data.model.response.chat.ChatMessageSendResponse
@@ -69,7 +68,7 @@ fun ChatRoomResponse.toEntity(): ChatRoomEntity {
     return ChatRoomEntity(
         primaryKey = primaryKey ?: error(""),
         roomName = roomName.orEmpty(),
-        roomThumbnail = roomThumbnail ?: Uri.parse(""),
+        roomThumbnail = roomThumbnail,
         createTime = createTime ?: Date(),
         member = member ?: emptyList(),
         leaveMember = leaveMember ?: emptyList(),

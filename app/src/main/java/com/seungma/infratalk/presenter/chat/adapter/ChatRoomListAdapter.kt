@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.ListItemChatRoomBinding
 import com.seungma.infratalk.domain.chat.entity.ChatRoomEntity
 import java.text.SimpleDateFormat
@@ -48,7 +50,7 @@ class ChatRoomListAdapter(
         fun bind(chatRoomEntity: ChatRoomEntity) {
             this.chatRoomEntity = chatRoomEntity
             binding.apply {
-                chatRoomEntity.let {
+                chatRoomEntity.let { it ->
                     Log.d("BoardListAdpater", "셀렉트 바인딩")
                     tvChatRoomTitle.text = it.roomName
                     tvLastChatContent.text = it.lastChatMessageEntity?.content ?: "대화 없음"
@@ -56,6 +58,16 @@ class ChatRoomListAdapter(
                         it.lastChatMessageEntity?.let { modifiedDate(it.sendTime) } ?: modifiedDate(
                             it.createTime
                         )
+
+                    val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                    it.roomThumbnail?.let {
+                        Log.d("seungma", "섬네일 로딩")
+                        Glide.with(itemView.context)
+                            .load(it)
+                            .apply(requestOptions)
+                            .into(ivProfile)
+                    }
+
                     /*
                     context.text = it.boardMetaEntity.content
                     date.text = it.boardMetaEntity.createTime.toString()
