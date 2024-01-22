@@ -8,7 +8,7 @@
         android:id="@+id/ly_title"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:background="@color/colorAccent"
+        android:background="@drawable/menu_title_bg"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -45,11 +45,11 @@
                 android:id="@+id/ly_my_account_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:paddingTop="30dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/my_page_ly_bg">
+                android:background="@drawable/my_account_info_ly_bg">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/ly_my_basic_info"
@@ -149,8 +149,6 @@
                             app:layout_constraintBottom_toBottomOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -221,7 +219,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/ly_my_board">
+                    app:layout_constraintTop_toBottomOf="@id/ly_my_board"
+                    android:background="@drawable/my_page_item_bg">
 
                     <TextView
                         android:id="@+id/btn_my_comment"

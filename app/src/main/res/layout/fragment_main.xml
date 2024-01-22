@@ -24,6 +24,7 @@
         android:layout_height="0dp"
         app:itemIconTint="@drawable/menu_click_color"
         app:itemTextColor="@drawable/menu_click_color"
+        android:background="@color/navigationBackground"
         app:layout_constraintTop_toBottomOf="@+id/fragment_frame_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_weight="1"

@@ -16,4 +16,7 @@
     <color name="loginPageBackgroundColor">#FFFFFF</color>
     <color name="productGridBackgroundColor">#FFFFFF</color>
     <color name="textInputOutlineColor">#FBB8AC</color>
+    <color name="navigationBackground">#FAF5F5</color>
+    <color name="navigationClickChecked">#434343</color>
+    <color name="navigationClickDefault">#BEBCBC</color>
 </resources>

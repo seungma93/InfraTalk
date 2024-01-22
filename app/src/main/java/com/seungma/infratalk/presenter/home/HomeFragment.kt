@@ -28,7 +28,7 @@ class HomeFragment : Fragment() {
                 "[infratalk@home] uname -an \n[infratalk@home] 인프라 엔지니어 하던 안드로이드 개발자\n" +
                 "[infratalk@home] email \n[infratalk@home] seungma93@naver.com " +
                 "[infratalk@home] help \n[infratalk@home] 질문이 해결 안되면 답변 달아드립니다 \n" +
-                "앱 사용시 문제가 있으면 이메일로 문의 주세요 인프라 엔지니어 응원합니다"
+                "앱 사용시 문제가 있으면 이메일로 문의 주세요\n인프라 엔지니어 응원합니다"
         }
     }
 }
