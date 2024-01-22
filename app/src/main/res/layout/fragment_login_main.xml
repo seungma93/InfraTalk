@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_left"
@@ -25,15 +25,38 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.8" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ly_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="50dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Infra Talk"
+            android:textColor="@color/colorAccent"
+            android:textSize="70dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/email_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
-        android:hint="@string/shr_hint_email"
         style="@style/Widget.FreeTalk.TextInputLayout"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/shr_hint_email"
         app:layout_constraintTop_toTopOf="@id/guideline_top"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email_edit_text"
@@ -44,64 +67,81 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
-        android:hint="@string/shr_hint_password"
         style="@style/Widget.FreeTalk.TextInputLayout"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/shr_hint_password"
         app:errorEnabled="true"
         app:layout_constraintTop_toBottomOf="@+id/email_text_input"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_login"
         style="@style/Widget.FreeTalk.Button"
-        android:layout_width="230dp"
-        android:layout_height="50dp"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
         android:text="로그인"
         android:textSize="20dp"
-        app:layout_constraintLeft_toRightOf="@+id/guideline_left"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@+id/password_text_input" />
+        app:layout_constraintTop_toBottomOf="@id/password_text_input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
         android:id="@+id/btn_test"
         style="@style/Widget.FreeTalk.Button"
-        android:layout_width="230dp"
-        android:layout_height="50dp"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="테스트"
         android:textSize="20dp"
-        app:layout_constraintLeft_toRightOf="@+id/guideline_left"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@+id/btn_login" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_login"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
-    <Button
-        android:id="@+id/btn_sign_up"
-        style="@style/Widget.FreeTalk.Button.TextButton"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:text="회원가입"
-        app:layout_constraintLeft_toLeftOf="@id/guideline_left"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="30dp" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ly_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_test"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
 
-    <Button
-        android:id="@+id/btn_find_account"
-        style="@style/Widget.FreeTalk.Button.TextButton"
-        android:layout_width="110dp"
-        android:layout_height="40dp"
-        android:text="계정찾기"
-        app:layout_constraintLeft_toRightOf="@id/btn_sign_up"
-        android:layout_marginLeft="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="30dp" />
+        <Button
+            android:id="@+id/btn_sign_up"
+            style="@style/Widget.FreeTalk.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="회원가입"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_find_account"/>
+
+        <Button
+            android:id="@+id/btn_find_account"
+            style="@style/Widget.FreeTalk.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="계정찾기"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_sign_up"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <ProgressBar
         android:id="@+id/progressBar"
