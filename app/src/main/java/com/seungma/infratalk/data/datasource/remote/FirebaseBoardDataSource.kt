@@ -47,6 +47,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse {
         return kotlin.runCatching {
             val createTime = boardInsertRequest.createTime
+
             database.collection("Board")
                 .add(boardInsertRequest)
                 .await()

@@ -48,7 +48,7 @@
 
     <style name="Widget.FreeTalk.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="backgroundTint">?attr/colorPrimaryDark</item>
+        <item name="backgroundTint">@color/colorAccent</item>
         <item name="android:stateListAnimator" tools:ignore="NewApi">
             @animator/freetalk_next_button_state_list_anim
         </item>
