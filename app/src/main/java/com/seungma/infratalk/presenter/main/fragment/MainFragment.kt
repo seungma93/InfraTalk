@@ -62,7 +62,9 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
 
-            navigateFragment(MainChildFragmentEndPoint.Home)
+            if(childFragmentManager.fragments.isEmpty()){
+                navigateFragment(MainChildFragmentEndPoint.Home)
+            }
 
             navigation.setOnItemSelectedListener {
                 when (it.itemId) {

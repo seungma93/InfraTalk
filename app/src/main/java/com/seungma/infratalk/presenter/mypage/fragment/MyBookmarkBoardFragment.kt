@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -36,6 +37,7 @@ class MyBookmarkBoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var _adapter: MyBookmarkBoardListAdapter? = null
     private val adapter get() = _adapter!!
+    private lateinit var callback: OnBackPressedCallback
 
     @Inject
     lateinit var myBookmarkBoardViewModelFactory: ViewModelProvider.Factory
@@ -43,6 +45,14 @@ class MyBookmarkBoardFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("BoardWriteFragment", "백스택 실행")
+                parentFragmentManager.popBackStackImmediate()
+
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
         super.onAttach(context)
     }
 
