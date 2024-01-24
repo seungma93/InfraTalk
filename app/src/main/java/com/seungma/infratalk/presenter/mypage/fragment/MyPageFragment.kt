@@ -73,7 +73,7 @@ class MyPageFragment : Fragment() {
             btnMyBoard.setOnClickListener {
                 val endPoint =
                     MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
-                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
             btnMyComment.setOnClickListener {
                 val endPoint =

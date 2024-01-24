@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -64,6 +65,7 @@ class MyCommentFragment : Fragment() {
         get() = requireArguments().getSerializable(
             MY_ACCOUNT_PRIMARY_KEY
         ) as UserEntity
+    private lateinit var callback: OnBackPressedCallback
 
     @Inject
     lateinit var myCommentViewModelFactory: ViewModelProvider.Factory
@@ -71,6 +73,14 @@ class MyCommentFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("BoardWriteFragment", "백스택 실행")
+                parentFragmentManager.popBackStackImmediate()
+
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
         super.onAttach(context)
     }
 

@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -43,6 +44,7 @@ class MyAccountInfoEditFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
+    private lateinit var callback: OnBackPressedCallback
 
     @Inject
     lateinit var myPageViewModelFactory: ViewModelProvider.Factory
@@ -77,6 +79,15 @@ class MyAccountInfoEditFragment : Fragment() {
                     }
                 }
             }
+
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("BoardWriteFragment", "백스택 실행")
+                parentFragmentManager.popBackStackImmediate()
+
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
     override fun onCreateView(
