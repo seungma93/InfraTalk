@@ -203,6 +203,27 @@ class BoardFragment : Fragment() {
                 )
                 toggleFab(isFabOpen = true)
             }
+            // 나의 게시글 버튼
+            btnFabMyList.setOnClickListener {
+                val endPoint =
+                    MainChildFragmentEndPoint.MyBoard(userEntity = boardViewModel.getUserInfo())
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                toggleFab(isFabOpen = true)
+            }
+            // 북마크 버튼
+            btnFabBookmark.setOnClickListener {
+                val endPoint =
+                    MainChildFragmentEndPoint.MyBookmarkBoard
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                toggleFab(isFabOpen = true)
+            }
+            // 좋아요 버튼
+            btnFabLike.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyLikeBoard
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                toggleFab(isFabOpen = true)
+            }
+
             // 스와이프
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launch {
@@ -278,8 +299,9 @@ class BoardFragment : Fragment() {
         return if (isFabOpen) {
             AnimatorSet().apply {
                 this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", 0f),
                     ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", 0f),
+                    ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f),
+                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", 0f),
                     ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f)
                 )
             }.start()
@@ -287,8 +309,9 @@ class BoardFragment : Fragment() {
         } else {
             AnimatorSet().apply {
                 this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", -600f),
-                    ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", -400f),
+                    ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", -800f),
+                    ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -600f),
+                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", -400f),
                     ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f)
                 )
             }.start()
