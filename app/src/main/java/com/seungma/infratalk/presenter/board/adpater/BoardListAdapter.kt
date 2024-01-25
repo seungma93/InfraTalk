@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.BoardListItemBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
@@ -102,20 +104,22 @@ class BoardListAdapter(
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
                     likeCount.text = it.likeCountEntity.likeCount.toString()
-                    /*
-                    Glide.with(itemView.context)
-                        .load(it.boardMetaEntity.images?.successUris?.firstOrNull())
-                        .into(ivSingleImage)
-
-                     */
-                    btnChat.isEnabled = when (userEntity.email != it.boardMetaEntity.author.email) {
-                        true -> true
-                        else -> false
+                    val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                    it.boardMetaEntity.author.image?.let {
+                        Log.d("seungma", "섬네일 로딩")
+                        Glide.with(itemView.context)
+                            .load(it)
+                            .apply(requestOptions)
+                            .into(ivProfile)
+                    }
+                    btnChat.visibility = when (userEntity.email != it.boardMetaEntity.author.email) {
+                        true -> View.VISIBLE
+                        else -> View.INVISIBLE
                     }
                     btnDelete.visibility =
                         when (userEntity.email == it.boardMetaEntity.author.email) {
                             true -> View.VISIBLE
-                            else -> View.GONE
+                            else -> View.INVISIBLE
                         }
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
