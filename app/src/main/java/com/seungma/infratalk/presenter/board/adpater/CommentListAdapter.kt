@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.seungma.infratalk.data.UserSingleton.userEntity
 import com.seungma.infratalk.databinding.ListItemBoardContentBinding
 import com.seungma.infratalk.databinding.ListItemCommentBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
@@ -164,6 +167,18 @@ class BoardContentViewHolder(
                 likeCount.text = it.likeCountEntity.likeCount.toString()
                 btnLike.isEnabled = true
                 btnBookmark.isEnabled = true
+                btnChat.visibility = when (userEntity.email != it.boardMetaEntity.author.email) {
+                    true -> View.VISIBLE
+                    else -> View.INVISIBLE
+                }
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                it.boardMetaEntity.author.image?.let {
+                    Log.d("seungma", "섬네일 로딩")
+                    Glide.with(itemView.context)
+                        .load(it)
+                        .apply(requestOptions)
+                        .into(ivProfile)
+                }
             }
         }
     }
@@ -244,7 +259,7 @@ class CommentViewHolder(
                 btnDelete.visibility =
                     when (userEntity.email == it.commentMetaEntity.author.email) {
                         true -> View.VISIBLE
-                        else -> View.GONE
+                        else -> View.INVISIBLE
                     }
                 btnLike.isEnabled = true
                 btnBookmark.isEnabled = true

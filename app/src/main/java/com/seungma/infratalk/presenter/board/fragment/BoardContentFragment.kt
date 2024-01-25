@@ -291,6 +291,7 @@ class BoardContentFragment : Fragment() {
                     false -> {
                         btnSubmitComment.isEnabled = false
                         viewLifecycleOwner.lifecycleScope.launch {
+                            showProgressBar()
 
                             boardContentViewModel.writeComment(
                                 commentInsertForm = CommentInsertForm(
@@ -299,7 +300,6 @@ class BoardContentFragment : Fragment() {
                                     content = commentEditText.text.toString()
                                 )
                             )
-                            showProgressBar()
 
                             val viewState = boardContentViewModel.loadBoardRelatedAllCommentList(
                                 boardRelatedAllCommentMetaListSelectForm = BoardRelatedAllCommentMetaListSelectForm(
