@@ -44,12 +44,12 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_fab_my_list"
+        android:id="@+id/btn_fab_like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:fabSize="normal"
-        android:src="@drawable/ic_baseline_import_contacts_24"
+        android:src="@drawable/btn_like_pressed"
         android:backgroundTint="@color/colorAccent"
         app:borderWidth="0dp"
         app:layout_constraintTop_toTopOf="@id/btn_fab_menu"
@@ -58,12 +58,26 @@
         app:layout_constraintEnd_toEndOf="@id/btn_fab_menu" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_fab_like"
+        android:id="@+id/btn_fab_bookmark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:fabSize="normal"
-        android:src="@drawable/btn_like_pressed"
+        android:src="@drawable/btn_star_pressed"
+        android:backgroundTint="@color/colorAccent"
+        app:borderWidth="0dp"
+        app:layout_constraintTop_toTopOf="@id/btn_fab_menu"
+        app:layout_constraintBottom_toBottomOf="@id/btn_fab_menu"
+        app:layout_constraintStart_toStartOf="@id/btn_fab_menu"
+        app:layout_constraintEnd_toEndOf="@id/btn_fab_menu" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_fab_my_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:fabSize="normal"
+        android:src="@drawable/ic_baseline_import_contacts_24"
         android:backgroundTint="@color/colorAccent"
         app:borderWidth="0dp"
         app:layout_constraintTop_toTopOf="@id/btn_fab_menu"
