@@ -2,6 +2,7 @@ package com.seungma.infratalk.presenter.mypage.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,6 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.ListItemMyLikeBoardBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
+import com.seungma.infratalk.domain.user.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,13 +22,15 @@ class MyLikeBoardListAdapter(
     private val itemClick: (BoardMetaEntity) -> Unit,
     private val bookmarkClick: (BoardEntity) -> Unit,
     private val likeClick: (BoardEntity) -> Unit,
-    private val deleteClick: (BoardEntity) -> Unit
+    private val deleteClick: (BoardEntity) -> Unit,
+    private val chatClick: (BoardMetaEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : ListAdapter<BoardEntity, MyLikeBoardListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             ListItemMyLikeBoardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick, chatClick, userEntity)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -38,7 +42,9 @@ class MyLikeBoardListAdapter(
         private val itemClick: (BoardMetaEntity) -> Unit,
         private val bookmarkClick: (BoardEntity) -> Unit,
         private val likeClick: (BoardEntity) -> Unit,
-        private val deleteClick: (BoardEntity) -> Unit
+        private val deleteClick: (BoardEntity) -> Unit,
+        private val chatClick: (BoardMetaEntity) -> Unit,
+        private val userEntity: UserEntity
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var boardEntity: BoardEntity? = null
@@ -69,6 +75,11 @@ class MyLikeBoardListAdapter(
                         deleteClick(it)
                     }
                 }
+                btnChat.setOnClickListener {
+                    boardEntity?.let {
+                        chatClick(it.boardMetaEntity)
+                    }
+                }
             }
 
         }
@@ -93,6 +104,15 @@ class MyLikeBoardListAdapter(
                             .into(ivProfile)
 
                     }
+                    btnChat.visibility = when (userEntity.email != it.boardMetaEntity.author.email) {
+                        true -> View.VISIBLE
+                        else -> View.INVISIBLE
+                    }
+                    btnDelete.visibility =
+                        when (userEntity.email == it.boardMetaEntity.author.email) {
+                            true -> View.VISIBLE
+                            else -> View.INVISIBLE
+                        }
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
                 }

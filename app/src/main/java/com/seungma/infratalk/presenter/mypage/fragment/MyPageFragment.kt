@@ -70,29 +70,29 @@ class MyPageFragment : Fragment() {
                 val endPoint = MainChildFragmentEndPoint.MyAccountInfoEdit
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            btnMyBoard.setOnClickListener {
+            lyMyBoard.setOnClickListener {
                 val endPoint =
                     MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            btnMyComment.setOnClickListener {
+            lyMyComment.setOnClickListener {
                 val endPoint =
                     MainChildFragmentEndPoint.MyComment(userEntity = myPageViewModel.getUserInfo())
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            btnMyBookmarkBoard.setOnClickListener {
+            lyMyBookmarkBoard.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyBookmarkBoard
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            btnMyLikeBoard.setOnClickListener {
-                val endPoint = MainChildFragmentEndPoint.MyLikeBoard
-                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-            }
-            btnMyBookmarkComment.setOnClickListener {
+            lyMyBookmarkComment.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyBookmarkComment
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            btnMyLikeComment.setOnClickListener {
+            lyMyLikeBoard.setOnClickListener {
+                val endPoint = MainChildFragmentEndPoint.MyLikeBoard
+                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
+            lyMyLikeComment.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyLikeComment
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }

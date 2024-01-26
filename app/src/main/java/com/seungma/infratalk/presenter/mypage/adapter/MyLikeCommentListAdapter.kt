@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.seungma.infratalk.data.UserSingleton.userEntity
 import com.seungma.infratalk.databinding.ListItemMyLikeCommentBinding
 import com.seungma.infratalk.domain.comment.entity.CommentEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaEntity
+import com.seungma.infratalk.domain.user.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,13 +20,14 @@ class MyLikeCommentListAdapter(
     private val itemClick: (CommentMetaEntity) -> Unit,
     private val bookmarkClick: (CommentEntity) -> Unit,
     private val likeClick: (CommentEntity) -> Unit,
-    private val deleteClick: (CommentEntity) -> Unit
+    private val deleteClick: (CommentEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : ListAdapter<CommentEntity, MyLikeCommentListAdapter.ViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             ListItemMyLikeCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick)
+        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick, userEntity)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -38,7 +39,8 @@ class MyLikeCommentListAdapter(
         private val itemClick: (CommentMetaEntity) -> Unit,
         private val bookmarkClick: (CommentEntity) -> Unit,
         private val likeClick: (CommentEntity) -> Unit,
-        private val deleteClick: (CommentEntity) -> Unit
+        private val deleteClick: (CommentEntity) -> Unit,
+        private val userEntity: UserEntity
     ) :
         RecyclerView.ViewHolder(binding.root) {
         private var commentEntity: CommentEntity? = null

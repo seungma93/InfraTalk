@@ -2,6 +2,7 @@ package com.seungma.infratalk.presenter.mypage.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -85,12 +86,6 @@ class MyBoardListAdapter(
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
                     likeCount.text = it.likeCountEntity.likeCount.toString()
-                    /*
-                    Glide.with(itemView.context)
-                        .load(it.boardMetaEntity.images?.successUris?.firstOrNull())
-                        .into(ivSingleImage)
-
-                     */
                     val requestOptions = RequestOptions.circleCropTransform().autoClone()
                     it.boardMetaEntity.author.image?.let {
                         Glide.with(itemView.context)
@@ -99,8 +94,11 @@ class MyBoardListAdapter(
                             .into(ivProfile)
 
                     }
+                    btnDelete.visibility = View.VISIBLE
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
+                    btnChat.visibility = View.INVISIBLE
+
                 }
             }
         }

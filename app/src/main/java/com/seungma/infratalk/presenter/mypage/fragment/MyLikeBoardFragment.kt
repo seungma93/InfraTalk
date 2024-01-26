@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentMyLikeBoardBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
+import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -24,9 +25,12 @@ import com.seungma.infratalk.presenter.board.form.BoardLikeAddForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardLikesDeleteForm
+import com.seungma.infratalk.presenter.chat.form.ChatRoomCheckForm
+import com.seungma.infratalk.presenter.chat.form.ChatRoomCreateForm
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.mypage.adapter.MyLikeBoardListAdapter
+import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeBoardViewEvent
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeBoardViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -165,7 +169,18 @@ class MyLikeBoardFragment : Fragment() {
                         }
                     }
                 }
-            }
+            },
+            chatClick = { boardMetaEntity ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val member =
+                        listOf(myLikeBoardViewModel.getUserInfo().email, boardMetaEntity.author.email)
+                    myLikeBoardViewModel.startChat(
+                        chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                        chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                    )
+                }
+            },
+            userEntity = myLikeBoardViewModel.getUserInfo()
         )
         binding.apply {
 
@@ -182,6 +197,34 @@ class MyLikeBoardFragment : Fragment() {
             rvMyLikeBoardList.adapter = adapter
         }
         loadBoardList()
+        subscribe()
+    }
+
+    private fun subscribe() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            myLikeBoardViewModel.viewEvent.collect {
+                when (it) {
+                    is MyLikeBoardViewEvent.ChatStart -> {
+                        when (it.chatStartEntity.isSuccess) {
+                            true -> {
+                                Log.d("seungma", "채팅 시작 성공")
+                                val endPoint = EndPoint.Chat(
+                                    chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                                        partnerEmail = it.chatStartEntity.chatPartner,
+                                        chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
+                                    )
+                                )
+                                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                            }
+
+                            false -> Log.d("seungma", "채팅방 시작 실패")
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun loadBoardList() {

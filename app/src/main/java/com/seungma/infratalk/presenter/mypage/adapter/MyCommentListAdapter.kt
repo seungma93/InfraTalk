@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.seungma.infratalk.data.UserSingleton.userEntity
 import com.seungma.infratalk.databinding.ListItemMyCommentBinding
 import com.seungma.infratalk.domain.comment.entity.CommentEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaEntity
@@ -83,11 +82,7 @@ class MyCommentListAdapter(
                     btnBookmark.isSelected = it.bookmarkEntity.isBookmark
                     btnLike.isSelected = it.likeEntity.isLike
                     likeCount.text = it.likeCountEntity.likeCount.toString()
-                    btnDelete.visibility =
-                        when (userEntity.email == it.commentMetaEntity.author.email) {
-                            true -> View.VISIBLE
-                            else -> View.GONE
-                        }
+                    btnDelete.visibility = View.VISIBLE
                     btnLike.isEnabled = true
                     btnBookmark.isEnabled = true
                     btnDelete.isEnabled = true

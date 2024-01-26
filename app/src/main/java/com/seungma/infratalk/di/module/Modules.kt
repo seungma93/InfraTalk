@@ -960,7 +960,9 @@ class Modules {
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             getUserInfoUseCase: GetUserInfoUseCase,
-            deleteBoardUseCase: DeleteBoardUseCase
+            deleteBoardUseCase: DeleteBoardUseCase,
+            checkChatRoomUseCase: CheckChatRoomUseCase,
+            createChatRoomUseCase: CreateChatRoomUseCase
         ): ViewModel {
             return MyBookmarkBoardViewModel(
                 loadMyBookmarkBoardListUseCase,
@@ -969,7 +971,9 @@ class Modules {
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
                 getUserInfoUseCase,
-                deleteBoardUseCase
+                deleteBoardUseCase,
+                checkChatRoomUseCase,
+                createChatRoomUseCase
             )
         }
     }
@@ -986,7 +990,9 @@ class Modules {
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             getUserInfoUseCase: GetUserInfoUseCase,
-            deleteBoardUseCase: DeleteBoardUseCase
+            deleteBoardUseCase: DeleteBoardUseCase,
+            checkChatRoomUseCase: CheckChatRoomUseCase,
+            createChatRoomUseCase: CreateChatRoomUseCase
         ): ViewModel {
             return MyLikeBoardViewModel(
                 loadMyLikeBoardListUseCase,
@@ -995,7 +1001,9 @@ class Modules {
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
                 getUserInfoUseCase,
-                deleteBoardUseCase
+                deleteBoardUseCase,
+                checkChatRoomUseCase,
+                createChatRoomUseCase
             )
         }
     }
