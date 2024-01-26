@@ -163,7 +163,8 @@ class MyLikeCommentFragment : Fragment() {
                         adapter.submitList(myCommentViewState.commentListEntity?.commentList)
                     }
                 }
-            }
+            },
+            userEntity = myLikeCommentViewModel.getUserInfo()
         )
         binding.apply {
 

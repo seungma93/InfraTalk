@@ -26,6 +26,7 @@ import dagger.Component
         Modules.FirebaseLikeDataSourceModule::class,
         Modules.FirebaseCommentDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
+        Modules.FirebaseChatDataSourceModule::class,
         // Repository
         Modules.UserDataRepositoryModule::class,
         Modules.BoardDataRepositoryModule::class,
@@ -33,6 +34,7 @@ import dagger.Component
         Modules.LikeDataRepositoryModule::class,
         Modules.CommentDataRepositoryModule::class,
         Modules.ImageDataRepositoryModule::class,
+        Modules.ChatDataRepositoryModule::class,
         // UseCase
 //        Modules.SendChatMessageUseCaseModule::class,
 //        Modules.LoadChatMessageListUseCaseModule::class,

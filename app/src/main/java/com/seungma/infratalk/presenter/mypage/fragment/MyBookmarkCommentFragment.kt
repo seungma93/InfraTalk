@@ -165,7 +165,8 @@ class MyBookmarkCommentFragment : Fragment() {
                         adapter.submitList(myCommentViewState.commentListEntity?.commentList)
                     }
                 }
-            }
+            },
+            userEntity = myBookmarkCommentViewModel.getUserInfo()
         )
         binding.apply {
 

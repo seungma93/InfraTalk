@@ -8,6 +8,9 @@ import com.seungma.infratalk.domain.board.usecase.AddBoardLikeUseCase
 import com.seungma.infratalk.domain.board.usecase.DeleteBoardBookmarkUseCase
 import com.seungma.infratalk.domain.board.usecase.DeleteBoardLikeUseCase
 import com.seungma.infratalk.domain.board.usecase.DeleteBoardUseCase
+import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
+import com.seungma.infratalk.domain.chat.usecase.CheckChatRoomUseCase
+import com.seungma.infratalk.domain.chat.usecase.CreateChatRoomUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkBoardListUseCase
 import com.seungma.infratalk.domain.user.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.UserEntity
@@ -19,11 +22,21 @@ import com.seungma.infratalk.presenter.board.form.BoardLikeAddForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardLikesDeleteForm
+import com.seungma.infratalk.presenter.chat.form.ChatRoomCheckForm
+import com.seungma.infratalk.presenter.chat.form.ChatRoomCreateForm
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.updateAndGet
 import javax.inject.Inject
+
+sealed class MyBookmarkBoardViewEvent {
+    data class ChatStart(val chatStartEntity: ChatStartEntity) : MyBookmarkBoardViewEvent()
+    data class Error(val errorCode: Throwable) : MyBookmarkBoardViewEvent()
+}
 
 class MyBookmarkBoardViewModel @Inject constructor(
     private val loadMyBookmarkBoardListUseCase: LoadMyBookmarkBoardListUseCase,
@@ -32,8 +45,13 @@ class MyBookmarkBoardViewModel @Inject constructor(
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val deleteBoardUseCase: DeleteBoardUseCase
+    private val deleteBoardUseCase: DeleteBoardUseCase,
+    private val checkChatRoomUseCase: CheckChatRoomUseCase,
+    private val createChatRoomUseCase: CreateChatRoomUseCase
 ) : ViewModel() {
+    private val _viewEvent = MutableSharedFlow<MyBookmarkBoardViewEvent>()
+    val viewEvent: SharedFlow<MyBookmarkBoardViewEvent> = _viewEvent.asSharedFlow()
+
     private val _viewState =
         MutableStateFlow(MyBoardViewState(BoardListEntity(emptyList())))
     private val viewState: StateFlow<MyBoardViewState> = _viewState.asStateFlow()
@@ -162,6 +180,60 @@ class MyBookmarkBoardViewModel @Inject constructor(
                 viewState.value.copy(boardListEntity = it)
             }
         } ?: viewState.value
+    }
+
+    suspend fun startChat(
+        chatRoomCreateForm: ChatRoomCreateForm,
+        chatRoomCheckForm: ChatRoomCheckForm
+    ) {
+        kotlin.runCatching {
+
+            val chatRoomCheckEntity = checkChatRoomUseCase(chatRoomCheckForm = chatRoomCheckForm)
+
+            when (chatRoomCheckEntity.isChatRoom) {
+                true -> {
+                    _viewEvent.emit(
+                        MyBookmarkBoardViewEvent.ChatStart(
+                            chatStartEntity = ChatStartEntity(
+                                chatPartner = chatRoomCheckForm.member[1],
+                                chatRoomId = chatRoomCheckEntity.chatRoomId,
+                                isSuccess = true
+                            )
+                        )
+                    )
+                }
+
+                false -> {
+                    val chatRoomCreateEntity =
+                        createChatRoomUseCase(chatRoomCreateForm = chatRoomCreateForm)
+
+                    when (chatRoomCreateEntity.isSuccess) {
+                        true -> _viewEvent.emit(
+                            MyBookmarkBoardViewEvent.ChatStart(
+                                chatStartEntity = ChatStartEntity(
+                                    chatPartner = chatRoomCheckForm.member[1],
+                                    chatRoomId = chatRoomCreateEntity.chatRoomId,
+                                    isSuccess = true
+                                )
+                            )
+                        )
+
+                        false -> _viewEvent.emit(
+                            MyBookmarkBoardViewEvent.ChatStart(
+                                chatStartEntity = ChatStartEntity(
+                                    chatPartner = chatRoomCheckForm.member[1],
+                                    chatRoomId = null,
+                                    isSuccess = false
+                                )
+                            )
+                        )
+                    }
+                }
+            }
+
+        }.onFailure {
+            _viewEvent.emit(MyBookmarkBoardViewEvent.Error(it))
+        }
     }
 
 }
