@@ -6,6 +6,7 @@ import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.login.usecase.LogInUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
+import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
@@ -32,31 +33,47 @@ class SignViewModel @Inject constructor(
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val logInUseCase: LogInUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
-    private val deleteUserInfoUseCase: DeleteUserInfoUseCase
+    private val deleteUserInfoUseCase: DeleteUserInfoUseCase,
+    private val updateUserInfoUseCase: UpdateUserInfoUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ViewEvent>()
     val viewEvent: SharedFlow<ViewEvent> = _viewEvent.asSharedFlow()
 
     suspend fun signUp(signUpForm: SignUpForm, imagesRequest: ImagesRequest?) {
+        Log.d("seungma", "SignViewModel.signUp")
         kotlin.runCatching {
             val signUpResult = signUpUseCase.signUp(signUpForm)
+            val updateUserEntity = updateUserInfoUseCase(
+                userInfoUpdateForm = UserInfoUpdateForm(
+                    email = signUpResult.email,
+                    nickname = signUpResult.nickname,
+                    image = imagesRequest?.imageUris?.first()
+                )
+            )
+            /*
             val updateProfileResult = updateProfileImageUseCase(
                 imagesRequest,
                 UserInfoUpdateForm(signUpResult.email, signUpForm.nickname, null)
             )
 
+             */
+
+
             sendEmailUseCase.sendVerifiedEmail()
+
 
             _viewEvent.emit(
                 ViewEvent.SignUp(
                     UserEntity(
                         signUpResult.email,
                         signUpResult.nickname,
-                        updateProfileResult.image
+                        updateUserEntity.image
                     )
                 )
             )
         }.onFailure {
+            Log.d("seungma", "사인뷰모델 온페일러")
+            Log.d("seungma", "사인뷰모델 온패일러" + it.stackTrace)
             deleteUserInfoUseCase.deleteUserInfo(signUpForm)
             _viewEvent.emit(ViewEvent.Error(it))
         }

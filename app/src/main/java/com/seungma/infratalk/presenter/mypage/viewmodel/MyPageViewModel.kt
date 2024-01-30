@@ -1,5 +1,6 @@
 package com.seungma.infratalk.presenter.mypage.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.user.GetUserInfoUseCase
@@ -29,24 +30,6 @@ class MyPageViewModel @Inject constructor(
     private val _viewEvent = MutableSharedFlow<MyPageViewEvent>()
     val viewEvent: SharedFlow<MyPageViewEvent> = _viewEvent.asSharedFlow()
 
-    /*
-        private val _viewState =
-            MutableStateFlow(ChatViewState(ChatMessageListEntity(emptyList()), false, null))
-        val viewState: StateFlow<ChatViewState> = _viewState
-            .catch {
-            }.stateIn(
-                viewModelScope,
-                SharingStarted.Eagerly,
-                ChatViewState(ChatMessageListEntity(emptyList()), false, null)
-            )
-
-        data class ChatViewState(
-            val chatMessageListEntity: ChatMessageListEntity,
-            val isNewChatMessage: Boolean,
-            val chatRoomEntity: ChatRoomEntity?
-        )
-
-         */
 
     fun getUserInfo(): UserEntity {
         return getUserInfoUseCase()
@@ -64,7 +47,7 @@ class MyPageViewModel @Inject constructor(
                 )
             )
         }.onFailure {
-
+            Log.d("seungma", " 마이페이지 뷰모델 온페일러")
         }
     }
 

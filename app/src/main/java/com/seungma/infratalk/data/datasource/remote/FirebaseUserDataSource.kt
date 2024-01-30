@@ -3,7 +3,9 @@ package com.seungma.infratalk.data.datasource.remote
 
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.auth.*
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
@@ -89,6 +91,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = email))
             }.onFailure {
+                Log.d("seungma", "유저데이터소스 업데이트 유저인포 터짐")
                 throw com.seungma.infratalk.data.FailUpdatetException("업데이트 실패")
             }.getOrThrow()
         }

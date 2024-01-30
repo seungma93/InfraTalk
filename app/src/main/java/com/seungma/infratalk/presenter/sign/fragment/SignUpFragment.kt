@@ -42,41 +42,7 @@ class SignUpFragment : Fragment() {
     @Inject
     lateinit var signViewModelFactory: ViewModelProvider.Factory
     private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
-
-    /*
-    private val signViewModel: SignViewModel by lazy {
-        // dataSource
-        val firebaseRemoteDataSourceImpl =
-            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
-        val firebaseImageDataSourceImpl =
-            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
-        // repository
-        val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
-        val firebaseImageDataRepositoryImpl =
-            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
-        // useCase
-        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
-        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val updateProfileImageUseCaseImpl =
-            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
-        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
-        // factory
-        val factory = SignViewModelFactory(
-            signUpUseCaseImpl,
-            sendEmailUseCaseImpl,
-            updateProfileImageUseCaseImpl,
-            logInUseCaseImpl,
-            resetPasswordUseCaseImpl
-        )
-        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
-    }
-
-     */
-
+    
     override fun onAttach(context: Context) {
         DaggerSignFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
@@ -164,7 +130,7 @@ class SignUpFragment : Fragment() {
                                     signViewModel.signUp(
                                         SignUpForm(inputId, inputPassword, inputNickname),
                                         ImagesRequest(
-                                            listOf(it.profileImage.tag as Uri)
+                                            listOf(binding.profileImage.tag as Uri)
                                         )
                                     )
                                 }

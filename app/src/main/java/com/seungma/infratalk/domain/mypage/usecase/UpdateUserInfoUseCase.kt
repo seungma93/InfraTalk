@@ -1,6 +1,7 @@
 package com.seungma.infratalk.domain.mypage.usecase
 
 import android.net.Uri
+import android.util.Log
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.image.UploadImagesUseCase
 import com.seungma.infratalk.domain.user.UserDataRepository
@@ -27,6 +28,7 @@ class UpdateUserInfoUseCase @Inject constructor(
                         imageUris = listOf(imageUri)
                     )
                 )
+                Log.d("seungma", "업데이트유저인포")
                 userDataRepository.updateUserInfo(userInfoUpdateForm.copy(image = uploadImageResult.successUris[0]))
             }
         }
