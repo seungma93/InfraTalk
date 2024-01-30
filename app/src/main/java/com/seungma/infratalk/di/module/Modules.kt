@@ -823,7 +823,8 @@ class Modules {
             updateProfileImageUseCase: UpdateProfileImageUseCase,
             logInUseCase: LogInUseCase,
             resetPasswordUseCase: ResetPasswordUseCase,
-            deleteUserInfoUseCase: DeleteUserInfoUseCase
+            deleteUserInfoUseCase: DeleteUserInfoUseCase,
+            updateUserInfoUseCase: UpdateUserInfoUseCase
         ): ViewModel {
             return SignViewModel(
                 signUpUseCase,
@@ -831,7 +832,8 @@ class Modules {
                 updateProfileImageUseCase,
                 logInUseCase,
                 resetPasswordUseCase,
-                deleteUserInfoUseCase
+                deleteUserInfoUseCase,
+                updateUserInfoUseCase
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.seungma.infratalk.domain.mypage.usecase
 
+import android.util.Log
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.image.UploadImagesUseCase
 import com.seungma.infratalk.domain.user.UserEntity
@@ -22,6 +23,7 @@ class UpdateProfileImageUseCase @Inject constructor(
             )
 
             else -> {
+                Log.d("seungma","UpdateProfileImageUseCase.invoke")
                 val uploadImageResult = uploadImagesUseCase.uploadImages(imageRequest)
                 when (uploadImageResult.successUris.isEmpty()) {
                     true -> throw com.seungma.infratalk.data.NoImageException("업로드할 이미지가 없습니다")
