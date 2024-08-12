@@ -5,7 +5,7 @@ import com.seungma.infratalk.data.datasource.remote.UserDataSource
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.domain.user.UserDataRepository
 import com.seungma.infratalk.domain.user.UserEntity
-import com.seungma.infratalk.presenter.sign.form.LogInForm
+import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
@@ -20,9 +20,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         return dataSource.signUp(signUpForm).toEntity()
     }
 
-    override suspend fun logIn(logInForm: LogInForm): UserEntity {
+    override suspend fun logIn(logInForm: LoginForm): UserEntity {
         Log.d("UserDataR", "로그인 레포")
-        return dataSource.logIn(logInForm).toEntity()
+        return dataSource.login(logInForm).toEntity()
     }
 
     override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserEntity {

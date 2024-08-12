@@ -11,7 +11,7 @@ import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.user.UserEntity
-import com.seungma.infratalk.presenter.sign.form.LogInForm
+import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
@@ -79,7 +79,7 @@ class SignViewModel @Inject constructor(
         }
     }
 
-    suspend fun logIn(logInForm: LogInForm) {
+    suspend fun logIn(logInForm: LoginForm) {
         kotlin.runCatching {
             Log.d("SignViewModel", "로그인 뷰 모델")
             _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(logInForm)))

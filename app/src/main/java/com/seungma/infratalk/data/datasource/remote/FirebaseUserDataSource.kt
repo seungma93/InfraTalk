@@ -6,15 +6,15 @@ import android.util.Log
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.user.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
-import com.seungma.infratalk.presenter.sign.form.LogInForm
+import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import kotlinx.coroutines.tasks.await
@@ -22,14 +22,13 @@ import javax.inject.Inject
 
 interface UserDataSource {
     suspend fun signUp(signUpForm: SignUpForm): UserResponse
-    suspend fun logIn(logInForm: LogInForm): UserResponse
+    suspend fun login(loginRequest: LoginRequest): UserResponse
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
     suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
     fun getUserInfo(): UserEntity
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
-
     fun obtainUser(): UserResponse
 }
 
@@ -37,7 +36,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore
 ) : UserDataSource {
-    private var currentUser: FirebaseUser? = null
 
     companion object {
         const val ERROR_INVALID_EMAIL = "ERROR_INVALID_EMAIL"
@@ -98,6 +96,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }
 
     override suspend fun sendVerifiedEmail(): UserResponse {
+        val currentUser = auth.currentUser
         return kotlin.runCatching {
             currentUser?.let {
                 Log.d("SendEmail", "데이터소스")
@@ -160,62 +159,43 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun logIn(logInForm: LogInForm): UserResponse {
+    override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
+        runCatching {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val user = result.user
 
-        val logInAuthResult = logInAuth(logInForm)
-        return kotlin.runCatching {
+            user?.let {
+                if(!it.isEmailVerified) {
+                    Log.d("FirebaseUserDataSource", "이메일 인증 필요")
+                }
+            } ?: run {
+                Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 실패")
+            }
+        }.onFailure {
+            Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
+        }
             val snapshot =
                 database.collection("User")
-                    .whereEqualTo("email", logInAuthResult).get()
+                    .whereEqualTo("email", email).get()
                     .await()
+        runCatching {
             snapshot.documents.firstOrNull()?.let {
-                Log.d(
-                    "seungma",
-                    "로그인에서 uri" + (it.data?.get("image") as? String)?.let { Uri.parse(it) })
-                UserResponse(
-                    email = it.data?.get("email") as? String,
-                    nickname = it.data?.get("nickname") as? String,
-                    image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
-                )
-            } ?: run {
-                throw com.seungma.infratalk.data.FailSelectLogInInfoException("로그인 정보 가져오기 실패")
-            }
-        }.onFailure {
-            Log.d("UserDataSource", it.message.toString())
-            throw com.seungma.infratalk.data.FailSelectException("셀렉트 실패", it)
-        }.getOrThrow()
-    }
-
-    private suspend fun logInAuth(logInForm: LogInForm): String {
-
-        return kotlin.runCatching {
-            auth.signInWithEmailAndPassword(logInForm.email, logInForm.password).await()
-            currentUser = auth.currentUser
-            Log.d("UserDataSource", currentUser?.email.toString())
-            currentUser?.let {
-                when (it.isEmailVerified) {
-                    true -> it.email
-                    false -> {
-                        Log.d("UserDataSource", "로그인 1")
-                        throw com.seungma.infratalk.data.VerifiedEmailException("이메일 인증이 필요 합니다")
-                    }
+                val data = it.data
+                data?.let {
+                    UserResponse(
+                        email = data["email"] as? String,
+                        nickname = data["nickname"] as? String,
+                        image = (data["image"] as? String)?.let { image ->
+                            Uri.parse(image)
+                        }
+                    )
                 }
             } ?: run {
-                Log.d("UserDataSource", "로그인 2")
-                throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
+                Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
+                throw error("")
             }
         }.onFailure {
-            when (it) {
-                is com.seungma.infratalk.data.VerifiedEmailException -> throw com.seungma.infratalk.data.VerifiedEmailException(
-                    "이메일 인증이 필요 합니다"
-                )
-
-                else -> {
-                    Log.d("UserDataSource", "로그인 3")
-                    Log.d("UserDataSource", it.message.toString())
-                    throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
-                }
-            }
+            Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
         }.getOrThrow()
     }
 
