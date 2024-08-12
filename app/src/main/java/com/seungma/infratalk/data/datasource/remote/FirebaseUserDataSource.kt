@@ -6,6 +6,7 @@ import android.util.Log
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
@@ -36,7 +37,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore
 ) : UserDataSource {
-    private val currentUser = auth.currentUser
+    private var currentUser: FirebaseUser? = null
 
     companion object {
         const val ERROR_INVALID_EMAIL = "ERROR_INVALID_EMAIL"
@@ -101,7 +102,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             currentUser?.let {
                 Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
-                UserResponse(currentUser.email, null, null)
+                UserResponse(it.email, null, null)
             } ?: run {
                 Log.d("UserDataSource", "알 수 없는1")
                 throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
@@ -189,6 +190,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
         return kotlin.runCatching {
             auth.signInWithEmailAndPassword(logInForm.email, logInForm.password).await()
+            currentUser = auth.currentUser
             Log.d("UserDataSource", currentUser?.email.toString())
             currentUser?.let {
                 when (it.isEmailVerified) {
