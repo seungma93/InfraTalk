@@ -3,25 +3,31 @@ package com.seungma.infratalk.data.datasource.remote
 
 import android.net.Uri
 import android.util.Log
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.seungma.infratalk.data.FailInsertException
+import com.seungma.infratalk.data.UnKnownException
+import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.user.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
-import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import javax.security.auth.login.LoginException
 
 interface UserDataSource {
-    suspend fun signUp(signUpForm: SignUpForm): UserResponse
+    suspend fun signUp(signupRequest: SignupRequest): UserResponse
     suspend fun login(loginRequest: LoginRequest): UserResponse
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
     suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
@@ -58,11 +64,45 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun signUp(signUpForm: SignUpForm): UserResponse {
-        Log.d("FirebaseUserData", "시작")
-        insertData(UserEntity(signUpForm.email, signUpForm.nickname, null))
-        val createAuthResult = createAuth(signUpForm)
-        return UserResponse(createAuthResult.user?.email.toString(), signUpForm.nickname)
+    override suspend fun signUp(signupRequest: SignupRequest): UserResponse = coroutineScope {
+        runCatching {
+            val insertAsync = async {
+                database.collection("User").add(
+                    UserEntity(
+                        email = signupRequest.email,
+                        nickname = signupRequest.nickname,
+                        image = Uri.parse(signupRequest.imageUri)
+                    )
+                )
+            }
+            val authAsync = async {
+                auth.createUserWithEmailAndPassword(
+                    signupRequest.email,
+                    signupRequest.password
+                )
+            }
+
+            val resultInsert = insertAsync.await()
+            val resultAuth = authAsync.await()
+
+            if (resultAuth.isSuccessful && resultInsert.isSuccessful) {
+                UserResponse(
+                    email = signupRequest.email,
+                    nickname = signupRequest.nickname,
+                    image = Uri.parse(signupRequest.imageUri)
+                )
+            } else {
+                throw LoginException("파이어베이스 로그인 로직 실패")
+            }
+
+        }.onFailure {
+            when (it) {
+                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it.errorCode)
+                is FirebaseException -> throw FailInsertException("인서트에 실패 했습니다")
+                else -> throw UnKnownException("알 수 없는 에러")
+            }
+        }.getOrThrow()
+
     }
 
     override suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse =
@@ -165,7 +205,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             val user = result.user
 
             user?.let {
-                if(!it.isEmailVerified) {
+                if (!it.isEmailVerified) {
                     Log.d("FirebaseUserDataSource", "이메일 인증 필요")
                 }
             } ?: run {
@@ -174,10 +214,10 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.onFailure {
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
         }
-            val snapshot =
-                database.collection("User")
-                    .whereEqualTo("email", email).get()
-                    .await()
+        val snapshot =
+            database.collection("User")
+                .whereEqualTo("email", email).get()
+                .await()
         runCatching {
             snapshot.documents.firstOrNull()?.let {
                 val data = it.data
