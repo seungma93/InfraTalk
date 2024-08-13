@@ -2,6 +2,8 @@ package com.seungma.domain.repository
 
 import android.util.Log
 import com.seungma.infratalk.data.datasource.remote.UserDataSource
+import com.seungma.infratalk.data.model.request.SignupRequest
+import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.domain.user.UserDataRepository
 import com.seungma.infratalk.domain.user.UserEntity
@@ -15,14 +17,26 @@ import javax.inject.Inject
 class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource) :
     UserDataRepository {
 
-    override suspend fun signUp(signUpForm: SignUpForm): UserEntity {
+    override suspend fun signUp(signUpForm: SignUpForm): UserEntity = with(signUpForm) {
         Log.d("UserDataR", "시작")
-        return dataSource.signUp(signUpForm).toEntity()
+        return dataSource.signUp(
+            signupRequest = SignupRequest(
+                email = email,
+                password = password,
+                nickname = nickname,
+                imageUri = null
+            )
+        ).toEntity()
     }
 
-    override suspend fun logIn(logInForm: LoginForm): UserEntity {
+    override suspend fun logIn(logInForm: LoginForm): UserEntity = with(logInForm) {
         Log.d("UserDataR", "로그인 레포")
-        return dataSource.login(logInForm).toEntity()
+        return dataSource.login(
+            loginRequest = LoginRequest(
+                email = email,
+                password = password
+            )
+        ).toEntity()
     }
 
     override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserEntity {
