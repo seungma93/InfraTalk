@@ -176,29 +176,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         return com.seungma.infratalk.data.UserSingleton.userEntity
     }
 
-    private suspend fun createAuth(signUpForm: SignUpForm): AuthResult {
-        return kotlin.runCatching {
-            auth.createUserWithEmailAndPassword(
-                signUpForm.email,
-                signUpForm.password
-            ).await()
-        }.onFailure {
-            when (it) {
-                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it.errorCode)
-                else -> throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
-            }
-        }.getOrThrow()
-    }
-
-    private suspend fun insertData(userEntity: UserEntity): DocumentReference {
-        return kotlin.runCatching {
-            Log.d("insertData", "시작")
-            database.collection("User").add(userEntity).await()
-        }.onFailure {
-            throw com.seungma.infratalk.data.FailInsertException("인서트에 실패 했습니다")
-        }.getOrThrow()
-    }
-
     override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
         runCatching {
             val result = auth.signInWithEmailAndPassword(email, password).await()
