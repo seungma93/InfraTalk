@@ -10,9 +10,11 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.FailInsertException
+import com.seungma.infratalk.data.FailSendEmailException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
+import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
@@ -29,7 +31,7 @@ import javax.security.auth.login.LoginException
 interface UserDataSource {
     suspend fun signUp(signupRequest: SignupRequest): UserResponse
     suspend fun login(loginRequest: LoginRequest): UserResponse
-    suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse
+    suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse
     suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
@@ -216,13 +218,12 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserResponse {
-
+    override suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse {
         return kotlin.runCatching {
-            auth.sendPasswordResetEmail(resetPasswordForm.email).await()
-            UserResponse(resetPasswordForm.email, null, null)
+            auth.sendPasswordResetEmail(resetPasswordRequest.email).await()
+            UserResponse(resetPasswordRequest.email, null, null)
         }.onFailure {
-            throw com.seungma.infratalk.data.FailSendEmailException("메일 발송 실패")
+            throw FailSendEmailException("메일 발송 실패")
         }.getOrThrow()
     }
 

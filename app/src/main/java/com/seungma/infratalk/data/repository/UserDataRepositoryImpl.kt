@@ -4,6 +4,7 @@ import android.util.Log
 import com.seungma.infratalk.data.datasource.remote.UserDataSource
 import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
+import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.domain.user.UserDataRepository
 import com.seungma.infratalk.domain.user.UserEntity
@@ -40,7 +41,11 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
     }
 
     override suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserEntity {
-        return dataSource.resetPassword(resetPasswordForm).toEntity()
+        return dataSource.resetPassword(
+            resetPasswordRequest = ResetPasswordRequest(
+                resetPasswordForm.email
+            )
+        ).toEntity()
     }
 
     override suspend fun sendVerifiedEmail(): UserEntity {
