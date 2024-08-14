@@ -108,29 +108,40 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse =
-        with(userInfoUpdateRequest) {
-            return kotlin.runCatching {
+        coroutineScope {
+            runCatching {
 
-                val updateMap = nickname?.let {
-                    image?.let {
-                        if (image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                            mapOf("nickname" to nickname, "image" to image)
-                        } else mapOf("nickname" to nickname, "image" to null)
-                    } ?: mapOf("nickname" to nickname)
-                } ?: run {
-                    image?.let {
-                        if (image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                            mapOf("image" to image)
-                        } else mapOf("image" to null)
-                    } ?: error("")
-                }
-
-                database.collection("User")
-                    .whereEqualTo("email", email).get().await().let {
-                        it.documents.firstOrNull()?.reference?.update(updateMap)?.await()
+                val updateData = userInfoUpdateRequest.nickname?.let {
+                    userInfoUpdateRequest.image?.let {
+                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                                mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to userInfoUpdateRequest.image)
+                            } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
+                        } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
+                    } ?: run {
+                    userInfoUpdateRequest.image?.let {
+                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                                mapOf("image" to userInfoUpdateRequest.image)
+                            } else mapOf("image" to null)
+                        } ?: error("")
                     }
 
-                selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = email))
+
+                val snapshotAsync =
+                    async { database.collection("User").whereEqualTo("email", userInfoUpdateRequest.email)
+                        .get()
+                    }
+                val userResponseAsync = async {
+                    selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = userInfoUpdateRequest.email))
+                }
+                val userResponse = userResponseAsync.await()
+                val snapshot = snapshotAsync.await()
+
+                val documentId = snapshot.result.documents.firstOrNull()?.id
+                documentId?.let {
+                    database.collection("User").document(documentId).update(updateData).await()
+                }
+
+                userResponse
             }.onFailure {
                 Log.d("seungma", "유저데이터소스 업데이트 유저인포 터짐")
                 throw com.seungma.infratalk.data.FailUpdatetException("업데이트 실패")
