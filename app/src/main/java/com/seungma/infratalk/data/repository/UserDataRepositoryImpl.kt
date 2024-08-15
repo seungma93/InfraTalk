@@ -3,6 +3,7 @@ package com.seungma.domain.repository
 import android.util.Log
 import com.seungma.infratalk.data.datasource.remote.UserDataSource
 import com.seungma.infratalk.data.model.request.SignupRequest
+import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
@@ -65,7 +66,11 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         }
 
     override suspend fun deleteUserInfo(signUpForm: SignUpForm): UserEntity {
-        return dataSource.deleteUserInfo(signUpForm).toEntity()
+        return dataSource.deleteUserInfo(
+            deleteUserRequest = DeleteUserRequest(
+                email = signUpForm.email
+            )
+        ).toEntity()
     }
 
     override fun getUserInfo(): UserEntity {
