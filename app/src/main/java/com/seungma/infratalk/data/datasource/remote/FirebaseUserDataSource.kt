@@ -4,15 +4,14 @@ package com.seungma.infratalk.data.datasource.remote
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.FailInsertException
 import com.seungma.infratalk.data.FailSendEmailException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.model.request.SignupRequest
+import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
@@ -20,8 +19,6 @@ import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.user.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
-import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
-import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
@@ -34,7 +31,7 @@ interface UserDataSource {
     suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse
     suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
-    suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse
+    suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse
     fun getUserInfo(): UserEntity
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
     fun obtainUser(): UserResponse
@@ -173,13 +170,13 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun deleteUserInfo(signUpForm: SignUpForm): UserResponse {
+    override suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse {
         return kotlin.runCatching {
             database.collection("User")
-                .whereEqualTo("email", signUpForm.email).get().await().let {
+                .whereEqualTo("email", deleteUserRequest.email).get().await().let {
                     it.documents.firstOrNull()?.reference?.delete()?.await()
                 }
-            UserResponse(email = signUpForm.email, nickname = null, image = null)
+            UserResponse(email = deleteUserRequest.email, nickname = null, image = null)
         }.onFailure {
             throw com.seungma.infratalk.data.FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
