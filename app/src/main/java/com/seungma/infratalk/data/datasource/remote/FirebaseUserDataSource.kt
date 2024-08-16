@@ -7,9 +7,19 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.seungma.infratalk.data.BlockedRequestException
+import com.seungma.infratalk.data.ExistEmailException
+import com.seungma.infratalk.data.FailDeleteException
 import com.seungma.infratalk.data.FailInsertException
+import com.seungma.infratalk.data.FailSelectLogInInfoException
 import com.seungma.infratalk.data.FailSendEmailException
+import com.seungma.infratalk.data.FailUpdatetException
+import com.seungma.infratalk.data.InvalidEmailException
+import com.seungma.infratalk.data.InvalidPasswordException
+import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
+import com.seungma.infratalk.data.UserSingleton
+import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
@@ -53,13 +63,13 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     private fun separatedFirebaseErrorCode(errorCode: String): Exception {
         return when (errorCode) {
-            ERROR_INVALID_EMAIL -> com.seungma.infratalk.data.InvalidEmailException("유효하지 않은 이메일")
-            ERROR_WRONG_PASSWORD -> com.seungma.infratalk.data.WrongPasswordException("잘못된 비밀번호")
-            ERROR_USER_NOT_FOUND -> com.seungma.infratalk.data.NotExistEmailException("존재하지 않는 이메일")
-            ERROR_EMAIL_ALREADY_IN_USE -> com.seungma.infratalk.data.ExistEmailException("존재하는 이메일")
-            ERROR_WEAK_PASSWORD -> com.seungma.infratalk.data.InvalidPasswordException("잘못된 형식의 비밀번호")
-            ERROR_TOO_MANY_REQUESTS -> com.seungma.infratalk.data.BlockedRequestException("블락된 요청")
-            else -> com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
+            ERROR_INVALID_EMAIL -> InvalidEmailException("유효하지 않은 이메일")
+            ERROR_WRONG_PASSWORD -> WrongPasswordException("잘못된 비밀번호")
+            ERROR_USER_NOT_FOUND -> NotExistEmailException("존재하지 않는 이메일")
+            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException("존재하는 이메일")
+            ERROR_WEAK_PASSWORD -> InvalidPasswordException("잘못된 형식의 비밀번호")
+            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException("블락된 요청")
+            else -> UnKnownException("알 수 없는 에러")
         }
     }
 
@@ -141,7 +151,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 userResponse
             }.onFailure {
                 Log.d("seungma", "유저데이터소스 업데이트 유저인포 터짐")
-                throw com.seungma.infratalk.data.FailUpdatetException("업데이트 실패")
+                throw FailUpdatetException("업데이트 실패")
             }.getOrThrow()
         }
 
@@ -154,17 +164,17 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 UserResponse(it.email, null, null)
             } ?: run {
                 Log.d("UserDataSource", "알 수 없는1")
-                throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
+                throw UnKnownException("알 수 없는 에러")
             }
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw com.seungma.infratalk.data.FailSendEmailException(
+                is FirebaseAuthException -> throw FailSendEmailException(
                     "메일 발송 실패"
                 )
 
                 else -> {
                     Log.d("UserDataSource", "알 수 없는2")
-                    throw com.seungma.infratalk.data.UnKnownException("알 수 없는 에러")
+                    throw UnKnownException("알 수 없는 에러")
                 }
             }
         }.getOrThrow()
@@ -178,12 +188,12 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 }
             UserResponse(email = deleteUserRequest.email, nickname = null, image = null)
         }.onFailure {
-            throw com.seungma.infratalk.data.FailDeleteException("딜리트에 실패 했습니다")
+            throw FailDeleteException("딜리트에 실패 했습니다")
         }.getOrThrow()
     }
 
     override fun getUserInfo(): UserEntity {
-        return com.seungma.infratalk.data.UserSingleton.userEntity
+        return UserSingleton.userEntity
     }
 
     override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
@@ -250,7 +260,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
             } ?: run {
-                throw com.seungma.infratalk.data.FailSelectLogInInfoException("로그인 정보 가져오기 실패")
+                throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
             }
         }.onFailure {
 
@@ -258,7 +268,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     }
 
     override fun obtainUser(): UserResponse {
-        val userEntity = com.seungma.infratalk.data.UserSingleton.userEntity
+        val userEntity = UserSingleton.userEntity
         return UserResponse(
             email = userEntity.email,
             nickname = userEntity.nickname,
