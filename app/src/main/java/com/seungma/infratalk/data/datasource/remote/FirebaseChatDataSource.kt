@@ -236,8 +236,9 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadChatRoomList(): ChatRoomListResponse {
         return kotlin.runCatching {
+            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
             val snapshot = database.collection("ChatRoom")
-                .whereArrayContains("member", userDataSource.getUserInfo().email)
+                .whereArrayContains("member", userEmail)
                 .get().await()
             Log.d("seungma", "채팅방 갯수" + snapshot.documents.size)
             snapshot.documents.map {
@@ -285,8 +286,10 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         return callbackFlow {
             kotlin.runCatching {
 
+                val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 존재 하지 않음.")
+
                 val chatRoomListener = database.collection("ChatRoom")
-                    .whereArrayContains("member", userDataSource.getUserInfo().email)
+                    .whereArrayContains("member", userEmail)
                     .whereGreaterThanOrEqualTo("createTime", Timestamp.now())
                     .orderBy("createTime", Query.Direction.DESCENDING)
                     .addSnapshotListener { chatSnapshot, chatError ->
@@ -319,7 +322,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                     }
 
                 val chatListener = database.collection("ChatRoom")
-                    .whereArrayContains("member", userDataSource.getUserInfo().email)
+                    .whereArrayContains("member", userEmail)
                     .addSnapshotListener { snapshot, e ->
                         if (e != null) {
                             return@addSnapshotListener
@@ -480,7 +483,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             snapshot?.let {
                 val member = it.data?.get("member") as? List<String>
                 val leaveMember = it.data?.get("leaveMember") as? List<String>
-                val user = userDataSource.getUserInfo().email
+                val user = userDataSource.obtainUser().email ?: error("유저 정보 없음")
                 val updateField = hashMapOf(
                     "member" to member?.filterNot { item -> item == user },
                     "leaveMember" to when (leaveMember.isNullOrEmpty()) {
