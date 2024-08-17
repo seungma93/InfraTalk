@@ -11,11 +11,12 @@ import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaListEntity
 import com.seungma.infratalk.domain.image.ImagesResultEntity
 import com.seungma.infratalk.domain.user.UserEntity
+import toEntity
 import java.util.Date
 
 fun BoardMetaResponse.toEntity(): BoardMetaEntity {
     return BoardMetaEntity(
-        author = author ?: UserEntity("", "", Uri.parse("")),
+        author = author?.toEntity() ?: UserEntity("", "", Uri.parse("")),
         title = title.orEmpty(),
         content = content.orEmpty(),
         images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),

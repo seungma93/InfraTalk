@@ -74,7 +74,7 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
     }
 
     override fun getUserInfo(): UserEntity {
-        return dataSource.getUserInfo()
+        return dataSource.obtainUser().toEntity()
     }
 
 

@@ -1,11 +1,11 @@
 package com.seungma.infratalk.data.model.response.board
 
+import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.image.ImagesResultEntity
-import com.seungma.infratalk.domain.user.UserEntity
 import java.util.Date
 
 data class BoardMetaResponse(
-    val author: UserEntity? = null,
+    val author: UserResponse? = null,
     val title: String? = null,
     val content: String? = null,
     val images: ImagesResultEntity? = null,

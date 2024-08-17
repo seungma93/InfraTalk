@@ -77,7 +77,7 @@ class ChatDataRepositoryImpl @Inject constructor(
             return chatDataSource.sendChatMessage(
                 chatMessageSendRequest = ChatMessageSendRequest(
                     chatRoomId = chatRoomId,
-                    senderEmail = userDataSource.getUserInfo().email,
+                    senderEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음"),
                     content = content
                 )
             ).toEntity()
