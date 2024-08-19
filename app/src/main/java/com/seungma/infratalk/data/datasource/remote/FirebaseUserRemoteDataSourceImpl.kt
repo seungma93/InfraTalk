@@ -35,18 +35,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.security.auth.login.LoginException
 
-interface UserDataSource {
-    suspend fun signUp(signupRequest: SignupRequest): UserResponse
-    suspend fun login(loginRequest: LoginRequest): UserResponse
-    suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse
-    suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
-    suspend fun sendVerifiedEmail(): UserResponse
-    suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse
-    fun getUserInfo(): UserEntity
-    suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
-    fun obtainUser(): UserResponse
-}
-
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore
