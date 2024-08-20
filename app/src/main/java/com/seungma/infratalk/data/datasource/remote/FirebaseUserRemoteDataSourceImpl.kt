@@ -180,10 +180,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override fun getUserInfo(): UserEntity {
-        return UserSingleton.userEntity
-    }
-
     override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
         runCatching {
             val result = auth.signInWithEmailAndPassword(email, password).await()

@@ -16,7 +16,6 @@ interface UserDataSource {
     suspend fun updateUserInfo(userInfoUpdateRequest: UserInfoUpdateRequest): UserResponse
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse
-    fun getUserInfo(): UserEntity
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
     fun obtainUser(): UserResponse
 }
