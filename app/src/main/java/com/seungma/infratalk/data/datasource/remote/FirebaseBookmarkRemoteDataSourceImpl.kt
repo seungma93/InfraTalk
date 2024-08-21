@@ -20,23 +20,6 @@ import java.util.Date
 import javax.inject.Inject
 
 
-interface BookmarkDataSource {
-    suspend fun insertBoardBookmark(boardBookmarkInsertRequest: BoardBookmarkInsertRequest): BookmarkResponse
-    suspend fun deleteBoardBookmark(boardBookmarkDeleteRequest: BoardBookmarkDeleteRequest): BookmarkResponse
-    suspend fun selectBoardBookmark(boardBookmarkSelectRequest: BoardBookmarkSelectRequest): BookmarkResponse
-
-    suspend fun insertCommentBookmark(commentBookmarkInsertRequest: CommentBookmarkInsertRequest): BookmarkResponse
-    suspend fun deleteCommentBookmark(commentBookmarkDeleteRequest: CommentBookmarkDeleteRequest): BookmarkResponse
-    suspend fun selectCommentBookmark(commentBookmarkSelectRequest: CommentBookmarkSelectRequest): BookmarkResponse
-    suspend fun deleteCommentRelatedBookMarks(
-        commentRelatedBookmarksDeleteRequest: CommentRelatedBookmarksDeleteRequest
-    ): CommentRelatedBookmarksResponse
-
-    suspend fun deleteBoardBookMarks(
-        boardBookMarksDeleteRequest: BoardBookMarksDeleteRequest
-    ): BoardBookmarksDeleteResponse
-}
-
 class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore
 ) : BookmarkDataSource {

@@ -13,10 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 
-interface ImageDataSource {
-    suspend fun uploadImages(imagesRequest: ImagesRequest): ImagesResponse
-}
-
 class FirebaseImageRemoteDataSourceImpl @Inject constructor(
     private val storage: FirebaseStorage
 ) : ImageDataSource {

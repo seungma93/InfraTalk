@@ -25,16 +25,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-interface BoardDataSource {
-    suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse
-    suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse
-    suspend fun selectBoard(boardSelectRequest: BoardSelectRequest): BoardMetaResponse
-    suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
-    suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
-    suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse
-    suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse
-    suspend fun loadMyLikeBoardList(): BoardMetaListResponse
-}
+
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
