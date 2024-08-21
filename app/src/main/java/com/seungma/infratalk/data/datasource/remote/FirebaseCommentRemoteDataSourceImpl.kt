@@ -24,20 +24,6 @@ import java.util.Date
 import javax.inject.Inject
 
 
-interface CommentDataSource {
-    suspend fun insertComment(commentInsertRequest: CommentInsertRequest): CommentMetaResponse
-    suspend fun selectCommentMetaList(commentMetaListSelectRequest: CommentMetaListSelectRequest): CommentMetaListResponse
-    suspend fun selectRelatedAllCommentMetaList(
-        boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
-    ): CommentMetaListResponse
-
-    suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
-    suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse
-    suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse
-    suspend fun loadMyLikeCommentList(): CommentMetaListResponse
-}
-
-
 class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val userDataSource: UserDataSource

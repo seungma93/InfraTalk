@@ -37,19 +37,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
-interface ChatDataSource {
-    suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse
-    suspend fun checkChatRoom(chatRoomCheckRequest: ChatRoomCheckRequest): ChatRoomCheckResponse
-    suspend fun sendChatMessage(chatMessageSendRequest: ChatMessageSendRequest): ChatMessageSendResponse
-    suspend fun loadChatMessageList(chatMessageListLoadRequest: ChatMessageListLoadRequest): ChatMessageListResponse
-    fun loadRealTimeChatMessage(realTimeChatMessageLoadRequest: RealTimeChatMessageLoadRequest): Flow<ChatMessageListResponse>
-    suspend fun loadChatRoomList(): ChatRoomListResponse
-    fun loadRealTimeChatRoomList(): Flow<ChatRoomListResponse>
-    suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
-    suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
-    fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse>
-}
-
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val userDataSource: UserDataSource
