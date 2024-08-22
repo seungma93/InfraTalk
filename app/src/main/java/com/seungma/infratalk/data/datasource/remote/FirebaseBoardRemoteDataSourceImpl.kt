@@ -205,9 +205,8 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse =
-        coroutineScope {
-            kotlin.runCatching {
+    override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse {
+            return runCatching {
                 val snapshot = when (myBoardListLoadRequest.reload) {
                     true -> getMyBoardDocuments(10, null)
                     false -> getMyBoardDocuments(10, myBoardLastDocument)
@@ -229,7 +228,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     BoardMetaListResponse(it)
                 }
             }.onFailure {
-                throw com.seungma.infratalk.data.FailSelectException("셀렉트에 실패 했습니다", it)
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
 
