@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -48,11 +47,6 @@ class BoardFragment : Fragment() {
     private var _adapter: BoardListAdapter? = null
     private val adapter get() = _adapter!!
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
-        Toast.makeText(
-            requireContext(),
-            "마지막 페이지 입니다.",
-            Toast.LENGTH_SHORT
-        ).show()
     })
 
     @Inject
@@ -73,7 +67,7 @@ class BoardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
