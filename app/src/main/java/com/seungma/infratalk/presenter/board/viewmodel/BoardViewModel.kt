@@ -113,10 +113,11 @@ class BoardViewModel @Inject constructor(
 
     suspend fun loadBoardList(boardListLoadForm: BoardListLoadForm): BoardViewState {
         val result = kotlin.runCatching {
-            val boardListEntity = loadBoardListUseCase(boardListLoadForm = boardListLoadForm)
+            val existingEntity = viewState.value.boardListEntity
+            val newEntity = loadBoardListUseCase(boardListLoadForm = boardListLoadForm)
             when (boardListLoadForm.reload) {
-                true -> boardListEntity.boardList
-                false -> _viewState.value.boardListEntity.boardList + boardListEntity.boardList
+                true -> newEntity.boardList
+                false -> existingEntity.boardList + newEntity.boardList
             }
         }.onFailure {
 
