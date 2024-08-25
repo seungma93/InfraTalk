@@ -74,6 +74,11 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 }
                 lastDocument = snapshot.documents.lastOrNull()
 
+                lastDocument?.let {
+                    Log.d("BoardDataSource", "마지막 메시지 내용 :" + it.data?.get("content") )
+                }
+
+
                 snapshot.documents.map {
                     val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                     val asyncUserInfo = async {
