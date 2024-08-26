@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:id="@+id/author"
@@ -56,10 +56,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="내용"
-            android:textSize="20dp"
+            android:textColor="@color/black"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ly_author"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="10dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ly_image"
@@ -163,8 +163,8 @@
             app:layout_constraintTop_toBottomOf="@+id/ly_image"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:id="@+id/date"
@@ -177,8 +177,8 @@
 
             <ImageButton
                 android:id="@+id/btn_bookmark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_gravity="right|bottom"
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
@@ -191,8 +191,8 @@
 
             <ImageButton
                 android:id="@+id/btn_like"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_gravity="right|bottom"
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
@@ -206,7 +206,7 @@
             <TextView
                 android:id="@+id/like_count"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textAlignment="center"
                 android:textSize="15dp"
