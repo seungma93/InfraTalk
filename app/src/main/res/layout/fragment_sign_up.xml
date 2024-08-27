@@ -45,21 +45,22 @@
 
     <ImageView
         android:id="@+id/profile_image"
-        android:layout_width="230dp"
+        android:layout_width="0dp"
         android:layout_height="200dp"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left"
         app:layout_constraintTop_toTopOf="@+id/guideline_top"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
         android:src="@drawable/ic_baseline_person_24" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/email_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="@string/shr_hint_email"
         style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/profile_image"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email_edit_text"
@@ -70,13 +71,14 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="@string/shr_hint_password"
         style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toBottomOf="@id/email_text_input"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        android:layout_marginTop="5dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password_edit_text"
@@ -87,13 +89,14 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_check_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="@string/shr_hint_check_password"
         style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/password_text_input"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        android:layout_marginTop="5dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password_check_edit_text"
@@ -104,13 +107,14 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nickname_text_input"
-        android:layout_width="230dp"
-        android:layout_height="70dp"
-        android:layout_margin="4dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="@string/shr_hint_nickname"
         style="@style/Widget.FreeTalk.TextInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/password_check_text_input"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left">
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        android:layout_marginTop="5dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/nickname_edit_text"
@@ -123,12 +127,14 @@
     <Button
         android:id="@+id/btn_sign_up"
         style="@style/Widget.FreeTalk.Button"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
         android:text="회원가입"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline_left"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
         app:layout_constraintTop_toBottomOf="@+id/nickname_text_input"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginTop="20dp"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
