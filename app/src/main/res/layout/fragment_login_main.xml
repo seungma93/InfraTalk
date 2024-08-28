@@ -140,6 +140,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="회원가입"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_find_account"/>
@@ -151,6 +152,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="암호 초기화"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_sign_up"
             app:layout_constraintEnd_toEndOf="parent"/>
