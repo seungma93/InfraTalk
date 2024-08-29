@@ -16,7 +16,7 @@ import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.comment.CommentDeleteResponse
 import com.seungma.infratalk.data.model.response.comment.CommentMetaListResponse
 import com.seungma.infratalk.data.model.response.comment.CommentMetaResponse
-import com.seungma.infratalk.domain.image.ImagesResultEntity
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
 import com.seungma.infratalk.presenter.board.form.CommentInsertRequest
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

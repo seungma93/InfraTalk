@@ -3,9 +3,9 @@ package com.seungma.infratalk.data.mapper
 import com.seungma.infratalk.data.model.response.board.BoardBookmarksDeleteResponse
 import com.seungma.infratalk.data.model.response.bookmark.BookmarkResponse
 import com.seungma.infratalk.data.model.response.comment.CommentRelatedBookmarksResponse
-import com.seungma.infratalk.domain.BoardBookmarksDeleteEntity
-import com.seungma.infratalk.domain.BookmarkEntity
-import com.seungma.infratalk.domain.CommentRelatedBookmarksEntity
+import com.seungma.infratalk.domain.board.entity.BoardBookmarksDeleteEntity
+import com.seungma.infratalk.domain.board.entity.BookmarkEntity
+import com.seungma.infratalk.domain.board.entity.CommentRelatedBookmarksEntity
 
 fun BookmarkResponse.toEntity(): BookmarkEntity {
     return BookmarkEntity(

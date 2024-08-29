@@ -6,7 +6,7 @@ import com.seungma.infratalk.data.model.response.comment.CommentMetaResponse
 import com.seungma.infratalk.domain.comment.entity.CommentDeleteEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaListEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import toEntity
 import java.util.Date
 

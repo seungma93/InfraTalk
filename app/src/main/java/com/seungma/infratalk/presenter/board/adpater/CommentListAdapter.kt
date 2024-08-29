@@ -14,7 +14,7 @@ import com.seungma.infratalk.databinding.ListItemBoardContentBinding
 import com.seungma.infratalk.databinding.ListItemCommentBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.comment.entity.CommentEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

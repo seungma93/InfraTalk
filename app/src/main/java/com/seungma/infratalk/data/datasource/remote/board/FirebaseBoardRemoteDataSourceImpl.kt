@@ -20,7 +20,7 @@ import com.seungma.infratalk.data.model.response.board.BoardDeleteResponse
 import com.seungma.infratalk.data.model.response.board.BoardInsertResponse
 import com.seungma.infratalk.data.model.response.board.BoardMetaListResponse
 import com.seungma.infratalk.data.model.response.board.BoardMetaResponse
-import com.seungma.infratalk.domain.image.ImagesResultEntity
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await

@@ -11,10 +11,10 @@ import com.seungma.infratalk.data.model.request.comment.CommentBookmarkDeleteReq
 import com.seungma.infratalk.data.model.request.comment.CommentBookmarkInsertRequest
 import com.seungma.infratalk.data.model.request.comment.CommentBookmarkSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentRelatedBookmarksDeleteRequest
-import com.seungma.infratalk.domain.BoardBookmarksDeleteEntity
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.BookmarkEntity
-import com.seungma.infratalk.domain.CommentRelatedBookmarksEntity
+import com.seungma.infratalk.domain.board.entity.BoardBookmarksDeleteEntity
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.entity.BookmarkEntity
+import com.seungma.infratalk.domain.board.entity.CommentRelatedBookmarksEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkLoadForm

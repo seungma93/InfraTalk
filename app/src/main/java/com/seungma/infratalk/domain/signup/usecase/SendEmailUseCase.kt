@@ -1,8 +1,8 @@
 package com.seungma.infratalk.domain.signup.usecase
 
 import android.util.Log
-import com.seungma.infratalk.domain.user.UserDataRepository
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import javax.inject.Inject
 
 interface SendEmailUseCase {

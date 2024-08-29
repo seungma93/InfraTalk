@@ -1,5 +1,5 @@
 import com.seungma.infratalk.data.model.response.user.UserResponse
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 
 
 fun UserResponse.toEntity(): UserEntity {

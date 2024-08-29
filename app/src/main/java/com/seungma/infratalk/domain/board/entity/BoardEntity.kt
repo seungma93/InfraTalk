@@ -1,11 +1,8 @@
 package com.seungma.infratalk.domain.board.entity
 
 import android.net.Uri
-import com.seungma.infratalk.domain.BookmarkEntity
-import com.seungma.infratalk.domain.LikeCountEntity
-import com.seungma.infratalk.domain.LikeEntity
-import com.seungma.infratalk.domain.image.ImagesResultEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import java.io.Serializable
 import java.util.Date
 
