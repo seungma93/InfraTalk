@@ -1,6 +1,6 @@
 package com.seungma.infratalk.data.datasource.remote.user
 
-import com.seungma.infratalk.data.model.request.SignupRequest
+import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
