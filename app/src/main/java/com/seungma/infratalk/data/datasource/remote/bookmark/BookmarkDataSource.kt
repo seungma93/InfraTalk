@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.bookmark
 
 import com.seungma.infratalk.data.model.request.board.BoardBookMarksDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardBookmarkDeleteRequest

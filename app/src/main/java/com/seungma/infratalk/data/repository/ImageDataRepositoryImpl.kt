@@ -1,6 +1,6 @@
 package com.seungma.domain.repository
 
-import com.seungma.infratalk.data.datasource.remote.ImageDataSource
+import com.seungma.infratalk.data.datasource.remote.image.ImageDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.image.ImageDataRepository

@@ -1,7 +1,7 @@
 package com.seungma.domain.repository
 
 import com.seungma.infratalk.data.UserSingleton
-import com.seungma.infratalk.data.datasource.remote.BookmarkDataSource
+import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardBookMarksDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardBookmarkDeleteRequest

@@ -1,7 +1,7 @@
 package com.seungma.domain.repository
 
 import android.util.Log
-import com.seungma.infratalk.data.datasource.remote.UserDataSource
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest

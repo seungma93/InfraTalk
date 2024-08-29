@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.comment
 
 import com.seungma.infratalk.data.model.request.board.BoardRelatedAllCommentMetaListSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentDeleteRequest

@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.user
 
 import com.seungma.infratalk.data.model.request.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
@@ -7,7 +7,6 @@ import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
-import com.seungma.infratalk.domain.user.UserEntity
 
 interface UserDataSource {
     suspend fun signUp(signupRequest: SignupRequest): UserResponse

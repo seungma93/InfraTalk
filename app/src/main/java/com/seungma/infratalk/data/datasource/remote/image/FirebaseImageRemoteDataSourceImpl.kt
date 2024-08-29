@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.image
 
 import android.net.Uri
 import android.util.Log
