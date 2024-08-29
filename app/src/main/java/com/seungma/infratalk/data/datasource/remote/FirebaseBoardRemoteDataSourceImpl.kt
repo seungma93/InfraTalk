@@ -74,6 +74,11 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 }
                 lastDocument = snapshot.documents.lastOrNull()
 
+                lastDocument?.let {
+                    Log.d("BoardDataSource", "마지막 메시지 내용 :" + it.data?.get("content") )
+                }
+
+
                 snapshot.documents.map {
                     val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                     val asyncUserInfo = async {
@@ -205,9 +210,8 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse =
-        coroutineScope {
-            kotlin.runCatching {
+    override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse {
+            return runCatching {
                 val snapshot = when (myBoardListLoadRequest.reload) {
                     true -> getMyBoardDocuments(10, null)
                     false -> getMyBoardDocuments(10, myBoardLastDocument)
@@ -229,7 +233,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     BoardMetaListResponse(it)
                 }
             }.onFailure {
-                throw com.seungma.infratalk.data.FailSelectException("셀렉트에 실패 했습니다", it)
+                throw FailSelectException("셀렉트에 실패 했습니다", it)
             }.getOrThrow()
         }
 
