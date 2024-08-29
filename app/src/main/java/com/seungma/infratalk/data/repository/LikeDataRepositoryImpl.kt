@@ -1,7 +1,7 @@
 package com.seungma.domain.repository
 
 import com.seungma.infratalk.data.UserSingleton
-import com.seungma.infratalk.data.datasource.remote.LikeDataSource
+import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardLikeCountSelectRequest
 import com.seungma.infratalk.data.model.request.board.BoardLikeDeleteRequest

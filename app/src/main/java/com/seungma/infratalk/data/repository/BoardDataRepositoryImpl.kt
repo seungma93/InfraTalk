@@ -1,6 +1,7 @@
 package com.seungma.domain.repository
 
 import com.seungma.infratalk.data.UserSingleton
+import com.seungma.infratalk.data.datasource.remote.board.BoardDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardInsertRequest
@@ -22,7 +23,7 @@ import com.seungma.infratalk.presenter.mypage.form.MyBoardListLoadForm
 import java.util.Date
 import javax.inject.Inject
 
-class BoardDataRepositoryImpl @Inject constructor(private val dataSource: com.seungma.infratalk.data.datasource.remote.BoardDataSource) :
+class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource) :
     BoardDataRepository {
     override suspend fun insertBoard(boardContentInsertForm: BoardContentInsertForm): BoardInsertEntity =
         with(boardContentInsertForm) {

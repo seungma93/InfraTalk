@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.board
 
 import com.seungma.infratalk.data.model.request.board.BoardDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardInsertRequest

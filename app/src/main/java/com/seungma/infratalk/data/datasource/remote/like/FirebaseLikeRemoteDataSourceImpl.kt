@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.like
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.model.request.board.BoardLikeCountSelectRequest

@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.comment
 
 import android.net.Uri
 import android.util.Log
@@ -7,6 +7,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.model.request.board.BoardRelatedAllCommentMetaListSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentDeleteRequest
 import com.seungma.infratalk.data.model.request.comment.CommentMetaListSelectRequest

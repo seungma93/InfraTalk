@@ -5,7 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.seungma.infratalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.user.FirebaseUserRemoteDataSourceImpl
 import com.seungma.infratalk.domain.user.UserEntity
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import io.mockk.every

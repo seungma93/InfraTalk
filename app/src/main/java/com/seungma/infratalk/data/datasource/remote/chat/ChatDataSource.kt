@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.chat
 
 import com.seungma.infratalk.data.model.request.chat.ChatMessageListLoadRequest
 import com.seungma.infratalk.data.model.request.chat.ChatMessageSendRequest

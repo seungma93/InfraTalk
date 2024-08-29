@@ -1,4 +1,4 @@
-package com.seungma.infratalk.data.datasource.remote
+package com.seungma.infratalk.data.datasource.remote.board
 
 import android.net.Uri
 import android.util.Log
@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.seungma.infratalk.data.FailSelectException
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.model.request.board.BoardDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardInsertRequest
 import com.seungma.infratalk.data.model.request.board.BoardMetaListSelectRequest
