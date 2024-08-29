@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.seungma.infratalk.databinding.BoardListItemBinding
+import com.seungma.infratalk.databinding.ListItemBoardBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
 import com.seungma.infratalk.domain.user.UserEntity
@@ -29,7 +29,7 @@ class BoardListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            BoardListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ListItemBoardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(
             binding,
             itemClick,
@@ -46,7 +46,7 @@ class BoardListAdapter(
     }
 
     class ViewHolder(
-        private val binding: BoardListItemBinding,
+        private val binding: ListItemBoardBinding,
         private val itemClick: (BoardMetaEntity) -> Unit,
         private val bookmarkClick: (BoardEntity) -> Unit,
         private val likeClick: (BoardEntity) -> Unit,
