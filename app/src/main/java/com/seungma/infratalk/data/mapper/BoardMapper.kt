@@ -9,8 +9,8 @@ import com.seungma.infratalk.domain.board.entity.BoardDeleteEntity
 import com.seungma.infratalk.domain.board.entity.BoardInsertEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaListEntity
-import com.seungma.infratalk.domain.image.ImagesResultEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import toEntity
 import java.util.Date
 

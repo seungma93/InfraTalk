@@ -1,7 +1,7 @@
 package com.seungma.infratalk.domain.usecase
 
-import com.seungma.infratalk.domain.LikeDataRepository
-import com.seungma.infratalk.domain.LikeEntity
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
+import com.seungma.infratalk.domain.board.entity.LikeEntity
 import com.seungma.infratalk.domain.comment.entity.CommentListEntity
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentLikeUseCase
 import com.seungma.infratalk.presenter.board.form.CommentLikeDeleteForm

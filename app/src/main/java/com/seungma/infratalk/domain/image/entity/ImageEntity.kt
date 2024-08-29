@@ -1,4 +1,4 @@
-package com.seungma.infratalk.domain.image
+package com.seungma.infratalk.domain.image.entity
 
 import android.net.Uri
 

@@ -1,4 +1,4 @@
-package com.seungma.infratalk.domain.user
+package com.seungma.infratalk.domain.user.entity
 
 import android.net.Uri
 import java.io.Serializable

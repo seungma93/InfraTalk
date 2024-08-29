@@ -1,5 +1,9 @@
-package com.seungma.infratalk.domain
+package com.seungma.infratalk.domain.board.repository
 
+import com.seungma.infratalk.domain.board.entity.BoardLikesDeleteEntity
+import com.seungma.infratalk.domain.board.entity.CommentRelatedLikesEntity
+import com.seungma.infratalk.domain.board.entity.LikeCountEntity
+import com.seungma.infratalk.domain.board.entity.LikeEntity
 import com.seungma.infratalk.presenter.board.form.BoardLikeAddForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm

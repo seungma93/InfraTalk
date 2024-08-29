@@ -15,8 +15,8 @@ import com.seungma.infratalk.domain.board.usecase.WriteBoardContentUseCase
 import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
 import com.seungma.infratalk.domain.chat.usecase.CheckChatRoomUseCase
 import com.seungma.infratalk.domain.chat.usecase.CreateChatRoomUseCase
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm

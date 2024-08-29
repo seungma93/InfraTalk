@@ -1,7 +1,7 @@
 package com.seungma.infratalk.domain.usecase
 
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.BookmarkEntity
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.entity.BookmarkEntity
 import com.seungma.infratalk.domain.board.entity.BoardListEntity
 import com.seungma.infratalk.domain.board.usecase.AddBoardBookmarkUseCase
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm

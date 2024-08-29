@@ -6,7 +6,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.seungma.infratalk.data.datasource.remote.user.FirebaseUserRemoteDataSourceImpl
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.data.model.request.user.SignupRequest
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import io.mockk.every
 import io.mockk.mockk
@@ -38,13 +39,13 @@ class FirebaseUserRemoteDataSourceImplTest {
     fun `signUp should return a valid user response`() = runTest {
         // given
         val mockUserEntity = mockk<UserEntity>()
-        val mockSignUpForm = mockk<SignUpForm>()
+        val mockSignUpRequest = mockk<SignupRequest>()
         val mockCreateAuthResult = mockk<AuthResult>()
         val mockDocumentReference = mockk<DocumentReference>()
         val mockUser = mockk<FirebaseUser>()
 
-        every { mockSignUpForm.email } returns "example@example.com"
-        every { mockSignUpForm.nickname } returns "Example Nickname"
+        every { mockSignUpRequest.email } returns "example@example.com"
+        every { mockSignUpRequest.nickname } returns "Example Nickname"
 
         every { mockUserEntity.email } returns "example@example.com"
         every { mockUserEntity.nickname } returns "Example Nickname"
@@ -55,7 +56,7 @@ class FirebaseUserRemoteDataSourceImplTest {
         every { mockUser.email } returns "example@example.com"
 
         // when
-        val result = dataSource.signUp(mockSignUpForm)
+        val result = dataSource.signUp(mockSignUpRequest)
 
         // then
         assertEquals("example@example.com", result.email)

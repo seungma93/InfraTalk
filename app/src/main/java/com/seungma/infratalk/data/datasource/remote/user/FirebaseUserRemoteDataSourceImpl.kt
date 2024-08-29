@@ -27,7 +27,7 @@ import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

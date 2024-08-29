@@ -1,7 +1,7 @@
 package com.seungma.infratalk.domain.board.usecase
 
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
-import com.seungma.infratalk.domain.image.UploadImagesUseCase
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
 import com.seungma.infratalk.presenter.board.form.BoardContentImagesUpdateForm
 import com.seungma.infratalk.presenter.board.form.BoardUpdateForm
 import javax.inject.Inject

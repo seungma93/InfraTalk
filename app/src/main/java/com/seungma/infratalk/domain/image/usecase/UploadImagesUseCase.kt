@@ -1,7 +1,9 @@
-package com.seungma.infratalk.domain.image
+package com.seungma.infratalk.domain.image.usecase
 
 import android.util.Log
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
+import com.seungma.infratalk.domain.image.repository.ImageDataRepository
 import javax.inject.Inject
 
 interface UploadImagesUseCase {

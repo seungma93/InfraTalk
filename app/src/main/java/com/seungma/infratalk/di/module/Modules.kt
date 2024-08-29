@@ -27,8 +27,8 @@ import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.datasource.remote.board.BoardDataSource
 import com.seungma.infratalk.data.datasource.remote.board.FirebaseBoardRemoteDataSourceImpl
 import com.seungma.infratalk.data.repository.CommentDataRepositoryImpl
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.LikeDataRepository
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
 import com.seungma.infratalk.domain.board.repository.BoardDataRepository
 import com.seungma.infratalk.domain.board.usecase.AddBoardBookmarkUseCase
 import com.seungma.infratalk.domain.board.usecase.AddBoardContentBookmarkUseCase
@@ -64,9 +64,9 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.WriteCommentUseCase
-import com.seungma.infratalk.domain.image.ImageDataRepository
-import com.seungma.infratalk.domain.image.UploadImagesUseCase
-import com.seungma.infratalk.domain.image.UploadImagesUseCaseImpl
+import com.seungma.infratalk.domain.image.repository.ImageDataRepository
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.LogInUseCase
 import com.seungma.infratalk.domain.login.usecase.LogInUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
@@ -85,8 +85,8 @@ import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserDataRepository
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel

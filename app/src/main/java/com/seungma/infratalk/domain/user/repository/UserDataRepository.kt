@@ -1,5 +1,6 @@
-package com.seungma.infratalk.domain.user
+package com.seungma.infratalk.domain.user.repository
 
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm

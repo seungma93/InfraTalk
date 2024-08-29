@@ -1,8 +1,8 @@
 package com.seungma.infratalk.domain.usecase
 
 import com.nhaarman.mockitokotlin2.mock
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.LikeDataRepository
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
 import com.seungma.infratalk.domain.comment.entity.CommentListEntity
 import com.seungma.infratalk.domain.comment.repository.CommentDataRepository
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
