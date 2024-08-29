@@ -24,20 +24,6 @@ import java.util.Date
 import javax.inject.Inject
 
 
-interface CommentDataSource {
-    suspend fun insertComment(commentInsertRequest: CommentInsertRequest): CommentMetaResponse
-    suspend fun selectCommentMetaList(commentMetaListSelectRequest: CommentMetaListSelectRequest): CommentMetaListResponse
-    suspend fun selectRelatedAllCommentMetaList(
-        boardRelatedAllCommentMetaListSelectRequest: BoardRelatedAllCommentMetaListSelectRequest
-    ): CommentMetaListResponse
-
-    suspend fun deleteComment(commentDeleteRequest: CommentDeleteRequest): CommentDeleteResponse
-    suspend fun loadMyCommentList(myCommentListLoadRequest: MyCommentListLoadRequest): CommentMetaListResponse
-    suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse
-    suspend fun loadMyLikeCommentList(): CommentMetaListResponse
-}
-
-
 class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val userDataSource: UserDataSource
@@ -185,8 +171,9 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
         limit: Long,
         startAfter: DocumentSnapshot?
     ): QuerySnapshot {
+        val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
         val query = database.collection("Comment")
-            .whereEqualTo("authorEmail", userDataSource.getUserInfo().email)
+            .whereEqualTo("authorEmail", userEmail)
             .orderBy("createTime", Query.Direction.DESCENDING)
             .limit(limit)
         return if (startAfter != null) {
@@ -228,9 +215,9 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEntity = userDataSource.getUserInfo()
+            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
             val snapshot = database.collection("CommentBookmark")
-                .whereEqualTo("userEmail", userEntity.email)
+                .whereEqualTo("userEmail", userEmail)
                 .get().await()
             snapshot.documents.map {
                 val commentAuthorEmail = it.data?.get("commentAuthorEmail") as? String
@@ -279,9 +266,9 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyLikeCommentList(): CommentMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEntity = userDataSource.getUserInfo()
+            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
             val snapshot = database.collection("CommentLike")
-                .whereEqualTo("userEmail", userEntity.email)
+                .whereEqualTo("userEmail", userEmail)
                 .get().await()
             snapshot.documents.map {
                 val commentAuthorEmail = it.data?.get("commentAuthorEmail") as? String

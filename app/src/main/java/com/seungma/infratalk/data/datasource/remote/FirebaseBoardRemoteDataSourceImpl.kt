@@ -23,19 +23,9 @@ import com.seungma.infratalk.domain.image.ImagesResultEntity
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
-import toEntity
 import javax.inject.Inject
 
-interface BoardDataSource {
-    suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse
-    suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse
-    suspend fun selectBoard(boardSelectRequest: BoardSelectRequest): BoardMetaResponse
-    suspend fun selectBoardMetaList(boardMetaListSelectRequest: BoardMetaListSelectRequest): BoardMetaListResponse
-    suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse
-    suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse
-    suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse
-    suspend fun loadMyLikeBoardList(): BoardMetaListResponse
-}
+
 
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
@@ -93,7 +83,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     it to asyncUserInfo
                 }.map { (it, deferred) ->
                     BoardMetaResponse(
-                        author = deferred.await().toEntity(),
+                        author = deferred.await(),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -158,7 +148,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     }
                 }
             BoardMetaResponse(
-                boardUpdateRequest.author,
+                userDataSource.obtainUser(),
                 boardUpdateRequest.title,
                 boardUpdateRequest.content,
                 null,
@@ -182,8 +172,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     val authorEmail = it.data?.get("authorEmail")?.let { it as String } ?: error("")
                     BoardMetaResponse(
                         author = userDataSource
-                            .selectUserInfo(UserSelectRequest(userEmail = authorEmail))
-                            .toEntity(),
+                            .selectUserInfo(UserSelectRequest(userEmail = authorEmail)),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -206,7 +195,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         startAfter: DocumentSnapshot?
     ): QuerySnapshot {
         val query = database.collection("Board")
-            .whereEqualTo("authorEmail", userDataSource.getUserInfo().email)
+            .whereEqualTo("authorEmail", userDataSource.obtainUser().email)
             .orderBy("createTime", Query.Direction.DESCENDING)
             .limit(limit)
         return if (startAfter != null) {
@@ -227,7 +216,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
                 snapshot.documents.map {
                     BoardMetaResponse(
-                        author = userDataSource.getUserInfo(),
+                        author = userDataSource.obtainUser(),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -265,9 +254,9 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEntity = userDataSource.getUserInfo()
+            val userResponse = userDataSource.obtainUser()
             val snapshot = database.collection("BoardBookmark")
-                .whereEqualTo("userEmail", userEntity.email)
+                .whereEqualTo("userEmail", userResponse.email)
                 .get().await()
             snapshot.documents.map {
                 val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
@@ -299,7 +288,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             }.map { (it, deferred) ->
                 it.documents.firstNotNullOf {
                     BoardMetaResponse(
-                        author = deferred.await().toEntity(),
+                        author = deferred.await(),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -320,9 +309,9 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyLikeBoardList(): BoardMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEntity = userDataSource.getUserInfo()
+            val userResponse = userDataSource.obtainUser()
             val snapshot = database.collection("BoardLike")
-                .whereEqualTo("userEmail", userEntity.email)
+                .whereEqualTo("userEmail", userResponse.email)
                 .get().await()
             snapshot.documents.map {
                 val boardAuthorEmail = it.data?.get("boardAuthorEmail") as? String
@@ -351,7 +340,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             }.map { (it, deferred) ->
                 it.documents.firstNotNullOf {
                     BoardMetaResponse(
-                        author = deferred.await().toEntity(),
+                        author = deferred.await(),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
