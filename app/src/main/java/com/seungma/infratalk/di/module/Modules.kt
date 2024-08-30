@@ -1,5 +1,6 @@
 package com.seungma.infratalk.di.module
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +13,8 @@ import com.seungma.domain.repository.ChatDataRepositoryImpl
 import com.seungma.domain.repository.ImageDataRepositoryImpl
 import com.seungma.domain.repository.LikeDataRepositoryImpl
 import com.seungma.domain.repository.UserDataRepositoryImpl
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceLocalDataSourceImpl
 import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
 import com.seungma.infratalk.data.datasource.remote.chat.ChatDataSource
 import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
@@ -133,6 +136,14 @@ class Modules {
         }
     }
 
+    @Module
+    class PreferenceModule {
+        @Provides
+        fun providesPreferenceModule(context: Context): PreferenceDataSource {
+            return PreferenceLocalDataSourceImpl(context)
+        }
+    }
+
     // DataSource
     @Module
     class FirebaseBoardDataSourceModule {
@@ -161,9 +172,10 @@ class Modules {
         @Provides
         fun providesFirebaseUserRemoteDataSource(
             auth: FirebaseAuth,
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            preferenceDataSource: PreferenceDataSource
         ): UserDataSource {
-            return FirebaseUserRemoteDataSourceImpl(auth, database)
+            return FirebaseUserRemoteDataSourceImpl(auth, database, preferenceDataSource)
         }
     }
 

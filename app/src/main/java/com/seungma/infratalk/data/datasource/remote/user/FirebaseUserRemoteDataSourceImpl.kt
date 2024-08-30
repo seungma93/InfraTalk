@@ -20,6 +20,8 @@ import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
+import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
@@ -37,7 +39,8 @@ import javax.security.auth.login.LoginException
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val preferenceDataSource: PreferenceDataSource
 ) : UserDataSource {
 
     companion object {
@@ -180,9 +183,9 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
+    override suspend fun login(loginRequest: LoginRequest): UserResponse = coroutineScope {
         runCatching {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val result = auth.signInWithEmailAndPassword(loginRequest.email, loginRequest.password).await()
             val user = result.user
 
             user?.let {
@@ -195,12 +198,29 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.onFailure {
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
         }
-        val snapshot =
-            database.collection("User")
-                .whereEqualTo("email", email).get()
-                .await()
+
+
+
+
+
+        val snapshotAsync = async {
+                database.collection("User")
+                    .whereEqualTo("email", loginRequest.email).get()
+            }
+        val tokenAsync = async {
+            auth.currentUser?.getIdToken(false)
+        }
+        val snapshot = snapshotAsync.await()
+        val token = tokenAsync.await()
+        token?.let {
+            it.result.token?.let {
+                preferenceDataSource.setUserToken(userTokenSetRequest = UserTokenSetRequest(token = it))
+            }
+        }
+
+
         runCatching {
-            snapshot.documents.firstOrNull()?.let {
+            snapshot.result.firstOrNull()?.let {
                 val data = it.data
                 data?.let {
                     UserResponse(
