@@ -14,6 +14,7 @@ import dagger.Component
         Modules.FirebaseFirestoreModule::class,
         Modules.FirebaseStorageModule::class,
         Modules.FirebaseAuthModule::class,
+        Modules.PreferenceModule::class,
         // DataSource
         Modules.FirebaseBoardDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
