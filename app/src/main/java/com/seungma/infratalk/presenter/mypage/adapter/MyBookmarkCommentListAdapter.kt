@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.seungma.infratalk.databinding.ListItemMyBookmarkCommentBinding
 import com.seungma.infratalk.domain.comment.entity.CommentEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

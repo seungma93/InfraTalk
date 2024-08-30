@@ -8,8 +8,8 @@ import com.seungma.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
 import com.seungma.infratalk.domain.chat.usecase.LoadChatRoomListUseCase
 import com.seungma.infratalk.domain.chat.usecase.LoadRealTimeChatRoomListUseCase
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

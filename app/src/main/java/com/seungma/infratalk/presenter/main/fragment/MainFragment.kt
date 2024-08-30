@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.seungma.infratalk.R
 import com.seungma.infratalk.databinding.FragmentMainBinding
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.fragment.BoardFragment
 import com.seungma.infratalk.presenter.board.fragment.BoardWriteFragment
 import com.seungma.infratalk.presenter.chat.fragment.ChatRoomFragment

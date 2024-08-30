@@ -2,8 +2,8 @@ package com.seungma.infratalk.domain.mypage.usecase
 
 import android.util.Log
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
-import com.seungma.infratalk.domain.image.UploadImagesUseCase
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import javax.inject.Inject
 

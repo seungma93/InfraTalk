@@ -1,7 +1,7 @@
 package com.seungma.domain.repository
 
-import com.seungma.infratalk.data.datasource.remote.ChatDataSource
-import com.seungma.infratalk.data.datasource.remote.UserDataSource
+import com.seungma.infratalk.data.datasource.remote.chat.ChatDataSource
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.chat.ChatMessageListLoadRequest
 import com.seungma.infratalk.data.model.request.chat.ChatMessageSendRequest

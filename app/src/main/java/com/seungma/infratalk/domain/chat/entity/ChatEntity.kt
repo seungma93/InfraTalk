@@ -1,7 +1,7 @@
 package com.seungma.infratalk.domain.chat.entity
 
 import android.net.Uri
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import java.io.Serializable
 import java.util.Date
 

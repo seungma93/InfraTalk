@@ -1,14 +1,14 @@
 package com.seungma.domain.repository
 
 import android.util.Log
-import com.seungma.infratalk.data.datasource.remote.UserDataSource
-import com.seungma.infratalk.data.model.request.SignupRequest
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
+import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
-import com.seungma.infratalk.domain.user.UserDataRepository
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm

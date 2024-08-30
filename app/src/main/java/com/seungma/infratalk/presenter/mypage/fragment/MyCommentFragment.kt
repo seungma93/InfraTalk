@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentMyCommentBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm

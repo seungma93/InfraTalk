@@ -9,8 +9,8 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentBookmarkUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentLikeUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyCommentListUseCase
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm
