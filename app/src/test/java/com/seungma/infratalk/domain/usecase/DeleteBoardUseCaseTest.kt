@@ -1,7 +1,7 @@
 package com.seungma.infratalk.domain.usecase
 
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.LikeDataRepository
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
 import com.seungma.infratalk.domain.board.entity.BoardListEntity
 import com.seungma.infratalk.domain.board.repository.BoardDataRepository
 import com.seungma.infratalk.domain.board.usecase.DeleteBoardUseCase

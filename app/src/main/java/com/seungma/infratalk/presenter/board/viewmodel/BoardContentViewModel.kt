@@ -18,8 +18,8 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.WriteCommentUseCase
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkLoadForm

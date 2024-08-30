@@ -1,7 +1,7 @@
 package com.seungma.domain.repository
 
 import com.seungma.infratalk.data.UserSingleton
-import com.seungma.infratalk.data.datasource.remote.LikeDataSource
+import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardLikeCountSelectRequest
 import com.seungma.infratalk.data.model.request.board.BoardLikeDeleteRequest
@@ -13,11 +13,11 @@ import com.seungma.infratalk.data.model.request.comment.CommentLikeDeleteRequest
 import com.seungma.infratalk.data.model.request.comment.CommentLikeInsertRequest
 import com.seungma.infratalk.data.model.request.comment.CommentLikeSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentRelatedLikesDeleteRequest
-import com.seungma.infratalk.domain.BoardLikesDeleteEntity
-import com.seungma.infratalk.domain.CommentRelatedLikesEntity
-import com.seungma.infratalk.domain.LikeCountEntity
-import com.seungma.infratalk.domain.LikeDataRepository
-import com.seungma.infratalk.domain.LikeEntity
+import com.seungma.infratalk.domain.board.entity.BoardLikesDeleteEntity
+import com.seungma.infratalk.domain.board.entity.CommentRelatedLikesEntity
+import com.seungma.infratalk.domain.board.entity.LikeCountEntity
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
+import com.seungma.infratalk.domain.board.entity.LikeEntity
 import com.seungma.infratalk.presenter.board.form.BoardLikeAddForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm

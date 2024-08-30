@@ -12,21 +12,23 @@ import com.seungma.domain.repository.ChatDataRepositoryImpl
 import com.seungma.domain.repository.ImageDataRepositoryImpl
 import com.seungma.domain.repository.LikeDataRepositoryImpl
 import com.seungma.domain.repository.UserDataRepositoryImpl
-import com.seungma.infratalk.data.datasource.remote.BookmarkDataSource
-import com.seungma.infratalk.data.datasource.remote.ChatDataSource
-import com.seungma.infratalk.data.datasource.remote.CommentDataSource
-import com.seungma.infratalk.data.datasource.remote.FirebaseBookmarkRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.FirebaseChatRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.FirebaseCommentRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.FirebaseImageRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.FirebaseLikeRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.FirebaseUserRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.ImageDataSource
-import com.seungma.infratalk.data.datasource.remote.LikeDataSource
-import com.seungma.infratalk.data.datasource.remote.UserDataSource
+import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
+import com.seungma.infratalk.data.datasource.remote.chat.ChatDataSource
+import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
+import com.seungma.infratalk.data.datasource.remote.bookmark.FirebaseBookmarkRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.chat.FirebaseChatRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.comment.FirebaseCommentRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.image.FirebaseImageRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.like.FirebaseLikeRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.user.FirebaseUserRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.image.ImageDataSource
+import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
+import com.seungma.infratalk.data.datasource.remote.board.BoardDataSource
+import com.seungma.infratalk.data.datasource.remote.board.FirebaseBoardRemoteDataSourceImpl
 import com.seungma.infratalk.data.repository.CommentDataRepositoryImpl
-import com.seungma.infratalk.domain.BookmarkDataRepository
-import com.seungma.infratalk.domain.LikeDataRepository
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
 import com.seungma.infratalk.domain.board.repository.BoardDataRepository
 import com.seungma.infratalk.domain.board.usecase.AddBoardBookmarkUseCase
 import com.seungma.infratalk.domain.board.usecase.AddBoardContentBookmarkUseCase
@@ -62,9 +64,9 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.WriteCommentUseCase
-import com.seungma.infratalk.domain.image.ImageDataRepository
-import com.seungma.infratalk.domain.image.UploadImagesUseCase
-import com.seungma.infratalk.domain.image.UploadImagesUseCaseImpl
+import com.seungma.infratalk.domain.image.repository.ImageDataRepository
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
+import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.LogInUseCase
 import com.seungma.infratalk.domain.login.usecase.LogInUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
@@ -83,8 +85,8 @@ import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
-import com.seungma.infratalk.domain.user.GetUserInfoUseCase
-import com.seungma.infratalk.domain.user.UserDataRepository
+import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -138,8 +140,8 @@ class Modules {
         fun providesFirebaseBoardRemoteDataSource(
             database: FirebaseFirestore,
             userDataSource: UserDataSource
-        ): com.seungma.infratalk.data.datasource.remote.BoardDataSource {
-            return com.seungma.infratalk.data.datasource.remote.FirebaseBoardRemoteDataSourceImpl(
+        ): BoardDataSource {
+            return FirebaseBoardRemoteDataSourceImpl(
                 database,
                 userDataSource
             )
@@ -211,7 +213,7 @@ class Modules {
     @Module
     class BoardDataRepositoryModule {
         @Provides
-        fun providesBoardDataRepository(dataSource: com.seungma.infratalk.data.datasource.remote.BoardDataSource): BoardDataRepository {
+        fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
             return BoardDataRepositoryImpl(dataSource)
         }
     }

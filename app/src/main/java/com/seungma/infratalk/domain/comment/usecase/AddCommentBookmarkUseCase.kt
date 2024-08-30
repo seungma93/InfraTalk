@@ -1,6 +1,6 @@
 package com.seungma.infratalk.domain.comment.usecase
 
-import com.seungma.infratalk.domain.BookmarkDataRepository
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
 import com.seungma.infratalk.domain.comment.entity.CommentEntity
 import com.seungma.infratalk.domain.comment.entity.CommentListEntity
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm

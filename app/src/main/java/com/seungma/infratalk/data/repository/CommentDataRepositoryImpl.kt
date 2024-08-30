@@ -1,7 +1,7 @@
 package com.seungma.infratalk.data.repository
 
 import com.seungma.infratalk.data.UserSingleton
-import com.seungma.infratalk.data.datasource.remote.CommentDataSource
+import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardRelatedAllCommentMetaListSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentDeleteRequest

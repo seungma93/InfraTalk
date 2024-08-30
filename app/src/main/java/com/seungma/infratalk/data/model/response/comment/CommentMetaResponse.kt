@@ -1,7 +1,7 @@
 package com.seungma.infratalk.data.model.response.comment
 
 import com.seungma.infratalk.data.model.response.user.UserResponse
-import com.seungma.infratalk.domain.image.ImagesResultEntity
+import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
 import java.util.Date
 
 data class CommentMetaResponse(

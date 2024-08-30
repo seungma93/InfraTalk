@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.ListItemMyBookmarkBoardBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
-import com.seungma.infratalk.domain.user.UserEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

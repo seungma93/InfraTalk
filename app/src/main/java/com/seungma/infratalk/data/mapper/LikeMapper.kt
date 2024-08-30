@@ -4,10 +4,10 @@ import com.seungma.infratalk.data.model.response.board.BoardLikesDeleteResponse
 import com.seungma.infratalk.data.model.response.comment.CommentRelatedLikesResponse
 import com.seungma.infratalk.data.model.response.like.LikeCountResponse
 import com.seungma.infratalk.data.model.response.like.LikeResponse
-import com.seungma.infratalk.domain.BoardLikesDeleteEntity
-import com.seungma.infratalk.domain.CommentRelatedLikesEntity
-import com.seungma.infratalk.domain.LikeCountEntity
-import com.seungma.infratalk.domain.LikeEntity
+import com.seungma.infratalk.domain.board.entity.BoardLikesDeleteEntity
+import com.seungma.infratalk.domain.board.entity.CommentRelatedLikesEntity
+import com.seungma.infratalk.domain.board.entity.LikeCountEntity
+import com.seungma.infratalk.domain.board.entity.LikeEntity
 
 fun LikeResponse.toEntity(): LikeEntity {
     return LikeEntity(
