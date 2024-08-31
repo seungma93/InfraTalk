@@ -22,10 +22,10 @@ import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
-import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
+import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
@@ -199,13 +199,9 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
         }
 
-
-
-
-
         val snapshotAsync = async {
                 database.collection("User")
-                    .whereEqualTo("email", loginRequest.email).get()
+                    .whereEqualTo("email", loginRequest.email).get().await()
             }
         val tokenAsync = async {
             auth.currentUser?.getIdToken(false)
@@ -220,7 +216,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
 
         runCatching {
-            snapshot.result.firstOrNull()?.let {
+            snapshot.documents.firstOrNull()?.let {
                 val data = it.data
                 data?.let {
                     UserResponse(
