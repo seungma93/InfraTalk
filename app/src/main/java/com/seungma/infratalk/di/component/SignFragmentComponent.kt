@@ -23,7 +23,7 @@ import dagger.Component
         Modules.SignUpUseCaseModule::class,
         Modules.SendEmailUseCaseModule::class,
         Modules.UpdateProfileImageUseCaseModule::class,
-        Modules.LogInUseCaseModule::class,
+        Modules.LoginUseCaseModule::class,
         Modules.ResetPasswordUseCaseModule::class,
         Modules.DeleteUserInfoUseCaseModule::class,
         Modules.SignViewModelModule::class,

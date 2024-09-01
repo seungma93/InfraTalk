@@ -3,7 +3,7 @@ package com.seungma.infratalk.presenter.sign.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
-import com.seungma.infratalk.domain.login.usecase.LogInUseCase
+import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
@@ -31,7 +31,7 @@ class SignViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
-    private val logInUseCase: LogInUseCase,
+    private val logInUseCase: LoginUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
     private val deleteUserInfoUseCase: DeleteUserInfoUseCase,
     private val updateUserInfoUseCase: UpdateUserInfoUseCase
@@ -79,10 +79,10 @@ class SignViewModel @Inject constructor(
         }
     }
 
-    suspend fun logIn(logInForm: LoginForm) {
+    suspend fun logIn(loginForm: LoginForm) {
         kotlin.runCatching {
             Log.d("SignViewModel", "로그인 뷰 모델")
-            _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(logInForm)))
+            _viewEvent.emit(ViewEvent.LogIn(logInUseCase(loginForm)))
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))
         }

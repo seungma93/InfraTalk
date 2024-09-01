@@ -8,7 +8,7 @@ import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 
 interface UserDataRepository {
     suspend fun signUp(signUpForm: SignUpForm): UserEntity
-    suspend fun logIn(logInForm: LoginForm): UserEntity
+    suspend fun login(loginForm: LoginForm): UserEntity
     suspend fun resetPassword(resetPasswordForm: ResetPasswordForm): UserEntity
     suspend fun sendVerifiedEmail(): UserEntity
     suspend fun updateUserInfo(userInfoUpdateForm: UserInfoUpdateForm): UserEntity
