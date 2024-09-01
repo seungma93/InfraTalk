@@ -42,7 +42,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
         }.getOrThrow()
     }
 
-    override fun setUserToken(userTokenSetRequest: UserTokenSetRequest ) {
+    override fun setUserToken(userTokenSetRequest: UserTokenSetRequest) {
         kotlin.runCatching {
             val cipher = getCipher(Cipher.ENCRYPT_MODE)
             val encryptedData = cipher.doFinal(userTokenSetRequest.token.toByteArray(charset(CHARSET)))

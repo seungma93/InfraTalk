@@ -275,5 +275,24 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             image = userEntity.image
         )
     }
+
+    override suspend fun getUser(): UserResponse {
+        val token = preferenceDataSource.getUserToken().token
+
+        return token?.let {
+            UserResponse(
+                email = null,
+                nickname = null,
+                image = null
+            )
+        } ?: run {
+            UserResponse(
+                email = null,
+                nickname = null,
+                image = null
+            )
+        }
+
+    }
 }
 
