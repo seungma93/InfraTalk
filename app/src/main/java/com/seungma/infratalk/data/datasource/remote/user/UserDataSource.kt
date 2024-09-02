@@ -17,5 +17,5 @@ interface UserDataSource {
     suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
     fun obtainUser(): UserResponse
-    suspend fun getUser(): UserResponse
+    suspend fun getUserMe(): UserResponse
 }

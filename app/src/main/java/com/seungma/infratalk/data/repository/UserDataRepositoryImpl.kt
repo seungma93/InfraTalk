@@ -77,5 +77,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         return dataSource.obtainUser().toEntity()
     }
 
+    override suspend fun getUserMe(): UserEntity {
+        return dataSource.getUserMe().toEntity()
+    }
+
 
 }

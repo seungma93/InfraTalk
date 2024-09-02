@@ -14,6 +14,8 @@ import dagger.Component
         Modules.FirebaseFirestoreModule::class,
         Modules.FirebaseStorageModule::class,
         Modules.PreferenceModule::class,
+        // Retrofit
+        Modules.RetrofitClientModule::class,
         Modules.FirebaseUserDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
         Modules.UserDataRepositoryModule::class,

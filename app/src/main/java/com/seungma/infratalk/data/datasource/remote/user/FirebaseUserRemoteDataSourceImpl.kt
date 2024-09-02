@@ -21,6 +21,7 @@ import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
+import com.seungma.infratalk.data.model.request.FirebaseIdTokenRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
@@ -31,6 +32,8 @@ import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
+import com.teamaejung.aejung.network.RetrofitClient
+import com.teamaejung.aejung.network.service.FirebaseAuthService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
@@ -40,7 +43,8 @@ import javax.security.auth.login.LoginException
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val database: FirebaseFirestore,
-    private val preferenceDataSource: PreferenceDataSource
+    private val preferenceDataSource: PreferenceDataSource,
+    private val retrofitClient: RetrofitClient
 ) : UserDataSource {
 
     companion object {
@@ -276,16 +280,40 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun getUser(): UserResponse {
+    override suspend fun getUserMe(): UserResponse {
         val token = preferenceDataSource.getUserToken().token
-
+        Log.d("getUser", "토큰 :" + token)
         return token?.let {
-            UserResponse(
-                email = null,
-                nickname = null,
-                image = null
+            runCatching {
+                retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                    request = FirebaseIdTokenRequest(token = token)
+                )
+            }.onFailure {
+                Log.d("getUser", "레트로핏 에러 :" + it.message)
+            }
+            val userEmailResponse = retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                request = FirebaseIdTokenRequest(token = token)
             )
+            val email = userEmailResponse.users.firstOrNull()
+            Log.d("getUser", "겟 유저 이메일 :" + email)
+            email?.let {
+                val snapshot = database.collection("User")
+                    .whereEqualTo("email", it).get().await()
+                snapshot.documents.firstOrNull()?.let { document ->
+                    val data = document.data
+                    data?.let {
+                        UserResponse(
+                            email = data["email"] as? String,
+                            nickname = data["nickname"] as? String,
+                            image = (data["image"] as? String)?.let { image ->
+                                Uri.parse(image)
+                            }
+                        )
+                    }
+                }
+            }
         } ?: run {
+            Log.d("getUserMe", "토큰 없음")
             UserResponse(
                 email = null,
                 nickname = null,
