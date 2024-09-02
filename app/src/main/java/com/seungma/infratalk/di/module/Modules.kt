@@ -89,6 +89,7 @@ import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -101,8 +102,10 @@ import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeBoardViewModel
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeCommentViewModel
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewModel
 import com.seungma.infratalk.presenter.sign.viewmodel.SignViewModel
+import com.seungma.infratalk.presenter.sign.viewmodel.SplashViewModel
 import com.seungma.infratalk.presenter.viewmodel.ViewModelFactory
 import com.seungma.infratalk.presenter.viewmodel.ViewModelKey
+import com.teamaejung.aejung.network.RetrofitClient
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -143,6 +146,14 @@ class Modules {
         }
     }
 
+    @Module
+    class RetrofitClientModule {
+        @Provides
+        fun providesRetrofitClient(context: Context): RetrofitClient {
+            return RetrofitClient
+        }
+    }
+
     // DataSource
     @Module
     class FirebaseBoardDataSourceModule {
@@ -172,9 +183,10 @@ class Modules {
         fun providesFirebaseUserRemoteDataSource(
             auth: FirebaseAuth,
             database: FirebaseFirestore,
-            preferenceDataSource: PreferenceDataSource
+            preferenceDataSource: PreferenceDataSource,
+            retrofitClient: RetrofitClient
         ): UserDataSource {
-            return FirebaseUserRemoteDataSourceImpl(auth, database, preferenceDataSource)
+            return FirebaseUserRemoteDataSourceImpl(auth, database, preferenceDataSource, retrofitClient)
         }
     }
 
@@ -1071,6 +1083,20 @@ class Modules {
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
                 getUserInfoUseCase
+            )
+        }
+    }
+
+    @Module
+    class SplashViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(SplashViewModel::class)
+        fun providesSplashViewModel(
+            getUserMeUseCase: GetUserMeUseCase
+        ): ViewModel {
+            return SplashViewModel(
+                getUserMeUseCase
             )
         }
     }
