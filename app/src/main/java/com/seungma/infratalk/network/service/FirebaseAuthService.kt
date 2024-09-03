@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 
 interface FirebaseAuthService {
-    @POST("/accounts:lookup")
+    @POST("/v1/accounts:lookup")
     suspend fun getUserInfo(
         @Query("key") apiKey: String,
         @Body request: FirebaseIdTokenRequest
