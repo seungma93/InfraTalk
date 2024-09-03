@@ -149,7 +149,7 @@ class Modules {
     @Module
     class RetrofitClientModule {
         @Provides
-        fun providesRetrofitClient(context: Context): RetrofitClient {
+        fun providesRetrofitClient(): RetrofitClient {
             return RetrofitClient
         }
     }

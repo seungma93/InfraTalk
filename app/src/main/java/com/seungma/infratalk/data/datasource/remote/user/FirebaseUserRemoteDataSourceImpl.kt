@@ -285,13 +285,17 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         Log.d("getUser", "토큰 :" + token)
         return token?.let {
             runCatching {
+                val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
                 retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                    apiKey = apiKey,
                     request = FirebaseIdTokenRequest(token = token)
                 )
             }.onFailure {
                 Log.d("getUser", "레트로핏 에러 :" + it.message)
             }
+            val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
             val userEmailResponse = retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                apiKey = apiKey,
                 request = FirebaseIdTokenRequest(token = token)
             )
             val email = userEmailResponse.users.firstOrNull()

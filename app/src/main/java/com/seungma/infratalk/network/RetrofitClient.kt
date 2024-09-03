@@ -34,19 +34,9 @@ object RetrofitClient {
 
 class RequestInterceptor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
-        val newUrl = chain.request()
-            .url
-            .newBuilder()
-            .addQueryParameter("key", apiKey)
-            .build()
+        val builder = chain.request().newBuilder()
 
-        val newRequest = chain.request()
-            .newBuilder()
-            .url(newUrl)
-            .build()
-
-        return chain.proceed(newRequest)
+        return chain.proceed(builder.build())
     }
 }
 
