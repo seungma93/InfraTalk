@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 
 object RetrofitClient {
-    private const val BASE_URL = "https://identitytoolkit.googleapis.com/v1/"
+    private const val BASE_URL = "https://identitytoolkit.googleapis.com/"
     private const val RETROFIT_TIMEOUT_NEW = 15.toLong()
 
     private val interceptorClient = OkHttpClient().newBuilder()
