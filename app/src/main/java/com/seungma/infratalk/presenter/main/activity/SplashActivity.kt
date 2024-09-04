@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.di.component.DaggerSplashActivityComponent
@@ -31,6 +32,9 @@ class SplashActivity : AppCompatActivity() {
                 when(it) {
                     is SplashViewEvent.CheckLogin  -> {
                         Log.d("SplashActivity", "스플래시 : " + it.userEntity )
+                    }
+                    is SplashViewEvent.Error -> {
+                        Log.d("SplashActivity", "스플래시 에러 : " + it.errorCode.message )
                     }
                     else -> {
 

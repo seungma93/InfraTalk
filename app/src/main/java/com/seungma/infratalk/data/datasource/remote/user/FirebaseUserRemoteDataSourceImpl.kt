@@ -283,47 +283,42 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     override suspend fun getUserMe(): UserResponse {
         val token = preferenceDataSource.getUserToken().token
         Log.d("getUser", "토큰 :" + token)
-        return token?.let {
-            runCatching {
-                val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
-                retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+        return runCatching {
+            val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
+            token?.let {
+                val userEmailResponse = retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
                     apiKey = apiKey,
                     request = FirebaseIdTokenRequest(token = token)
                 )
-            }.onFailure {
-                Log.d("getUser", "레트로핏 에러 :" + it.message)
-            }
-            val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
-            val userEmailResponse = retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
-                apiKey = apiKey,
-                request = FirebaseIdTokenRequest(token = token)
-            )
-            val email = userEmailResponse.users.firstOrNull()
-            Log.d("getUser", "겟 유저 이메일 :" + email)
-            email?.let {
-                val snapshot = database.collection("User")
-                    .whereEqualTo("email", it).get().await()
-                snapshot.documents.firstOrNull()?.let { document ->
-                    val data = document.data
-                    data?.let {
-                        UserResponse(
-                            email = data["email"] as? String,
-                            nickname = data["nickname"] as? String,
-                            image = (data["image"] as? String)?.let { image ->
-                                Uri.parse(image)
-                            }
-                        )
+                val email = userEmailResponse.users.firstOrNull()
+                Log.d("getUser", "겟 유저 이메일 :" + email)
+                email?.let {
+                    val snapshot = database.collection("User")
+                        .whereEqualTo("email", it).get().await()
+                    snapshot.documents.firstOrNull()?.let { document ->
+                        val data = document.data
+                        data?.let {
+                            UserResponse(
+                                email = data["email"] as? String,
+                                nickname = data["nickname"] as? String,
+                                image = (data["image"] as? String)?.let { image ->
+                                    Uri.parse(image)
+                                }
+                            )
+                        }
                     }
                 }
+            } ?: run {
+                Log.d("getUserMe", "토큰 없음")
+                UserResponse(
+                    email = null,
+                    nickname = null,
+                    image = null
+                )
             }
-        } ?: run {
-            Log.d("getUserMe", "토큰 없음")
-            UserResponse(
-                email = null,
-                nickname = null,
-                image = null
-            )
-        }
+        }.onFailure {
+            throw Exception(it.message)
+        }.getOrThrow()
 
     }
 }
