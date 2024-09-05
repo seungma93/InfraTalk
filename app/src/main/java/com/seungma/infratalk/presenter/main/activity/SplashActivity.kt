@@ -1,5 +1,6 @@
 package com.seungma.infratalk.presenter.main.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -35,6 +36,24 @@ class SplashActivity : AppCompatActivity() {
                     }
                     is SplashViewEvent.Error -> {
                         Log.d("SplashActivity", "스플래시 에러 : " + it.errorCode.message )
+                        when(it.errorCode.message) {
+
+                            "HTTP 200" -> {
+
+                            }
+
+                            "HTTP 400 " -> {
+                                // TODO 프리퍼런스 초기화
+                                val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            else -> {
+                                // TODO 홈으로 이동
+
+                            }
+
+                        }
                     }
                     else -> {
 
@@ -42,11 +61,7 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
-/*
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
 
- */
+
     }
 }
