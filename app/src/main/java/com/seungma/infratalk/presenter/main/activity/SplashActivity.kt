@@ -39,17 +39,19 @@ class SplashActivity : AppCompatActivity() {
                         when(it.errorCode.message) {
 
                             "HTTP 200" -> {
-
+                                // TODO 홈으로 이동
+                                intent.putExtra("loginSuccessKey", true)
                             }
 
                             "HTTP 400 " -> {
                                 // TODO 프리퍼런스 초기화
                                 val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                                intent.putExtra("loginSuccessKey", false)
                                 startActivity(intent)
                                 finish()
                             }
                             else -> {
-                                // TODO 홈으로 이동
+
 
                             }
 
