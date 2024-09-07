@@ -1,6 +1,6 @@
 package com.teamaejung.aejung.network.service
 
-import com.seungma.infratalk.data.model.request.FirebaseIdTokenRequest
+import com.google.gson.JsonObject
 import com.seungma.infratalk.data.model.response.UserEmailResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -11,7 +11,7 @@ interface FirebaseAuthService {
     @POST("/v1/accounts:lookup")
     suspend fun getUserInfo(
         @Query("key") apiKey: String,
-        @Body request: FirebaseIdTokenRequest
+        @Body request: JsonObject
     ): UserEmailResponse
 }
 

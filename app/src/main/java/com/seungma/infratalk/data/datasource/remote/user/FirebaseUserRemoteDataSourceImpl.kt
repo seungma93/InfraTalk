@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.JsonObject
 import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteException
@@ -21,7 +22,6 @@ import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
-import com.seungma.infratalk.data.model.request.FirebaseIdTokenRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
@@ -115,22 +115,27 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 val updateData = userInfoUpdateRequest.nickname?.let {
                     userInfoUpdateRequest.image?.let {
-                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                                mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to userInfoUpdateRequest.image)
-                            } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
-                        } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
-                    } ?: run {
+                        if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            mapOf(
+                                "nickname" to userInfoUpdateRequest.nickname,
+                                "image" to userInfoUpdateRequest.image
+                            )
+                        } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
+                    } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
+                } ?: run {
                     userInfoUpdateRequest.image?.let {
-                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                                mapOf("image" to userInfoUpdateRequest.image)
-                            } else mapOf("image" to null)
-                        } ?: error("")
-                    }
+                        if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            mapOf("image" to userInfoUpdateRequest.image)
+                        } else mapOf("image" to null)
+                    } ?: error("")
+                }
 
 
                 val snapshotAsync =
-                    async { database.collection("User").whereEqualTo("email", userInfoUpdateRequest.email)
-                        .get()
+                    async {
+                        database.collection("User")
+                            .whereEqualTo("email", userInfoUpdateRequest.email)
+                            .get()
                     }
                 val userResponseAsync = async {
                     selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = userInfoUpdateRequest.email))
@@ -189,7 +194,8 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun login(loginRequest: LoginRequest): UserResponse = coroutineScope {
         runCatching {
-            val result = auth.signInWithEmailAndPassword(loginRequest.email, loginRequest.password).await()
+            val result =
+                auth.signInWithEmailAndPassword(loginRequest.email, loginRequest.password).await()
             val user = result.user
 
             user?.let {
@@ -204,9 +210,9 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }
 
         val snapshotAsync = async {
-                database.collection("User")
-                    .whereEqualTo("email", loginRequest.email).get().await()
-            }
+            database.collection("User")
+                .whereEqualTo("email", loginRequest.email).get().await()
+        }
         val tokenAsync = async {
             auth.currentUser?.getIdToken(false)
         }
@@ -286,10 +292,14 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         return runCatching {
             val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
             token?.let {
-                val userEmailResponse = retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
-                    apiKey = apiKey,
-                    request = FirebaseIdTokenRequest(token = token)
-                )
+                val userEmailResponse =
+                    retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                        apiKey = apiKey,
+                        request = JsonObject().apply {
+                            addProperty("idToken", token)
+                        }
+
+                    )
                 val email = userEmailResponse.users.firstOrNull()
                 Log.d("getUser", "겟 유저 이메일 :" + email)
                 email?.let {
