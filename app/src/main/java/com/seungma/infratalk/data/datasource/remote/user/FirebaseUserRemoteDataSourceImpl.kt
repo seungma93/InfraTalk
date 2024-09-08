@@ -292,7 +292,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         return runCatching {
             val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
             token?.let {
-                val userEmailResponse =
+                val getUserMeResponse =
                     retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
                         apiKey = apiKey,
                         request = JsonObject().apply {
@@ -300,7 +300,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                         }
 
                     )
-                val email = userEmailResponse.users.firstOrNull()
+                val email = getUserMeResponse.users?.firstOrNull()?.email
                 Log.d("getUser", "겟 유저 이메일 :" + email)
                 email?.let {
                     val snapshot = database.collection("User")

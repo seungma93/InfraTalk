@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.di.component.DaggerSplashActivityComponent
@@ -32,16 +31,15 @@ class SplashActivity : AppCompatActivity() {
             splashViewModel.viewEvent.collect {
                 when(it) {
                     is SplashViewEvent.CheckLogin  -> {
-                        Log.d("SplashActivity", "스플래시 : " + it.userEntity )
+                        Log.d("SplashActivity", "스플래시 로그인 성공 : " + it.userEntity )
+                        val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                        intent.putExtra("loginSuccessKey", true)
+                        startActivity(intent)
+                        finish()
                     }
                     is SplashViewEvent.Error -> {
                         Log.d("SplashActivity", "스플래시 에러 : " + it.errorCode.message )
                         when(it.errorCode.message) {
-
-                            "HTTP 200" -> {
-                                // TODO 홈으로 이동
-                                intent.putExtra("loginSuccessKey", true)
-                            }
 
                             "HTTP 400 " -> {
                                 // TODO 프리퍼런스 초기화
