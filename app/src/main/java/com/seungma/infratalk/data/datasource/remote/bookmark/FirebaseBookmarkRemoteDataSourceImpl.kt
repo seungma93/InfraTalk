@@ -1,6 +1,7 @@
 package com.seungma.infratalk.data.datasource.remote.bookmark
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.model.request.board.BoardBookMarksDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardBookmarkDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardBookmarkInsertRequest
@@ -21,7 +22,8 @@ import javax.inject.Inject
 
 
 class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val userDataSource: UserDataSource
 ) : BookmarkDataSource {
 
     override suspend fun insertBoardBookmark(boardBookmarkInsertRequest: BoardBookmarkInsertRequest): BookmarkResponse =
@@ -42,7 +44,7 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
                 val snapshot = database.collection("BoardBookmark")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        userDataSource.getUserMe().email
                     )
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
@@ -60,10 +62,11 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
     override suspend fun selectBoardBookmark(boardBookmarkSelectRequest: BoardBookmarkSelectRequest): BookmarkResponse =
         with(boardBookmarkSelectRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("BoardBookmark")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
@@ -91,10 +94,11 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
     override suspend fun deleteCommentBookmark(commentBookmarkDeleteRequest: CommentBookmarkDeleteRequest): BookmarkResponse =
         with(commentBookmarkDeleteRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("CommentBookmark")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
                     .whereEqualTo("commentCreateTime", commentCreateTime)
@@ -113,10 +117,11 @@ class FirebaseBookmarkRemoteDataSourceImpl @Inject constructor(
     override suspend fun selectCommentBookmark(commentBookmarkSelectRequest: CommentBookmarkSelectRequest): BookmarkResponse =
         with(commentBookmarkSelectRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("CommentBookmark")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
                     .whereEqualTo("commentCreateTime", commentCreateTime)

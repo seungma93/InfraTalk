@@ -73,10 +73,6 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         ).toEntity()
     }
 
-    override fun getUserInfo(): UserEntity {
-        return dataSource.obtainUser().toEntity()
-    }
-
     override suspend fun getUserMe(): UserEntity {
         return dataSource.getUserMe().toEntity()
     }

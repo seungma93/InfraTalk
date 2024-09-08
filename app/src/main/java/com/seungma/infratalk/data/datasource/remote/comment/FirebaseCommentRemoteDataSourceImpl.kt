@@ -172,7 +172,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
         limit: Long,
         startAfter: DocumentSnapshot?
     ): QuerySnapshot {
-        val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
+        val userEmail = userDataSource.getUserMe().email ?: error("유저 정보 없음")
         val query = database.collection("Comment")
             .whereEqualTo("authorEmail", userEmail)
             .orderBy("createTime", Query.Direction.DESCENDING)
@@ -195,7 +195,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
                 snapshot.documents.map {
                     CommentMetaResponse(
-                        author = userDataSource.obtainUser(),
+                        author = userDataSource.getUserMe(),
                         createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -216,7 +216,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyBookmarkCommentList(): CommentMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
+            val userEmail = userDataSource.getUserMe().email ?: error("유저 정보 없음")
             val snapshot = database.collection("CommentBookmark")
                 .whereEqualTo("userEmail", userEmail)
                 .get().await()
@@ -267,7 +267,7 @@ class FirebaseCommentRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyLikeCommentList(): CommentMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
+            val userEmail = userDataSource.getUserMe().email ?: error("유저 정보 없음")
             val snapshot = database.collection("CommentLike")
                 .whereEqualTo("userEmail", userEmail)
                 .get().await()
