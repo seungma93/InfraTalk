@@ -1,6 +1,5 @@
 package com.seungma.domain.repository
 
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardLikeCountSelectRequest
@@ -16,8 +15,9 @@ import com.seungma.infratalk.data.model.request.comment.CommentRelatedLikesDelet
 import com.seungma.infratalk.domain.board.entity.BoardLikesDeleteEntity
 import com.seungma.infratalk.domain.board.entity.CommentRelatedLikesEntity
 import com.seungma.infratalk.domain.board.entity.LikeCountEntity
-import com.seungma.infratalk.domain.board.repository.LikeDataRepository
 import com.seungma.infratalk.domain.board.entity.LikeEntity
+import com.seungma.infratalk.domain.board.repository.LikeDataRepository
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.form.BoardLikeAddForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm
@@ -32,7 +32,7 @@ import java.util.Date
 import javax.inject.Inject
 
 
-class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDataSource) :
+class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDataSource, private val userDataRepository: UserDataRepository) :
     LikeDataRepository {
 
     override suspend fun addBoardLike(boardLikeAddForm: BoardLikeAddForm): LikeEntity {
@@ -40,7 +40,7 @@ class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDat
             BoardLikeInsertRequest(
                 boardAuthorEmail = boardLikeAddForm.boardAuthorEmail,
                 boardCreateTime = boardLikeAddForm.boardCreateTime,
-                userEmail = UserSingleton.userEntity.email,
+                userEmail = userDataRepository.getUserMe().email,
                 updateTime = Date()
             )
         ).toEntity()
@@ -79,7 +79,7 @@ class LikeDataRepositoryImpl @Inject constructor(private val dataSource: LikeDat
             CommentLikeInsertRequest(
                 commentAuthorEmail = commentLikeAddForm.commentAuthorEmail,
                 commentCreateTime = commentLikeAddForm.commentCreateTime,
-                userEmail = UserSingleton.userEntity.email,
+                userEmail = userDataRepository.getUserMe().email,
                 updateTime = Date()
             )
         ).toEntity()

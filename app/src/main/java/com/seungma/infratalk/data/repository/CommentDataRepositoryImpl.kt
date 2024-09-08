@@ -1,6 +1,5 @@
 package com.seungma.infratalk.data.repository
 
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardRelatedAllCommentMetaListSelectRequest
@@ -11,6 +10,7 @@ import com.seungma.infratalk.domain.comment.entity.CommentDeleteEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaEntity
 import com.seungma.infratalk.domain.comment.entity.CommentMetaListEntity
 import com.seungma.infratalk.domain.comment.repository.CommentDataRepository
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.form.BoardRelatedAllCommentMetaListSelectForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentInsertForm
@@ -22,14 +22,14 @@ import javax.inject.Inject
 
 
 class CommentDataRepositoryImpl @Inject constructor(
-    private val commentDataSource: CommentDataSource
+    private val commentDataSource: CommentDataSource,
+    private val userDataRepository: UserDataRepository
 ) : CommentDataRepository {
     override suspend fun insertComment(commentInsertForm: CommentInsertForm): CommentMetaEntity =
         with(commentInsertForm) {
-
             return commentDataSource.insertComment(
                 CommentInsertRequest(
-                    authorEmail = UserSingleton.userEntity.email,
+                    authorEmail = userDataRepository.getUserMe().email,
                     createTime = Date(),
                     content = content,
                     boardAuthorEmail = boardAuthorEmail,

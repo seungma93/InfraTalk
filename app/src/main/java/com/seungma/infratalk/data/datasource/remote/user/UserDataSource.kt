@@ -16,6 +16,5 @@ interface UserDataSource {
     suspend fun sendVerifiedEmail(): UserResponse
     suspend fun deleteUserInfo(deleteUserRequest: DeleteUserRequest): UserResponse
     suspend fun selectUserInfo(userSelectRequest: UserSelectRequest): UserResponse
-    fun obtainUser(): UserResponse
     suspend fun getUserMe(): UserResponse
 }

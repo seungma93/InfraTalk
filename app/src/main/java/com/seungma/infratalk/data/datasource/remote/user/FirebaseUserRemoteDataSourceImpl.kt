@@ -19,7 +19,6 @@ import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
@@ -277,14 +276,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override fun obtainUser(): UserResponse {
-        val userEntity = UserSingleton.userEntity
-        return UserResponse(
-            email = userEntity.email,
-            nickname = userEntity.nickname,
-            image = userEntity.image
-        )
-    }
 
     override suspend fun getUserMe(): UserResponse {
         val token = preferenceDataSource.getUserToken().token
