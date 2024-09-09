@@ -186,7 +186,12 @@ class Modules {
             preferenceDataSource: PreferenceDataSource,
             retrofitClient: RetrofitClient
         ): UserDataSource {
-            return FirebaseUserRemoteDataSourceImpl(auth, database, preferenceDataSource, retrofitClient)
+            return FirebaseUserRemoteDataSourceImpl(
+                auth,
+                database,
+                preferenceDataSource,
+                retrofitClient
+            )
         }
     }
 
@@ -194,9 +199,10 @@ class Modules {
     class FirebaseLikeDataSourceModule {
         @Provides
         fun providesFirebaseLikeRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): LikeDataSource {
-            return FirebaseLikeRemoteDataSourceImpl(database)
+            return FirebaseLikeRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -204,9 +210,10 @@ class Modules {
     class FirebaseBookmarkDataSourceModule {
         @Provides
         fun providesFirebaseBookmarkRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): BookmarkDataSource {
-            return FirebaseBookmarkRemoteDataSourceImpl(database)
+            return FirebaseBookmarkRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -236,8 +243,11 @@ class Modules {
     @Module
     class BoardDataRepositoryModule {
         @Provides
-        fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
-            return BoardDataRepositoryImpl(dataSource)
+        fun providesBoardDataRepository(
+            dataSource: BoardDataSource,
+            userDataRepository: UserDataRepository
+        ): BoardDataRepository {
+            return BoardDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
@@ -260,16 +270,22 @@ class Modules {
     @Module
     class LikeDataRepositoryModule {
         @Provides
-        fun providesLikeDataRepository(dataSource: LikeDataSource): LikeDataRepository {
-            return LikeDataRepositoryImpl(dataSource)
+        fun providesLikeDataRepository(
+            dataSource: LikeDataSource,
+            userDataRepository: UserDataRepository
+        ): LikeDataRepository {
+            return LikeDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
     @Module
     class BookmarkDataRepositoryModule {
         @Provides
-        fun providesBookmarkDataRepository(dataSource: BookmarkDataSource): BookmarkDataRepository {
-            return BookmarkDataRepositoryImpl(dataSource)
+        fun providesBookmarkDataRepository(
+            dataSource: BookmarkDataSource,
+            userDataRepository: UserDataRepository
+        ): BookmarkDataRepository {
+            return BookmarkDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
@@ -277,9 +293,10 @@ class Modules {
     class CommentDataRepositoryModule {
         @Provides
         fun providesCommentDataRepository(
-            commentDataSource: CommentDataSource
+            commentDataSource: CommentDataSource,
+            userDataRepository: UserDataRepository
         ): CommentDataRepository {
-            return CommentDataRepositoryImpl(commentDataSource)
+            return CommentDataRepositoryImpl(commentDataSource, userDataRepository)
         }
     }
 
