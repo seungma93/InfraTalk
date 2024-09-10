@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentBoardContentBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.adpater.BoardContentImageAdapter
 import com.seungma.infratalk.presenter.board.adpater.CommentListAdapter
 import com.seungma.infratalk.presenter.board.adpater.ListItem
@@ -84,6 +85,7 @@ class BoardContentFragment : Fragment() {
             Toast.LENGTH_SHORT
         ).show()
     })
+    private lateinit var userEntity: UserEntity
 
 
     @Inject
@@ -115,6 +117,10 @@ class BoardContentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity =boardContentViewModel.getUserMe()
+        }
+
         _boardContentImageAdapter = BoardContentImageAdapter { }
         _commentAdapter = CommentListAdapter(
             commentItemClick = {
@@ -273,7 +279,7 @@ class BoardContentFragment : Fragment() {
                     }
                 }
             },
-            userEntity = boardContentViewModel.getUserInfo()
+            userEntity = userEntity
         )
 
         binding.apply {

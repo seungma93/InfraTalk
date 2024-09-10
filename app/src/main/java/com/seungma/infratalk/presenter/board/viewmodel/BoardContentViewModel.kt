@@ -388,7 +388,7 @@ class BoardContentViewModel @Inject constructor(
     }
 
 
-    fun getUserInfo(): UserEntity {
+    suspend fun getUserMe(): UserEntity {
         return getUserInfoUseCase()
     }
 }
