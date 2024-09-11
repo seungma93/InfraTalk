@@ -14,10 +14,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.firestore.auth.User
 import com.seungma.infratalk.databinding.FragmentBoardBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.adpater.BoardListAdapter
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
@@ -48,6 +50,7 @@ class BoardFragment : Fragment() {
     private val adapter get() = _adapter!!
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
     })
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
@@ -74,6 +77,9 @@ class BoardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = boardViewModel.getUserMe()
+        }
         var isFabOpen = false
         _adapter = BoardListAdapter(
             itemClick = {
@@ -153,14 +159,14 @@ class BoardFragment : Fragment() {
             chatClick = { boardMetaEntity ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     val member =
-                        listOf(boardViewModel.getUserInfo().email, boardMetaEntity.author.email)
+                        listOf(userEntity.email, boardMetaEntity.author.email)
                     boardViewModel.startChat(
                         chatRoomCreateForm = ChatRoomCreateForm(member = member),
                         chatRoomCheckForm = ChatRoomCheckForm(member = member)
                     )
                 }
             },
-            userEntity = boardViewModel.getUserInfo(),
+            userEntity =userEntity,
             deleteClick = { boardMetaEntity ->
                 showProgressBar()
                 viewLifecycleOwner.lifecycleScope.launch {
@@ -200,7 +206,7 @@ class BoardFragment : Fragment() {
             // 나의 게시글 버튼
             btnFabMyList.setOnClickListener {
                 val endPoint =
-                    MainChildFragmentEndPoint.MyBoard(userEntity = boardViewModel.getUserInfo())
+                    MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
                 (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
                 toggleFab(isFabOpen = true)
             }
