@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentChatRoomBinding
 import com.seungma.infratalk.di.component.DaggerChatRoomFragmentComponent
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.chat.adapter.ChatRoomListAdapter
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -28,6 +29,7 @@ class ChatRoomFragment : Fragment() {
     private val binding get() = _binding!!
     private var _adapter: ChatRoomListAdapter? = null
     private val adapter get() = _adapter!!
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var chatRoomViewModelFactory: ViewModelProvider.Factory
@@ -49,8 +51,11 @@ class ChatRoomFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = chatRoomViewModel.getUserMe()
+        }
         _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
-            val userEmail = chatRoomViewModel.getUserInfo().email
+            val userEmail = userEntity.email
             val endPoint = EndPoint.Chat(
                 chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
                     partnerEmail = when (chatRoomEntity.leaveMember?.size) {
