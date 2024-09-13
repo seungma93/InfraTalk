@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentMyLikeCommentBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm
@@ -35,6 +36,7 @@ class MyLikeCommentFragment : Fragment() {
     private var _adapter: MyLikeCommentListAdapter? = null
     private val adapter get() = _adapter!!
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myLikeCommentViewModelFactory: ViewModelProvider.Factory
@@ -64,6 +66,9 @@ class MyLikeCommentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = myLikeCommentViewModel.getUserMe()
+        }
         _adapter = MyLikeCommentListAdapter(
             itemClick = {
                 /*
@@ -164,7 +169,7 @@ class MyLikeCommentFragment : Fragment() {
                     }
                 }
             },
-            userEntity = myLikeCommentViewModel.getUserInfo()
+            userEntity = userEntity
         )
         binding.apply {
 

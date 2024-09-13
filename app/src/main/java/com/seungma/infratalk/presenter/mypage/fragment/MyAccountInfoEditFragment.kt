@@ -29,6 +29,7 @@ import com.bumptech.glide.request.target.Target
 import com.seungma.infratalk.R
 import com.seungma.infratalk.databinding.FragmentMyAccountInfoEditBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewEvent
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewModel
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
@@ -45,6 +46,7 @@ class MyAccountInfoEditFragment : Fragment() {
     private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myPageViewModelFactory: ViewModelProvider.Factory
@@ -94,7 +96,7 @@ class MyAccountInfoEditFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyAccountInfoEditBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -102,7 +104,10 @@ class MyAccountInfoEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userEntity = myPageViewModel.getUserInfo()
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = myPageViewModel.getUserMe()
+        }
+
         val email = userEntity.email
         val nickname = userEntity.nickname
         val profileUri = userEntity.image

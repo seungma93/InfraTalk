@@ -3,8 +3,8 @@ package com.seungma.infratalk.presenter.mypage.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,7 +23,7 @@ data class UserInfoUpdate(
 )
 
 class MyPageViewModel @Inject constructor(
-    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserMeUseCase: GetUserMeUseCase,
     private val updateUserInfoUseCase: UpdateUserInfoUseCase
 ) : ViewModel() {
 
@@ -31,8 +31,8 @@ class MyPageViewModel @Inject constructor(
     val viewEvent: SharedFlow<MyPageViewEvent> = _viewEvent.asSharedFlow()
 
 
-    fun getUserInfo(): UserEntity {
-        return getUserInfoUseCase()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 
     suspend fun updateUserInfo(userInfoUpdateForm: UserInfoUpdateForm) {

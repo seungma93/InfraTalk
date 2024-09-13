@@ -17,6 +17,7 @@ import com.seungma.infratalk.databinding.FragmentMyBookmarkBoardBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -42,6 +43,7 @@ class MyBookmarkBoardFragment : Fragment() {
     private var _adapter: MyBookmarkBoardListAdapter? = null
     private val adapter get() = _adapter!!
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myBookmarkBoardViewModelFactory: ViewModelProvider.Factory
@@ -64,13 +66,16 @@ class MyBookmarkBoardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyBookmarkBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = myBookmarkBoardViewModel.getUserMe()
+        }
         _adapter = MyBookmarkBoardListAdapter(
             itemClick = {
                 Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
@@ -173,14 +178,14 @@ class MyBookmarkBoardFragment : Fragment() {
             chatClick = { boardMetaEntity ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     val member =
-                        listOf(myBookmarkBoardViewModel.getUserInfo().email, boardMetaEntity.author.email)
+                        listOf(userEntity.email, boardMetaEntity.author.email)
                     myBookmarkBoardViewModel.startChat(
                         chatRoomCreateForm = ChatRoomCreateForm(member = member),
                         chatRoomCheckForm = ChatRoomCheckForm(member = member)
                     )
                 }
             },
-            userEntity = myBookmarkBoardViewModel.getUserInfo()
+            userEntity = userEntity
         )
         binding.apply {
 

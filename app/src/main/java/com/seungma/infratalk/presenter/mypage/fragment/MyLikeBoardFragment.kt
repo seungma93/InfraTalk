@@ -17,6 +17,7 @@ import com.seungma.infratalk.databinding.FragmentMyLikeBoardBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -42,6 +43,7 @@ class MyLikeBoardFragment : Fragment() {
     private var _adapter: MyLikeBoardListAdapter? = null
     private val adapter get() = _adapter!!
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myLikeBoardViewModelFactory: ViewModelProvider.Factory
@@ -64,13 +66,16 @@ class MyLikeBoardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyLikeBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = myLikeBoardViewModel.getUserMe()
+        }
         _adapter = MyLikeBoardListAdapter(
             itemClick = {
                 Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
@@ -173,14 +178,14 @@ class MyLikeBoardFragment : Fragment() {
             chatClick = { boardMetaEntity ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     val member =
-                        listOf(myLikeBoardViewModel.getUserInfo().email, boardMetaEntity.author.email)
+                        listOf(userEntity.email, boardMetaEntity.author.email)
                     myLikeBoardViewModel.startChat(
                         chatRoomCreateForm = ChatRoomCreateForm(member = member),
                         chatRoomCheckForm = ChatRoomCheckForm(member = member)
                     )
                 }
             },
-            userEntity = myLikeBoardViewModel.getUserInfo()
+            userEntity = userEntity
         )
         binding.apply {
 

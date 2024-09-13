@@ -88,7 +88,6 @@ import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
@@ -610,8 +609,8 @@ class Modules {
         @Provides
         fun providesGetUserInfoUseCase(
             userDataRepository: UserDataRepository
-        ): GetUserInfoUseCase {
-            return GetUserInfoUseCase(
+        ): GetUserMeUseCase {
+            return GetUserMeUseCase(
                 userDataRepository
             )
         }
@@ -794,7 +793,7 @@ class Modules {
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
@@ -807,7 +806,7 @@ class Modules {
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
                 createChatRoomUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 checkChatRoomUseCase,
                 deleteBoardUseCase
             )
@@ -833,7 +832,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return BoardContentViewModel(
                 writeCommentUseCase,
@@ -849,7 +848,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -913,12 +912,12 @@ class Modules {
         @ViewModelKey(ChatRoomViewModel::class)
         fun providesChatRoomViewModel(
             loadChatRoomListUseCase: LoadChatRoomListUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
         ): ViewModel {
             return ChatRoomViewModel(
                 loadChatRoomListUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 loadRealTimeChatRoomListUseCase
             )
         }
@@ -930,11 +929,11 @@ class Modules {
         @IntoMap
         @ViewModelKey(MyPageViewModel::class)
         fun providesMyPageViewModel(
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             updateUserInfoUseCase: UpdateUserInfoUseCase
         ): ViewModel {
             return MyPageViewModel(
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 updateUserInfoUseCase
             )
         }
@@ -951,7 +950,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
             return MyBoardViewModel(
@@ -960,7 +959,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase
             )
         }
@@ -978,7 +977,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyCommentViewModel(
                 loadMyCommentListUseCase,
@@ -987,7 +986,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -1003,7 +1002,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase
@@ -1014,7 +1013,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase,
                 checkChatRoomUseCase,
                 createChatRoomUseCase
@@ -1033,7 +1032,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase
@@ -1044,7 +1043,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase,
                 checkChatRoomUseCase,
                 createChatRoomUseCase
@@ -1064,7 +1063,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyBookmarkCommentViewModel(
                 loadMyBookmarkCommentListUseCase,
@@ -1073,7 +1072,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -1090,7 +1089,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyLikeCommentViewModel(
                 loadMyLikeCommentListUseCase,
@@ -1099,7 +1098,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
