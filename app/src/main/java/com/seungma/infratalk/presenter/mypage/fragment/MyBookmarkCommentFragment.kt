@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentMyBookmarkCommentBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm
@@ -35,6 +36,7 @@ class MyBookmarkCommentFragment : Fragment() {
     private var _adapter: MyBookmarkCommentListAdapter? = null
     private val adapter get() = _adapter!!
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myBookmarkCommentViewModelFactory: ViewModelProvider.Factory
@@ -64,6 +66,9 @@ class MyBookmarkCommentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            userEntity = myBookmarkCommentViewModel.getUserMe()
+        }
         _adapter = MyBookmarkCommentListAdapter(
             itemClick = {
                 /*
@@ -166,7 +171,7 @@ class MyBookmarkCommentFragment : Fragment() {
                     }
                 }
             },
-            userEntity = myBookmarkCommentViewModel.getUserInfo()
+            userEntity = userEntity
         )
         binding.apply {
 

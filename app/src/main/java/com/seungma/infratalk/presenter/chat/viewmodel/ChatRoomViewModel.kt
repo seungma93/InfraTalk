@@ -9,7 +9,7 @@ import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
 import com.seungma.infratalk.domain.chat.usecase.LoadChatRoomListUseCase
 import com.seungma.infratalk.domain.chat.usecase.LoadRealTimeChatRoomListUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -35,7 +35,7 @@ data class ChatRoomViewState(
 
 class ChatRoomViewModel @Inject constructor(
     private val loadChatRoomListUseCase: LoadChatRoomListUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserMeUseCase: GetUserMeUseCase,
     private val loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ChatRoomViewEvent>()
@@ -107,7 +107,7 @@ class ChatRoomViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-    fun getUserMe(): UserEntity {
-        return getUserMe()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 }
