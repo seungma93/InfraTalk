@@ -51,30 +51,40 @@ class ChatRoomFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            userEntity = chatRoomViewModel.getUserMe()
-        }
-        _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
-            val userEmail = userEntity.email
-            val endPoint = EndPoint.Chat(
-                chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
-                    partnerEmail = when (chatRoomEntity.leaveMember?.size) {
-                        1 -> chatRoomEntity.leaveMember.first()
-                        else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
-                    },
-                    chatRoomId = chatRoomEntity.primaryKey
-                )
-            )
-            (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-        })
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            // userEntity 값을 가져올 때까지 기다림
+            userEntity = chatRoomViewModel.getUserMe()
+
+            // userEntity가 초기화된 후 어댑터를 설정
+            _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
+                val userEmail = userEntity.email
+                val endPoint = EndPoint.Chat(
+                    chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                        partnerEmail = when (chatRoomEntity.leaveMember?.size) {
+                            1 -> chatRoomEntity.leaveMember.first()
+                            else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
+                        },
+                        chatRoomId = chatRoomEntity.primaryKey
+                    )
+                )
+                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+            })
+
+            // 어댑터를 RecyclerView에 설정
+            binding.rvChatRoom.adapter = _adapter
+        }
+
+        // ProgressBar를 보여주고 채팅방 데이터를 로드
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
             chatRoomViewModel.loadChatRoom()
         }
-        binding.rvChatRoom.adapter = adapter
+
+        // 데이터 변경을 구독
         subscribe()
     }
+
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
