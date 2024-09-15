@@ -106,124 +106,107 @@ class MyAccountInfoEditFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             userEntity = myPageViewModel.getUserMe()
-        }
 
-        val email = userEntity.email
-        val nickname = userEntity.nickname
-        val profileUri = userEntity.image
+            val email = userEntity.email
+            val nickname = userEntity.nickname
+            val profileUri = userEntity.image
 
+            binding.apply {
+                tvEmail.text =
+                    "[infratalk@mypage] email \n[infratalk@mypage] $email"
+                nicknameEditText.setText(nickname)
 
-        binding.apply {
-            tvEmail.text =
-                "[infratalk@mypage] email \n[infratalk@mypage] $email"
-            nicknameEditText.setText(nickname)
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                profileUri?.let {
+                    Glide.with(requireContext())
+                        .load(it)
+                        .apply(requestOptions)
+                        .into(ivProfileImage)
+                }
 
-            val requestOptions = RequestOptions.circleCropTransform().autoClone()
-            profileUri?.let {
-                Glide.with(requireContext())
-                    .load(it)
-                    .apply(requestOptions)
-                    .into(ivProfileImage)
-            }
+                btnDefaultProfile.setOnClickListener {
+                    val resourceId = R.drawable.ic_avatar
+                    Glide.with(requireContext())
+                        .load(resourceId)
+                        .apply(requestOptions)
+                        .centerCrop()
+                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                        .into(ivProfileImage)
+                    ivProfileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
+                }
 
-            btnDefaultProfile.setOnClickListener {
-                val resourceId = R.drawable.ic_avatar
-                Glide.with(requireContext())
-                    .load(resourceId)
-                    .apply(requestOptions)
-                    .centerCrop()
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .into(ivProfileImage)
-                ivProfileImage.tag = Uri.parse(DEFAULT_PROFILE_IMAGE)
-            }
+                btnEditComplete.setOnClickListener { view ->
+                    val inputNickname = nicknameTextInput.editText?.text?.toString()
 
-            btnEditComplete.setOnClickListener { view ->
-                val inputNickname = nicknameTextInput.editText?.text?.toString()
+                    when {
+                        inputNickname.isNullOrEmpty() -> Toast.makeText(
+                            requireActivity(), "닉네임을 입력하세요",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                when {
-                    inputNickname.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "닉네임을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        else -> {
+                            when (inputNickname == nickname) {
 
-                    else -> {
-                        when (inputNickname == nickname) {
-
-                            true -> {
-                                binding.ivProfileImage.tag?.let {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        showProgressBar()
-                                        myPageViewModel.updateUserInfo(
-                                            userInfoUpdateForm = UserInfoUpdateForm(
-                                                email = email,
-                                                nickname = null,
-                                                image = binding.ivProfileImage.tag as Uri
+                                true -> {
+                                    binding.ivProfileImage.tag?.let {
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            showProgressBar()
+                                            myPageViewModel.updateUserInfo(
+                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                    email = email,
+                                                    nickname = null,
+                                                    image = binding.ivProfileImage.tag as Uri
+                                                )
                                             )
-                                        )
+                                        }
+                                    } ?: run {
+                                        Toast.makeText(
+                                            requireActivity(), "변경된 내용이 없습니다",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
-                                } ?: run {
-                                    Toast.makeText(
-                                        requireActivity(), "변경된 내용이 없습니다",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                                /*
-                                                                when (binding.profileImage.tag == profileUri) {
+                                    /*
+                                                                    when (binding.profileImage.tag == profileUri) {
 
-                                                                    true -> {
-                                                                        Toast.makeText(
-                                                                            requireActivity(), "변경된 내용이 없습니다",
-                                                                            Toast.LENGTH_SHORT
-                                                                        ).show()
-                                                                    }
+                                                                        true -> {
+                                                                            Toast.makeText(
+                                                                                requireActivity(), "변경된 내용이 없습니다",
+                                                                                Toast.LENGTH_SHORT
+                                                                            ).show()
+                                                                        }
 
-                                                                    false -> {
-                                                                        viewLifecycleOwner.lifecycleScope.launch {
-                                                                            showProgressBar()
-                                                                            myPageViewModel.updateUserInfo(
-                                                                                userInfoUpdateForm = UserInfoUpdateForm(
-                                                                                    email = email,
-                                                                                    nickname = null,
-                                                                                    image = binding.profileImage.tag as Uri
+                                                                        false -> {
+                                                                            viewLifecycleOwner.lifecycleScope.launch {
+                                                                                showProgressBar()
+                                                                                myPageViewModel.updateUserInfo(
+                                                                                    userInfoUpdateForm = UserInfoUpdateForm(
+                                                                                        email = email,
+                                                                                        nickname = null,
+                                                                                        image = binding.profileImage.tag as Uri
+                                                                                    )
                                                                                 )
-                                                                            )
+                                                                            }
                                                                         }
                                                                     }
-                                                                }
 
-                                 */
+                                     */
 
-                            }
-
-                            false -> {
-
-                                binding.ivProfileImage.tag?.let {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        showProgressBar()
-                                        myPageViewModel.updateUserInfo(
-                                            userInfoUpdateForm = UserInfoUpdateForm(
-                                                email = email,
-                                                nickname = inputNickname,
-                                                image = binding.ivProfileImage.tag as Uri
-                                            )
-                                        )
-                                    }
-                                } ?: run {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        showProgressBar()
-                                        myPageViewModel.updateUserInfo(
-                                            userInfoUpdateForm = UserInfoUpdateForm(
-                                                email = email,
-                                                nickname = inputNickname,
-                                                image = null
-                                            )
-                                        )
-                                    }
                                 }
-                                /*
-                                when (binding.profileImage == profileUri) {
 
-                                    true -> {
+                                false -> {
+
+                                    binding.ivProfileImage.tag?.let {
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            showProgressBar()
+                                            myPageViewModel.updateUserInfo(
+                                                userInfoUpdateForm = UserInfoUpdateForm(
+                                                    email = email,
+                                                    nickname = inputNickname,
+                                                    image = binding.ivProfileImage.tag as Uri
+                                                )
+                                            )
+                                        }
+                                    } ?: run {
                                         viewLifecycleOwner.lifecycleScope.launch {
                                             showProgressBar()
                                             myPageViewModel.updateUserInfo(
@@ -235,55 +218,75 @@ class MyAccountInfoEditFragment : Fragment() {
                                             )
                                         }
                                     }
+                                    /*
+                                    when (binding.profileImage == profileUri) {
 
-                                    false -> {
-                                        viewLifecycleOwner.lifecycleScope.launch {
-                                            showProgressBar()
-                                            myPageViewModel.updateUserInfo(
-                                                userInfoUpdateForm = UserInfoUpdateForm(
-                                                    email = email,
-                                                    nickname = inputNickname,
-                                                    image = binding.profileImage.tag as Uri
+                                        true -> {
+                                            viewLifecycleOwner.lifecycleScope.launch {
+                                                showProgressBar()
+                                                myPageViewModel.updateUserInfo(
+                                                    userInfoUpdateForm = UserInfoUpdateForm(
+                                                        email = email,
+                                                        nickname = inputNickname,
+                                                        image = null
+                                                    )
                                                 )
-                                            )
+                                            }
+                                        }
+
+                                        false -> {
+                                            viewLifecycleOwner.lifecycleScope.launch {
+                                                showProgressBar()
+                                                myPageViewModel.updateUserInfo(
+                                                    userInfoUpdateForm = UserInfoUpdateForm(
+                                                        email = email,
+                                                        nickname = inputNickname,
+                                                        image = binding.profileImage.tag as Uri
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
+                                    */
                                 }
-                                */
-                            }
 
+                            }
+                        }
+                    }
+                }
+
+
+                ivProfileImage.setOnClickListener {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            requireActivity(),
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED
+                        -> {
+                            Log.d("BoardWriteFragment", "권한 있음")
+                            // 권한이 존재하는 경우
+                            navigateImage()
+                        }
+
+                        shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                            // 권한이 거부 되어 있는 경우
+                            Log.d("BoardWriteFragment", "권한 없음")
+                            showPermissionContextPopup()
+                        }
+
+                        else -> {
+                            // 처음 권한을 시도했을 때 띄움
+                            Log.d("BoardWriteFragment", "처음 시도")
+                            activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                         }
                     }
                 }
             }
 
-
-            ivProfileImage.setOnClickListener {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    ) == PackageManager.PERMISSION_GRANTED
-                    -> {
-                        Log.d("BoardWriteFragment", "권한 있음")
-                        // 권한이 존재하는 경우
-                        navigateImage()
-                    }
-
-                    shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
-                        // 권한이 거부 되어 있는 경우
-                        Log.d("BoardWriteFragment", "권한 없음")
-                        showPermissionContextPopup()
-                    }
-
-                    else -> {
-                        // 처음 권한을 시도했을 때 띄움
-                        Log.d("BoardWriteFragment", "처음 시도")
-                        activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }
-                }
-            }
         }
+
+
+
 
         subscribe()
     }
