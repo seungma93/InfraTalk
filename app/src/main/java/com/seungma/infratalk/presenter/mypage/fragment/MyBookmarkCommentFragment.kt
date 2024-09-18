@@ -68,111 +68,116 @@ class MyBookmarkCommentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             userEntity = myBookmarkCommentViewModel.getUserMe()
-        }
-        _adapter = MyBookmarkCommentListAdapter(
-            itemClick = {
-                /*
-                Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                val endPoint = EndPoint.BoardContent(
-                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                        boardAuthorEmail = it.author.email,
-                        boardCreateTime = it.createTime
-                    )
-                )
-                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
 
-                 */
-            },
-            bookmarkClick = { commentEntity ->
-                commentEntity.apply {
-                    when (bookmarkEntity.isBookmark) {
-                        true -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                val myCommentViewState =
-                                    myBookmarkCommentViewModel.deleteCommentBookmark(
-                                        commentBookmarkDeleteForm = CommentBookmarkDeleteForm(
-                                            commentAuthorEmail = commentMetaEntity.author.email,
-                                            commentCreateTime = commentMetaEntity.createTime
-                                        )
-                                    )
-                                adapter.submitList(myCommentViewState.commentListEntity?.commentList)
-                            }
-                        }
-
-                        false -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                val myCommentViewState =
-                                    myBookmarkCommentViewModel.addCommentBookmark(
-                                        commentBookmarkAddForm = CommentBookmarkAddForm(
-                                            commentAuthorEmail = commentMetaEntity.author.email,
-                                            commentCreateTime = commentMetaEntity.createTime
-                                        )
-                                    )
-                                adapter.submitList(myCommentViewState.commentListEntity?.commentList)
-                            }
-                        }
-                    }
-                }
-            },
-            likeClick = { commentEntity ->
-                commentEntity.apply {
-                    when (likeEntity.isLike) {
-                        true -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                val myCommentViewState =
-                                    myBookmarkCommentViewModel.deleteCommentLike(
-                                        commentLikeDeleteForm = CommentLikeDeleteForm(
-                                            commentAuthorEmail = commentMetaEntity.author.email,
-                                            commentCreateTime = commentMetaEntity.createTime
-                                        ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
-                                            commentAuthorEmail = commentMetaEntity.author.email,
-                                            commentCreateTime = commentMetaEntity.createTime
-                                        )
-                                    )
-                                adapter.submitList(myCommentViewState.commentListEntity?.commentList)
-                            }
-                        }
-
-                        false -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                val myCommentViewState = myBookmarkCommentViewModel.addCommentLike(
-                                    commentLikeAddForm = CommentLikeAddForm(
-                                        commentAuthorEmail = commentMetaEntity.author.email,
-                                        commentCreateTime = commentMetaEntity.createTime
-                                    ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
-                                        commentAuthorEmail = commentMetaEntity.author.email,
-                                        commentCreateTime = commentMetaEntity.createTime
-                                    )
-                                )
-                                adapter.submitList(myCommentViewState.commentListEntity?.commentList)
-                            }
-                        }
-                    }
-                }
-            },
-            deleteClick = { commentEntity ->
-                commentEntity.apply {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        val myCommentViewState = myBookmarkCommentViewModel.deleteComment(
-                            commentDeleteForm = CommentDeleteForm(
-                                commentAuthorEmail = commentMetaEntity.author.email,
-                                commentCreateTime = commentMetaEntity.createTime
-                            ),
-                            commentRelatedBookmarksDeleteForm = CommentRelatedBookmarksDeleteForm(
-                                commentAuthorEmail = commentMetaEntity.author.email,
-                                commentCreateTime = commentMetaEntity.createTime
-                            ),
-                            commentRelatedLikesDeleteForm = CommentRelatedLikesDeleteForm(
-                                commentAuthorEmail = commentMetaEntity.author.email,
-                                commentCreateTime = commentMetaEntity.createTime
-                            )
+            _adapter = MyBookmarkCommentListAdapter(
+                itemClick = {
+                    /*
+                    Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
+                    val endPoint = EndPoint.BoardContent(
+                        boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
+                            boardAuthorEmail = it.author.email,
+                            boardCreateTime = it.createTime
                         )
-                        adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                    )
+                    (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+
+                     */
+                },
+                bookmarkClick = { commentEntity ->
+                    commentEntity.apply {
+                        when (bookmarkEntity.isBookmark) {
+                            true -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val myCommentViewState =
+                                        myBookmarkCommentViewModel.deleteCommentBookmark(
+                                            commentBookmarkDeleteForm = CommentBookmarkDeleteForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            )
+                                        )
+                                    adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                                }
+                            }
+
+                            false -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val myCommentViewState =
+                                        myBookmarkCommentViewModel.addCommentBookmark(
+                                            commentBookmarkAddForm = CommentBookmarkAddForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            )
+                                        )
+                                    adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                                }
+                            }
+                        }
                     }
-                }
-            },
-            userEntity = userEntity
-        )
+                },
+                likeClick = { commentEntity ->
+                    commentEntity.apply {
+                        when (likeEntity.isLike) {
+                            true -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val myCommentViewState =
+                                        myBookmarkCommentViewModel.deleteCommentLike(
+                                            commentLikeDeleteForm = CommentLikeDeleteForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            )
+                                        )
+                                    adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                                }
+                            }
+
+                            false -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val myCommentViewState =
+                                        myBookmarkCommentViewModel.addCommentLike(
+                                            commentLikeAddForm = CommentLikeAddForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                commentAuthorEmail = commentMetaEntity.author.email,
+                                                commentCreateTime = commentMetaEntity.createTime
+                                            )
+                                        )
+                                    adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                                }
+                            }
+                        }
+                    }
+                },
+                deleteClick = { commentEntity ->
+                    commentEntity.apply {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val myCommentViewState = myBookmarkCommentViewModel.deleteComment(
+                                commentDeleteForm = CommentDeleteForm(
+                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                    commentCreateTime = commentMetaEntity.createTime
+                                ),
+                                commentRelatedBookmarksDeleteForm = CommentRelatedBookmarksDeleteForm(
+                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                    commentCreateTime = commentMetaEntity.createTime
+                                ),
+                                commentRelatedLikesDeleteForm = CommentRelatedLikesDeleteForm(
+                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                    commentCreateTime = commentMetaEntity.createTime
+                                )
+                            )
+                            adapter.submitList(myCommentViewState.commentListEntity?.commentList)
+                        }
+                    }
+                },
+                userEntity = userEntity
+            )
+
+            binding.rvMyBookmarkCommentList.adapter = adapter
+        }
+
         binding.apply {
 
             swipeRefreshLayout.setOnRefreshListener {
@@ -184,8 +189,6 @@ class MyBookmarkCommentFragment : Fragment() {
                 }
 
             }
-
-            rvMyBookmarkCommentList.adapter = adapter
         }
         loadBoardList()
     }
