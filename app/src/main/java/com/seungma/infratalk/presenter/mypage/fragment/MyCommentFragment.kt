@@ -61,12 +61,8 @@ class MyCommentFragment : Fragment() {
         ).show()
     })
 
-    private val myAccountUserEntity
-        get() = requireArguments().getSerializable(
-            MY_ACCOUNT_PRIMARY_KEY
-        ) as UserEntity
     private lateinit var callback: OnBackPressedCallback
-    private lateinit var userEntity: UserEntity
+
 
     @Inject
     lateinit var myCommentViewModelFactory: ViewModelProvider.Factory
@@ -96,9 +92,6 @@ class MyCommentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            userEntity = myCommentViewModel.getUserMe()
-        }
         _adapter = MyCommentListAdapter(
             itemClick = {
                 /*
