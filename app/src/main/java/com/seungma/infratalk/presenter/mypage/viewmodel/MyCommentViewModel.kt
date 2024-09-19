@@ -9,7 +9,6 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentBookmarkUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentLikeUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyCommentListUseCase
-import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
@@ -171,8 +170,4 @@ class MyCommentViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-
-    suspend fun getUserMe(): UserEntity {
-        return getUserMeUseCase()
-    }
 }
