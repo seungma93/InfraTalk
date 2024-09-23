@@ -70,6 +70,17 @@ class MyPageFragment : Fragment() {
 
                     }
                 }
+
+                lyMyBoard.setOnClickListener {
+                    val endPoint =
+                        MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
+                    (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                }
+                lyMyComment.setOnClickListener {
+                    val endPoint =
+                        MainChildFragmentEndPoint.MyComment(userEntity = userEntity)
+                    (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                }
             }
 
 
@@ -77,16 +88,7 @@ class MyPageFragment : Fragment() {
                 val endPoint = MainChildFragmentEndPoint.MyAccountInfoEdit
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            lyMyBoard.setOnClickListener {
-                val endPoint =
-                    MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-            }
-            lyMyComment.setOnClickListener {
-                val endPoint =
-                    MainChildFragmentEndPoint.MyComment(userEntity = userEntity)
-                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-            }
+
             lyMyBookmarkBoard.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyBookmarkBoard
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
