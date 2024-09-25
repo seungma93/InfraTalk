@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
-import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.sign.form.LoginForm
@@ -80,11 +79,6 @@ class LoginMainFragment : Fragment() {
                 val dialogFragment = ResetPasswordFragment()
                 dialogFragment.show(childFragmentManager, "CustomDialog")
             }
-            btnTest.setOnClickListener {
-                com.seungma.infratalk.data.UserSingleton.userEntity =
-                    UserEntity(email = "test@naver.com", image = null, nickname = "상실이")
-                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
-            }
         }
         subsribe()
     }
@@ -116,9 +110,6 @@ class LoginMainFragment : Fragment() {
                 when (it) {
                     is ViewEvent.LogIn -> {
                         hideProgressBar()
-                        it.userEntity?.let { userEntity ->
-                            com.seungma.infratalk.data.UserSingleton.userEntity = userEntity
-                        }
                         Log.d("LogInMainF", " 로그인 프레그먼트")
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }
