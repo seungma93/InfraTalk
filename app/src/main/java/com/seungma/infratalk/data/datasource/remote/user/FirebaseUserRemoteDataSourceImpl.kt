@@ -322,5 +322,15 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
 
     }
+
+    override fun logout() {
+        kotlin.runCatching {
+            preferenceDataSource.deleteUserToken()
+            auth.signOut()
+        }.onFailure {
+            throw Exception(it.message)
+        }
+
+    }
 }
 
