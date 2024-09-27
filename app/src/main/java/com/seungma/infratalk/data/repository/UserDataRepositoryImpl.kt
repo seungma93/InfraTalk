@@ -77,5 +77,9 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         return dataSource.getUserMe().toEntity()
     }
 
+    override fun logout() {
+        dataSource.logout()
+    }
+
 
 }

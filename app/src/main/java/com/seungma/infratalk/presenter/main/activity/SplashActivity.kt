@@ -24,18 +24,27 @@ class SplashActivity : AppCompatActivity() {
         DaggerSplashActivityComponent.factory().create(this).inject(this)
 
         lifecycleScope.launch {
-            splashViewModel.checkLogin()
-        }
-
-        lifecycleScope.launch {
+            Log.d("SplashActivity", "스코프 런치" )
             splashViewModel.viewEvent.collect {
+                Log.d("SplashActivity", "스플래시 콜렉트" )
                 when(it) {
                     is SplashViewEvent.CheckLogin  -> {
                         Log.d("SplashActivity", "스플래시 로그인 성공 : " + it.userEntity )
-                        val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                        intent.putExtra("loginSuccessKey", true)
-                        startActivity(intent)
-                        finish()
+
+                        if(it.userEntity.email.isNotEmpty()) {
+                            Log.d("SplashActivity", "스플래시 로그인 성공 : 있음" )
+                            val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                            intent.putExtra("loginSuccessKey", true)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Log.d("SplashActivity", "스플래시 로그인 성공 : 없음" )
+                            val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                            intent.putExtra("loginSuccessKey", false)
+                            startActivity(intent)
+                            finish()
+                        }
+
                     }
                     is SplashViewEvent.Error -> {
                         Log.d("SplashActivity", "스플래시 에러 : " + it.errorCode.message )
@@ -61,6 +70,14 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
+
+        lifecycleScope.launch {
+                splashViewModel.checkLogin()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
 
 
     }

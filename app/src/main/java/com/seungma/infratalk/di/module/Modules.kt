@@ -71,6 +71,7 @@ import com.seungma.infratalk.domain.image.repository.ImageDataRepository
 import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
 import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.LoginUseCase
+import com.seungma.infratalk.domain.login.usecase.LogoutUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCaseImpl
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBoardListUseCase
@@ -930,11 +931,13 @@ class Modules {
         @ViewModelKey(MyPageViewModel::class)
         fun providesMyPageViewModel(
             getUserMeUseCase: GetUserMeUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
+            updateUserInfoUseCase: UpdateUserInfoUseCase,
+            logoutUseCase: LogoutUseCase
         ): ViewModel {
             return MyPageViewModel(
                 getUserMeUseCase,
-                updateUserInfoUseCase
+                updateUserInfoUseCase,
+                logoutUseCase
             )
         }
     }

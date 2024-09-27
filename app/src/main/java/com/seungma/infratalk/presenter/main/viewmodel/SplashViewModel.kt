@@ -26,7 +26,9 @@ class SplashViewModel @Inject constructor(
             val userEntity = getUserMeUseCase()
             Log.d("SplashViewModel", "스플래시 뷰모델 :" + userEntity)
             _viewEvent.emit(SplashViewEvent.CheckLogin(userEntity = userEntity))
+            Log.d("SplashViewModel", "스플래시 뷰모델 에밋 :")
         }.onFailure {
+            Log.d("SplashViewModel", "스플래시 뷰모델 에러 :" + it.message)
             _viewEvent.emit(SplashViewEvent.Error(it))
         }
     }

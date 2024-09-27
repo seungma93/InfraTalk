@@ -105,6 +105,13 @@ class MyPageFragment : Fragment() {
                 val endPoint = MainChildFragmentEndPoint.MyLikeComment
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
+            lyLogout.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    myPageViewModel.logout()
+                    requireActivity().finish()
+                }
+
+            }
         }
     }
 
