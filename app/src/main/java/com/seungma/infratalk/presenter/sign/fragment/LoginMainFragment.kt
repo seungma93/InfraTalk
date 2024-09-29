@@ -48,6 +48,8 @@ class LoginMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
+            // TODO 프리퍼런스 데이터 확인
+
             btnSignUp.setOnClickListener {
                 val signUpEndPoint = EndPoint.SignUp
                 (requireActivity() as? Navigable)?.navigateFragment(signUpEndPoint)
@@ -109,6 +111,14 @@ class LoginMainFragment : Fragment() {
             signViewModel.viewEvent.collect {
                 when (it) {
                     is ViewEvent.LogIn -> {
+                        when(binding.cbId.isChecked) {
+                            true -> {
+                                //TODO 프리퍼런스 저장
+                            }
+                             false -> {
+                                 //TODO 프리퍼런스 삭제
+                             }
+                        }
                         hideProgressBar()
                         Log.d("LogInMainF", " 로그인 프레그먼트")
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
