@@ -6,6 +6,7 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
+import com.seungma.infratalk.data.model.response.preference.SavedEmailResponse
 import com.seungma.infratalk.data.model.response.preference.UserTokenResponse
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -18,6 +19,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
     private val TRANSFORMATION = "AES/CBC/PKCS7Padding"
     private val CHARSET = "UTF-8"
     private val KEY = "KEY"
+    private val EMAIL_KEY = "EMAIL_KEY"
 
     override fun getUserToken(): UserTokenResponse {
         return kotlin.runCatching {
@@ -78,6 +80,29 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
         }
     }
 
+    override fun getSavedEmail(): SavedEmailResponse {
+        return kotlin.runCatching {
+
+            val sharedPreferences = context.getSharedPreferences("UserPreference", Context.MODE_PRIVATE)
+            sharedPreferences.getString("${EMAIL_KEY}_iv", null)?.let {
+                val encryptedData = Base64.decode(sharedPreferences.getString("${EMAIL_KEY}_data", ""), Base64.DEFAULT)
+                val iv = Base64.decode(sharedPreferences.getString("${EMAIL_KEY}_iv", ""), Base64.DEFAULT)
+
+                val cipher = getCipher(Cipher.DECRYPT_MODE, iv)
+                val decryptedData = cipher.doFinal(encryptedData)
+                SavedEmailResponse(
+                    email = String(decryptedData, charset(CHARSET))
+                )
+            } ?: run {
+                SavedEmailResponse(
+                    email = null
+                )
+            }
+        }.onFailure {
+
+        }.getOrThrow()
+    }
+
     private fun getCipher(mode: Int, iv: ByteArray? = null): Cipher {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val key = getKey()
@@ -113,6 +138,8 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
 
         return keyStore.getKey(KEY_ALIAS, null) as SecretKey
     }
+
+
 }
 
 
