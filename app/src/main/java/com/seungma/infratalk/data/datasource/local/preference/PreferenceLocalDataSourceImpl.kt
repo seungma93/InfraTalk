@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
+import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.response.preference.SavedEmailResponse
 import com.seungma.infratalk.data.model.response.preference.UserTokenResponse
@@ -101,6 +102,24 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
         }.onFailure {
 
         }.getOrThrow()
+    }
+
+    override fun setSavedEmail(savedEmailSetRequest: SavedEmailSetRequest) {
+        kotlin.runCatching {
+            val cipher = getCipher(Cipher.ENCRYPT_MODE)
+            val encryptedData = cipher.doFinal(savedEmailSetRequest.token.toByteArray(charset(CHARSET)))
+            val iv = cipher.iv
+
+            val sharedPreferences = context.getSharedPreferences("UserPreference", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+
+            editor.putString("${EMAIL_KEY}_data", Base64.encodeToString(encryptedData, Base64.DEFAULT))
+            editor.putString("${EMAIL_KEY}_iv", Base64.encodeToString(iv, Base64.DEFAULT))
+            Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: 수행완료" )
+            editor.apply()
+        }.onFailure {
+            Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: " + it.message)
+        }
     }
 
     private fun getCipher(mode: Int, iv: ByteArray? = null): Cipher {
