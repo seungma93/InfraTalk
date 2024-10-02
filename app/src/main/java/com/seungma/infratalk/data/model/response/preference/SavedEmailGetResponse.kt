@@ -1,5 +1,5 @@
 package com.seungma.infratalk.data.model.response.preference
 
-data class SavedEmailResponse (
+data class SavedEmailGetResponse (
     val email: String?
 )
