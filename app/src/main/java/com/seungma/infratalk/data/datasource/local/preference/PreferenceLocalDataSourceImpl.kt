@@ -7,7 +7,7 @@ import android.util.Base64
 import android.util.Log
 import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
-import com.seungma.infratalk.data.model.response.preference.SavedEmailResponse
+import com.seungma.infratalk.data.model.response.preference.SavedEmailGetResponse
 import com.seungma.infratalk.data.model.response.preference.UserTokenResponse
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -81,7 +81,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
         }
     }
 
-    override fun getSavedEmail(): SavedEmailResponse {
+    override fun getSavedEmail(): SavedEmailGetResponse {
         return kotlin.runCatching {
 
             val sharedPreferences = context.getSharedPreferences("UserPreference", Context.MODE_PRIVATE)
@@ -91,11 +91,11 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
 
                 val cipher = getCipher(Cipher.DECRYPT_MODE, iv)
                 val decryptedData = cipher.doFinal(encryptedData)
-                SavedEmailResponse(
+                SavedEmailGetResponse(
                     email = String(decryptedData, charset(CHARSET))
                 )
             } ?: run {
-                SavedEmailResponse(
+                SavedEmailGetResponse(
                     email = null
                 )
             }
