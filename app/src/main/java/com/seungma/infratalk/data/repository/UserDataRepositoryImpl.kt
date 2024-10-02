@@ -7,10 +7,12 @@ import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
 import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
+import com.seungma.infratalk.domain.user.entity.SavedEmailGetEntity
 import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import toEntity
@@ -79,6 +81,14 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
 
     override fun logout() {
         dataSource.logout()
+    }
+
+    override fun getSavedEmail(): SavedEmailGetEntity {
+        TODO("Not yet implemented")
+    }
+
+    override fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm) {
+        TODO("Not yet implemented")
     }
 
 
