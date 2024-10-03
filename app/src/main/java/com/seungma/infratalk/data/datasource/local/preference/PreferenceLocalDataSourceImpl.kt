@@ -122,6 +122,24 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
         }
     }
 
+    override fun deleteSavedEmail() {
+        kotlin.runCatching {
+            val sharedPreferences = context.getSharedPreferences("UserPreference", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+
+            // 데이터 삭제
+            editor.remove("${EMAIL_KEY}_data")
+            editor.remove("${EMAIL_KEY}_iv")
+
+            // 변경사항을 저장합니다
+            editor.apply()
+
+            Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: 수행완료")
+        }.onFailure {
+            Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: " + it.message)
+        }
+    }
+
     private fun getCipher(mode: Int, iv: ByteArray? = null): Cipher {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val key = getKey()
