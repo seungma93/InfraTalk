@@ -12,5 +12,6 @@ interface PreferenceDataSource {
     fun deleteUserToken()
     fun getSavedEmail(): SavedEmailGetResponse
     fun setSavedEmail(savedEmailSetRequest: SavedEmailSetRequest)
+    fun deleteSavedEmail()
 }
 
