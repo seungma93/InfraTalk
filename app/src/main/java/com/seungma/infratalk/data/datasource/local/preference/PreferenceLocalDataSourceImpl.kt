@@ -107,7 +107,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
     override fun setSavedEmail(savedEmailSetRequest: SavedEmailSetRequest) {
         kotlin.runCatching {
             val cipher = getCipher(Cipher.ENCRYPT_MODE)
-            val encryptedData = cipher.doFinal(savedEmailSetRequest.token.toByteArray(charset(CHARSET)))
+            val encryptedData = cipher.doFinal(savedEmailSetRequest.email.toByteArray(charset(CHARSET)))
             val iv = cipher.iv
 
             val sharedPreferences = context.getSharedPreferences("UserPreference", Context.MODE_PRIVATE)
