@@ -262,8 +262,8 @@ class Modules {
     @Module
     class UserDataRepositoryModule {
         @Provides
-        fun providesUserDataRepository(dataSource: UserDataSource): UserDataRepository {
-            return UserDataRepositoryImpl(dataSource)
+        fun providesUserDataRepository(dataSource: UserDataSource, preferenceDataSource: PreferenceDataSource): UserDataRepository {
+            return UserDataRepositoryImpl(dataSource, preferenceDataSource)
         }
     }
 
