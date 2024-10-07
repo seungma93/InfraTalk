@@ -5,8 +5,7 @@ import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import javax.inject.Inject
 
 class SetSavedEmailUseCase @Inject constructor(private val userDataRepository: UserDataRepository) {
-    suspend operator fun invoke(savedEmailSetForm: SavedEmailSetForm) {
-        return userDataRepository.setSavedEmail(savedEmailSetForm = savedEmailSetForm)
-
+    operator fun invoke(savedEmailSetForm: SavedEmailSetForm) {
+        userDataRepository.setSavedEmail(savedEmailSetForm = savedEmailSetForm)
     }
 }
