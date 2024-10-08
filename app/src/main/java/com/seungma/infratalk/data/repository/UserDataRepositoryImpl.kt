@@ -97,4 +97,8 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
             )
         )
     }
+
+    override fun deleteSavedEmail() {
+        preferenceDataSource.deleteSavedEmail()
+    }
 }

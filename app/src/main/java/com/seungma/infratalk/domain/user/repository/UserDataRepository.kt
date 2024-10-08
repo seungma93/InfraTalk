@@ -20,4 +20,5 @@ interface UserDataRepository {
     fun logout()
     fun getSavedEmail(): SavedEmailGetEntity
     fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm)
+    fun deleteSavedEmail()
 }
