@@ -10,9 +10,14 @@ import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
+import com.seungma.infratalk.domain.user.entity.SavedEmailGetEntity
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.SetSavedEmailUseCase
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,7 +39,10 @@ class SignViewModel @Inject constructor(
     private val logInUseCase: LoginUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
     private val deleteUserInfoUseCase: DeleteUserInfoUseCase,
-    private val updateUserInfoUseCase: UpdateUserInfoUseCase
+    private val updateUserInfoUseCase: UpdateUserInfoUseCase,
+    private val setSavedEmailUseCase: SetSavedEmailUseCase,
+    private val getSavedEmailUseCase: GetSavedEmailUseCase,
+    private val deleteSavedEmailUseCase: DeleteSavedEmailUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ViewEvent>()
     val viewEvent: SharedFlow<ViewEvent> = _viewEvent.asSharedFlow()
@@ -100,5 +108,17 @@ class SignViewModel @Inject constructor(
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))
         }
+    }
+
+    fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm) {
+        setSavedEmailUseCase(savedEmailSetForm = savedEmailSetForm)
+    }
+
+    fun getSavedEmail(): SavedEmailGetEntity {
+        return getSavedEmailUseCase()
+    }
+
+    fun deleteSavedEmail() {
+        deleteSavedEmailUseCase()
     }
 }
