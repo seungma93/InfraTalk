@@ -89,7 +89,10 @@ import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
+import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
 import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
+import com.seungma.infratalk.domain.user.usecase.SetSavedEmailUseCase
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -866,7 +869,10 @@ class Modules {
             loginUseCase: LoginUseCase,
             resetPasswordUseCase: ResetPasswordUseCase,
             deleteUserInfoUseCase: DeleteUserInfoUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
+            updateUserInfoUseCase: UpdateUserInfoUseCase,
+            setSavedEmailUseCase: SetSavedEmailUseCase,
+            getSavedEmailUseCase: GetSavedEmailUseCase,
+            deleteSavedEmailUseCase: DeleteSavedEmailUseCase
         ): ViewModel {
             return SignViewModel(
                 signUpUseCase,
@@ -875,7 +881,10 @@ class Modules {
                 loginUseCase,
                 resetPasswordUseCase,
                 deleteUserInfoUseCase,
-                updateUserInfoUseCase
+                updateUserInfoUseCase,
+                setSavedEmailUseCase,
+                getSavedEmailUseCase,
+                deleteSavedEmailUseCase
             )
         }
     }
