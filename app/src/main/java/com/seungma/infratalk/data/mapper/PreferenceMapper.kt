@@ -5,6 +5,6 @@ import com.seungma.infratalk.domain.user.entity.SavedEmailGetEntity
 
 fun SavedEmailGetResponse.toEntity(): SavedEmailGetEntity {
     return SavedEmailGetEntity(
-        email = email ?: error("이메일 없음")
+        email = email ?: ""
     )
 }

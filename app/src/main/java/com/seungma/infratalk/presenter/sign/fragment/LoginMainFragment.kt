@@ -49,6 +49,12 @@ class LoginMainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
             // TODO 프리퍼런스 데이터 확인
+            val savedEmail = signViewModel.getSavedEmail().email
+            if(savedEmail.isNotEmpty()) {
+                emailEditText.setText(savedEmail)
+                cbId.isChecked = true
+            } else cbId.isChecked = false
+
 
             btnSignUp.setOnClickListener {
                 val signUpEndPoint = EndPoint.SignUp
