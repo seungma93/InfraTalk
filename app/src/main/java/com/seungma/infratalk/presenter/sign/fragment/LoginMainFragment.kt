@@ -18,6 +18,7 @@ import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.sign.form.LoginForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.seungma.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
@@ -120,9 +121,11 @@ class LoginMainFragment : Fragment() {
                         when(binding.cbId.isChecked) {
                             true -> {
                                 //TODO 프리퍼런스 저장
+                                signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
                             }
                              false -> {
                                  //TODO 프리퍼런스 삭제
+                                 signViewModel.deleteSavedEmail()
                              }
                         }
                         hideProgressBar()
