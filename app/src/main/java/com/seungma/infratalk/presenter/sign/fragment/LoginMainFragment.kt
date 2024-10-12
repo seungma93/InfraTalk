@@ -121,7 +121,9 @@ class LoginMainFragment : Fragment() {
                         when(binding.cbId.isChecked) {
                             true -> {
                                 //TODO 프리퍼런스 저장
-                                signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
+                                if(signViewModel.getSavedEmail().email != binding.emailEditText.text.toString()) {
+                                    signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
+                                }
                             }
                              false -> {
                                  //TODO 프리퍼런스 삭제
