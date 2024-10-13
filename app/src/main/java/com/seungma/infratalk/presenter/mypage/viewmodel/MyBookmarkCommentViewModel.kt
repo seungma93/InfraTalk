@@ -9,8 +9,8 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentBookmarkUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentLikeUseCase
 import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkCommentListUseCase
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.CommentDeleteForm
@@ -32,7 +32,7 @@ class MyBookmarkCommentViewModel @Inject constructor(
     private val deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
     private val addCommentLikeUseCase: AddCommentLikeUseCase,
     private val deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
     private val _viewState = MutableStateFlow<MyCommentViewState>(
         MyCommentViewState(
@@ -163,7 +163,7 @@ class MyBookmarkCommentViewModel @Inject constructor(
     }
 
 
-    fun getUserInfo(): UserEntity {
-        return getUserInfoUseCase()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 }

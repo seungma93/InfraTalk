@@ -1,6 +1,7 @@
 package com.seungma.infratalk.presenter.main.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.seungma.infratalk.R
@@ -31,12 +32,19 @@ interface Navigable {
 class MainActivity() : AppCompatActivity(), Navigable {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
+    private var loginSuccessKey: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        navigateFragment(EndPoint.LoginMain)
+        loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
+        Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
+        when(loginSuccessKey) {
+            true -> navigateFragment(EndPoint.Main)
+            false -> navigateFragment(EndPoint.LoginMain)
+        }
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {

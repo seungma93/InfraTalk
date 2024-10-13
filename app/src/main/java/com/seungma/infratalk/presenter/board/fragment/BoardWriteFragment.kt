@@ -23,15 +23,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.databinding.FragmentBoardWriteBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.adpater.BoardWriteAdapter
 import com.seungma.infratalk.presenter.board.form.BoardContentInsertForm
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewEvent
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 class BoardWriteFragment : Fragment() {
@@ -41,6 +40,7 @@ class BoardWriteFragment : Fragment() {
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var adapter: BoardWriteAdapter? = null
     private lateinit var callback: OnBackPressedCallback
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
@@ -118,6 +118,50 @@ class BoardWriteFragment : Fragment() {
         adapter = BoardWriteAdapter {}
 
         binding.apply {
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                userEntity = boardViewModel.getUserMe()
+
+                btnInsert.setOnClickListener {
+                    Log.v("BoardWriteFragment", "등록 버튼 클릭")
+                    when {
+                        titleEditText.text.isNullOrEmpty() -> {
+                            Toast.makeText(
+                                requireActivity(),
+                                "제목을 입력하세요.",
+                                Toast.LENGTH_LONG
+                            ).show();
+                        }
+
+                        contextEditText.text.isNullOrEmpty() -> {
+                            Toast.makeText(
+                                requireActivity(),
+                                "내용을 입력하세요.",
+                                Toast.LENGTH_LONG
+                            ).show();
+                        }
+
+                        else -> {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                showProgressBar()
+                                boardViewModel.writeBoardContent(
+                                    boardContentInsertForm = BoardContentInsertForm(
+                                        author = userEntity,
+                                        title = binding.titleEditText.text.toString(),
+                                        content = binding.contextEditText.text.toString(),
+                                        images = when (adapter!!.getItems().isEmpty()) {
+                                            true -> null
+                                            false -> adapter!!.getItems()
+                                        },
+                                        editTime = null
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             btnUploadImage.setOnClickListener {
                 when {
                     ContextCompat.checkSelfPermission(
@@ -143,44 +187,7 @@ class BoardWriteFragment : Fragment() {
                     }
                 }
             }
-            btnInsert.setOnClickListener {
-                Log.v("BoardWriteFragment", "등록 버튼 클릭")
-                when {
-                    titleEditText.text.isNullOrEmpty() -> {
-                        Toast.makeText(
-                            requireActivity(),
-                            "제목을 입력하세요.",
-                            Toast.LENGTH_LONG
-                        ).show();
-                    }
 
-                    contextEditText.text.isNullOrEmpty() -> {
-                        Toast.makeText(
-                            requireActivity(),
-                            "내용을 입력하세요.",
-                            Toast.LENGTH_LONG
-                        ).show();
-                    }
-
-                    else -> {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            showProgressBar()
-                            boardViewModel.writeBoardContent(
-                                boardContentInsertForm = BoardContentInsertForm(
-                                    author = UserSingleton.userEntity,
-                                    title = binding.titleEditText.text.toString(),
-                                    content = binding.contextEditText.text.toString(),
-                                    images = when (adapter!!.getItems().isEmpty()) {
-                                        true -> null
-                                        false -> adapter!!.getItems()
-                                    },
-                                    editTime = null
-                                )
-                            )
-                        }
-                    }
-                }
-            }
 
             recyclerviewImage.adapter = adapter
             subscribe()

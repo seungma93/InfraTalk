@@ -18,7 +18,7 @@ import com.seungma.infratalk.domain.comment.usecase.DeleteCommentUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadBoardRelatedAllCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.LoadCommentListUseCase
 import com.seungma.infratalk.domain.comment.usecase.WriteCommentUseCase
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
@@ -69,7 +69,7 @@ class BoardContentViewModel @Inject constructor(
     private val deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
     private val addCommentLikeUseCase: AddCommentLikeUseCase,
     private val deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardContentViewEvent>()
     private val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
@@ -388,7 +388,7 @@ class BoardContentViewModel @Inject constructor(
     }
 
 
-    fun getUserInfo(): UserEntity {
-        return getUserInfoUseCase()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 }

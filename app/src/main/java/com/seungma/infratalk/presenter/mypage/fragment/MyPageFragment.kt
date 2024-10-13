@@ -11,18 +11,22 @@ import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.databinding.FragmentMyPageBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.main.fragment.ChildFragmentNavigable
 import com.seungma.infratalk.presenter.main.fragment.MainChildFragmentEndPoint
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MyPageFragment : Fragment() {
     private var _binding: FragmentMyPageBinding? = null
     private val binding get() = _binding!!
+    private lateinit var userEntity: UserEntity
 
     @Inject
     lateinit var myPageViewModelFactory: ViewModelProvider.Factory
@@ -38,7 +42,7 @@ class MyPageFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyPageBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -46,40 +50,45 @@ class MyPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userEntity = myPageViewModel.getUserInfo()
 
         binding.apply {
 
-            userEntity.apply {
-                Log.d("seungma", "수행")
-                tvNickname.text =
-                    "[infratalk@mypage] nickname \n[infratalk@mypage] $nickname"
-                Log.d("seungma", image.toString())
+            viewLifecycleOwner.lifecycleScope.launch {
+                userEntity = myPageViewModel.getUserMe()
+                userEntity.apply {
+                    Log.d("seungma", "수행")
+                    tvNickname.text =
+                        "[infratalk@mypage] nickname \n[infratalk@mypage] $nickname"
+                    Log.d("seungma", image.toString())
 
-                val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                image?.let {
-                    Glide.with(requireContext())
-                        .load(it)
-                        .apply(requestOptions)
-                        .into(ivProfileImage)
+                    val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                    image?.let {
+                        Glide.with(requireContext())
+                            .load(it)
+                            .apply(requestOptions)
+                            .into(ivProfileImage)
 
+                    }
+                }
+
+                lyMyBoard.setOnClickListener {
+                    val endPoint =
+                        MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
+                    (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                }
+                lyMyComment.setOnClickListener {
+                    val endPoint =
+                        MainChildFragmentEndPoint.MyComment(userEntity = userEntity)
+                    (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
                 }
             }
+
 
             lyEditMyInfo.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyAccountInfoEdit
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
             }
-            lyMyBoard.setOnClickListener {
-                val endPoint =
-                    MainChildFragmentEndPoint.MyBoard(userEntity = myPageViewModel.getUserInfo())
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-            }
-            lyMyComment.setOnClickListener {
-                val endPoint =
-                    MainChildFragmentEndPoint.MyComment(userEntity = myPageViewModel.getUserInfo())
-                (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-            }
+
             lyMyBookmarkBoard.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyBookmarkBoard
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
@@ -95,6 +104,13 @@ class MyPageFragment : Fragment() {
             lyMyLikeComment.setOnClickListener {
                 val endPoint = MainChildFragmentEndPoint.MyLikeComment
                 (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            }
+            lyLogout.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    myPageViewModel.logout()
+                    requireActivity().finish()
+                }
+
             }
         }
     }

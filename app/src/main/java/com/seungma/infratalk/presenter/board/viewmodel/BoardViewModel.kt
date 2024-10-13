@@ -15,8 +15,8 @@ import com.seungma.infratalk.domain.board.usecase.WriteBoardContentUseCase
 import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
 import com.seungma.infratalk.domain.chat.usecase.CheckChatRoomUseCase
 import com.seungma.infratalk.domain.chat.usecase.CreateChatRoomUseCase
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -55,7 +55,7 @@ class BoardViewModel @Inject constructor(
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
     private val createChatRoomUseCase: CreateChatRoomUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserMeUseCase: GetUserMeUseCase,
     private val checkChatRoomUseCase: CheckChatRoomUseCase,
     private val deleteBoardUseCase: DeleteBoardUseCase
 ) : ViewModel() {
@@ -263,8 +263,8 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    fun getUserInfo(): UserEntity {
-        return getUserInfoUseCase()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 
     suspend fun deleteBoard(

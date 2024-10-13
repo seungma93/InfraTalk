@@ -15,10 +15,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
-import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.sign.form.LoginForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.seungma.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
@@ -49,6 +49,14 @@ class LoginMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
+            // TODO 프리퍼런스 데이터 확인
+            val savedEmail = signViewModel.getSavedEmail().email
+            if(savedEmail.isNotEmpty()) {
+                emailEditText.setText(savedEmail)
+                cbId.isChecked = true
+            } else cbId.isChecked = false
+
+
             btnSignUp.setOnClickListener {
                 val signUpEndPoint = EndPoint.SignUp
                 (requireActivity() as? Navigable)?.navigateFragment(signUpEndPoint)
@@ -80,11 +88,6 @@ class LoginMainFragment : Fragment() {
                 val dialogFragment = ResetPasswordFragment()
                 dialogFragment.show(childFragmentManager, "CustomDialog")
             }
-            btnTest.setOnClickListener {
-                com.seungma.infratalk.data.UserSingleton.userEntity =
-                    UserEntity(email = "test@naver.com", image = null, nickname = "상실이")
-                (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
-            }
         }
         subsribe()
     }
@@ -115,10 +118,19 @@ class LoginMainFragment : Fragment() {
             signViewModel.viewEvent.collect {
                 when (it) {
                     is ViewEvent.LogIn -> {
-                        hideProgressBar()
-                        it.userEntity?.let { userEntity ->
-                            com.seungma.infratalk.data.UserSingleton.userEntity = userEntity
+                        when(binding.cbId.isChecked) {
+                            true -> {
+                                //TODO 프리퍼런스 저장
+                                if(signViewModel.getSavedEmail().email != binding.emailEditText.text.toString()) {
+                                    signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
+                                }
+                            }
+                             false -> {
+                                 //TODO 프리퍼런스 삭제
+                                 signViewModel.deleteSavedEmail()
+                             }
                         }
+                        hideProgressBar()
                         Log.d("LogInMainF", " 로그인 프레그먼트")
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }

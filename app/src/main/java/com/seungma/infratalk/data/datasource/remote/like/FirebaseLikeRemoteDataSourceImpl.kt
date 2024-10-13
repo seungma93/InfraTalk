@@ -1,6 +1,7 @@
 package com.seungma.infratalk.data.datasource.remote.like
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.model.request.board.BoardLikeCountSelectRequest
 import com.seungma.infratalk.data.model.request.board.BoardLikeDeleteRequest
 import com.seungma.infratalk.data.model.request.board.BoardLikeInsertRequest
@@ -21,7 +22,8 @@ import javax.inject.Inject
 
 
 class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val userDataSource: UserDataSource
 ) : LikeDataSource {
 
     override suspend fun insertBoardLike(boardLikeInsertRequest: BoardLikeInsertRequest): LikeResponse =
@@ -39,10 +41,11 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
     override suspend fun deleteBoardLike(boardLikeDeleteRequest: BoardLikeDeleteRequest): LikeResponse =
         with(boardLikeDeleteRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("BoardLike")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
@@ -61,10 +64,11 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
     override suspend fun selectBoardLike(boardLikeSelectRequest: BoardLikeSelectRequest): LikeResponse =
         with(boardLikeSelectRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("BoardLike")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("boardAuthorEmail", boardAuthorEmail)
                     .whereEqualTo("boardCreateTime", boardCreateTime)
@@ -114,10 +118,11 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
     override suspend fun deleteCommentLike(commentLikeDeleteRequest: CommentLikeDeleteRequest): LikeResponse =
         with(commentLikeDeleteRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("CommentLike")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
                     .whereEqualTo("commentCreateTime", commentCreateTime)
@@ -136,10 +141,11 @@ class FirebaseLikeRemoteDataSourceImpl @Inject constructor(
     override suspend fun selectCommentLike(commentLikeSelectRequest: CommentLikeSelectRequest): LikeResponse =
         with(commentLikeSelectRequest) {
             return kotlin.runCatching {
+                val email = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val snapshot = database.collection("CommentLike")
                     .whereEqualTo(
                         "userEmail",
-                        com.seungma.infratalk.data.UserSingleton.userEntity.email
+                        email
                     )
                     .whereEqualTo("commentAuthorEmail", commentAuthorEmail)
                     .whereEqualTo("commentCreateTime", commentCreateTime)

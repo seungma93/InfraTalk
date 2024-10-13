@@ -1,6 +1,5 @@
 package com.seungma.domain.repository
 
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.datasource.remote.board.BoardDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardDeleteRequest
@@ -14,6 +13,7 @@ import com.seungma.infratalk.domain.board.entity.BoardInsertEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaEntity
 import com.seungma.infratalk.domain.board.entity.BoardMetaListEntity
 import com.seungma.infratalk.domain.board.repository.BoardDataRepository
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.form.BoardContentInsertForm
 import com.seungma.infratalk.presenter.board.form.BoardDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardListLoadForm
@@ -23,7 +23,7 @@ import com.seungma.infratalk.presenter.mypage.form.MyBoardListLoadForm
 import java.util.Date
 import javax.inject.Inject
 
-class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource) :
+class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardDataSource, private val userDataRepository: UserDataRepository) :
     BoardDataRepository {
     override suspend fun insertBoard(boardContentInsertForm: BoardContentInsertForm): BoardInsertEntity =
         with(boardContentInsertForm) {
@@ -50,7 +50,7 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
     override suspend fun updateBoard(boardUpdateForm: BoardUpdateForm): BoardMetaEntity {
         return dataSource.updateBoard(
             boardUpdateRequest = BoardUpdateRequest(
-                author = UserSingleton.userEntity,
+                author = userDataRepository.getUserMe(),
                 title = boardUpdateForm.title,
                 content = boardUpdateForm.content,
                 images = boardUpdateForm.images,
