@@ -154,7 +154,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                     }
                 }
             BoardMetaResponse(
-                userDataSource.obtainUser(),
+                userDataSource.getUserMe(),
                 boardUpdateRequest.title,
                 boardUpdateRequest.content,
                 null,
@@ -201,7 +201,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
         startAfter: DocumentSnapshot?
     ): QuerySnapshot {
         val query = database.collection("Board")
-            .whereEqualTo("authorEmail", userDataSource.obtainUser().email)
+            .whereEqualTo("authorEmail", userDataSource.getUserMe().email)
             .orderBy("createTime", Query.Direction.DESCENDING)
             .limit(limit)
         return if (startAfter != null) {
@@ -221,7 +221,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
                 snapshot.documents.map {
                     BoardMetaResponse(
-                        author = userDataSource.obtainUser(),
+                        author = userDataSource.getUserMe(),
                         title = it.data?.get("title") as? String,
                         content = it.data?.get("content") as? String,
                         images = (it.data?.get("images") as? List<String>)?.let {
@@ -259,7 +259,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyBookmarkBoardList(): BoardMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userResponse = userDataSource.obtainUser()
+            val userResponse = userDataSource.getUserMe()
             val snapshot = database.collection("BoardBookmark")
                 .whereEqualTo("userEmail", userResponse.email)
                 .get().await()
@@ -314,7 +314,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadMyLikeBoardList(): BoardMetaListResponse = coroutineScope {
         kotlin.runCatching {
-            val userResponse = userDataSource.obtainUser()
+            val userResponse = userDataSource.getUserMe()
             val snapshot = database.collection("BoardLike")
                 .whereEqualTo("userEmail", userResponse.email)
                 .get().await()

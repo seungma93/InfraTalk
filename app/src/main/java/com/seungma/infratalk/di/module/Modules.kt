@@ -1,5 +1,6 @@
 package com.seungma.infratalk.di.module
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,24 +13,26 @@ import com.seungma.domain.repository.ChatDataRepositoryImpl
 import com.seungma.domain.repository.ImageDataRepositoryImpl
 import com.seungma.domain.repository.LikeDataRepositoryImpl
 import com.seungma.domain.repository.UserDataRepositoryImpl
-import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
-import com.seungma.infratalk.data.datasource.remote.chat.ChatDataSource
-import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
-import com.seungma.infratalk.data.datasource.remote.bookmark.FirebaseBookmarkRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.chat.FirebaseChatRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.comment.FirebaseCommentRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.image.FirebaseImageRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.like.FirebaseLikeRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.user.FirebaseUserRemoteDataSourceImpl
-import com.seungma.infratalk.data.datasource.remote.image.ImageDataSource
-import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
-import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceLocalDataSourceImpl
 import com.seungma.infratalk.data.datasource.remote.board.BoardDataSource
 import com.seungma.infratalk.data.datasource.remote.board.FirebaseBoardRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
+import com.seungma.infratalk.data.datasource.remote.bookmark.FirebaseBookmarkRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.chat.ChatDataSource
+import com.seungma.infratalk.data.datasource.remote.chat.FirebaseChatRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.comment.CommentDataSource
+import com.seungma.infratalk.data.datasource.remote.comment.FirebaseCommentRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.image.FirebaseImageRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.image.ImageDataSource
+import com.seungma.infratalk.data.datasource.remote.like.FirebaseLikeRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.like.LikeDataSource
+import com.seungma.infratalk.data.datasource.remote.user.FirebaseUserRemoteDataSourceImpl
+import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
 import com.seungma.infratalk.data.repository.CommentDataRepositoryImpl
+import com.seungma.infratalk.domain.board.repository.BoardDataRepository
 import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
 import com.seungma.infratalk.domain.board.repository.LikeDataRepository
-import com.seungma.infratalk.domain.board.repository.BoardDataRepository
 import com.seungma.infratalk.domain.board.usecase.AddBoardBookmarkUseCase
 import com.seungma.infratalk.domain.board.usecase.AddBoardContentBookmarkUseCase
 import com.seungma.infratalk.domain.board.usecase.AddBoardContentLikeUseCase
@@ -67,8 +70,8 @@ import com.seungma.infratalk.domain.comment.usecase.WriteCommentUseCase
 import com.seungma.infratalk.domain.image.repository.ImageDataRepository
 import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
 import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
-import com.seungma.infratalk.domain.login.usecase.LogInUseCase
-import com.seungma.infratalk.domain.login.usecase.LogInUseCaseImpl
+import com.seungma.infratalk.domain.login.usecase.LoginUseCase
+import com.seungma.infratalk.domain.login.usecase.LogoutUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCaseImpl
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBoardListUseCase
@@ -85,8 +88,11 @@ import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
+import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
+import com.seungma.infratalk.domain.user.usecase.SetSavedEmailUseCase
 import com.seungma.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -99,8 +105,10 @@ import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeBoardViewModel
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyLikeCommentViewModel
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewModel
 import com.seungma.infratalk.presenter.sign.viewmodel.SignViewModel
+import com.seungma.infratalk.presenter.sign.viewmodel.SplashViewModel
 import com.seungma.infratalk.presenter.viewmodel.ViewModelFactory
 import com.seungma.infratalk.presenter.viewmodel.ViewModelKey
+import com.teamaejung.aejung.network.RetrofitClient
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -133,6 +141,22 @@ class Modules {
         }
     }
 
+    @Module
+    class PreferenceModule {
+        @Provides
+        fun providesPreferenceModule(context: Context): PreferenceDataSource {
+            return PreferenceLocalDataSourceImpl(context)
+        }
+    }
+
+    @Module
+    class RetrofitClientModule {
+        @Provides
+        fun providesRetrofitClient(): RetrofitClient {
+            return RetrofitClient
+        }
+    }
+
     // DataSource
     @Module
     class FirebaseBoardDataSourceModule {
@@ -161,9 +185,16 @@ class Modules {
         @Provides
         fun providesFirebaseUserRemoteDataSource(
             auth: FirebaseAuth,
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            preferenceDataSource: PreferenceDataSource,
+            retrofitClient: RetrofitClient
         ): UserDataSource {
-            return FirebaseUserRemoteDataSourceImpl(auth, database)
+            return FirebaseUserRemoteDataSourceImpl(
+                auth,
+                database,
+                preferenceDataSource,
+                retrofitClient
+            )
         }
     }
 
@@ -171,9 +202,10 @@ class Modules {
     class FirebaseLikeDataSourceModule {
         @Provides
         fun providesFirebaseLikeRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): LikeDataSource {
-            return FirebaseLikeRemoteDataSourceImpl(database)
+            return FirebaseLikeRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -181,9 +213,10 @@ class Modules {
     class FirebaseBookmarkDataSourceModule {
         @Provides
         fun providesFirebaseBookmarkRemoteDataSource(
-            database: FirebaseFirestore
+            database: FirebaseFirestore,
+            userDataSource: UserDataSource
         ): BookmarkDataSource {
-            return FirebaseBookmarkRemoteDataSourceImpl(database)
+            return FirebaseBookmarkRemoteDataSourceImpl(database, userDataSource)
         }
     }
 
@@ -213,8 +246,11 @@ class Modules {
     @Module
     class BoardDataRepositoryModule {
         @Provides
-        fun providesBoardDataRepository(dataSource: BoardDataSource): BoardDataRepository {
-            return BoardDataRepositoryImpl(dataSource)
+        fun providesBoardDataRepository(
+            dataSource: BoardDataSource,
+            userDataRepository: UserDataRepository
+        ): BoardDataRepository {
+            return BoardDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
@@ -229,24 +265,30 @@ class Modules {
     @Module
     class UserDataRepositoryModule {
         @Provides
-        fun providesUserDataRepository(dataSource: UserDataSource): UserDataRepository {
-            return UserDataRepositoryImpl(dataSource)
+        fun providesUserDataRepository(dataSource: UserDataSource, preferenceDataSource: PreferenceDataSource): UserDataRepository {
+            return UserDataRepositoryImpl(dataSource, preferenceDataSource)
         }
     }
 
     @Module
     class LikeDataRepositoryModule {
         @Provides
-        fun providesLikeDataRepository(dataSource: LikeDataSource): LikeDataRepository {
-            return LikeDataRepositoryImpl(dataSource)
+        fun providesLikeDataRepository(
+            dataSource: LikeDataSource,
+            userDataRepository: UserDataRepository
+        ): LikeDataRepository {
+            return LikeDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
     @Module
     class BookmarkDataRepositoryModule {
         @Provides
-        fun providesBookmarkDataRepository(dataSource: BookmarkDataSource): BookmarkDataRepository {
-            return BookmarkDataRepositoryImpl(dataSource)
+        fun providesBookmarkDataRepository(
+            dataSource: BookmarkDataSource,
+            userDataRepository: UserDataRepository
+        ): BookmarkDataRepository {
+            return BookmarkDataRepositoryImpl(dataSource, userDataRepository)
         }
     }
 
@@ -254,9 +296,10 @@ class Modules {
     class CommentDataRepositoryModule {
         @Provides
         fun providesCommentDataRepository(
-            commentDataSource: CommentDataSource
+            commentDataSource: CommentDataSource,
+            userDataRepository: UserDataRepository
         ): CommentDataRepository {
-            return CommentDataRepositoryImpl(commentDataSource)
+            return CommentDataRepositoryImpl(commentDataSource, userDataRepository)
         }
     }
 
@@ -273,10 +316,10 @@ class Modules {
 
     // UseCase
     @Module
-    class LogInUseCaseModule {
+    class LoginUseCaseModule {
         @Provides
-        fun providesLogInUseCase(repository: UserDataRepository): LogInUseCase {
-            return LogInUseCaseImpl(repository)
+        fun providesLogInUseCase(repository: UserDataRepository): LoginUseCase {
+            return LoginUseCase(repository)
         }
     }
 
@@ -570,8 +613,8 @@ class Modules {
         @Provides
         fun providesGetUserInfoUseCase(
             userDataRepository: UserDataRepository
-        ): GetUserInfoUseCase {
-            return GetUserInfoUseCase(
+        ): GetUserMeUseCase {
+            return GetUserMeUseCase(
                 userDataRepository
             )
         }
@@ -754,7 +797,7 @@ class Modules {
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
@@ -767,7 +810,7 @@ class Modules {
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
                 createChatRoomUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 checkChatRoomUseCase,
                 deleteBoardUseCase
             )
@@ -793,7 +836,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return BoardContentViewModel(
                 writeCommentUseCase,
@@ -809,7 +852,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -823,19 +866,25 @@ class Modules {
             signUpUseCase: SignUpUseCase,
             sendEmailUseCase: SendEmailUseCase,
             updateProfileImageUseCase: UpdateProfileImageUseCase,
-            logInUseCase: LogInUseCase,
+            loginUseCase: LoginUseCase,
             resetPasswordUseCase: ResetPasswordUseCase,
             deleteUserInfoUseCase: DeleteUserInfoUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
+            updateUserInfoUseCase: UpdateUserInfoUseCase,
+            setSavedEmailUseCase: SetSavedEmailUseCase,
+            getSavedEmailUseCase: GetSavedEmailUseCase,
+            deleteSavedEmailUseCase: DeleteSavedEmailUseCase
         ): ViewModel {
             return SignViewModel(
                 signUpUseCase,
                 sendEmailUseCase,
                 updateProfileImageUseCase,
-                logInUseCase,
+                loginUseCase,
                 resetPasswordUseCase,
                 deleteUserInfoUseCase,
-                updateUserInfoUseCase
+                updateUserInfoUseCase,
+                setSavedEmailUseCase,
+                getSavedEmailUseCase,
+                deleteSavedEmailUseCase
             )
         }
     }
@@ -873,12 +922,12 @@ class Modules {
         @ViewModelKey(ChatRoomViewModel::class)
         fun providesChatRoomViewModel(
             loadChatRoomListUseCase: LoadChatRoomListUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             loadRealTimeChatRoomListUseCase: LoadRealTimeChatRoomListUseCase
         ): ViewModel {
             return ChatRoomViewModel(
                 loadChatRoomListUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 loadRealTimeChatRoomListUseCase
             )
         }
@@ -890,12 +939,14 @@ class Modules {
         @IntoMap
         @ViewModelKey(MyPageViewModel::class)
         fun providesMyPageViewModel(
-            getUserInfoUseCase: GetUserInfoUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase,
+            updateUserInfoUseCase: UpdateUserInfoUseCase,
+            logoutUseCase: LogoutUseCase
         ): ViewModel {
             return MyPageViewModel(
-                getUserInfoUseCase,
-                updateUserInfoUseCase
+                getUserMeUseCase,
+                updateUserInfoUseCase,
+                logoutUseCase
             )
         }
     }
@@ -911,7 +962,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase
         ): ViewModel {
             return MyBoardViewModel(
@@ -920,7 +971,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase
             )
         }
@@ -938,7 +989,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyCommentViewModel(
                 loadMyCommentListUseCase,
@@ -947,7 +998,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -963,7 +1014,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase
@@ -974,7 +1025,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase,
                 checkChatRoomUseCase,
                 createChatRoomUseCase
@@ -993,7 +1044,7 @@ class Modules {
             deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
             addBoardLikeUseCase: AddBoardLikeUseCase,
             deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase,
+            getUserMeUseCase: GetUserMeUseCase,
             deleteBoardUseCase: DeleteBoardUseCase,
             checkChatRoomUseCase: CheckChatRoomUseCase,
             createChatRoomUseCase: CreateChatRoomUseCase
@@ -1004,7 +1055,7 @@ class Modules {
                 deleteBoardBookmarkUseCase,
                 addBoardLikeUseCase,
                 deleteBoardLikeUseCase,
-                getUserInfoUseCase,
+                getUserMeUseCase,
                 deleteBoardUseCase,
                 checkChatRoomUseCase,
                 createChatRoomUseCase
@@ -1024,7 +1075,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyBookmarkCommentViewModel(
                 loadMyBookmarkCommentListUseCase,
@@ -1033,7 +1084,7 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
             )
         }
     }
@@ -1050,7 +1101,7 @@ class Modules {
             deleteCommentBookmarkUseCase: DeleteCommentBookmarkUseCase,
             addCommentLikeUseCase: AddCommentLikeUseCase,
             deleteCommentLikeUseCase: DeleteCommentLikeUseCase,
-            getUserInfoUseCase: GetUserInfoUseCase
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
             return MyLikeCommentViewModel(
                 loadMyLikeCommentListUseCase,
@@ -1059,7 +1110,21 @@ class Modules {
                 deleteCommentBookmarkUseCase,
                 addCommentLikeUseCase,
                 deleteCommentLikeUseCase,
-                getUserInfoUseCase
+                getUserMeUseCase
+            )
+        }
+    }
+
+    @Module
+    class SplashViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(SplashViewModel::class)
+        fun providesSplashViewModel(
+            getUserMeUseCase: GetUserMeUseCase
+        ): ViewModel {
+            return SplashViewModel(
+                getUserMeUseCase
             )
         }
     }

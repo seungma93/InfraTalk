@@ -61,11 +61,8 @@ class MyCommentFragment : Fragment() {
         ).show()
     })
 
-    private val myAccountUserEntity
-        get() = requireArguments().getSerializable(
-            MY_ACCOUNT_PRIMARY_KEY
-        ) as UserEntity
     private lateinit var callback: OnBackPressedCallback
+
 
     @Inject
     lateinit var myCommentViewModelFactory: ViewModelProvider.Factory
@@ -88,7 +85,7 @@ class MyCommentFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyCommentBinding.inflate(inflater, container, false)
         return binding.root
     }

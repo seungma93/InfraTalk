@@ -1,6 +1,6 @@
 package com.seungma.domain.repository
 
-import com.seungma.infratalk.data.UserSingleton
+
 import com.seungma.infratalk.data.datasource.remote.bookmark.BookmarkDataSource
 import com.seungma.infratalk.data.mapper.toEntity
 import com.seungma.infratalk.data.model.request.board.BoardBookMarksDeleteRequest
@@ -12,9 +12,10 @@ import com.seungma.infratalk.data.model.request.comment.CommentBookmarkInsertReq
 import com.seungma.infratalk.data.model.request.comment.CommentBookmarkSelectRequest
 import com.seungma.infratalk.data.model.request.comment.CommentRelatedBookmarksDeleteRequest
 import com.seungma.infratalk.domain.board.entity.BoardBookmarksDeleteEntity
-import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
 import com.seungma.infratalk.domain.board.entity.BookmarkEntity
 import com.seungma.infratalk.domain.board.entity.CommentRelatedBookmarksEntity
+import com.seungma.infratalk.domain.board.repository.BookmarkDataRepository
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkLoadForm
@@ -26,14 +27,14 @@ import com.seungma.infratalk.presenter.board.form.CommentRelatedBookmarksDeleteF
 import java.util.Date
 import javax.inject.Inject
 
-class BookmarkDataRepositoryImpl @Inject constructor(private val dataSource: BookmarkDataSource) :
+class BookmarkDataRepositoryImpl @Inject constructor(private val dataSource: BookmarkDataSource, private val userDataRepository: UserDataRepository) :
     BookmarkDataRepository {
     override suspend fun addBoardBookmark(boardBookmarkAddForm: BoardBookmarkAddForm): BookmarkEntity {
         return dataSource.insertBoardBookmark(
             BoardBookmarkInsertRequest(
                 boardAuthorEmail = boardBookmarkAddForm.boardAuthorEmail,
                 boardCreateTime = boardBookmarkAddForm.boardCreateTime,
-                userEmail = UserSingleton.userEntity.email,
+                userEmail = userDataRepository.getUserMe().email,
                 updateTime = Date()
             )
         ).toEntity()
@@ -62,7 +63,7 @@ class BookmarkDataRepositoryImpl @Inject constructor(private val dataSource: Boo
             CommentBookmarkInsertRequest(
                 commentAuthorEmail = commentBookmarkAddForm.commentAuthorEmail,
                 commentCreateTime = commentBookmarkAddForm.commentCreateTime,
-                userEmail = UserSingleton.userEntity.email,
+                userEmail = userDataRepository.getUserMe().email,
                 updateTime = Date()
             )
         ).toEntity()

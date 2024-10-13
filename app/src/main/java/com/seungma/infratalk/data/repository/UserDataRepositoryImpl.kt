@@ -1,22 +1,27 @@
 package com.seungma.domain.repository
 
 import android.util.Log
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
 import com.seungma.infratalk.data.datasource.remote.user.UserDataSource
-import com.seungma.infratalk.data.model.request.user.SignupRequest
+import com.seungma.infratalk.data.mapper.toEntity
+import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
+import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
-import com.seungma.infratalk.domain.user.repository.UserDataRepository
+import com.seungma.infratalk.domain.user.entity.SavedEmailGetEntity
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import toEntity
 import javax.inject.Inject
 
-class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource) :
+class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDataSource, private val preferenceDataSource: PreferenceDataSource) :
     UserDataRepository {
 
     override suspend fun signUp(signUpForm: SignUpForm): UserEntity = with(signUpForm) {
@@ -31,7 +36,7 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         ).toEntity()
     }
 
-    override suspend fun logIn(logInForm: LoginForm): UserEntity = with(logInForm) {
+    override suspend fun login(loginForm: LoginForm): UserEntity = with(loginForm) {
         Log.d("UserDataR", "로그인 레포")
         return dataSource.login(
             loginRequest = LoginRequest(
@@ -73,9 +78,27 @@ class UserDataRepositoryImpl @Inject constructor(private val dataSource: UserDat
         ).toEntity()
     }
 
-    override fun getUserInfo(): UserEntity {
-        return dataSource.obtainUser().toEntity()
+    override suspend fun getUserMe(): UserEntity {
+        return dataSource.getUserMe().toEntity()
     }
 
+    override fun logout() {
+        dataSource.logout()
+    }
 
+    override fun getSavedEmail(): SavedEmailGetEntity {
+        return preferenceDataSource.getSavedEmail().toEntity()
+    }
+
+    override fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm) {
+        preferenceDataSource.setSavedEmail(
+            savedEmailSetRequest = SavedEmailSetRequest(
+                email = savedEmailSetForm.email
+            )
+        )
+    }
+
+    override fun deleteSavedEmail() {
+        preferenceDataSource.deleteSavedEmail()
+    }
 }

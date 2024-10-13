@@ -12,8 +12,8 @@ import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
 import com.seungma.infratalk.domain.chat.usecase.CheckChatRoomUseCase
 import com.seungma.infratalk.domain.chat.usecase.CreateChatRoomUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkBoardListUseCase
-import com.seungma.infratalk.domain.user.usecase.GetUserInfoUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -44,7 +44,7 @@ class MyBookmarkBoardViewModel @Inject constructor(
     private val deleteBoardBookmarkUseCase: DeleteBoardBookmarkUseCase,
     private val addBoardLikeUseCase: AddBoardLikeUseCase,
     private val deleteBoardLikeUseCase: DeleteBoardLikeUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val getUserMeUseCase: GetUserMeUseCase,
     private val deleteBoardUseCase: DeleteBoardUseCase,
     private val checkChatRoomUseCase: CheckChatRoomUseCase,
     private val createChatRoomUseCase: CreateChatRoomUseCase
@@ -154,8 +154,8 @@ class MyBookmarkBoardViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-    fun getUserInfo(): UserEntity {
-        return getUserInfoUseCase()
+    suspend fun getUserMe(): UserEntity {
+        return getUserMeUseCase()
     }
 
     suspend fun deleteBoard(

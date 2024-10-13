@@ -224,7 +224,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun loadChatRoomList(): ChatRoomListResponse {
         return kotlin.runCatching {
-            val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 없음")
+            val userEmail = userDataSource.getUserMe().email ?: error("유저 정보 없음")
             val snapshot = database.collection("ChatRoom")
                 .whereArrayContains("member", userEmail)
                 .get().await()
@@ -274,7 +274,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         return callbackFlow {
             kotlin.runCatching {
 
-                val userEmail = userDataSource.obtainUser().email ?: error("유저 정보 존재 하지 않음.")
+                val userEmail = userDataSource.getUserMe().email ?: error("유저 정보 존재 하지 않음.")
 
                 val chatRoomListener = database.collection("ChatRoom")
                     .whereArrayContains("member", userEmail)
@@ -471,7 +471,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             snapshot?.let {
                 val member = it.data?.get("member") as? List<String>
                 val leaveMember = it.data?.get("leaveMember") as? List<String>
-                val user = userDataSource.obtainUser().email ?: error("유저 정보 없음")
+                val user = userDataSource.getUserMe().email ?: error("유저 정보 없음")
                 val updateField = hashMapOf(
                     "member" to member?.filterNot { item -> item == user },
                     "leaveMember" to when (leaveMember.isNullOrEmpty()) {

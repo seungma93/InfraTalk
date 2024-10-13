@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.JsonObject
 import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteException
@@ -18,17 +19,20 @@ import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
-import com.seungma.infratalk.data.UserSingleton
 import com.seungma.infratalk.data.WrongPasswordException
-import com.seungma.infratalk.data.model.request.user.SignupRequest
+import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
+import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.request.user.DeleteUserRequest
 import com.seungma.infratalk.data.model.request.user.LoginRequest
 import com.seungma.infratalk.data.model.request.user.ResetPasswordRequest
+import com.seungma.infratalk.data.model.request.user.SignupRequest
 import com.seungma.infratalk.data.model.request.user.UserInfoUpdateRequest
 import com.seungma.infratalk.data.model.request.user.UserSelectRequest
 import com.seungma.infratalk.data.model.response.user.UserResponse
 import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
+import com.teamaejung.aejung.network.RetrofitClient
+import com.teamaejung.aejung.network.service.FirebaseAuthService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
@@ -37,7 +41,9 @@ import javax.security.auth.login.LoginException
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val database: FirebaseFirestore
+    private val database: FirebaseFirestore,
+    private val preferenceDataSource: PreferenceDataSource,
+    private val retrofitClient: RetrofitClient
 ) : UserDataSource {
 
     companion object {
@@ -108,22 +114,27 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 val updateData = userInfoUpdateRequest.nickname?.let {
                     userInfoUpdateRequest.image?.let {
-                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                                mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to userInfoUpdateRequest.image)
-                            } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
-                        } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
-                    } ?: run {
+                        if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            mapOf(
+                                "nickname" to userInfoUpdateRequest.nickname,
+                                "image" to userInfoUpdateRequest.image
+                            )
+                        } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
+                    } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
+                } ?: run {
                     userInfoUpdateRequest.image?.let {
-                            if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                                mapOf("image" to userInfoUpdateRequest.image)
-                            } else mapOf("image" to null)
-                        } ?: error("")
-                    }
+                        if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            mapOf("image" to userInfoUpdateRequest.image)
+                        } else mapOf("image" to null)
+                    } ?: error("")
+                }
 
 
                 val snapshotAsync =
-                    async { database.collection("User").whereEqualTo("email", userInfoUpdateRequest.email)
-                        .get()
+                    async {
+                        database.collection("User")
+                            .whereEqualTo("email", userInfoUpdateRequest.email)
+                            .get()
                     }
                 val userResponseAsync = async {
                     selectUserInfo(userSelectRequest = UserSelectRequest(userEmail = userInfoUpdateRequest.email))
@@ -180,9 +191,10 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override suspend fun login(loginRequest: LoginRequest): UserResponse = with(loginRequest) {
+    override suspend fun login(loginRequest: LoginRequest): UserResponse = coroutineScope {
         runCatching {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val result =
+                auth.signInWithEmailAndPassword(loginRequest.email, loginRequest.password).await()
             val user = result.user
 
             user?.let {
@@ -195,10 +207,23 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.onFailure {
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
         }
-        val snapshot =
+
+        val snapshotAsync = async {
             database.collection("User")
-                .whereEqualTo("email", email).get()
-                .await()
+                .whereEqualTo("email", loginRequest.email).get().await()
+        }
+        val tokenAsync = async {
+            auth.currentUser?.getIdToken(false)
+        }
+        val snapshot = snapshotAsync.await()
+        val token = tokenAsync.await()
+        token?.let {
+            it.result.token?.let {
+                preferenceDataSource.setUserToken(userTokenSetRequest = UserTokenSetRequest(token = it))
+            }
+        }
+
+
         runCatching {
             snapshot.documents.firstOrNull()?.let {
                 val data = it.data
@@ -251,13 +276,61 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         }.getOrThrow()
     }
 
-    override fun obtainUser(): UserResponse {
-        val userEntity = UserSingleton.userEntity
-        return UserResponse(
-            email = userEntity.email,
-            nickname = userEntity.nickname,
-            image = userEntity.image
-        )
+
+    override suspend fun getUserMe(): UserResponse {
+        val token = preferenceDataSource.getUserToken().token
+        Log.d("getUser", "토큰 :" + token)
+        return runCatching {
+            val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
+            token?.let {
+                val getUserMeResponse =
+                    retrofitClient.retrofit.create(FirebaseAuthService::class.java).getUserInfo(
+                        apiKey = apiKey,
+                        request = JsonObject().apply {
+                            addProperty("idToken", token)
+                        }
+
+                    )
+                val email = getUserMeResponse.users?.firstOrNull()?.email
+                Log.d("getUser", "겟 유저 이메일 :" + email)
+                email?.let {
+                    val snapshot = database.collection("User")
+                        .whereEqualTo("email", it).get().await()
+                    snapshot.documents.firstOrNull()?.let { document ->
+                        val data = document.data
+                        data?.let {
+                            UserResponse(
+                                email = data["email"] as? String,
+                                nickname = data["nickname"] as? String,
+                                image = (data["image"] as? String)?.let { image ->
+                                    Uri.parse(image)
+                                }
+                            )
+                        }
+                    }
+                }
+            } ?: run {
+                Log.d("getUserMe", "토큰 없음")
+                UserResponse(
+                    email = null,
+                    nickname = null,
+                    image = null
+                )
+            }
+        }.onFailure {
+            throw Exception(it.message)
+        }.getOrThrow()
+
+    }
+
+    override fun logout() {
+        kotlin.runCatching {
+            preferenceDataSource.deleteUserToken()
+            auth.signOut()
+        }.onFailure {
+            throw Exception(it.message)
+        }
+
     }
 }
 
