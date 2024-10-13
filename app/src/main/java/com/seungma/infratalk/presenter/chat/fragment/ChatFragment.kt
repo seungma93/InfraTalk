@@ -15,7 +15,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.seungma.infratalk.databinding.FragmentChatBinding
 import com.seungma.infratalk.di.component.DaggerChatFragmentComponent
@@ -25,13 +24,10 @@ import com.seungma.infratalk.presenter.chat.adapter.ChatListAdapter
 import com.seungma.infratalk.presenter.chat.form.ChatMessageListLoadForm
 import com.seungma.infratalk.presenter.chat.form.ChatMessageSendForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomLeaveForm
-import com.seungma.infratalk.presenter.chat.form.ChatRoomLoadForm
 import com.seungma.infratalk.presenter.chat.listener.OnChatScrollListener
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModelFactory
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -163,49 +159,28 @@ class ChatFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            showProgressBar()
-            val chatRoomEntity =
-                chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
 
-            chatRoomEntity?.let { binding.tvChatTitle.text = it.roomName }
-
-            val viewState = chatViewModel.loadChatMessage(
+            val loadMessage = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
                     reload = true
                 )
             )
-            chatListAdapter.submitList(createChatItem(viewState)) {
+            chatListAdapter.submitList(createChatItem(loadMessage)) {
                 binding.rvChat.scrollToPosition(0)
             }
-        }
 
+            // 실시간 로드
+            chatViewModel.viewState.collect {
+                val roomName = it.chatRoomEntity?.roomName
+                if (roomName != binding.tvChatTitle.text.toString()) binding.tvChatTitle.text =
+                    roomName
 
+                chatListAdapter.submitList(createChatItem(it)) {
+                    if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                }
 
-        chatViewModel.viewModelScope.launch {
-
-            launch {
-                chatViewModel.viewState.map { it.chatRoomEntity?.roomName }
-                    .stateIn(this)
-                    .collect {
-                        Log.d("seungma", "챗프레그먼트 콜렉트1")
-                        binding.tvChatTitle.text = it
-                    }
             }
-
-            launch {
-                chatViewModel.viewState.map { createChatItem(it) to it.isNewChatMessage }
-                    .stateIn(this)
-                    .collect { (chatList, isNewChatMessage) ->
-                        Log.d("seungma", "챗프레그먼트 콜렉트2")
-                        chatListAdapter.submitList(chatList) {
-                            if (isNewChatMessage) binding.rvChat.scrollToPosition(0)
-                            hideProgressBar()
-                        }
-                    }
-            }
-
-            Log.d("seungma", "챗프레그먼트 콜렉트")
         }
 
         subscribe()
