@@ -3,16 +3,21 @@ package com.seungma.infratalk.presenter.sign.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
-import com.seungma.infratalk.domain.login.usecase.LogInUseCase
+import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
+import com.seungma.infratalk.domain.user.entity.SavedEmailGetEntity
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
+import com.seungma.infratalk.domain.user.usecase.SetSavedEmailUseCase
 import com.seungma.infratalk.presenter.sign.form.LoginForm
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
+import com.seungma.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,10 +36,13 @@ class SignViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
-    private val logInUseCase: LogInUseCase,
+    private val logInUseCase: LoginUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
     private val deleteUserInfoUseCase: DeleteUserInfoUseCase,
-    private val updateUserInfoUseCase: UpdateUserInfoUseCase
+    private val updateUserInfoUseCase: UpdateUserInfoUseCase,
+    private val setSavedEmailUseCase: SetSavedEmailUseCase,
+    private val getSavedEmailUseCase: GetSavedEmailUseCase,
+    private val deleteSavedEmailUseCase: DeleteSavedEmailUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<ViewEvent>()
     val viewEvent: SharedFlow<ViewEvent> = _viewEvent.asSharedFlow()
@@ -79,10 +87,10 @@ class SignViewModel @Inject constructor(
         }
     }
 
-    suspend fun logIn(logInForm: LoginForm) {
+    suspend fun logIn(loginForm: LoginForm) {
         kotlin.runCatching {
             Log.d("SignViewModel", "로그인 뷰 모델")
-            _viewEvent.emit(ViewEvent.LogIn(logInUseCase.logIn(logInForm)))
+            _viewEvent.emit(ViewEvent.LogIn(logInUseCase(loginForm)))
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))
         }
@@ -100,5 +108,17 @@ class SignViewModel @Inject constructor(
         }.onFailure {
             _viewEvent.emit(ViewEvent.Error(it))
         }
+    }
+
+    fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm) {
+        setSavedEmailUseCase(savedEmailSetForm = savedEmailSetForm)
+    }
+
+    fun getSavedEmail(): SavedEmailGetEntity {
+        return getSavedEmailUseCase()
+    }
+
+    fun deleteSavedEmail() {
+        deleteSavedEmailUseCase()
     }
 }

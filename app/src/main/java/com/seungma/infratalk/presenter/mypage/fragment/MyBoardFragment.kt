@@ -64,10 +64,6 @@ class MyBoardFragment : Fragment() {
         ).show()
     })
 
-    private val myAccountUserEntity
-        get() = requireArguments().getSerializable(
-            MY_ACCOUNT_PRIMARY_KEY
-        ) as UserEntity
     private lateinit var callback: OnBackPressedCallback
 
     @Inject
@@ -91,7 +87,7 @@ class MyBoardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMyBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -199,7 +195,6 @@ class MyBoardFragment : Fragment() {
             }
         )
         binding.apply {
-
             swipeRefreshLayout.setOnRefreshListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     kotlin.runCatching {

@@ -13,6 +13,9 @@ import dagger.Component
         Modules.FirebaseAuthModule::class,
         Modules.FirebaseFirestoreModule::class,
         Modules.FirebaseStorageModule::class,
+        Modules.PreferenceModule::class,
+        // Retrofit
+        Modules.RetrofitClientModule::class,
         Modules.FirebaseUserDataSourceModule::class,
         Modules.FirebaseImageDataSourceModule::class,
         Modules.UserDataRepositoryModule::class,
@@ -22,7 +25,7 @@ import dagger.Component
         Modules.SignUpUseCaseModule::class,
         Modules.SendEmailUseCaseModule::class,
         Modules.UpdateProfileImageUseCaseModule::class,
-        Modules.LogInUseCaseModule::class,
+        Modules.LoginUseCaseModule::class,
         Modules.ResetPasswordUseCaseModule::class,
         Modules.DeleteUserInfoUseCaseModule::class,
         Modules.SignViewModelModule::class,
