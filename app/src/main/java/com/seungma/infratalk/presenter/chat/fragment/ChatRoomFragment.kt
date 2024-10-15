@@ -73,13 +73,11 @@ class ChatRoomFragment : Fragment() {
 
             // 어댑터를 RecyclerView에 설정
             binding.rvChatRoom.adapter = _adapter
-        }
 
-        // ProgressBar를 보여주고 채팅방 데이터를 로드
-        viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
             chatRoomViewModel.loadChatRoom()
         }
+
 
         // 데이터 변경을 구독
         subscribe()
