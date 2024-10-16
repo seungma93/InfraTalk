@@ -21,6 +21,7 @@ import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,7 +55,11 @@ class ChatRoomFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             // userEntity 값을 가져올 때까지 기다림
-            userEntity = chatRoomViewModel.getUserMe()
+
+            val userEntityAsync = async { chatRoomViewModel.getUserMe() }
+            val loadChatRoomAsync = async { chatRoomViewModel.loadChatRoom() }
+
+            userEntity = userEntityAsync.await()
 
             // userEntity가 초기화된 후 어댑터를 설정
             _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
@@ -75,14 +80,12 @@ class ChatRoomFragment : Fragment() {
             binding.rvChatRoom.adapter = _adapter
 
             showProgressBar()
-            chatRoomViewModel.loadChatRoom()
+            loadChatRoomAsync.await()
+
+            // 데이터 변경을 구독
+            subscribe()
         }
-
-
-        // 데이터 변경을 구독
-        subscribe()
     }
-
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
