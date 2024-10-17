@@ -153,7 +153,7 @@ class ChatFragment : Fragment() {
 
             val layoutManager = LinearLayoutManager(requireContext())
             layoutManager.reverseLayout = true;
-            layoutManager.stackFromEnd = true;
+            //layoutManager.stackFromEnd = true;
             rvChat.layoutManager = layoutManager
             rvChat.adapter = chatListAdapter
         }
