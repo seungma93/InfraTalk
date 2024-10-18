@@ -92,7 +92,15 @@ class ChatRoomFragment : Fragment() {
             launch {
                 chatRoomViewModel.viewState.collect {
                     Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
+
+
                     if (it.chatRoomListEntity.chatRoomList.isNotEmpty()) {
+
+                        adapter.submitList(it.chatRoomListEntity.chatRoomList) {
+                            hideProgressBar()
+                            binding.rvChatRoom.scrollToPosition(0)
+                        }
+                        /*
                         if (it.chatRoomListEntity.chatRoomList.first().primaryKey.isNotEmpty()) {
                             adapter.submitList(it.chatRoomListEntity.chatRoomList) {
                                 hideProgressBar()
@@ -104,7 +112,11 @@ class ChatRoomFragment : Fragment() {
                             hideProgressBar()
                             binding.rvChatRoom.scrollToPosition(0)
                         }
+                        */
+
                     }
+
+
                 }
             }
             launch {
