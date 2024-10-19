@@ -54,8 +54,6 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // userEntity 값을 가져올 때까지 기다림
-
             val userEntityAsync = async { chatRoomViewModel.getUserMe() }
             val loadChatRoomAsync = async { chatRoomViewModel.loadChatRoom() }
 
@@ -91,32 +89,10 @@ class ChatRoomFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             launch {
                 chatRoomViewModel.viewState.collect {
-                    Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
-
-
-                    if (it.chatRoomListEntity.chatRoomList.isNotEmpty()) {
-
                         adapter.submitList(it.chatRoomListEntity.chatRoomList) {
                             hideProgressBar()
                             binding.rvChatRoom.scrollToPosition(0)
                         }
-                        /*
-                        if (it.chatRoomListEntity.chatRoomList.first().primaryKey.isNotEmpty()) {
-                            adapter.submitList(it.chatRoomListEntity.chatRoomList) {
-                                hideProgressBar()
-                                binding.rvChatRoom.scrollToPosition(0)
-                            }
-                        }
-                    } else {
-                        adapter.submitList(it.chatRoomListEntity.chatRoomList) {
-                            hideProgressBar()
-                            binding.rvChatRoom.scrollToPosition(0)
-                        }
-                        */
-
-                    }
-
-
                 }
             }
             launch {
@@ -134,11 +110,9 @@ class ChatRoomFragment : Fragment() {
                                     )
                                     (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                                 }
-
                                 false -> Log.d("seungma", "채팅방 시작 실패")
                             }
                         }
-
                         else -> {}
                     }
                 }
@@ -152,17 +126,17 @@ class ChatRoomFragment : Fragment() {
         binding.progressBar.isVisible = true
     }
 
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
     private fun blockLayoutTouch() {
         requireActivity().window?.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
-    }
-
-    private fun hideProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 종료")
-        clearBlockLayoutTouch()
-        binding.progressBar.isVisible = false
     }
 
     private fun clearBlockLayoutTouch() {
