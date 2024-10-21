@@ -1,5 +1,6 @@
 package com.seungma.infratalk.presenter.chat.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.seungma.infratalk.databinding.ListItemChatMessageDateBinding
 import com.seungma.infratalk.databinding.ListItemChatMessageOwnerBinding
 import com.seungma.infratalk.databinding.ListItemChatMessagePartnerBinding
 import com.seungma.infratalk.domain.chat.entity.ChatMessageEntity
@@ -20,6 +22,8 @@ sealed class ChatItem {
     data class Owner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 
     data class Partner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+
+    data class Date(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 }
 
 class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUtil) {
@@ -27,6 +31,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
     companion object {
         private const val TYPE_OWNER = 0
         private const val TYPE_PARTNER = 1
+        private const val TYPE_DATE = 2
         val diffUtil = object : DiffUtil.ItemCallback<ChatItem>() {
 
             // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
@@ -80,6 +85,16 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
                 ChatMessagePartnerViewHolder(binding)
             }
 
+            TYPE_DATE -> {
+                val binding =
+                    ListItemChatMessageDateBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                ChatMessageDateViewHolder(binding)
+            }
+
             else -> throw IllegalArgumentException("Unknown view type")
         }
 
@@ -96,6 +111,11 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
                 val item = getItem(position) as ChatItem.Partner
                 holder.bind(item.chatMessageEntity)
             }
+
+            is ChatMessageDateViewHolder -> {
+                val item = getItem(position) as ChatItem.Date
+                holder.bind(item.chatMessageEntity)
+            }
         }
     }
 
@@ -103,6 +123,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
         return when (getItem(position)) {
             is ChatItem.Owner -> TYPE_OWNER
             is ChatItem.Partner -> TYPE_PARTNER
+            is ChatItem.Date -> TYPE_DATE
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -242,5 +263,24 @@ class ChatMessagePartnerViewHolder(
             dateFromDatabaseString
         }
         return displayText
+    }
+}
+
+class ChatMessageDateViewHolder(
+    private val binding: ListItemChatMessageDateBinding
+) : RecyclerView.ViewHolder(binding.root) {
+    private var chatMessageEntity: ChatMessageEntity? = null
+
+    fun bind(chatMessageEntity: ChatMessageEntity) {
+        this.chatMessageEntity = chatMessageEntity
+        binding.apply {
+            tvDate.text = modifiedDate(date = chatMessageEntity.sendTime)
+        }
+    }
+
+    private fun modifiedDate(date: Date?): String {
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+        return sdf.format(date)
     }
 }
