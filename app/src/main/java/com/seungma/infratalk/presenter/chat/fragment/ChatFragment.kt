@@ -29,6 +29,9 @@ import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModelFactory
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class ChatFragment : Fragment() {
@@ -166,10 +169,25 @@ class ChatFragment : Fragment() {
                     reload = true
                 )
             )
-            chatListAdapter.submitList(createChatItem(loadMessage)) {
+            val chatItemList = createChatItem(loadMessage)
+
+            val dateMessageList = chatItemList.mapIndexed { index, current ->
+                if (index > 0 && checkDate(
+                        chatItemList[index - 1].chatMessageEntity.sendTime,
+                        current.chatMessageEntity.sendTime
+                    )
+                ) {
+                    listOf(current)
+                } else {
+                    listOf(current,ChatItem.Date(current.chatMessageEntity))
+                }
+            }.flatten()
+
+            chatListAdapter.submitList(dateMessageList) {
                 binding.rvChat.scrollToPosition(0)
             }
 
+            /*
             // 실시간 로드
             chatViewModel.viewState.collect {
                 val roomName = it.chatRoomEntity?.roomName
@@ -181,6 +199,8 @@ class ChatFragment : Fragment() {
                 }
 
             }
+
+             */
         }
 
         subscribe()
@@ -267,5 +287,14 @@ class ChatFragment : Fragment() {
 
     private fun clearBlockLayoutTouch() {
         requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun checkDate(first: Date, second: Date): Boolean {
+
+        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+        val firstDate = sdf.format(first)
+        val secondDate = sdf.format(second)
+
+        return firstDate == secondDate
     }
 }
