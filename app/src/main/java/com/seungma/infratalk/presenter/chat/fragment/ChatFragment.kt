@@ -56,7 +56,7 @@ class ChatFragment : Fragment() {
 
     private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener({
         Log.d("seungma", "람다 전달")
-        moreItems()
+        //moreItems()
     }, {
         Toast.makeText(
             requireContext(),
@@ -186,21 +186,6 @@ class ChatFragment : Fragment() {
             chatListAdapter.submitList(dateMessageList) {
                 binding.rvChat.scrollToPosition(0)
             }
-
-            /*
-            // 실시간 로드
-            chatViewModel.viewState.collect {
-                val roomName = it.chatRoomEntity?.roomName
-                if (roomName != binding.tvChatTitle.text.toString()) binding.tvChatTitle.text =
-                    roomName
-
-                chatListAdapter.submitList(createChatItem(it)) {
-                    if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
-                }
-
-            }
-
-             */
         }
 
         subscribe()
@@ -222,28 +207,61 @@ class ChatFragment : Fragment() {
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
-            chatViewModel.viewEvent.collect {
-                when (it) {
-                    is ChatViewEvent.SendMessage -> {
-                        when (it.chatMessageSend.isSuccess) {
-                            true -> {
-                                Log.d("seungma", "메시지 전송 성공")
+            launch {
+                chatViewModel.viewEvent.collect {
+                    when (it) {
+                        is ChatViewEvent.SendMessage -> {
+                            when (it.chatMessageSend.isSuccess) {
+                                true -> {
+                                    Log.d("seungma", "메시지 전송 성공")
+                                }
+
+                                false -> Log.d("seungma", "메시지 전송 실패")
                             }
-
-                            false -> Log.d("seungma", "메시지 전송 실패")
                         }
-                    }
 
-                    is ChatViewEvent.LeaveChat -> {
-                        when (it.chatRoomLeave.isSuccess) {
-                            true -> parentFragmentManager.popBackStack()
-                            false -> {}
+                        is ChatViewEvent.LeaveChat -> {
+                            when (it.chatRoomLeave.isSuccess) {
+                                true -> parentFragmentManager.popBackStack()
+                                false -> {}
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
+            launch {
+                // 실시간 로드
+                chatViewModel.viewState.collect {
+                    // 방 이름
+                    val roomName = it.chatRoomEntity?.roomName
+                    if (roomName != binding.tvChatTitle.text.toString()) binding.tvChatTitle.text =
+                        roomName
+
+                    // 채팅
+                    val chatItemList = createChatItem(it)
+                    val dateMessageList = chatItemList.mapIndexed { index, current ->
+
+                        if(index == 0) listOf(current)
+                        if (index > 0 && checkDate(
+                                chatItemList[index - 1].chatMessageEntity.sendTime,
+                                current.chatMessageEntity.sendTime
+                            )
+                        ) {
+                            listOf(current)
+                        } else {
+                            listOf(ChatItem.Date(current.chatMessageEntity), current)
+                        }
+                    }.flatten()
+
+                    chatListAdapter.submitList(dateMessageList) {
+                        if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                    }
+
+                }
+            }
+
         }
     }
 
@@ -294,6 +312,8 @@ class ChatFragment : Fragment() {
         val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
         val firstDate = sdf.format(first)
         val secondDate = sdf.format(second)
+
+        Log.d("seungma", "첫번째 아이템 :" + firstDate + "두번쨰 아이템 :" + secondDate)
 
         return firstDate == secondDate
     }
