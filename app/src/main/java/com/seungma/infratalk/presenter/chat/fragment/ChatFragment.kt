@@ -172,15 +172,25 @@ class ChatFragment : Fragment() {
             val chatItemList = createChatItem(loadMessage)
 
             val dateMessageList = chatItemList.mapIndexed { index, current ->
-                if (index > 0 && checkDate(
-                        chatItemList[index - 1].chatMessageEntity.sendTime,
-                        current.chatMessageEntity.sendTime
-                    )
-                ) {
-                    listOf(current)
+
+                if(index != chatItemList.size -1) {
+                    if (checkDate(
+                            current.chatMessageEntity.sendTime,
+                            chatItemList[index + 1].chatMessageEntity.sendTime
+                        )
+                    ) {
+                        listOf(current)
+                    } else {
+                        listOf(current,ChatItem.Date(current.chatMessageEntity))
+                    }
                 } else {
-                    listOf(current,ChatItem.Date(current.chatMessageEntity))
+                    listOf(current)
                 }
+
+
+
+
+
             }.flatten()
 
             chatListAdapter.submitList(dateMessageList) {
@@ -243,18 +253,21 @@ class ChatFragment : Fragment() {
                     val chatItemList = createChatItem(it)
                     val dateMessageList = chatItemList.mapIndexed { index, current ->
 
-                        if(index == 0) listOf(current)
-                        if (index > 0 && checkDate(
-                                chatItemList[index - 1].chatMessageEntity.sendTime,
-                                current.chatMessageEntity.sendTime
-                            )
-                        ) {
-                            listOf(current)
-                        } else {
-                            listOf(ChatItem.Date(current.chatMessageEntity), current)
+                        if(index == 0) listOf(current) else {
+                            if (index > 0 && checkDate(
+                                    chatItemList[index - 1].chatMessageEntity.sendTime,
+                                    current.chatMessageEntity.sendTime
+                                )
+                            ) {
+                                listOf(current)
+                            } else {
+                                listOf(ChatItem.Date(chatItemList[index - 1].chatMessageEntity), current)
+                            }
                         }
                     }.flatten()
-
+                    dateMessageList.map {
+                        Log.d("seungma", "메세지 소팅: " + it)
+                    }
                     chatListAdapter.submitList(dateMessageList) {
                         if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
                     }
