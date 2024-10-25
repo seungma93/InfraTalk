@@ -56,7 +56,7 @@ class ChatFragment : Fragment() {
 
     private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener({
         Log.d("seungma", "람다 전달")
-        //moreItems()
+        moreItems()
     }, {
         Toast.makeText(
             requireContext(),
