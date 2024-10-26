@@ -1,7 +1,7 @@
 package com.seungma.infratalk.presenter.chat.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,7 +19,7 @@ import java.util.Locale
 sealed class ChatItem {
     abstract val chatMessageEntity: ChatMessageEntity
 
-    data class Owner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+    data class Owner(override val chatMessageEntity: ChatMessageEntity, var isLast: Boolean = true) : ChatItem()
 
     data class Partner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 
@@ -104,7 +104,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
         when (holder) {
             is ChatMessageOwnerViewHolder -> {
                 val item = getItem(position) as ChatItem.Owner
-                holder.bind(item.chatMessageEntity)
+                holder.bind(item.chatMessageEntity, item.isLast)
             }
 
             is ChatMessagePartnerViewHolder -> {
@@ -139,19 +139,23 @@ class ChatMessageOwnerViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     private var chatMessageEntity: ChatMessageEntity? = null
 
-    init {
-        binding.apply {
-
-        }
-
-    }
-
-    fun bind(chatMessageEntity: ChatMessageEntity) {
+    fun bind(chatMessageEntity: ChatMessageEntity, isLast: Boolean) {
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
+
+
             chatMessageEntity.let {
                 tvMessage.text = it.content
+
+                // 시간 출력
                 date.text = modifiedDate(it.sendTime)
+                // 같은 시간일때, 마지막 메세지에 출력
+                when (isLast) {
+                    true -> date.visibility = View.VISIBLE
+                    false -> date.visibility = View.GONE
+                }
+
+
                 /*
                 title.text = it.boardMetaEntity.title
                 date.text = it.boardMetaEntity.createTime.toString()
