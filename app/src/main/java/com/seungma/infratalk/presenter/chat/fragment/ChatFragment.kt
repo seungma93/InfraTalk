@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.seungma.infratalk.databinding.FragmentChatBinding
 import com.seungma.infratalk.di.component.DaggerChatFragmentComponent
+import com.seungma.infratalk.domain.chat.entity.ChatMessageEntity
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.seungma.infratalk.presenter.chat.adapter.ChatItem
 import com.seungma.infratalk.presenter.chat.adapter.ChatListAdapter
@@ -329,5 +330,24 @@ class ChatFragment : Fragment() {
         Log.d("seungma", "첫번째 아이템 :" + firstDate + "두번쨰 아이템 :" + secondDate)
 
         return firstDate == secondDate
+    }
+
+    private fun groupMessageType(list : List<ChatMessageEntity> ):List<List<ChatMessageEntity>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<MutableList<ChatMessageEntity>>()
+        var currentGroup = mutableListOf(list[0])
+
+        for (i in 1 until list.size) {
+            if (list[i]::class == currentGroup.last()::class) {
+                currentGroup.add(list[i])
+            } else {
+                result.add(currentGroup)
+                currentGroup = mutableListOf(list[i])
+            }
+        }
+        result.add(currentGroup) // 마지막 그룹 추가
+
+        return result
     }
 }
