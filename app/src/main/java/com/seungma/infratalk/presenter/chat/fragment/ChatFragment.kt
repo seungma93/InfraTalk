@@ -172,7 +172,7 @@ class ChatFragment : Fragment() {
             )
             val chatItemList = createChatItem(loadMessage)
 
-            val dateMessageList = chatItemList.mapIndexed { index, current ->
+            val dateAddList = chatItemList.mapIndexed { index, current ->
 
                 if(index != chatItemList.size -1) {
                     if (checkDate(
@@ -187,14 +187,14 @@ class ChatFragment : Fragment() {
                 } else {
                     listOf(current)
                 }
-
-
-
-
-
             }.flatten()
 
-            chatListAdapter.submitList(dateMessageList) {
+            groupMessageType(list = dateAddList)
+
+
+
+
+            chatListAdapter.submitList(dateAddList) {
                 binding.rvChat.scrollToPosition(0)
             }
         }
@@ -332,10 +332,10 @@ class ChatFragment : Fragment() {
         return firstDate == secondDate
     }
 
-    private fun groupMessageType(list : List<ChatMessageEntity> ):List<List<ChatMessageEntity>> {
+    private fun groupMessageType(list : List<ChatItem> ):List<List<ChatItem>> {
         if (list.isEmpty()) return emptyList()
 
-        val result = mutableListOf<MutableList<ChatMessageEntity>>()
+        val result = mutableListOf<MutableList<ChatItem>>()
         var currentGroup = mutableListOf(list[0])
 
         for (i in 1 until list.size) {
