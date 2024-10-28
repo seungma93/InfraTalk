@@ -19,9 +19,16 @@ import java.util.Locale
 sealed class ChatItem {
     abstract val chatMessageEntity: ChatMessageEntity
 
-    data class Owner(override val chatMessageEntity: ChatMessageEntity, var isLast: Boolean = true) : ChatItem()
+    data class Owner(
+        override val chatMessageEntity: ChatMessageEntity,
+        var isLast: Boolean = true
+    ) : ChatItem()
 
-    data class Partner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+    data class Partner(
+        override val chatMessageEntity: ChatMessageEntity,
+        var isFirst: Boolean = true,
+        var isLast: Boolean = true
+    ) : ChatItem()
 
     data class Date(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 }
@@ -109,7 +116,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
 
             is ChatMessagePartnerViewHolder -> {
                 val item = getItem(position) as ChatItem.Partner
-                holder.bind(item.chatMessageEntity)
+                holder.bind(item.chatMessageEntity, item.isFirst, item.isLast)
             }
 
             is ChatMessageDateViewHolder -> {
@@ -190,7 +197,7 @@ class ChatMessagePartnerViewHolder(
 
     }
 
-    fun bind(chatMessageEntity: ChatMessageEntity) {
+    fun bind(chatMessageEntity: ChatMessageEntity, isFirst: Boolean, isLast: Boolean) {
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
