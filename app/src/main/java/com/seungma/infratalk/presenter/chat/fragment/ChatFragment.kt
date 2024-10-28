@@ -189,7 +189,7 @@ class ChatFragment : Fragment() {
                 }
             }.flatten()
 
-            groupMessageType(list = dateAddList)
+            val groupList = groupMessageType(list = dateAddList)
 
 
 
@@ -347,6 +347,52 @@ class ChatFragment : Fragment() {
             }
         }
         result.add(currentGroup) // 마지막 그룹 추가
+
+        return result
+    }
+
+    private fun groupMessageTime(list: List<ChatItem>): List<List<ChatItem>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<MutableList<ChatItem>>()
+        var currentGroup = mutableListOf(list[0])
+
+        for (i in 1 until list.size) {
+            if (modifiedTime(list[i].chatMessageEntity.sendTime) == modifiedTime(currentGroup.last().chatMessageEntity.sendTime)) {
+                currentGroup.add(list[i])
+            } else {
+                result.add(currentGroup)
+                currentGroup = mutableListOf(list[i])
+            }
+        }
+        result.add(currentGroup) // 마지막 그룹 추가
+
+        return result
+    }
+
+    private fun modifiedTime(date: Date): String {
+        return SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+    }
+
+    private fun resortMessageList(list: List<List<ChatItem>>): List<List<ChatItem>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<List<ChatItem>>()
+
+        for (i in 0 until list.size) {
+
+            when (list[i].size) {
+                1 -> {
+                    result.add(list[i])
+                }
+
+                else -> {
+                    groupMessageTime(list[i]).map {
+                        result.add(it)
+                    }
+                }
+            }
+        }
 
         return result
     }
