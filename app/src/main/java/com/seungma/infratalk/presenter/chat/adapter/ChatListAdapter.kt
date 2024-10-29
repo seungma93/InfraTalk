@@ -149,11 +149,8 @@ class ChatMessageOwnerViewHolder(
     fun bind(chatMessageEntity: ChatMessageEntity, isLast: Boolean) {
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
-
-
             chatMessageEntity.let {
                 tvMessage.text = it.content
-
                 // 시간 출력
                 date.text = modifiedDate(it.sendTime)
                 // 같은 시간일때, 마지막 메세지에 출력
@@ -162,19 +159,6 @@ class ChatMessageOwnerViewHolder(
                     false -> date.visibility = View.GONE
                 }
 
-
-                /*
-                title.text = it.boardMetaEntity.title
-                date.text = it.boardMetaEntity.createTime.toString()
-                author.text = it.boardMetaEntity.author.nickname
-                content.text = it.boardMetaEntity.content
-                btnBookmark.isSelected = it.bookmarkEntity.isBookmark
-                btnLike.isSelected = it.likeEntity.isLike
-                likeCount.text = it.likeCountEntity.likeCount.toString()
-                btnLike.isEnabled = true
-                btnBookmark.isEnabled = true
-
-                 */
             }
         }
     }

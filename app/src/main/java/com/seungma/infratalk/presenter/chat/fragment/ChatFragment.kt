@@ -170,6 +170,7 @@ class ChatFragment : Fragment() {
                     reload = true
                 )
             )
+
             val chatItemList = createChatItem(loadMessage)
 
             val dateAddList = chatItemList.mapIndexed { index, current ->
@@ -191,10 +192,52 @@ class ChatFragment : Fragment() {
 
             val groupList = groupMessageType(list = dateAddList)
 
+            val resultList = resortMessageList(groupList).map { list ->
+                if (list.size > 1) { // 메시지 두개 이상 일때
+                    list.mapIndexed { index, item ->
+                        when (item) {
+                            is ChatItem.Owner -> {
+                                if (index == list.size - 1) { // 마지막 메시지
+                                    item
+                                } else { // 마지막이 아닐때
+                                    item.isLast = false
+                                    item
+                                }
+                            }
 
+                            is ChatItem.Partner -> {
+                                if (index == 0) { // 첫번째 메시지
+                                    item.apply {
+                                        isLast = false
+                                    }
+                                } else if (index == list.size - 1) { // 마지막 메시지
+                                    item.apply {
+                                        isFirst = false
+                                    }
+                                } else { // 첫번째 && 마지막 아닐때
+                                    item.apply {
+                                        isFirst = false
+                                        isLast = false
+                                    }
+                                }
+                            }
 
+                            else -> {
+                                item
+                            }
+                        }
+                    }
 
-            chatListAdapter.submitList(dateAddList) {
+                } else { // 메시지 하나 일 때
+                    list
+                }
+            }.flatten()
+
+            resultList.map {
+                Log.d("seungma", "엔티티 :" + it)
+            }
+
+            chatListAdapter.submitList(resultList) {
                 binding.rvChat.scrollToPosition(0)
             }
         }
@@ -242,6 +285,7 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
+            /*
             launch {
                 // 실시간 로드
                 chatViewModel.viewState.collect {
@@ -275,6 +319,7 @@ class ChatFragment : Fragment() {
 
                 }
             }
+            */
 
         }
     }
