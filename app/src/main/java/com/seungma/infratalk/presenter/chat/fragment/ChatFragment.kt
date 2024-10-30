@@ -197,22 +197,23 @@ class ChatFragment : Fragment() {
                     list.mapIndexed { index, item ->
                         when (item) {
                             is ChatItem.Owner -> {
-                                if (index == list.size - 1) { // 마지막 메시지
+                                if (index == 0) { // 첫번째 아이템(마지막 메세지)
                                     item
-                                } else { // 마지막이 아닐때
-                                    item.isLast = false
-                                    item
+                                } else { // 첫번째 아이템이 아닐떄(마지막이 아닐때)
+                                    item.apply {
+                                        item.isLast = false
+                                    }
                                 }
                             }
 
                             is ChatItem.Partner -> {
-                                if (index == 0) { // 첫번째 메시지
-                                    item.apply {
-                                        isLast = false
-                                    }
-                                } else if (index == list.size - 1) { // 마지막 메시지
+                                if (index == 0) { // 첫번째 아이템(마지막 메세지)
                                     item.apply {
                                         isFirst = false
+                                    }
+                                } else if (index == list.size - 1) { // 마지막 아이템(첫번째 메시지)
+                                    item.apply {
+                                        isLast = false
                                     }
                                 } else { // 첫번째 && 마지막 아닐때
                                     item.apply {
