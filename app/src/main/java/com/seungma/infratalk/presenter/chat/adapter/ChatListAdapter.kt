@@ -185,6 +185,20 @@ class ChatMessagePartnerViewHolder(
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
+
+
+                // 첫번째 메세지 일때 프로필 출력
+                when (isFirst) {
+                    true -> lyAuthor.visibility = View.VISIBLE
+                    false -> lyAuthor.visibility = View.GONE
+                }
+
+                // 같은 시간일때, 마지막 메세지에 출력
+                when (isLast) {
+                    true -> date.visibility = View.VISIBLE
+                    false -> date.visibility = View.GONE
+                }
+
                 tvName.text = it.sender.nickname
                 tvContent.text = it.content
                 date.text = modifiedDate(it.sendTime)
@@ -197,24 +211,6 @@ class ChatMessagePartnerViewHolder(
                         .into(ivProfile)
 
                 }
-                /*
-                Log.d("CommentListAdapter", "바인딩")
-                context.text = it.commentMetaEntity.content
-                date.text = it.commentMetaEntity.createTime.toString()
-                author.text = it.commentMetaEntity.author.nickname
-                btnBookmark.isSelected = it.bookmarkEntity.isBookmark
-                btnLike.isSelected = it.likeEntity.isLike
-                likeCount.text = it.likeCountEntity.likeCount.toString()
-                btnDelete.visibility =
-                    when ( userEntity.email == it.commentMetaEntity.author.email) {
-                        true -> View.VISIBLE
-                        else -> View.GONE
-                    }
-                btnLike.isEnabled = true
-                btnBookmark.isEnabled = true
-                btnDelete.isEnabled = true
-
-                 */
             }
         }
     }
