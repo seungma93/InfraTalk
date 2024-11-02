@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.seungma.infratalk.databinding.FragmentChatBinding
 import com.seungma.infratalk.di.component.DaggerChatFragmentComponent
-import com.seungma.infratalk.domain.chat.entity.ChatMessageEntity
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.seungma.infratalk.presenter.chat.adapter.ChatItem
 import com.seungma.infratalk.presenter.chat.adapter.ChatListAdapter
@@ -173,70 +172,7 @@ class ChatFragment : Fragment() {
 
             val chatItemList = createChatItem(loadMessage)
 
-            val dateAddList = chatItemList.mapIndexed { index, current ->
-
-                if(index != chatItemList.size -1) {
-                    if (checkDate(
-                            current.chatMessageEntity.sendTime,
-                            chatItemList[index + 1].chatMessageEntity.sendTime
-                        )
-                    ) {
-                        listOf(current)
-                    } else {
-                        listOf(current,ChatItem.Date(current.chatMessageEntity))
-                    }
-                } else {
-                    listOf(current)
-                }
-            }.flatten()
-
-            val groupList = groupMessageType(list = dateAddList)
-
-            val resultList = resortMessageList(groupList).map { list ->
-                if (list.size > 1) { // 메시지 두개 이상 일때
-                    list.mapIndexed { index, item ->
-                        when (item) {
-                            is ChatItem.Owner -> {
-                                if (index == 0) { // 첫번째 아이템(마지막 메세지)
-                                    item
-                                } else { // 첫번째 아이템이 아닐떄(마지막이 아닐때)
-                                    item.apply {
-                                        item.isLast = false
-                                    }
-                                }
-                            }
-
-                            is ChatItem.Partner -> {
-                                if (index == 0) { // 첫번째 아이템(마지막 메세지)
-                                    item.apply {
-                                        isFirst = false
-                                    }
-                                } else if (index == list.size - 1) { // 마지막 아이템(첫번째 메시지)
-                                    item.apply {
-                                        isLast = false
-                                    }
-                                } else { // 첫번째 && 마지막 아닐때
-                                    item.apply {
-                                        isFirst = false
-                                        isLast = false
-                                    }
-                                }
-                            }
-
-                            else -> {
-                                item
-                            }
-                        }
-                    }
-
-                } else { // 메시지 하나 일 때
-                    list
-                }
-            }.flatten()
-
-            resultList.map {
-                Log.d("seungma", "엔티티 :" + it)
-            }
+            val resultList = sortMessage(list = chatItemList)
 
             chatListAdapter.submitList(resultList) {
                 binding.rvChat.scrollToPosition(0)
@@ -441,5 +377,70 @@ class ChatFragment : Fragment() {
         }
 
         return result
+    }
+
+    private fun sortMessage(list: List<ChatItem>) : List<ChatItem> {
+        val dateAddList = list.mapIndexed { index, current ->
+
+            if(index != list.size -1) {
+                if (checkDate(
+                        current.chatMessageEntity.sendTime,
+                        list[index + 1].chatMessageEntity.sendTime
+                    )
+                ) {
+                    listOf(current)
+                } else {
+                    listOf(current,ChatItem.Date(current.chatMessageEntity))
+                }
+            } else {
+                listOf(current)
+            }
+        }.flatten()
+
+        val groupList = groupMessageType(list = dateAddList)
+
+        val resultList = resortMessageList(groupList).map { list ->
+            if (list.size > 1) { // 메시지 두개 이상 일때
+                list.mapIndexed { index, item ->
+                    when (item) {
+                        is ChatItem.Owner -> {
+                            if (index == 0) { // 첫번째 아이템(마지막 메세지)
+                                item
+                            } else { // 첫번째 아이템이 아닐떄(마지막이 아닐때)
+                                item.apply {
+                                    item.isLast = false
+                                }
+                            }
+                        }
+
+                        is ChatItem.Partner -> {
+                            if (index == 0) { // 첫번째 아이템(마지막 메세지)
+                                item.apply {
+                                    isFirst = false
+                                }
+                            } else if (index == list.size - 1) { // 마지막 아이템(첫번째 메시지)
+                                item.apply {
+                                    isLast = false
+                                }
+                            } else { // 첫번째 && 마지막 아닐때
+                                item.apply {
+                                    isFirst = false
+                                    isLast = false
+                                }
+                            }
+                        }
+
+                        else -> {
+                            item
+                        }
+                    }
+                }
+
+            } else { // 메시지 하나 일 때
+                list
+            }
+        }.flatten()
+
+        return resultList
     }
 }
