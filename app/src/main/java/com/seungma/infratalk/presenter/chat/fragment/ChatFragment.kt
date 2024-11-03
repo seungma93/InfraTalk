@@ -222,7 +222,7 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
-            /*
+
             launch {
                 // 실시간 로드
                 chatViewModel.viewState.collect {
@@ -233,30 +233,15 @@ class ChatFragment : Fragment() {
 
                     // 채팅
                     val chatItemList = createChatItem(it)
-                    val dateMessageList = chatItemList.mapIndexed { index, current ->
 
-                        if(index == 0) listOf(current) else {
-                            if (index > 0 && checkDate(
-                                    chatItemList[index - 1].chatMessageEntity.sendTime,
-                                    current.chatMessageEntity.sendTime
-                                )
-                            ) {
-                                listOf(current)
-                            } else {
-                                listOf(ChatItem.Date(chatItemList[index - 1].chatMessageEntity), current)
-                            }
-                        }
-                    }.flatten()
-                    dateMessageList.map {
-                        Log.d("seungma", "메세지 소팅: " + it)
-                    }
-                    chatListAdapter.submitList(dateMessageList) {
+                    val resultList = sortMessage(list = chatItemList)
+
+                    chatListAdapter.submitList(resultList) {
                         if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
                     }
-
                 }
             }
-            */
+
 
         }
     }
