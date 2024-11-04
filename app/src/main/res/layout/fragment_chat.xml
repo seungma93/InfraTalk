@@ -110,6 +110,9 @@
                 android:layout_height="wrap_content"
                 android:maxHeight="140dp"
                 android:inputType="textMultiLine"
+                android:maxLines="3"
+                android:scrollbars="vertical"
+                android:overScrollMode="always"
                 android:padding="10dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
