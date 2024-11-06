@@ -58,11 +58,14 @@ class ChatFragment : Fragment() {
         Log.d("seungma", "람다 전달")
         moreItems()
     }, {
+        /*
         Toast.makeText(
             requireContext(),
             "마지막 페이지 입니다.",
             Toast.LENGTH_SHORT
         ).show()
+
+         */
     }, { showProgressBar() })
 
     private val chatPrimaryKeyEntity
