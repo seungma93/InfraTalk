@@ -5,6 +5,13 @@
     android:layout_height="wrap_content"
     android:background="#A1C3DE">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="50dp"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,11 +57,13 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ly_content"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/ly_author"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constrainedWidth="true"
+            app:layout_constraintWidth_default="wrap"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintEnd_toEndOf="@+id/gl_end"
             android:layout_marginStart="30dp">
 
             <TextView
@@ -66,7 +75,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/date"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constrainedWidth="true"
@@ -76,18 +84,16 @@
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 />
-
-            <TextView
-                android:id="@+id/date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="시간"
-                app:layout_constraintStart_toEndOf="@id/tv_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="10dp" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="시간"
+            app:layout_constraintStart_toEndOf="@id/ly_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="10dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
