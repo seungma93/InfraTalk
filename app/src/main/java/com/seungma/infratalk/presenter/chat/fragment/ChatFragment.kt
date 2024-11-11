@@ -121,30 +121,33 @@ class ChatFragment : Fragment() {
             })
 
             btnSendChat.setOnClickListener {
-                val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
-                when (inputChatMessage.isEmpty()) {
-                    true -> {
-                        Toast.makeText(
-                            requireActivity(), "내용을 입력하세요",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                chatViewModel.viewState.value.chatRoomEntity?.let {
+                    if(it.roomName.contains(",")) {
+                        val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
+                        when (inputChatMessage.isEmpty()) {
+                            true -> {
+                                Toast.makeText(
+                                    requireActivity(), "내용을 입력하세요",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
 
-                    false -> {
-                        it.isEnabled = false
-                        chatEditText.text = null
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            chatViewModel.sendChatMessage(
-                                chatMessageSendForm = ChatMessageSendForm(
-                                    chatRoomId = chatPrimaryKeyEntity.chatRoomId,
-                                    content = inputChatMessage
-                                )
-                            )
+                            false -> {
+                                btnSendChat.isEnabled = false
+                                chatEditText.text = null
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    chatViewModel.sendChatMessage(
+                                        chatMessageSendForm = ChatMessageSendForm(
+                                            chatRoomId = chatPrimaryKeyEntity.chatRoomId,
+                                            content = inputChatMessage
+                                        )
+                                    )
+                                }
+
+                            }
                         }
-
                     }
                 }
-
             }
 
             ivChatExit.setOnClickListener {
