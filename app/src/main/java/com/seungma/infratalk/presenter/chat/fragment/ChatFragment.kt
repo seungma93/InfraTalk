@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.databinding.FragmentChatBinding
 import com.seungma.infratalk.di.component.DaggerChatFragmentComponent
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
@@ -28,6 +29,7 @@ import com.seungma.infratalk.presenter.chat.listener.OnChatScrollListener
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModelFactory
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -146,6 +148,13 @@ class ChatFragment : Fragment() {
 
                             }
                         }
+                    } else {
+                        val message = "대화 상대가 없습니다."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
                     }
                 }
             }
