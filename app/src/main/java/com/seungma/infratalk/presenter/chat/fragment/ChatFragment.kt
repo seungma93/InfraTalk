@@ -128,10 +128,12 @@ class ChatFragment : Fragment() {
                         val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
                         when (inputChatMessage.isEmpty()) {
                             true -> {
-                                Toast.makeText(
-                                    requireActivity(), "내용을 입력하세요",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                val message = "내용을 입력하세요."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
                             }
 
                             false -> {
