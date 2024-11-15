@@ -56,19 +56,13 @@ class ChatFragment : Fragment() {
     private var _chatListAdapter: ChatListAdapter? = null
     private val chatListAdapter get() = _chatListAdapter!!
 
-    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener({
-        Log.d("seungma", "람다 전달")
-        moreItems()
-    }, {
-        /*
-        Toast.makeText(
-            requireContext(),
-            "마지막 페이지 입니다.",
-            Toast.LENGTH_SHORT
-        ).show()
+    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener(
 
-         */
-    }, { showProgressBar() })
+        {
+            viewLifecycleOwner.lifecycleScope.launch {
+            moreItems() }
+        Log.d("seungma", "모어 아이템")}, { Log.d("seungma", "메세지 마지막 페이지")}
+    )
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
@@ -124,7 +118,7 @@ class ChatFragment : Fragment() {
 
             btnSendChat.setOnClickListener {
                 chatViewModel.viewState.value.chatRoomEntity?.let {
-                    if(it.roomName.contains(",")) {
+                    if (it.roomName.contains(",")) {
                         val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
                         when (inputChatMessage.isEmpty()) {
                             true -> {
@@ -267,19 +261,18 @@ class ChatFragment : Fragment() {
         binding.rvChat.addOnScrollListener(onChatScrollListener)
     }
 
-    private fun moreItems() {
+    private suspend fun moreItems() {
         Log.d("seungma", "moreItems")
-        viewLifecycleOwner.lifecycleScope.launch {
             val viewState = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
                     reload = false
                 )
             )
-            chatListAdapter.submitList(createChatItem(viewState)) {
-                hideProgressBar()
-            }
-        }
+            val chatItemList = createChatItem(viewState)
+            val resultList = sortMessage(list = chatItemList)
+
+            chatListAdapter.submitList(resultList)
     }
 
     private fun showProgressBar() {
@@ -316,7 +309,7 @@ class ChatFragment : Fragment() {
         return firstDate == secondDate
     }
 
-    private fun groupMessageType(list : List<ChatItem> ):List<List<ChatItem>> {
+    private fun groupMessageType(list: List<ChatItem>): List<List<ChatItem>> {
         if (list.isEmpty()) return emptyList()
 
         val result = mutableListOf<MutableList<ChatItem>>()
@@ -381,10 +374,10 @@ class ChatFragment : Fragment() {
         return result
     }
 
-    private fun sortMessage(list: List<ChatItem>) : List<ChatItem> {
+    private fun sortMessage(list: List<ChatItem>): List<ChatItem> {
         val dateAddList = list.mapIndexed { index, current ->
 
-            if(index != list.size -1) {
+            if (index != list.size - 1) {
                 if (checkDate(
                         current.chatMessageEntity.sendTime,
                         list[index + 1].chatMessageEntity.sendTime
@@ -392,7 +385,7 @@ class ChatFragment : Fragment() {
                 ) {
                     listOf(current)
                 } else {
-                    listOf(current,ChatItem.Date(current.chatMessageEntity))
+                    listOf(current, ChatItem.Date(current.chatMessageEntity))
                 }
             } else {
                 listOf(current)
