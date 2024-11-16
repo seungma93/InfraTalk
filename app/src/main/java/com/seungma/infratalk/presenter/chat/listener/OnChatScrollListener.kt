@@ -6,24 +6,19 @@ import com.seungma.infratalk.presenter.chat.adapter.ChatListAdapter
 
 
 class OnChatScrollListener(
-    private val moreItems: () -> Unit,
-    private val showToast: () -> Unit
+    private val moreItems: () -> Unit
 ) : RecyclerView.OnScrollListener() {
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-
+        val adapter = recyclerView.adapter as ChatListAdapter
         val lastVisibleItemPosition =
             (recyclerView.layoutManager as? LinearLayoutManager)?.findLastVisibleItemPosition() ?: 0
-
-        val adapter = recyclerView.adapter as ChatListAdapter
 
         adapter.apply {
             val itemCount = itemCount - 1
             if (!recyclerView.canScrollVertically(-1) && itemCount == lastVisibleItemPosition) {
-                when (getItemAt(lastVisibleItemPosition).chatMessageEntity.isLastPage) {
-                    true -> showToast()
-                    false -> moreItems()
-                }
+                val lastPage = getItemAt(lastVisibleItemPosition).chatMessageEntity.isLastPage
+                if(!lastPage) moreItems()
             }
         }
     }

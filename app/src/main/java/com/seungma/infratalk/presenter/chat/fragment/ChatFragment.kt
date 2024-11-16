@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -55,14 +54,12 @@ class ChatFragment : Fragment() {
     private val binding get() = _binding!!
     private var _chatListAdapter: ChatListAdapter? = null
     private val chatListAdapter get() = _chatListAdapter!!
+    private var isLoading = false
 
-    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener(
-
-        {
-            viewLifecycleOwner.lifecycleScope.launch {
-            moreItems() }
-        Log.d("seungma", "모어 아이템")}, { Log.d("seungma", "메세지 마지막 페이지")}
-    )
+    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener {
+        Log.d("seungma", "모어 아이템")
+        if(!isLoading) moreItems()
+    }
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
@@ -261,8 +258,10 @@ class ChatFragment : Fragment() {
         binding.rvChat.addOnScrollListener(onChatScrollListener)
     }
 
-    private suspend fun moreItems() {
+    private fun moreItems() {
         Log.d("seungma", "moreItems")
+        viewLifecycleOwner.lifecycleScope.launch {
+            isLoading = true
             val viewState = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
@@ -272,7 +271,10 @@ class ChatFragment : Fragment() {
             val chatItemList = createChatItem(viewState)
             val resultList = sortMessage(list = chatItemList)
 
-            chatListAdapter.submitList(resultList)
+            chatListAdapter.submitList(resultList) {
+                isLoading = false
+            }
+        }
     }
 
     private fun showProgressBar() {
