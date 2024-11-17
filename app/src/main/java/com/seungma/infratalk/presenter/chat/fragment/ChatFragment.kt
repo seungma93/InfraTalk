@@ -58,7 +58,8 @@ class ChatFragment : Fragment() {
 
     private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener {
         Log.d("seungma", "모어 아이템")
-        if(!isLoading) moreItems()
+        //if(!isLoading)
+            moreItems()
     }
 
     private val chatPrimaryKeyEntity
@@ -390,7 +391,9 @@ class ChatFragment : Fragment() {
                     listOf(current, ChatItem.Date(current.chatMessageEntity))
                 }
             } else {
-                listOf(current)
+                if(current.chatMessageEntity.isLastPage) {
+                    listOf(current, ChatItem.Date(current.chatMessageEntity))
+                } else listOf(current)
             }
         }.flatten()
 
