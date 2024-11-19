@@ -9,14 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.databinding.FragmentChatBinding
 import com.seungma.infratalk.di.component.DaggerChatFragmentComponent
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
@@ -25,14 +24,15 @@ import com.seungma.infratalk.presenter.chat.adapter.ChatListAdapter
 import com.seungma.infratalk.presenter.chat.form.ChatMessageListLoadForm
 import com.seungma.infratalk.presenter.chat.form.ChatMessageSendForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomLeaveForm
-import com.seungma.infratalk.presenter.chat.form.ChatRoomLoadForm
 import com.seungma.infratalk.presenter.chat.listener.OnChatScrollListener
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModel
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatViewModelFactory
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class ChatFragment : Fragment() {
@@ -54,17 +54,13 @@ class ChatFragment : Fragment() {
     private val binding get() = _binding!!
     private var _chatListAdapter: ChatListAdapter? = null
     private val chatListAdapter get() = _chatListAdapter!!
+    private var isLoading = false
 
-    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener({
-        Log.d("seungma", "람다 전달")
-        moreItems()
-    }, {
-        Toast.makeText(
-            requireContext(),
-            "마지막 페이지 입니다.",
-            Toast.LENGTH_SHORT
-        ).show()
-    }, { showProgressBar() })
+    private val onChatScrollListener: OnChatScrollListener = OnChatScrollListener {
+        Log.d("seungma", "모어 아이템")
+        //if(!isLoading)
+            moreItems()
+    }
 
     private val chatPrimaryKeyEntity
         get() = requireArguments().getSerializable(
@@ -119,30 +115,42 @@ class ChatFragment : Fragment() {
             })
 
             btnSendChat.setOnClickListener {
-                val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
-                when (inputChatMessage.isEmpty()) {
-                    true -> {
-                        Toast.makeText(
-                            requireActivity(), "내용을 입력하세요",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                chatViewModel.viewState.value.chatRoomEntity?.let {
+                    if (it.roomName.contains(",")) {
+                        val inputChatMessage = binding.chatTextInput.editText!!.text.toString()
+                        when (inputChatMessage.isEmpty()) {
+                            true -> {
+                                val message = "내용을 입력하세요."
+                                val duration = Snackbar.LENGTH_SHORT
 
-                    false -> {
-                        it.isEnabled = false
-                        chatEditText.text = null
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            chatViewModel.sendChatMessage(
-                                chatMessageSendForm = ChatMessageSendForm(
-                                    chatRoomId = chatPrimaryKeyEntity.chatRoomId,
-                                    content = inputChatMessage
-                                )
-                            )
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            false -> {
+                                btnSendChat.isEnabled = false
+                                chatEditText.text = null
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    chatViewModel.sendChatMessage(
+                                        chatMessageSendForm = ChatMessageSendForm(
+                                            chatRoomId = chatPrimaryKeyEntity.chatRoomId,
+                                            content = inputChatMessage
+                                        )
+                                    )
+                                }
+
+                            }
                         }
+                    } else {
+                        val message = "대화 상대가 없습니다."
+                        val duration = Snackbar.LENGTH_SHORT
 
+                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
                     }
                 }
-
             }
 
             ivChatExit.setOnClickListener {
@@ -157,55 +165,27 @@ class ChatFragment : Fragment() {
 
             val layoutManager = LinearLayoutManager(requireContext())
             layoutManager.reverseLayout = true;
-            layoutManager.stackFromEnd = true;
+            //layoutManager.stackFromEnd = true;
             rvChat.layoutManager = layoutManager
             rvChat.adapter = chatListAdapter
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            showProgressBar()
-            val chatRoomEntity =
-                chatViewModel.loadChatRoomName(chatRoomLoadForm = ChatRoomLoadForm(chatRoomId = chatPrimaryKeyEntity.chatRoomId)).chatRoomEntity
 
-            chatRoomEntity?.let { binding.tvChatTitle.text = it.roomName }
-
-            val viewState = chatViewModel.loadChatMessage(
+            val loadMessage = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
                     reload = true
                 )
             )
-            chatListAdapter.submitList(createChatItem(viewState)) {
+
+            val chatItemList = createChatItem(loadMessage)
+
+            val resultList = sortMessage(list = chatItemList)
+
+            chatListAdapter.submitList(resultList) {
                 binding.rvChat.scrollToPosition(0)
             }
-        }
-
-
-
-        chatViewModel.viewModelScope.launch {
-
-            launch {
-                chatViewModel.viewState.map { it.chatRoomEntity?.roomName }
-                    .stateIn(this)
-                    .collect {
-                        Log.d("seungma", "챗프레그먼트 콜렉트1")
-                        binding.tvChatTitle.text = it
-                    }
-            }
-
-            launch {
-                chatViewModel.viewState.map { createChatItem(it) to it.isNewChatMessage }
-                    .stateIn(this)
-                    .collect { (chatList, isNewChatMessage) ->
-                        Log.d("seungma", "챗프레그먼트 콜렉트2")
-                        chatListAdapter.submitList(chatList) {
-                            if (isNewChatMessage) binding.rvChat.scrollToPosition(0)
-                            hideProgressBar()
-                        }
-                    }
-            }
-
-            Log.d("seungma", "챗프레그먼트 콜렉트")
         }
 
         subscribe()
@@ -227,28 +207,51 @@ class ChatFragment : Fragment() {
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
-            chatViewModel.viewEvent.collect {
-                when (it) {
-                    is ChatViewEvent.SendMessage -> {
-                        when (it.chatMessageSend.isSuccess) {
-                            true -> {
-                                Log.d("seungma", "메시지 전송 성공")
+            launch {
+                chatViewModel.viewEvent.collect {
+                    when (it) {
+                        is ChatViewEvent.SendMessage -> {
+                            when (it.chatMessageSend.isSuccess) {
+                                true -> {
+                                    Log.d("seungma", "메시지 전송 성공")
+                                }
+
+                                false -> Log.d("seungma", "메시지 전송 실패")
                             }
-
-                            false -> Log.d("seungma", "메시지 전송 실패")
                         }
-                    }
 
-                    is ChatViewEvent.LeaveChat -> {
-                        when (it.chatRoomLeave.isSuccess) {
-                            true -> parentFragmentManager.popBackStack()
-                            false -> {}
+                        is ChatViewEvent.LeaveChat -> {
+                            when (it.chatRoomLeave.isSuccess) {
+                                true -> parentFragmentManager.popBackStack()
+                                false -> {}
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
+
+            launch {
+                // 실시간 로드
+                chatViewModel.viewState.collect {
+                    // 방 이름
+                    val roomName = it.chatRoomEntity?.roomName
+                    if (roomName != binding.tvChatTitle.text.toString()) binding.tvChatTitle.text =
+                        roomName
+
+                    // 채팅
+                    val chatItemList = createChatItem(it)
+
+                    val resultList = sortMessage(list = chatItemList)
+
+                    chatListAdapter.submitList(resultList) {
+                        if (it.isNewChatMessage) binding.rvChat.scrollToPosition(0)
+                    }
+                }
+            }
+
+
         }
     }
 
@@ -259,14 +262,18 @@ class ChatFragment : Fragment() {
     private fun moreItems() {
         Log.d("seungma", "moreItems")
         viewLifecycleOwner.lifecycleScope.launch {
+            isLoading = true
             val viewState = chatViewModel.loadChatMessage(
                 chatMessageListLoadForm = ChatMessageListLoadForm(
                     chatRoomId = chatPrimaryKeyEntity.chatRoomId,
                     reload = false
                 )
             )
-            chatListAdapter.submitList(createChatItem(viewState)) {
-                hideProgressBar()
+            val chatItemList = createChatItem(viewState)
+            val resultList = sortMessage(list = chatItemList)
+
+            chatListAdapter.submitList(resultList) {
+                isLoading = false
             }
         }
     }
@@ -292,5 +299,148 @@ class ChatFragment : Fragment() {
 
     private fun clearBlockLayoutTouch() {
         requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun checkDate(first: Date, second: Date): Boolean {
+
+        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+        val firstDate = sdf.format(first)
+        val secondDate = sdf.format(second)
+
+        Log.d("seungma", "첫번째 아이템 :" + firstDate + "두번쨰 아이템 :" + secondDate)
+
+        return firstDate == secondDate
+    }
+
+    private fun groupMessageType(list: List<ChatItem>): List<List<ChatItem>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<MutableList<ChatItem>>()
+        var currentGroup = mutableListOf(list[0])
+
+        for (i in 1 until list.size) {
+            if (list[i]::class == currentGroup.last()::class) {
+                currentGroup.add(list[i])
+            } else {
+                result.add(currentGroup)
+                currentGroup = mutableListOf(list[i])
+            }
+        }
+        result.add(currentGroup) // 마지막 그룹 추가
+
+        return result
+    }
+
+    private fun groupMessageTime(list: List<ChatItem>): List<List<ChatItem>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<MutableList<ChatItem>>()
+        var currentGroup = mutableListOf(list[0])
+
+        for (i in 1 until list.size) {
+            if (modifiedTime(list[i].chatMessageEntity.sendTime) == modifiedTime(currentGroup.last().chatMessageEntity.sendTime)) {
+                currentGroup.add(list[i])
+            } else {
+                result.add(currentGroup)
+                currentGroup = mutableListOf(list[i])
+            }
+        }
+        result.add(currentGroup) // 마지막 그룹 추가
+
+        return result
+    }
+
+    private fun modifiedTime(date: Date): String {
+        return SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+    }
+
+    private fun resortMessageList(list: List<List<ChatItem>>): List<List<ChatItem>> {
+        if (list.isEmpty()) return emptyList()
+
+        val result = mutableListOf<List<ChatItem>>()
+
+        for (i in 0 until list.size) {
+
+            when (list[i].size) {
+                1 -> {
+                    result.add(list[i])
+                }
+
+                else -> {
+                    groupMessageTime(list[i]).map {
+                        result.add(it)
+                    }
+                }
+            }
+        }
+
+        return result
+    }
+
+    private fun sortMessage(list: List<ChatItem>): List<ChatItem> {
+        val dateAddList = list.mapIndexed { index, current ->
+
+            if (index != list.size - 1) {
+                if (checkDate(
+                        current.chatMessageEntity.sendTime,
+                        list[index + 1].chatMessageEntity.sendTime
+                    )
+                ) {
+                    listOf(current)
+                } else {
+                    listOf(current, ChatItem.Date(current.chatMessageEntity))
+                }
+            } else {
+                if(current.chatMessageEntity.isLastPage) {
+                    listOf(current, ChatItem.Date(current.chatMessageEntity))
+                } else listOf(current)
+            }
+        }.flatten()
+
+        val groupList = groupMessageType(list = dateAddList)
+
+        val resultList = resortMessageList(groupList).map { list ->
+            if (list.size > 1) { // 메시지 두개 이상 일때
+                list.mapIndexed { index, item ->
+                    when (item) {
+                        is ChatItem.Owner -> {
+                            if (index == 0) { // 첫번째 아이템(마지막 메세지)
+                                item
+                            } else { // 첫번째 아이템이 아닐떄(마지막이 아닐때)
+                                item.apply {
+                                    item.isLast = false
+                                }
+                            }
+                        }
+
+                        is ChatItem.Partner -> {
+                            if (index == 0) { // 첫번째 아이템(마지막 메세지)
+                                item.apply {
+                                    isFirst = false
+                                }
+                            } else if (index == list.size - 1) { // 마지막 아이템(첫번째 메시지)
+                                item.apply {
+                                    isLast = false
+                                }
+                            } else { // 첫번째 && 마지막 아닐때
+                                item.apply {
+                                    isFirst = false
+                                    isLast = false
+                                }
+                            }
+                        }
+
+                        else -> {
+                            item
+                        }
+                    }
+                }
+
+            } else { // 메시지 하나 일 때
+                list
+            }
+        }.flatten()
+
+        return resultList
     }
 }

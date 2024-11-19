@@ -1,12 +1,14 @@
 package com.seungma.infratalk.presenter.chat.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.seungma.infratalk.databinding.ListItemChatMessageDateBinding
 import com.seungma.infratalk.databinding.ListItemChatMessageOwnerBinding
 import com.seungma.infratalk.databinding.ListItemChatMessagePartnerBinding
 import com.seungma.infratalk.domain.chat.entity.ChatMessageEntity
@@ -17,9 +19,18 @@ import java.util.Locale
 sealed class ChatItem {
     abstract val chatMessageEntity: ChatMessageEntity
 
-    data class Owner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+    data class Owner(
+        override val chatMessageEntity: ChatMessageEntity,
+        var isLast: Boolean = true
+    ) : ChatItem()
 
-    data class Partner(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
+    data class Partner(
+        override val chatMessageEntity: ChatMessageEntity,
+        var isFirst: Boolean = true,
+        var isLast: Boolean = true
+    ) : ChatItem()
+
+    data class Date(override val chatMessageEntity: ChatMessageEntity) : ChatItem()
 }
 
 class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUtil) {
@@ -27,6 +38,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
     companion object {
         private const val TYPE_OWNER = 0
         private const val TYPE_PARTNER = 1
+        private const val TYPE_DATE = 2
         val diffUtil = object : DiffUtil.ItemCallback<ChatItem>() {
 
             // 두 아이템이 동일한 아이템인지 체크. 보통 고유한 id를 기준으로 비교
@@ -80,6 +92,16 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
                 ChatMessagePartnerViewHolder(binding)
             }
 
+            TYPE_DATE -> {
+                val binding =
+                    ListItemChatMessageDateBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                ChatMessageDateViewHolder(binding)
+            }
+
             else -> throw IllegalArgumentException("Unknown view type")
         }
 
@@ -89,11 +111,16 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
         when (holder) {
             is ChatMessageOwnerViewHolder -> {
                 val item = getItem(position) as ChatItem.Owner
-                holder.bind(item.chatMessageEntity)
+                holder.bind(item.chatMessageEntity, item.isLast)
             }
 
             is ChatMessagePartnerViewHolder -> {
                 val item = getItem(position) as ChatItem.Partner
+                holder.bind(item.chatMessageEntity, item.isFirst, item.isLast)
+            }
+
+            is ChatMessageDateViewHolder -> {
+                val item = getItem(position) as ChatItem.Date
                 holder.bind(item.chatMessageEntity)
             }
         }
@@ -103,6 +130,7 @@ class ChatListAdapter() : ListAdapter<ChatItem, RecyclerView.ViewHolder>(diffUti
         return when (getItem(position)) {
             is ChatItem.Owner -> TYPE_OWNER
             is ChatItem.Partner -> TYPE_PARTNER
+            is ChatItem.Date -> TYPE_DATE
             else -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -118,56 +146,26 @@ class ChatMessageOwnerViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     private var chatMessageEntity: ChatMessageEntity? = null
 
-    init {
-        binding.apply {
-
-        }
-
-    }
-
-    fun bind(chatMessageEntity: ChatMessageEntity) {
+    fun bind(chatMessageEntity: ChatMessageEntity, isLast: Boolean) {
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
                 tvMessage.text = it.content
+                // 시간 출력
                 date.text = modifiedDate(it.sendTime)
-                /*
-                title.text = it.boardMetaEntity.title
-                date.text = it.boardMetaEntity.createTime.toString()
-                author.text = it.boardMetaEntity.author.nickname
-                content.text = it.boardMetaEntity.content
-                btnBookmark.isSelected = it.bookmarkEntity.isBookmark
-                btnLike.isSelected = it.likeEntity.isLike
-                likeCount.text = it.likeCountEntity.likeCount.toString()
-                btnLike.isEnabled = true
-                btnBookmark.isEnabled = true
+                // 같은 시간일때, 마지막 메세지에 출력
+                when (isLast) {
+                    true -> date.visibility = View.VISIBLE
+                    false -> date.visibility = View.GONE
+                }
 
-                 */
             }
         }
     }
 
     private fun modifiedDate(date: Date?): String {
 
-        // 현재 날짜
-        val currentDate = Date()
-
-        // 날짜 포맷 지정
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        // 날짜를 문자열로 변환
-        val dateFromDatabaseString = sdf.format(date)
-        val currentDateString = sdf.format(currentDate)
-
-        // 날짜를 비교하여 표시할 내용 결정
-        val displayText = if (dateFromDatabaseString == currentDateString) {
-            // 같은 날짜인 경우, 시간으로 표시
-            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
-        } else {
-            // 하루가 지났으면 일자로 표시
-            dateFromDatabaseString
-        }
-        return displayText
+        return SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
     }
 }
 
@@ -183,10 +181,24 @@ class ChatMessagePartnerViewHolder(
 
     }
 
-    fun bind(chatMessageEntity: ChatMessageEntity) {
+    fun bind(chatMessageEntity: ChatMessageEntity, isFirst: Boolean, isLast: Boolean) {
         this.chatMessageEntity = chatMessageEntity
         binding.apply {
             chatMessageEntity.let {
+
+
+                // 첫번째 메세지 일때 프로필 출력
+                when (isFirst) {
+                    true -> lyAuthor.visibility = View.VISIBLE
+                    false -> lyAuthor.visibility = View.GONE
+                }
+
+                // 같은 시간일때, 마지막 메세지에 출력
+                when (isLast) {
+                    true -> date.visibility = View.VISIBLE
+                    false -> date.visibility = View.GONE
+                }
+
                 tvName.text = it.sender.nickname
                 tvContent.text = it.content
                 date.text = modifiedDate(it.sendTime)
@@ -199,48 +211,31 @@ class ChatMessagePartnerViewHolder(
                         .into(ivProfile)
 
                 }
-                /*
-                Log.d("CommentListAdapter", "바인딩")
-                context.text = it.commentMetaEntity.content
-                date.text = it.commentMetaEntity.createTime.toString()
-                author.text = it.commentMetaEntity.author.nickname
-                btnBookmark.isSelected = it.bookmarkEntity.isBookmark
-                btnLike.isSelected = it.likeEntity.isLike
-                likeCount.text = it.likeCountEntity.likeCount.toString()
-                btnDelete.visibility =
-                    when ( userEntity.email == it.commentMetaEntity.author.email) {
-                        true -> View.VISIBLE
-                        else -> View.GONE
-                    }
-                btnLike.isEnabled = true
-                btnBookmark.isEnabled = true
-                btnDelete.isEnabled = true
-
-                 */
             }
         }
     }
 
     private fun modifiedDate(date: Date?): String {
 
-        // 현재 날짜
-        val currentDate = Date()
+        return SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
+    }
+}
 
-        // 날짜 포맷 지정
-        val sdf = SimpleDateFormat("MM월 dd일", Locale.getDefault())
+class ChatMessageDateViewHolder(
+    private val binding: ListItemChatMessageDateBinding
+) : RecyclerView.ViewHolder(binding.root) {
+    private var chatMessageEntity: ChatMessageEntity? = null
 
-        // 날짜를 문자열로 변환
-        val dateFromDatabaseString = sdf.format(date)
-        val currentDateString = sdf.format(currentDate)
-
-        // 날짜를 비교하여 표시할 내용 결정
-        val displayText = if (dateFromDatabaseString == currentDateString) {
-            // 같은 날짜인 경우, 시간으로 표시
-            SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
-        } else {
-            // 하루가 지났으면 일자로 표시
-            dateFromDatabaseString
+    fun bind(chatMessageEntity: ChatMessageEntity) {
+        this.chatMessageEntity = chatMessageEntity
+        binding.apply {
+            tvDate.text = modifiedDate(date = chatMessageEntity.sendTime)
         }
-        return displayText
+    }
+
+    private fun modifiedDate(date: Date?): String {
+        // 날짜 포맷 지정
+        val sdf = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
+        return sdf.format(date)
     }
 }

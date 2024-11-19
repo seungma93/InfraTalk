@@ -21,6 +21,7 @@ import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,8 +54,10 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // userEntity 값을 가져올 때까지 기다림
-            userEntity = chatRoomViewModel.getUserMe()
+            val userEntityAsync = async { chatRoomViewModel.getUserMe() }
+            val loadChatRoomAsync = async { chatRoomViewModel.loadChatRoom() }
+
+            userEntity = userEntityAsync.await()
 
             // userEntity가 초기화된 후 어댑터를 설정
             _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
@@ -73,37 +76,23 @@ class ChatRoomFragment : Fragment() {
 
             // 어댑터를 RecyclerView에 설정
             binding.rvChatRoom.adapter = _adapter
-        }
 
-        // ProgressBar를 보여주고 채팅방 데이터를 로드
-        viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
-            chatRoomViewModel.loadChatRoom()
+            loadChatRoomAsync.await()
+
+            // 데이터 변경을 구독
+            subscribe()
         }
-
-        // 데이터 변경을 구독
-        subscribe()
     }
-
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
             launch {
                 chatRoomViewModel.viewState.collect {
-                    Log.d("seungma", "구독" + it.chatRoomListEntity.chatRoomList.size)
-                    if (it.chatRoomListEntity.chatRoomList.isNotEmpty()) {
-                        if (it.chatRoomListEntity.chatRoomList.first().primaryKey.isNotEmpty()) {
-                            adapter.submitList(it.chatRoomListEntity.chatRoomList) {
-                                hideProgressBar()
-                                binding.rvChatRoom.scrollToPosition(0)
-                            }
-                        }
-                    } else {
                         adapter.submitList(it.chatRoomListEntity.chatRoomList) {
                             hideProgressBar()
                             binding.rvChatRoom.scrollToPosition(0)
                         }
-                    }
                 }
             }
             launch {
@@ -121,11 +110,9 @@ class ChatRoomFragment : Fragment() {
                                     )
                                     (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                                 }
-
                                 false -> Log.d("seungma", "채팅방 시작 실패")
                             }
                         }
-
                         else -> {}
                     }
                 }
@@ -139,17 +126,17 @@ class ChatRoomFragment : Fragment() {
         binding.progressBar.isVisible = true
     }
 
+    private fun hideProgressBar() {
+        Log.d("BoardFragment", "프로그레스바 종료")
+        clearBlockLayoutTouch()
+        binding.progressBar.isVisible = false
+    }
+
     private fun blockLayoutTouch() {
         requireActivity().window?.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
-    }
-
-    private fun hideProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 종료")
-        clearBlockLayoutTouch()
-        binding.progressBar.isVisible = false
     }
 
     private fun clearBlockLayoutTouch() {

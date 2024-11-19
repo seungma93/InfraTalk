@@ -177,23 +177,6 @@ class ChatViewModel @Inject constructor(
         } ?: viewState.value
     }
 
-    suspend fun loadChatRoomName(
-        chatRoomLoadForm: ChatRoomLoadForm
-    ): ChatViewState {
-        val result = kotlin.runCatching {
-            loadChatRoomUseCase(chatRoomLoadForm = chatRoomLoadForm)
-
-        }.onFailure {
-
-        }.getOrNull()
-
-        return result?.let {
-            _viewState.updateAndGet { _ ->
-                viewState.value.copy(chatRoomEntity = it)
-            }
-        } ?: viewState.value
-    }
-
     suspend fun leaveChatRoom(
         chatRoomLeaveForm: ChatRoomLeaveForm
     ) {
