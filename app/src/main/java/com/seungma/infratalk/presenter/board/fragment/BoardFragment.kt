@@ -196,10 +196,13 @@ class BoardFragment : Fragment() {
                 toggleFab(isFabOpen = true)
             }
 
-            binding.recyclerviewBoardList.adapter = adapter
-        }
-        var isFabOpen = false
+            _adapter?.let {
+                binding.recyclerviewBoardList.adapter = it
+            }
 
+        }
+
+        var isFabOpen = false
 
         binding.apply {
             // fab 메뉴
@@ -275,6 +278,9 @@ class BoardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
             val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+            boardViewState.boardListEntity.boardList.map {
+                Log.d("seungma", "게시글 로드 :" + it)
+            }
             adapter.submitList(boardViewState.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
                 hideProgressBar()
