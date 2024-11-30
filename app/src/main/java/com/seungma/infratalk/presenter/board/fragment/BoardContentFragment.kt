@@ -275,7 +275,7 @@ class BoardContentFragment : Fragment() {
                 userEntity = userEntity
             )
 
-            binding.rvComment.adapter = commentAdapter
+            binding.rvComment.adapter = _commentAdapter
         }
 
         _boardContentImageAdapter = BoardContentImageAdapter { }
