@@ -47,6 +47,11 @@ class ResponseInterceptor : Interceptor {
         val response = chain.proceed(request)
 
         when (response.code) {
+            200 -> {
+                // todo Control Error
+                Log.d("seungma", "retrofitClient/errorCode 200")
+            }
+
             400 -> {
                 // todo Control Error
                 Log.d("seungma", "retrofitClient/errorCode 400")
@@ -70,7 +75,7 @@ class ResponseInterceptor : Interceptor {
                 Log.d("retrofitClient", response.message)
             }
             else -> {
-                Log.d("seungma", "retrofitClient/errorCode")
+                Log.d("seungma", "retrofitClient/errorCode " + response.code + " 에러 메세지 " + response.message)
             }
         }
         return response
