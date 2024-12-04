@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.databinding.FragmentBoardWriteBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
 import com.seungma.infratalk.domain.user.entity.UserEntity
@@ -33,6 +34,7 @@ import com.seungma.infratalk.presenter.board.adpater.BoardWriteAdapter
 import com.seungma.infratalk.presenter.board.form.BoardContentInsertForm
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewEvent
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -238,10 +240,14 @@ class BoardWriteFragment : Fragment() {
                     is BoardViewEvent.Error -> {
                         hideProgressBar()
                         when (it.errorCode) {
-                            is com.seungma.infratalk.data.FailInsertException -> Toast.makeText(
-                                requireActivity(), "인서트에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.FailInsertException -> {
+                                val message = "글작성에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
                         }
                     }
 
