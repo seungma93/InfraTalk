@@ -27,7 +27,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
-
 class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
     private val userDataSource: UserDataSource
@@ -37,15 +36,13 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun insertBoard(boardInsertRequest: BoardInsertRequest): BoardInsertResponse {
         return kotlin.runCatching {
-            val createTime = boardInsertRequest.createTime
-
             database.collection("Board")
                 .add(boardInsertRequest)
                 .await()
 
             BoardInsertResponse(
                 boardAuthorEmail = boardInsertRequest.authorEmail,
-                boardCreteTime = createTime,
+                boardCreteTime = boardInsertRequest.createTime,
                 isSuccess = true
             )
         }.onFailure {
@@ -109,6 +106,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse {
         return kotlin.runCatching {
+
 
             database.collection("Board")
                 .whereEqualTo("authorEmail", boardUpdateRequest.author.email)
