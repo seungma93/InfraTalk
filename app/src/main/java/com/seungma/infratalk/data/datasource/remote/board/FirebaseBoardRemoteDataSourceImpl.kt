@@ -106,15 +106,6 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun updateBoard(boardUpdateRequest: BoardUpdateRequest): BoardMetaResponse {
         return kotlin.runCatching {
-
-
-            database.collection("Board")
-                .whereEqualTo("authorEmail", boardUpdateRequest.author.email)
-                .whereEqualTo("createTime", boardUpdateRequest.createTime)
-                .get().await().documents.firstOrNull() ?: Log.d("seungma", "그랩 안됨")
-
-            Log.d("seungma", "날짜 " + boardUpdateRequest.createTime)
-
             database.collection("Board")
                 .whereEqualTo("authorEmail", boardUpdateRequest.author.email)
                 .whereEqualTo("createTime", boardUpdateRequest.createTime)
