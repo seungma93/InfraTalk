@@ -73,7 +73,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 lastDocument = snapshot.documents.lastOrNull()
 
                 lastDocument?.let {
-                    Log.d("BoardDataSource", "마지막 메시지 내용 :" + it.data?.get("content") )
+                    Log.d("BoardDataSource", "마지막 메시지 내용 :" + it.data?.get("content"))
                 }
 
 
@@ -111,44 +111,40 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
                 .whereEqualTo("createTime", boardUpdateRequest.createTime)
                 .get().await().let {
 
-                    boardUpdateRequest.images?.let { images ->
-
-                        boardUpdateRequest.editTime.let { date ->
-
-                            when (boardUpdateRequest.content) {
-                                null -> {
-                                    val updates = mapOf(
-                                        "images" to boardUpdateRequest.images,
-                                        "editTime" to boardUpdateRequest.editTime
-                                    )
-                                    it.documents[0].reference.update(updates).await()
-                                }
-
-                                else -> {
-                                    val updates = mapOf(
-                                        "content" to boardUpdateRequest.content,
-                                        "images" to boardUpdateRequest.images,
-                                        "editTime" to boardUpdateRequest.editTime
-                                    )
-                                    it.documents[0].reference.update(updates).await()
-                                }
-                            }
-
-                        } ?: run {
+                    boardUpdateRequest.apply {
+                        if (images == null) {
                             val updates = mapOf(
-                                "images" to boardUpdateRequest.images
+                                "content" to boardUpdateRequest.content,
+                                "editTime" to boardUpdateRequest.editTime
                             )
                             it.documents[0].reference.update(updates).await()
+                        } else {
+                            if (editTime == null) {
+                                val updates = mapOf(
+                                    "images" to boardUpdateRequest.images
+                                )
+                                it.documents[0].reference.update(updates).await()
+                            } else {
+                                when (boardUpdateRequest.content) {
+                                    null -> {
+                                        val updates = mapOf(
+                                            "images" to boardUpdateRequest.images,
+                                            "editTime" to boardUpdateRequest.editTime
+                                        )
+                                        it.documents[0].reference.update(updates).await()
+                                    }
 
+                                    else -> {
+                                        val updates = mapOf(
+                                            "content" to boardUpdateRequest.content,
+                                            "images" to boardUpdateRequest.images,
+                                            "editTime" to boardUpdateRequest.editTime
+                                        )
+                                        it.documents[0].reference.update(updates).await()
+                                    }
+                                }
+                            }
                         }
-
-                    } ?: run {
-                        val updates = mapOf(
-                            "content" to boardUpdateRequest.content,
-                            "editTime" to boardUpdateRequest.editTime
-                        )
-                        it.documents[0].reference.update(updates).await()
-
                     }
                 }
             BoardMetaResponse(
@@ -210,31 +206,31 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun loadMyBoardList(myBoardListLoadRequest: MyBoardListLoadRequest): BoardMetaListResponse {
-            return runCatching {
-                val snapshot = when (myBoardListLoadRequest.reload) {
-                    true -> getMyBoardDocuments(10, null)
-                    false -> getMyBoardDocuments(10, myBoardLastDocument)
-                }
-                myBoardLastDocument = snapshot.documents.lastOrNull()
+        return runCatching {
+            val snapshot = when (myBoardListLoadRequest.reload) {
+                true -> getMyBoardDocuments(10, null)
+                false -> getMyBoardDocuments(10, myBoardLastDocument)
+            }
+            myBoardLastDocument = snapshot.documents.lastOrNull()
 
-                snapshot.documents.map {
-                    BoardMetaResponse(
-                        author = userDataSource.getUserMe(),
-                        title = it.data?.get("title") as? String,
-                        content = it.data?.get("content") as? String,
-                        images = (it.data?.get("images") as? List<String>)?.let {
-                            ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
-                        },
-                        createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
-                        editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
-                    )
-                }.let {
-                    BoardMetaListResponse(it)
-                }
-            }.onFailure {
-                throw FailSelectException("셀렉트에 실패 했습니다", it)
-            }.getOrThrow()
-        }
+            snapshot.documents.map {
+                BoardMetaResponse(
+                    author = userDataSource.getUserMe(),
+                    title = it.data?.get("title") as? String,
+                    content = it.data?.get("content") as? String,
+                    images = (it.data?.get("images") as? List<String>)?.let {
+                        ImagesResultEntity(it.map { Uri.parse(it) }, emptyList())
+                    },
+                    createTime = (it.data?.get("createTime") as? Timestamp)?.toDate(),
+                    editTime = (it.data?.get("editTime") as? Timestamp)?.toDate()
+                )
+            }.let {
+                BoardMetaListResponse(it)
+            }
+        }.onFailure {
+            throw FailSelectException("셀렉트에 실패 했습니다", it)
+        }.getOrThrow()
+    }
 
     override suspend fun deleteBoard(boardDeleteRequest: BoardDeleteRequest): BoardDeleteResponse {
         return kotlin.runCatching {

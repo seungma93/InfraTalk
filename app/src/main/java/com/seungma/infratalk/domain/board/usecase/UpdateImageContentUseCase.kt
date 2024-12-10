@@ -18,7 +18,8 @@ class UpdateBoardContentImagesUseCase @Inject constructor(
                 createTime = boardContentImagesUpdateForm.boardCreateTime,
                 title = null,
                 content = null,
-                images = boardContentImagesUpdateForm.images
+                images = boardContentImagesUpdateForm.images,
+                editTime = boardContentImagesUpdateForm.editTime
             )
         )
     }

@@ -93,7 +93,8 @@ class BoardViewModel @Inject constructor(
                         boardContentImagesUpdateForm = BoardContentImagesUpdateForm(
                             boardAuthorEmail = boardInsertEntity.boardAuthorEmail,
                             boardCreateTime = boardInsertEntity.boardCreteTime,
-                            images = boardContentInsertForm.images
+                            images = boardContentInsertForm.images,
+                            editTime = null
                         )
                     )
                     _viewEvent.emit(

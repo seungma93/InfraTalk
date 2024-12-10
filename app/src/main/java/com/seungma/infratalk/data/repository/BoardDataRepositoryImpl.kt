@@ -55,7 +55,7 @@ class BoardDataRepositoryImpl @Inject constructor(private val dataSource: BoardD
                 content = boardUpdateForm.content,
                 images = boardUpdateForm.images,
                 createTime = boardUpdateForm.createTime,
-                editTime = Date()
+                editTime = boardUpdateForm.editTime
             )
         ).toEntity()
     }

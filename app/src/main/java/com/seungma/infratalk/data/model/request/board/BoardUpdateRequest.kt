@@ -10,5 +10,5 @@ data class BoardUpdateRequest(
     val content: String?,
     val images: List<Uri>?,
     val createTime: Date,
-    val editTime: Date
+    val editTime: Date?
 )
