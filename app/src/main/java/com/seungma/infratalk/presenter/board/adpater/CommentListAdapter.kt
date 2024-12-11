@@ -171,6 +171,21 @@ class BoardContentViewHolder(
                     true -> View.VISIBLE
                     else -> View.INVISIBLE
                 }
+                it.boardMetaEntity.images?.let {
+                    when(it.successUris.size) {
+                        1 -> {
+                            lyImage.visibility = View.VISIBLE
+                            ivSingleImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .into(ivSingleImage)
+
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
                 val requestOptions = RequestOptions.circleCropTransform().autoClone()
                 it.boardMetaEntity.author.image?.let {
                     Log.d("seungma", "섬네일 로딩")
