@@ -175,10 +175,32 @@ class BoardContentViewHolder(
                     when(it.successUris.size) {
                         1 -> {
                             lyImage.visibility = View.VISIBLE
-                            ivSingleImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
                                 .into(ivSingleImage)
+
+                        }
+                        2 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .into(ivDoubleImageLeft)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .into(ivDoubleImageRight)
+
+                        }
+                        3 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .into(ivTripleImageLeft)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .into(ivDoubleImageRightTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[2])
+                                .into(ivDoubleImageRightBottom)
 
                         }
                         else -> {
