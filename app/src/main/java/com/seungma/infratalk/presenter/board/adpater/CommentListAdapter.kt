@@ -194,14 +194,28 @@ class BoardContentViewHolder(
                             lyImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
-                                .into(ivTripleImageLeft)
+                                .into(ivDoubleImageLeft)
                             Glide.with(itemView.context)
                                 .load(it.successUris[1])
-                                .into(ivDoubleImageRightTop)
+                                .into(ivQuadrupleImageRightTop)
                             Glide.with(itemView.context)
                                 .load(it.successUris[2])
-                                .into(ivDoubleImageRightBottom)
-
+                                .into(ivQuadrupleImageRightBottom)
+                        }
+                        4 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .into(ivQuadrupleImageLeftTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .into(ivQuadrupleImageRightTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[2])
+                                .into(ivQuadrupleImageLeftBottom)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[3])
+                                .into(ivQuadrupleImageRightBottom)
                         }
                         else -> {
 
