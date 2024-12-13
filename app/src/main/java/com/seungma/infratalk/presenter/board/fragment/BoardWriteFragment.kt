@@ -75,7 +75,7 @@ class BoardWriteFragment : Fragment() {
                     it.data?.let {
                         it.clipData?.let { clipData ->
                             val count = clipData.itemCount
-                            if (count > 10) {
+                            if (count > 5) {
                                 Toast.makeText(
                                     requireActivity(),
                                     "사진은 10장까지만 가능합니다.",
