@@ -11,14 +11,14 @@ class UpdateBoardContentImagesUseCase @Inject constructor(
     private val uploadImagesUseCase: UploadImagesUseCase
 ) {
     suspend operator fun invoke(boardContentImagesUpdateForm: BoardContentImagesUpdateForm) {
-        uploadImagesUseCase.uploadImages(ImagesRequest(boardContentImagesUpdateForm.images))
+        val imageResultEntity = uploadImagesUseCase.uploadImages(ImagesRequest(boardContentImagesUpdateForm.images))
         updateBoardContentUseCase(
             boardUpdateForm = BoardUpdateForm(
                 authorEmail = boardContentImagesUpdateForm.boardAuthorEmail,
                 createTime = boardContentImagesUpdateForm.boardCreateTime,
                 title = null,
                 content = null,
-                images = boardContentImagesUpdateForm.images,
+                images = imageResultEntity.successUris,
                 editTime = boardContentImagesUpdateForm.editTime
             )
         )
