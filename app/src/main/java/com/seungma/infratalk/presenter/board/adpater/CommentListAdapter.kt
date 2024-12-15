@@ -174,19 +174,22 @@ class BoardContentViewHolder(
                 it.boardMetaEntity.images?.let {
                     when(it.successUris.size) {
                         1 -> {
+                            Log.d("seungma", "이미지 " + it.successUris[0])
                             lyImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
+                                .centerCrop()
                                 .into(ivSingleImage)
-
                         }
                         2 -> {
                             lyImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
+                                .centerCrop()
                                 .into(ivDoubleImageLeft)
                             Glide.with(itemView.context)
                                 .load(it.successUris[1])
+                                .centerCrop()
                                 .into(ivDoubleImageRight)
 
                         }
@@ -194,27 +197,34 @@ class BoardContentViewHolder(
                             lyImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
+                                .centerCrop()
                                 .into(ivDoubleImageLeft)
                             Glide.with(itemView.context)
                                 .load(it.successUris[1])
+                                .centerCrop()
                                 .into(ivQuadrupleImageRightTop)
                             Glide.with(itemView.context)
                                 .load(it.successUris[2])
+                                .centerCrop()
                                 .into(ivQuadrupleImageRightBottom)
                         }
                         4 -> {
                             lyImage.visibility = View.VISIBLE
                             Glide.with(itemView.context)
                                 .load(it.successUris[0])
+                                .centerCrop()
                                 .into(ivQuadrupleImageLeftTop)
                             Glide.with(itemView.context)
                                 .load(it.successUris[1])
+                                .centerCrop()
                                 .into(ivQuadrupleImageRightTop)
                             Glide.with(itemView.context)
                                 .load(it.successUris[2])
+                                .centerCrop()
                                 .into(ivQuadrupleImageLeftBottom)
                             Glide.with(itemView.context)
                                 .load(it.successUris[3])
+                                .centerCrop()
                                 .into(ivQuadrupleImageRightBottom)
                         }
                         else -> {
