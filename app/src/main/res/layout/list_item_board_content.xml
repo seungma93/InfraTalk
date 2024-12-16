@@ -130,7 +130,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@id/gl_image_vertical"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="2.5dp"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_double_image_right"
@@ -139,7 +140,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/gl_image_vertical"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="2.5dp"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_quadruple_image_left_top"
@@ -148,7 +150,8 @@
                 app:layout_constraintBottom_toTopOf="@id/gl_image_horizontal"
                 app:layout_constraintEnd_toEndOf="@id/gl_image_vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="2.5dp"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_quadruple_image_left_bottom"
@@ -157,7 +160,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/gl_image_vertical"
-                app:layout_constraintTop_toBottomOf="@id/gl_image_horizontal" />
+                app:layout_constraintTop_toBottomOf="@id/gl_image_horizontal"
+                android:padding="2.5dp"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_quadruple_image_right_top"
@@ -166,7 +170,8 @@
                 app:layout_constraintBottom_toTopOf="@id/gl_image_horizontal"
                 app:layout_constraintLeft_toRightOf="@id/gl_image_vertical"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="2.5dp"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_quadruple_image_right_bottom"
@@ -175,7 +180,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/gl_image_vertical"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gl_image_horizontal" />
+                app:layout_constraintTop_toBottomOf="@id/gl_image_horizontal"
+                android:padding="2.5dp"/>
 
             <!--
             <androidx.appcompat.widget.AppCompatTextView
