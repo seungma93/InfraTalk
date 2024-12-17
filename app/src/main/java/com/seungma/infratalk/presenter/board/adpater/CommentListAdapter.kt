@@ -31,6 +31,7 @@ class CommentListAdapter(
     private val commentBookmarkClick: (CommentEntity) -> Unit,
     private val commentLikeClick: (CommentEntity) -> Unit,
     private val commentDeleteClick: (CommentEntity) -> Unit,
+    private val imageClick: (BoardEntity) -> Unit,
     private val userEntity: UserEntity
 ) : ListAdapter<ListItem, RecyclerView.ViewHolder>(diffUtil) {
 
@@ -77,7 +78,7 @@ class CommentListAdapter(
                         parent,
                         false
                     )
-                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick)
+                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick, imageClick)
             }
 
             TYPE_COMMENT -> {
@@ -133,7 +134,8 @@ class CommentListAdapter(
 class BoardContentViewHolder(
     private val binding: ListItemBoardContentBinding,
     private val boardBookmarkClick: (BoardEntity) -> Unit,
-    private val boardLikeClick: (BoardEntity) -> Unit
+    private val boardLikeClick: (BoardEntity) -> Unit,
+    private val imageClick: (BoardEntity) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private var boardEntity: BoardEntity? = null
 
@@ -148,6 +150,11 @@ class BoardContentViewHolder(
             btnLike.setOnClickListener {
                 boardEntity?.let {
                     boardLikeClick(it)
+                }
+            }
+            lyImage.setOnClickListener {
+                boardEntity?.let {
+                    imageClick(it)
                 }
             }
         }

@@ -272,6 +272,9 @@ class BoardContentFragment : Fragment() {
                         }
                     }
                 },
+                imageClick = {
+
+                },
                 userEntity = userEntity
             )
 
