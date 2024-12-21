@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.seungma.infratalk.databinding.DialogBoardImageBinding
 import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
 import com.seungma.infratalk.presenter.board.adpater.ImageAdapter
@@ -29,6 +30,9 @@ class DialogImageFragment(private val imagesResultEntity: ImagesResultEntity?) :
         val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         recyclerView.layoutManager= layoutManager
         recyclerView.adapter = ImageAdapter(imagesResultEntity?.successUris ?: emptyList()) // Adapter 설정
+        // 아이템 크기 맞춰 스크롤 이동
+        val snapHelper = PagerSnapHelper() // 또는 LinearSnapHelper()
+        snapHelper.attachToRecyclerView(recyclerView)
     }
 
     override fun onStart() {
