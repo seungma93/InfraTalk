@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.seungma.infratalk.databinding.DialogBoardImageBinding
 import com.seungma.infratalk.domain.image.entity.ImagesResultEntity
 import com.seungma.infratalk.presenter.board.adpater.ImageAdapter
@@ -35,6 +36,16 @@ class DialogImageFragment(private val imagesResultEntity: ImagesResultEntity?) :
         // 아이템 크기 맞춰 스크롤 이동
         val snapHelper = PagerSnapHelper() // 또는 LinearSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val snapView =snapHelper.findSnapView(layoutManager)
+                val snapPosition = layoutManager.getPosition(snapView!!)
+                val totalPages = recyclerView.adapter?.itemCount
+                binding.tvCount.text = "${snapPosition + 1}/$totalPages"
+            }
+        })
     }
 
     override fun onStart() {
