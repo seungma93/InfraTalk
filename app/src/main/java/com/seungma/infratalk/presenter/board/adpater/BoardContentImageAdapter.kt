@@ -62,7 +62,9 @@ class BoardContentImageAdapter(
         fun bind(boardContentImagesItem: BoardContentImagesItem) {
             this.imgUri = boardContentImagesItem.uri
             binding.apply {
-                Glide.with(itemView.context).load(boardContentImagesItem.uri).into(image)
+                Glide.with(itemView.context)
+                    .load(boardContentImagesItem.uri)
+                    .into(image)
             }
         }
     }
