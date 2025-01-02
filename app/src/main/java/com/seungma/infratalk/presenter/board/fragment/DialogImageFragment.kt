@@ -46,6 +46,10 @@ class DialogImageFragment(private val imagesResultEntity: ImagesResultEntity?) :
                 binding.tvCount.text = "${snapPosition + 1}/$totalPages"
             }
         })
+
+        binding.ivExit.setOnClickListener {
+
+        }
     }
 
     override fun onStart() {
