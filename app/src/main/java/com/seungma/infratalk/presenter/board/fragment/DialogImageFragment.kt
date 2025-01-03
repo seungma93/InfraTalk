@@ -48,7 +48,7 @@ class DialogImageFragment(private val imagesResultEntity: ImagesResultEntity?) :
         })
 
         binding.ivExit.setOnClickListener {
-
+            dismiss()
         }
     }
 
