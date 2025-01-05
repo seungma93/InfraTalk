@@ -112,3 +112,7 @@ class FailSelectCommentsException(
 class FailDeleteCommentException(
     val _message: String
 ) : Exception(_message)
+
+class FailGetUserMeException(
+    val _message: String
+) : Exception(_message)
