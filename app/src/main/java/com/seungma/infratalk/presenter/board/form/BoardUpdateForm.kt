@@ -8,5 +8,6 @@ data class BoardUpdateForm(
     val createTime: Date,
     val title: String?,
     val content: String?,
-    val images: List<Uri>?
+    val images: List<Uri>?,
+    val editTime: Date?
 )

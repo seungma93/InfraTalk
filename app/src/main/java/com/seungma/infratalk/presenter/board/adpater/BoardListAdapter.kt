@@ -95,6 +95,7 @@ class BoardListAdapter(
         fun bind(boardEntity: BoardEntity) {
             this.boardEntity = boardEntity
             binding.apply {
+                lyImage.visibility = View.GONE
                 boardEntity.let {
                     Log.d("BoardListAdpater", "셀렉트 바인딩")
                     title.text = it.boardMetaEntity.title
@@ -112,6 +113,35 @@ class BoardListAdapter(
                             .apply(requestOptions)
                             .into(ivProfile)
                     }
+
+                    it.boardMetaEntity.images?.let {
+                        lyImage.visibility = View.VISIBLE
+                        it.successUris.mapIndexed { index, uri ->
+                            when(index + 1) {
+                                1 -> Glide.with(itemView.context)
+                                    .load(uri)
+                                    .centerCrop()
+                                    .into(iv1)
+                                2 -> Glide.with(itemView.context)
+                                    .load(uri)
+                                    .centerCrop()
+                                    .into(iv2)
+                                3 -> Glide.with(itemView.context)
+                                    .load(uri)
+                                    .centerCrop()
+                                    .into(iv3)
+                                4 -> Glide.with(itemView.context)
+                                    .load(uri)
+                                    .centerCrop()
+                                    .into(iv4)
+                                else -> {
+
+                                }
+                            }
+                        }
+                    }
+
+
                     btnChat.visibility = when (userEntity.email != it.boardMetaEntity.author.email) {
                         true -> View.VISIBLE
                         else -> View.INVISIBLE

@@ -272,6 +272,10 @@ class BoardContentFragment : Fragment() {
                         }
                     }
                 },
+                imageClick = {
+                    val dialog = DialogImageFragment(imagesResultEntity = it.boardMetaEntity.images)
+                    dialog.show(childFragmentManager, "DialogImageFragment")
+                },
                 userEntity = userEntity
             )
 

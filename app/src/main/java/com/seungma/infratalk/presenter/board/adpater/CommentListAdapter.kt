@@ -31,6 +31,7 @@ class CommentListAdapter(
     private val commentBookmarkClick: (CommentEntity) -> Unit,
     private val commentLikeClick: (CommentEntity) -> Unit,
     private val commentDeleteClick: (CommentEntity) -> Unit,
+    private val imageClick: (BoardEntity) -> Unit,
     private val userEntity: UserEntity
 ) : ListAdapter<ListItem, RecyclerView.ViewHolder>(diffUtil) {
 
@@ -77,7 +78,7 @@ class CommentListAdapter(
                         parent,
                         false
                     )
-                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick)
+                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick, imageClick)
             }
 
             TYPE_COMMENT -> {
@@ -133,7 +134,8 @@ class CommentListAdapter(
 class BoardContentViewHolder(
     private val binding: ListItemBoardContentBinding,
     private val boardBookmarkClick: (BoardEntity) -> Unit,
-    private val boardLikeClick: (BoardEntity) -> Unit
+    private val boardLikeClick: (BoardEntity) -> Unit,
+    private val imageClick: (BoardEntity) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private var boardEntity: BoardEntity? = null
 
@@ -148,6 +150,11 @@ class BoardContentViewHolder(
             btnLike.setOnClickListener {
                 boardEntity?.let {
                     boardLikeClick(it)
+                }
+            }
+            lyImage.setOnClickListener {
+                boardEntity?.let {
+                    imageClick(it)
                 }
             }
         }
@@ -170,6 +177,67 @@ class BoardContentViewHolder(
                 btnChat.visibility = when (userEntity.email != it.boardMetaEntity.author.email) {
                     true -> View.VISIBLE
                     else -> View.INVISIBLE
+                }
+                it.boardMetaEntity.images?.let {
+                    when(it.successUris.size) {
+                        1 -> {
+                            Log.d("seungma", "이미지 " + it.successUris[0])
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .centerCrop()
+                                .into(ivSingleImage)
+                        }
+                        2 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .centerCrop()
+                                .into(ivDoubleImageLeft)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .centerCrop()
+                                .into(ivDoubleImageRight)
+
+                        }
+                        3 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .centerCrop()
+                                .into(ivDoubleImageLeft)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .centerCrop()
+                                .into(ivQuadrupleImageRightTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[2])
+                                .centerCrop()
+                                .into(ivQuadrupleImageRightBottom)
+                        }
+                        4 -> {
+                            lyImage.visibility = View.VISIBLE
+                            Glide.with(itemView.context)
+                                .load(it.successUris[0])
+                                .centerCrop()
+                                .into(ivQuadrupleImageLeftTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[1])
+                                .centerCrop()
+                                .into(ivQuadrupleImageRightTop)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[2])
+                                .centerCrop()
+                                .into(ivQuadrupleImageLeftBottom)
+                            Glide.with(itemView.context)
+                                .load(it.successUris[3])
+                                .centerCrop()
+                                .into(ivQuadrupleImageRightBottom)
+                        }
+                        else -> {
+
+                        }
+                    }
                 }
                 val requestOptions = RequestOptions.circleCropTransform().autoClone()
                 it.boardMetaEntity.author.image?.let {
