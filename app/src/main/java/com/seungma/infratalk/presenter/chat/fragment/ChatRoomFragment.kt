@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentChatRoomBinding
 import com.seungma.infratalk.di.component.DaggerChatRoomFragmentComponent
 import com.seungma.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
@@ -21,6 +22,7 @@ import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewEvent
 import com.seungma.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -53,35 +55,64 @@ class ChatRoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            val userEntityAsync = async { chatRoomViewModel.getUserMe() }
-            val loadChatRoomAsync = async { chatRoomViewModel.loadChatRoom() }
+        viewLifecycleOwner.lifecycleScope.launch(CoroutineExceptionHandler { _, exception ->
+            // 예외 처리 로직
+            when (exception) {
+                is FailGetUserMeException -> {
+                    Log.d("seungma", "채팅방 프레그먼트 ")
+                    // 추가적인 에러 처리 로직 (예: 에러 메시지 표시, 화면 전환 등)
+                }
+                else -> {
+                    // 다른 예외 처리 로직
+                    Log.e("seungma", "예외 발생: ", exception)
+                    // 예외 처리 로직 (예: 에러 메시지 표시, 앱 종료 등)
+                }
+            }
+        }) {
+            kotlin.runCatching {
+                val userEntityAsync = async {
+                    chatRoomViewModel.getUserMe() }
+                val loadChatRoomAsync = async { chatRoomViewModel.loadChatRoom() }
 
-            userEntity = userEntityAsync.await()
+                userEntity = userEntityAsync.await()
 
-            // userEntity가 초기화된 후 어댑터를 설정
-            _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
-                val userEmail = userEntity.email
-                val endPoint = EndPoint.Chat(
-                    chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
-                        partnerEmail = when (chatRoomEntity.leaveMember?.size) {
-                            1 -> chatRoomEntity.leaveMember.first()
-                            else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
-                        },
-                        chatRoomId = chatRoomEntity.primaryKey
+                // userEntity가 초기화된 후 어댑터를 설정
+                _adapter = ChatRoomListAdapter(itemClick = { chatRoomEntity ->
+                    val userEmail = userEntity.email
+                    val endPoint = EndPoint.Chat(
+                        chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                            partnerEmail = when (chatRoomEntity.leaveMember?.size) {
+                                1 -> chatRoomEntity.leaveMember.first()
+                                else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
+                            },
+                            chatRoomId = chatRoomEntity.primaryKey
+                        )
                     )
-                )
-                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-            })
+                    (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                })
 
-            // 어댑터를 RecyclerView에 설정
-            binding.rvChatRoom.adapter = _adapter
+                // 어댑터를 RecyclerView에 설정
+                binding.rvChatRoom.adapter = _adapter
 
-            showProgressBar()
-            loadChatRoomAsync.await()
+                showProgressBar()
+                loadChatRoomAsync.await()
 
-            // 데이터 변경을 구독
-            subscribe()
+                // 데이터 변경을 구독
+                subscribe()
+            }.onFailure {
+                when(it) {
+                    is FailGetUserMeException -> {
+                        Log.d("seungma", "채팅방 프레그먼트 " + it.message)
+                    }
+
+                    else -> {
+                        // 다른 예외 처리 로직
+                        Log.e("seungma", "예외 발생: ")
+                        // 예외 처리 로직 (예: 에러 메시지 표시, 앱 종료 등)
+                    }
+                }
+            }
+
         }
     }
 
@@ -89,10 +120,10 @@ class ChatRoomFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             launch {
                 chatRoomViewModel.viewState.collect {
-                        adapter.submitList(it.chatRoomListEntity.chatRoomList) {
-                            hideProgressBar()
-                            binding.rvChatRoom.scrollToPosition(0)
-                        }
+                    adapter.submitList(it.chatRoomListEntity.chatRoomList) {
+                        hideProgressBar()
+                        binding.rvChatRoom.scrollToPosition(0)
+                    }
                 }
             }
             launch {
@@ -110,9 +141,11 @@ class ChatRoomFragment : Fragment() {
                                     )
                                     (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                                 }
+
                                 false -> Log.d("seungma", "채팅방 시작 실패")
                             }
                         }
+
                         else -> {}
                     }
                 }

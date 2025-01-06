@@ -3,6 +3,7 @@ package com.seungma.infratalk.presenter.chat.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.domain.chat.entity.ChatRoomEntity
 import com.seungma.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
@@ -108,6 +109,10 @@ class ChatRoomViewModel @Inject constructor(
     }
 
     suspend fun getUserMe(): UserEntity {
-        return getUserMeUseCase()
+        return runCatching {
+            getUserMeUseCase()
+        }.onFailure {
+            throw FailGetUserMeException("유저 정보 가져오기 실패")
+        }.getOrThrow()
     }
 }
