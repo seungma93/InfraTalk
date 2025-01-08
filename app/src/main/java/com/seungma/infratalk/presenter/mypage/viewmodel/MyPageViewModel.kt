@@ -2,6 +2,7 @@ package com.seungma.infratalk.presenter.mypage.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.domain.login.usecase.LogoutUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
@@ -35,7 +36,11 @@ class MyPageViewModel @Inject constructor(
 
 
     suspend fun getUserMe(): UserEntity {
-        return getUserMeUseCase()
+        return runCatching {
+            getUserMeUseCase()
+        }.onFailure {
+            throw FailGetUserMeException("유저 정보 가져오기 실패")
+        }.getOrThrow()
     }
 
     suspend fun updateUserInfo(userInfoUpdateForm: UserInfoUpdateForm) {
