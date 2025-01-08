@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentMyPageBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.user.entity.UserEntity
@@ -54,33 +55,42 @@ class MyPageFragment : Fragment() {
         binding.apply {
 
             viewLifecycleOwner.lifecycleScope.launch {
-                userEntity = myPageViewModel.getUserMe()
-                userEntity.apply {
-                    Log.d("seungma", "수행")
-                    tvNickname.text =
-                        "[infratalk@mypage] nickname \n[infratalk@mypage] $nickname"
-                    Log.d("seungma", image.toString())
+                runCatching {
+                    userEntity = myPageViewModel.getUserMe()
+                    userEntity.apply {
+                        Log.d("seungma", "수행")
+                        tvNickname.text =
+                            "[infratalk@mypage] nickname \n[infratalk@mypage] $nickname"
+                        Log.d("seungma", image.toString())
 
-                    val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                    image?.let {
-                        Glide.with(requireContext())
-                            .load(it)
-                            .apply(requestOptions)
-                            .into(ivProfileImage)
+                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                        image?.let {
+                            Glide.with(requireContext())
+                                .load(it)
+                                .apply(requestOptions)
+                                .into(ivProfileImage)
 
+                        }
+                    }
+
+                    lyMyBoard.setOnClickListener {
+                        val endPoint =
+                            MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
+                        (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                    }
+                    lyMyComment.setOnClickListener {
+                        val endPoint =
+                            MainChildFragmentEndPoint.MyComment(userEntity = userEntity)
+                        (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                    }
+                }.onFailure {
+                    when(it) {
+                        is FailGetUserMeException -> {
+
+                        }
                     }
                 }
 
-                lyMyBoard.setOnClickListener {
-                    val endPoint =
-                        MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
-                    (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-                }
-                lyMyComment.setOnClickListener {
-                    val endPoint =
-                        MainChildFragmentEndPoint.MyComment(userEntity = userEntity)
-                    (requireParentFragment() as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-                }
             }
 
 

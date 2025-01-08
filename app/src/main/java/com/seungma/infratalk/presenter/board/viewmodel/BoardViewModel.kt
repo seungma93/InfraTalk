@@ -2,6 +2,7 @@ package com.seungma.infratalk.presenter.board.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.domain.board.entity.BoardListEntity
 import com.seungma.infratalk.domain.board.entity.BoardWriteEntity
 import com.seungma.infratalk.domain.board.usecase.AddBoardBookmarkUseCase
@@ -265,7 +266,11 @@ class BoardViewModel @Inject constructor(
     }
 
     suspend fun getUserMe(): UserEntity {
-        return getUserMeUseCase()
+        return runCatching {
+            getUserMeUseCase()
+        }.onFailure {
+            throw FailGetUserMeException("유저 정보 가져오기 실패")
+        }.getOrThrow()
     }
 
     suspend fun deleteBoard(

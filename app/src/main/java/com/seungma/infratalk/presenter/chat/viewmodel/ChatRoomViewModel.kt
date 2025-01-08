@@ -3,6 +3,8 @@ package com.seungma.infratalk.presenter.chat.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.seungma.infratalk.data.FailGetUserMeException
+import com.seungma.infratalk.data.FailSelectException
 import com.seungma.infratalk.domain.chat.entity.ChatRoomEntity
 import com.seungma.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.seungma.infratalk.domain.chat.entity.ChatStartEntity
@@ -10,6 +12,7 @@ import com.seungma.infratalk.domain.chat.usecase.LoadChatRoomListUseCase
 import com.seungma.infratalk.domain.chat.usecase.LoadRealTimeChatRoomListUseCase
 import com.seungma.infratalk.domain.user.entity.UserEntity
 import com.seungma.infratalk.domain.user.usecase.GetUserMeUseCase
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -67,28 +70,46 @@ class ChatRoomViewModel @Inject constructor(
 
     init {
         Log.d("seungma", "init")
-        viewModelScope.launch {
-            loadRealTimeChatRoomListUseCase().collect { changedChatRoomListEntity ->
-                Log.d("seungma", "뷰모델" + changedChatRoomListEntity.chatRoomList.size)
-                _viewState.update {
-                    val oldChatRoomList = it.chatRoomListEntity.chatRoomList
-
-                    val filterRoomList = oldChatRoomList.filterNot { oldChatRoom ->
-                        changedChatRoomListEntity.chatRoomList.any { changedChatRoom -> oldChatRoom.primaryKey == changedChatRoom.primaryKey }
-                    }
-                    val newChatRoomList =
-                        (filterRoomList + changedChatRoomListEntity.chatRoomList).sortedWith(
-                            compareByDescending { chatRoom ->
-                                chatRoom.lastChatMessageEntity?.sendTime ?: chatRoom.createTime
-                            }
-                        )
-                    viewState.value.copy(
-                        chatRoomListEntity = ChatRoomListEntity(
-                            chatRoomList = newChatRoomList
-                        )
-                    )
+        viewModelScope.launch(CoroutineExceptionHandler { _, exception ->
+            // 예외 처리 로직
+            when (exception) {
+                is FailSelectException -> {
+                    Log.d("seungma", "채팅방 프레그먼트 ")
+                    // 추가적인 에러 처리 로직 (예: 에러 메시지 표시, 화면 전환 등)
+                }
+                else -> {
+                    // 다른 예외 처리 로직
+                    Log.e("seungma", "예외 발생: ", exception)
+                    // 예외 처리 로직 (예: 에러 메시지 표시, 앱 종료 등)
                 }
             }
+        }) {
+            runCatching {
+                loadRealTimeChatRoomListUseCase().collect { changedChatRoomListEntity ->
+                    Log.d("seungma", "뷰모델" + changedChatRoomListEntity.chatRoomList.size)
+                    _viewState.update {
+                        val oldChatRoomList = it.chatRoomListEntity.chatRoomList
+
+                        val filterRoomList = oldChatRoomList.filterNot { oldChatRoom ->
+                            changedChatRoomListEntity.chatRoomList.any { changedChatRoom -> oldChatRoom.primaryKey == changedChatRoom.primaryKey }
+                        }
+                        val newChatRoomList =
+                            (filterRoomList + changedChatRoomListEntity.chatRoomList).sortedWith(
+                                compareByDescending { chatRoom ->
+                                    chatRoom.lastChatMessageEntity?.sendTime ?: chatRoom.createTime
+                                }
+                            )
+                        viewState.value.copy(
+                            chatRoomListEntity = ChatRoomListEntity(
+                                chatRoomList = newChatRoomList
+                            )
+                        )
+                    }
+                }
+            }.onFailure {
+                throw FailSelectException("채팅방 로드 실패", it)
+            }.getOrThrow()
+
         }
     }
 
@@ -96,7 +117,7 @@ class ChatRoomViewModel @Inject constructor(
         val result = kotlin.runCatching {
             loadChatRoomListUseCase()
         }.onFailure {
-
+            throw FailSelectException("채팅방 로드 실패", it)
         }.getOrNull()
 
         return result?.let {
@@ -108,6 +129,10 @@ class ChatRoomViewModel @Inject constructor(
     }
 
     suspend fun getUserMe(): UserEntity {
-        return getUserMeUseCase()
+        return runCatching {
+            getUserMeUseCase()
+        }.onFailure {
+            throw FailGetUserMeException("유저 정보 가져오기 실패")
+        }.getOrThrow()
     }
 }
