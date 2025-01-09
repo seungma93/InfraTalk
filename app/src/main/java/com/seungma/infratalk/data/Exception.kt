@@ -116,3 +116,11 @@ class FailDeleteCommentException(
 class FailGetUserMeException(
     val _message: String
 ) : Exception(_message)
+
+class NeedEmailVerifiedException(
+    val _message: String
+) : Exception(_message)
+
+class FailFirebaseLoginException(
+    val _message: String
+) : Exception(_message)

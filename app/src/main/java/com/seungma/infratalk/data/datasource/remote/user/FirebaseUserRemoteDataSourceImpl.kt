@@ -11,12 +11,14 @@ import com.google.gson.JsonObject
 import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteException
+import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailInsertException
 import com.seungma.infratalk.data.FailSelectLogInInfoException
 import com.seungma.infratalk.data.FailSendEmailException
 import com.seungma.infratalk.data.FailUpdatetException
 import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
+import com.seungma.infratalk.data.NeedEmailVerifiedException
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.WrongPasswordException
@@ -200,9 +202,11 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             user?.let {
                 if (!it.isEmailVerified) {
                     Log.d("FirebaseUserDataSource", "이메일 인증 필요")
+                    throw NeedEmailVerifiedException("이메일 인증이 필요합니다.")
                 }
             } ?: run {
                 Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 실패")
+                throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
             }
         }.onFailure {
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
