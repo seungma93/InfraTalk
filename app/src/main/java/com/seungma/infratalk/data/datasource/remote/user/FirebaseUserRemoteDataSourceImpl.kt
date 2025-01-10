@@ -18,10 +18,10 @@ import com.seungma.infratalk.data.FailSendEmailException
 import com.seungma.infratalk.data.FailUpdatetException
 import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
-import com.seungma.infratalk.data.NeedEmailVerifiedException
 import com.seungma.infratalk.data.NotExistDBUserInfo
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
+import com.seungma.infratalk.data.VerifiedEmailException
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
@@ -203,7 +203,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             user?.let {
                 if (!it.isEmailVerified) {
                     Log.d("FirebaseUserDataSource", "이메일 인증 필요")
-                    throw NeedEmailVerifiedException("이메일 인증이 필요합니다.")
+                    throw VerifiedEmailException("이메일 인증이 필요합니다.")
                 }
             } ?: run {
                 Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 실패")
