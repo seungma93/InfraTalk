@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.NotExistDBUserInfo
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
 import com.seungma.infratalk.presenter.main.activity.EndPoint
@@ -176,6 +178,16 @@ class LoginMainFragment : Fragment() {
 
                             is com.seungma.infratalk.data.UnKnownException -> Toast.makeText(
                                 requireActivity(), "알 수 없는 에러가 발생했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            is FailFirebaseLoginException -> Toast.makeText(
+                                requireActivity(), "파이어 베이스 로그인에 실패 했습니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            is NotExistDBUserInfo -> Toast.makeText(
+                                requireActivity(), "데이터 베이스에 유저 정보가 없습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
 
