@@ -19,6 +19,7 @@ import com.seungma.infratalk.data.FailUpdatetException
 import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
 import com.seungma.infratalk.data.NeedEmailVerifiedException
+import com.seungma.infratalk.data.NotExistDBUserInfo
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.WrongPasswordException
@@ -210,6 +211,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             }
         }.onFailure {
             Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
+            throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
         }
 
         val snapshotAsync = async {
@@ -242,10 +244,11 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 }
             } ?: run {
                 Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
-                throw error("")
+                throw NotExistDBUserInfo("로그인 정보 DB에 없음")
             }
         }.onFailure {
             Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
+            throw NotExistDBUserInfo("로그인 정보 DB에 없음")
         }.getOrThrow()
     }
 

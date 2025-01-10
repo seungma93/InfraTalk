@@ -124,3 +124,7 @@ class NeedEmailVerifiedException(
 class FailFirebaseLoginException(
     val _message: String
 ) : Exception(_message)
+
+class NotExistDBUserInfo(
+    val _message: String
+) : Exception(_message)
