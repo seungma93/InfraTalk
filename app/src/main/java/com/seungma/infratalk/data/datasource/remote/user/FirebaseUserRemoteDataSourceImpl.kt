@@ -152,7 +152,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 userResponse
             }.onFailure {
-                Log.d("seungma", "유저데이터소스 업데이트 유저인포 터짐")
                 throw FailUpdatetException("업데이트 실패")
             }.getOrThrow()
         }
@@ -165,17 +164,12 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 it.sendEmailVerification().await()
                 UserResponse(it.email, null, null)
             } ?: run {
-                Log.d("UserDataSource", "알 수 없는1")
                 throw UnKnownException("알 수 없는 에러")
             }
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw FailSendEmailException(
-                    "메일 발송 실패"
-                )
-
+                is FirebaseAuthException -> throw FailSendEmailException("메일 발송 실패")
                 else -> {
-                    Log.d("UserDataSource", "알 수 없는2")
                     throw UnKnownException("알 수 없는 에러")
                 }
             }
@@ -202,15 +196,12 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
             user?.let {
                 if (!it.isEmailVerified) {
-                    Log.d("FirebaseUserDataSource", "이메일 인증 필요")
                     throw VerifiedEmailException("이메일 인증이 필요합니다.")
                 }
             } ?: run {
-                Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 실패")
                 throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
             }
         }.onFailure {
-            Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
             throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
         }
 
@@ -228,8 +219,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 preferenceDataSource.setUserToken(userTokenSetRequest = UserTokenSetRequest(token = it))
             }
         }
-
-
         runCatching {
             snapshot.documents.firstOrNull()?.let {
                 val data = it.data
@@ -243,11 +232,9 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     )
                 }
             } ?: run {
-                Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
                 throw NotExistDBUserInfo("로그인 정보 DB에 없음")
             }
         }.onFailure {
-            Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
             throw NotExistDBUserInfo("로그인 정보 DB에 없음")
         }.getOrThrow()
     }
@@ -269,7 +256,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             val snapshot = query.get().await()
 
             snapshot.documents.firstOrNull()?.let {
-                Log.d("comment", "유저데이터 소스 데이터" + it.data?.get("email") as? String)
                 UserResponse(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,
@@ -286,7 +272,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getUserMe(): UserResponse {
         val token = preferenceDataSource.getUserToken().token
-        Log.d("getUser", "토큰 :" + token)
         return runCatching {
             val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
             token?.let {
@@ -299,7 +284,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                     )
                 val email = getUserMeResponse.users?.firstOrNull()?.email
-                Log.d("getUser", "겟 유저 이메일 :" + email)
                 email?.let {
                     val snapshot = database.collection("User")
                         .whereEqualTo("email", it).get().await()
@@ -317,7 +301,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     }
                 }
             } ?: run {
-                Log.d("getUserMe", "토큰 없음")
                 UserResponse(
                     email = null,
                     nickname = null,
