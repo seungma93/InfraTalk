@@ -13,10 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.NotExistDBUserInfo
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.sign.form.LoginForm
@@ -141,55 +143,95 @@ class LoginMainFragment : Fragment() {
                         Log.d("LogInMainF", " 에러 발생")
                         hideProgressBar()
                         when (it.errorCode) {
-                            is com.seungma.infratalk.data.NotExistEmailException -> Toast.makeText(
-                                requireActivity(), "등록된 이메일이 없습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.NotExistEmailException -> {
+                                val message = "이메일이 존재하지 않습니다"
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.seungma.infratalk.data.InvalidEmailException -> Toast.makeText(
-                                requireActivity(), "이메일을 확인하세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.seungma.infratalk.data.WrongPasswordException -> Toast.makeText(
-                                requireActivity(), "암호가 틀렸습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.InvalidEmailException -> {
+                                val message = "이메일을 확인하세요"
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.seungma.infratalk.data.VerifiedEmailException -> Toast.makeText(
-                                requireActivity(), "이메일 인증이 필요 합니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.seungma.infratalk.data.BlockedRequestException -> Toast.makeText(
-                                requireActivity(), "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.WrongPasswordException -> {
+                                val message = "암호가 틀렸습니다"
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.seungma.infratalk.data.FailSendEmailException -> Toast.makeText(
-                                requireActivity(), "이메일 전송에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.seungma.infratalk.data.FailSelectException -> Toast.makeText(
-                                requireActivity(), "계정 정보조회에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.VerifiedEmailException -> {
+                                val message = "이메일 인증이 필요합니다"
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.seungma.infratalk.data.UnKnownException -> Toast.makeText(
-                                requireActivity(), "알 수 없는 에러가 발생했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is FailFirebaseLoginException -> Toast.makeText(
-                                requireActivity(), "파이어 베이스 로그인에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.seungma.infratalk.data.BlockedRequestException -> {
+                                val message = "요청이 많아 잠시 기다려 주세요"
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is NotExistDBUserInfo -> Toast.makeText(
-                                requireActivity(), "데이터 베이스에 유저 정보가 없습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.seungma.infratalk.data.FailSendEmailException -> {
+                                val message = "이메일 전송을 실패 했습니다"
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.seungma.infratalk.data.FailSelectException -> {
+                                val message = "계정 정보 조회에 실패했습니다"
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.seungma.infratalk.data.UnKnownException -> {
+                                val message = "알 수 없는 에러 발생"
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is FailFirebaseLoginException -> {
+                                val message = "파이어 베이스 로그인 실패"
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is NotExistDBUserInfo -> {
+                                val message = "데이터 베이스에 유저 정보가 없습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
                             else -> Log.d("LogInMain", it.errorCode.message.toString())
                         }
