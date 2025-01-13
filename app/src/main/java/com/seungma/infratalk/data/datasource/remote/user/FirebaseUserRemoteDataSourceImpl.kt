@@ -58,15 +58,15 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         const val ERROR_TOO_MANY_REQUESTS = "ERROR_TOO_MANY_REQUESTS"
     }
 
-    private fun separatedFirebaseErrorCode(errorCode: String): Exception {
-        return when (errorCode) {
-            ERROR_INVALID_EMAIL -> InvalidEmailException("유효하지 않은 이메일")
-            ERROR_WRONG_PASSWORD -> WrongPasswordException("잘못된 비밀번호")
-            ERROR_USER_NOT_FOUND -> NotExistEmailException("존재하지 않는 이메일")
-            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException("존재하는 이메일")
-            ERROR_WEAK_PASSWORD -> InvalidPasswordException("잘못된 형식의 비밀번호")
-            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException("블락된 요청")
-            else -> UnKnownException("알 수 없는 에러")
+    private fun separatedFirebaseErrorCode(throwable: Throwable): Exception {
+        return when (throwable.message) {
+            ERROR_INVALID_EMAIL -> InvalidEmailException(_message = "유요하지 않은 이메일 입니다", throwable = throwable)
+            ERROR_WRONG_PASSWORD -> WrongPasswordException(_message = "잘못된 비밀번호", throwable = throwable)
+            ERROR_USER_NOT_FOUND -> NotExistEmailException(_message = "존재하지 않는 이메일", throwable = throwable)
+            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException(_message = "존재하는 이메일", throwable = throwable)
+            ERROR_WEAK_PASSWORD -> InvalidPasswordException(_message = "잘못된 형식의 비밀번호", throwable = throwable)
+            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException(_message = "블락된 요청", throwable = throwable)
+            else -> UnKnownException(_message = "알 수 없는 에러")
         }
     }
 
@@ -103,9 +103,9 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it.errorCode)
+                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it)
                 is FirebaseException -> throw FailInsertException("인서트에 실패 했습니다")
-                else -> throw UnKnownException("알 수 없는 에러")
+                else -> throw UnKnownException(_message = "알 수 없는 에러")
             }
         }.getOrThrow()
 
@@ -164,7 +164,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 it.sendEmailVerification().await()
                 UserResponse(it.email, null, null)
             } ?: run {
-                throw UnKnownException("알 수 없는 에러")
+                throw UnKnownException(_message = "알 수 없는 에러")
             }
         }.onFailure {
             when (it) {

@@ -1,34 +1,40 @@
 package com.seungma.infratalk.data
 
 class InvalidEmailException(
-    val _message: String
-) : Exception(_message)
-
-class VerifiedEmailException(
-    val _message: String
-) : Exception(_message)
-
-class InvalidPasswordException(
-    val _message: String
-) : Exception(_message)
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
 
 class WrongPasswordException(
-    val _message: String
-) : Exception(_message)
-
-class BlockedRequestException(
-    val _message: String
-) : Exception(_message)
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
 
 class NotExistEmailException(
-    val _message: String
-) : Exception(_message)
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
 
 class ExistEmailException(
-    val _message: String
-) : Exception(_message)
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
+
+class InvalidPasswordException(
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
+
+class BlockedRequestException(
+    private val _message: String,
+    throwable: Throwable
+) : Exception(throwable.message, throwable)
 
 class UnKnownException(
+    private val _message: String
+) : Exception()
+
+class VerifiedEmailException(
     val _message: String
 ) : Exception(_message)
 
