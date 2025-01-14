@@ -34,6 +34,16 @@ class UnKnownException(
     private val _message: String
 ) : Exception()
 
+class FailFirebaseSignupException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailUserDBInsertException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
 class VerifiedEmailException(
     val _message: String
 ) : Exception(_message)
