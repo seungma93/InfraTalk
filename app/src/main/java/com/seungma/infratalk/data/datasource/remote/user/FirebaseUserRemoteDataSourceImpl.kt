@@ -62,12 +62,36 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     private fun separatedFirebaseErrorCode(throwable: Throwable): Exception {
         return when (throwable.message) {
-            ERROR_INVALID_EMAIL -> InvalidEmailException(_message = "유요하지 않은 이메일 입니다", throwable = throwable)
-            ERROR_WRONG_PASSWORD -> WrongPasswordException(_message = "잘못된 비밀번호", throwable = throwable)
-            ERROR_USER_NOT_FOUND -> NotExistEmailException(_message = "존재하지 않는 이메일", throwable = throwable)
-            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException(_message = "존재하는 이메일", throwable = throwable)
-            ERROR_WEAK_PASSWORD -> InvalidPasswordException(_message = "잘못된 형식의 비밀번호", throwable = throwable)
-            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException(_message = "블락된 요청", throwable = throwable)
+            ERROR_INVALID_EMAIL -> InvalidEmailException(
+                _message = "유요하지 않은 이메일 입니다",
+                throwable = throwable
+            )
+
+            ERROR_WRONG_PASSWORD -> WrongPasswordException(
+                _message = "잘못된 비밀번호",
+                throwable = throwable
+            )
+
+            ERROR_USER_NOT_FOUND -> NotExistEmailException(
+                _message = "존재하지 않는 이메일",
+                throwable = throwable
+            )
+
+            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException(
+                _message = "존재하는 이메일",
+                throwable = throwable
+            )
+
+            ERROR_WEAK_PASSWORD -> InvalidPasswordException(
+                _message = "잘못된 형식의 비밀번호",
+                throwable = throwable
+            )
+
+            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException(
+                _message = "블락된 요청",
+                throwable = throwable
+            )
+
             else -> UnKnownException(_message = "알 수 없는 에러")
         }
     }
@@ -93,24 +117,30 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             val resultAuth = authAsync.await()
             val resultInsert = insertAsync.await()
 
-            if (resultAuth.isSuccessful && resultInsert.isSuccessful) {
-                UserResponse(
-                    email = signupRequest.email,
-                    nickname = signupRequest.nickname,
-                    image = Uri.parse(signupRequest.imageUri)
+            // 예외를 명확히 던짐
+            if (!resultAuth.isSuccessful) {
+                throw FailFirebaseSignupException(
+                    _message = "파이어 베이스 가입 어스 실패",
+                    throwable = resultAuth.exception
                 )
-            } else if(!resultAuth.isSuccessful) {
-                throw FailFirebaseSignupException(_message = "파이어 베이스 가입 어스 실패", throwable = resultAuth.exception?.cause)
-            } else if(!resultInsert.isSuccessful) {
-                throw FailUserDBInsertException(_message = "유저 디비 인서트 실패", throwable = resultInsert.exception?.cause)
-            } else {
-                throw UnKnownException(_message = "알 수 없는 에러")
             }
+            if (!resultInsert.isSuccessful) {
+                throw FailUserDBInsertException(
+                    _message = "유저 디비 인서트 실패",
+                    throwable = resultInsert.exception
+                )
+            }
+
+            UserResponse(
+                email = signupRequest.email,
+                nickname = signupRequest.nickname,
+                image = Uri.parse(signupRequest.imageUri)
+            )
 
         }.onFailure {
             when (it) {
                 is FirebaseAuthException -> throw separatedFirebaseErrorCode(it)
-                is FirebaseException -> throw FailInsertException("인서트에 실패 했습니다")
+                is FailFirebaseSignupException, is FailUserDBInsertException -> throw it
                 else -> throw UnKnownException(_message = "알 수 없는 에러")
             }
         }.getOrThrow()
