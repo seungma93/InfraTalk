@@ -44,11 +44,33 @@ class FailUserDBInsertException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-class VerifiedEmailException(
-    val _message: String
-) : Exception(_message)
+class NotExistUpdateInfoException(
+    private val _message: String
+) : Exception()
 
-class FailSendEmailException(
+class FailUpdateException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class NotExistFirebaseCurrentUserException(
+    private val _message: String
+) : Exception()
+
+class FailVerifiedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+
+
+
+
+
+
+
+
+class VerifiedEmailException(
     val _message: String
 ) : Exception(_message)
 
@@ -56,9 +78,7 @@ class FailInsertException(
     val _message: String
 ) : Exception(_message)
 
-class FailUpdatetException(
-    val _message: String
-) : Exception(_message)
+
 
 class NoImageException(
     val _message: String
