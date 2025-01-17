@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonObject
 import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
-import com.seungma.infratalk.data.FailDeleteException
+import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailFirebaseSignupException
 import com.seungma.infratalk.data.FailSelectLogInInfoException
@@ -17,12 +17,13 @@ import com.seungma.infratalk.data.FailUserDBInsertException
 import com.seungma.infratalk.data.FailVerifiedEmailException
 import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
-import com.seungma.infratalk.data.NotExistDBUserInfo
+import com.seungma.infratalk.data.NeedVerifiedEmailException
+import com.seungma.infratalk.data.NotExistDBUserInfoException
 import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.NotExistFirebaseCurrentUserException
+import com.seungma.infratalk.data.NotExistFirebaseUserException
 import com.seungma.infratalk.data.NotExistUpdateInfoException
 import com.seungma.infratalk.data.UnKnownException
-import com.seungma.infratalk.data.VerifiedEmailException
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
@@ -157,7 +158,10 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                                 "nickname" to userInfoUpdateRequest.nickname,
                                 "image" to userInfoUpdateRequest.image
                             )
-                        } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null) // 닉네임, 기본 프로필
+                        } else mapOf(
+                            "nickname" to userInfoUpdateRequest.nickname,
+                            "image" to null
+                        ) // 닉네임, 기본 프로필
                     } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)    // 닉네임
                 } ?: run {
                     userInfoUpdateRequest.image?.let {
@@ -202,7 +206,11 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             }
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw FailVerifiedEmailException(_message = "이메일 인증 실패", throwable = it)
+                is FirebaseAuthException -> throw FailVerifiedEmailException(
+                    _message = "이메일 인증 실패",
+                    throwable = it
+                )
+
                 is NotExistFirebaseCurrentUserException -> throw it
                 else -> throw UnKnownException("알 수 없는 에러")
             }
@@ -217,7 +225,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 }
             UserResponse(email = deleteUserRequest.email, nickname = null, image = null)
         }.onFailure {
-            throw FailDeleteException("딜리트에 실패 했습니다")
+            throw FailDeleteUserException(_message = "유저정보 딜리트에 실패 했습니다", throwable = it)
         }.getOrThrow()
     }
 
@@ -229,13 +237,13 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
             user?.let {
                 if (!it.isEmailVerified) {
-                    throw VerifiedEmailException("이메일 인증이 필요합니다.")
+                    throw NeedVerifiedEmailException(_message = "이메일 인증이 필요")
                 }
             } ?: run {
-                throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
+                throw NotExistFirebaseUserException(_message = "파이어베이스에 유저 정보 없음")
             }
         }.onFailure {
-            throw FailFirebaseLoginException("파이어 베이스 로그인 실패")
+            throw FailFirebaseLoginException(_message = "파이어 베이스 로그인 실패", throwable = it)
         }
 
         val snapshotAsync = async {
@@ -252,24 +260,21 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 preferenceDataSource.setUserToken(userTokenSetRequest = UserTokenSetRequest(token = it))
             }
         }
-        runCatching {
-            snapshot.documents.firstOrNull()?.let {
-                val data = it.data
-                data?.let {
-                    UserResponse(
-                        email = data["email"] as? String,
-                        nickname = data["nickname"] as? String,
-                        image = (data["image"] as? String)?.let { image ->
-                            Uri.parse(image)
-                        }
-                    )
-                }
-            } ?: run {
-                throw NotExistDBUserInfo("로그인 정보 DB에 없음")
+        snapshot.documents.firstOrNull()?.let {
+            val data = it.data
+            data?.let {
+                UserResponse(
+                    email = data["email"] as? String,
+                    nickname = data["nickname"] as? String,
+                    image = (data["image"] as? String)?.let { image ->
+                        Uri.parse(image)
+                    }
+                )
             }
-        }.onFailure {
-            throw NotExistDBUserInfo("로그인 정보 DB에 없음")
-        }.getOrThrow()
+        } ?: run {
+            throw NotExistDBUserInfoException(_message = "로그인 정보 DB에 없음")
+        }
+
     }
 
     override suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse {

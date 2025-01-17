@@ -62,17 +62,35 @@ class FailVerifiedEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailDeleteUserException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
-
-
-
-
-
-
-class VerifiedEmailException(
+class NeedVerifiedEmailException(
     val _message: String
 ) : Exception(_message)
+
+class NotExistFirebaseUserException(
+    val _message: String
+) : Exception(_message)
+
+class FailFirebaseLoginException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class NotExistDBUserInfoException(
+    val _message: String
+) : Exception(_message)
+
+
+
+
+
+
+
 
 class FailInsertException(
     val _message: String
@@ -89,9 +107,7 @@ class FailSelectException(
     val throwable: Throwable
 ) : Exception(_message)
 
-class FailDeleteException(
-    val _message: String
-) : Exception(_message)
+
 
 class FailLoadBookMarkListException(
     val _message: String
@@ -153,10 +169,5 @@ class FailGetUserMeException(
     val _message: String
 ) : Exception(_message)
 
-class FailFirebaseLoginException(
-    val _message: String
-) : Exception(_message)
 
-class NotExistDBUserInfo(
-    val _message: String
-) : Exception(_message)
+
