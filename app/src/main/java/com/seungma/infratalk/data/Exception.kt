@@ -67,7 +67,6 @@ class FailDeleteUserException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
 class NeedVerifiedEmailException(
     val _message: String
 ) : Exception(_message)

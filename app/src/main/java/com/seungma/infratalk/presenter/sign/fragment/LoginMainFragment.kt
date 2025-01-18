@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.data.FailFirebaseLoginException
-import com.seungma.infratalk.data.NotExistDBUserInfo
+import com.seungma.infratalk.data.NotExistFirebaseUserException
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
 import com.seungma.infratalk.presenter.common.CustomSnackbar
@@ -170,7 +170,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.VerifiedEmailException -> {
+                            is com.seungma.infratalk.data.NeedVerifiedEmailException -> {
                                 val message = "이메일 인증이 필요합니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -188,7 +188,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.FailSendEmailException -> {
+                            is com.seungma.infratalk.data.FailVerifiedEmailException -> {
                                 val message = "이메일 전송을 실패 했습니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -224,7 +224,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is NotExistDBUserInfo -> {
+                            is NotExistFirebaseUserException -> {
                                 val message = "데이터 베이스에 유저 정보가 없습니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
