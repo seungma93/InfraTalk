@@ -84,7 +84,10 @@ class NotExistDBUserInfoException(
     val _message: String
 ) : Exception(_message)
 
-
+class FailResetPasswordException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

@@ -11,6 +11,7 @@ import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailFirebaseSignupException
+import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.data.FailSelectLogInInfoException
 import com.seungma.infratalk.data.FailUpdateException
 import com.seungma.infratalk.data.FailUserDBInsertException
@@ -278,11 +279,11 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse {
-        return kotlin.runCatching {
+        return runCatching {
             auth.sendPasswordResetEmail(resetPasswordRequest.email).await()
             UserResponse(resetPasswordRequest.email, null, null)
         }.onFailure {
-            //throw FailSendEmailException("메일 발송 실패")
+            throw FailResetPasswordException(_message = "패스워드 초기화 실패", throwable = it)
         }.getOrThrow()
     }
 
