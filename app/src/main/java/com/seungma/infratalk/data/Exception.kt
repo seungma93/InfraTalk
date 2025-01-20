@@ -89,7 +89,10 @@ class FailResetPasswordException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
+class FailFirebaseSelectUserException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

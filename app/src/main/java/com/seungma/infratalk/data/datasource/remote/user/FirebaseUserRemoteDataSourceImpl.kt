@@ -10,6 +10,7 @@ import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.FailFirebaseSelectUserException
 import com.seungma.infratalk.data.FailFirebaseSignupException
 import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.data.FailSelectLogInInfoException
@@ -301,10 +302,10 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
             } ?: run {
-                throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
+                throw NotExistDBUserInfoException(_message = "로그인 정보 DB에 없음")
             }
         }.onFailure {
-
+            throw FailFirebaseSelectUserException(_message = "유저 정보 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
