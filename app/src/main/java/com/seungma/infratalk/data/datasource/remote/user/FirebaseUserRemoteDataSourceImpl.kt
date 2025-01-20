@@ -12,6 +12,8 @@ import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailFirebaseSelectUserException
 import com.seungma.infratalk.data.FailFirebaseSignupException
+import com.seungma.infratalk.data.FailLoadUserTokenException
+import com.seungma.infratalk.data.FailLogoutException
 import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.data.FailSelectLogInInfoException
 import com.seungma.infratalk.data.FailUpdateException
@@ -348,7 +350,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 )
             }
         }.onFailure {
-            throw Exception(it.message)
+            throw FailLoadUserTokenException(_message = "유저 토큰 가져오기 실패", throwable = it)
         }.getOrThrow()
 
     }
@@ -358,7 +360,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             preferenceDataSource.deleteUserToken()
             auth.signOut()
         }.onFailure {
-            throw Exception(it.message)
+            throw FailLogoutException(_message = "로그아웃 실패", throwable = it)
         }
 
     }
