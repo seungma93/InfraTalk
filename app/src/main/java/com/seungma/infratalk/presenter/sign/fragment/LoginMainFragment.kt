@@ -14,7 +14,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.seungma.infratalk.data.FailDeleteSavedEmailException
 import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.FailGetSavedEmailException
+import com.seungma.infratalk.data.FailSetSavedEmailException
 import com.seungma.infratalk.data.NotExistFirebaseUserException
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
@@ -166,7 +169,32 @@ class LoginMainFragment : Fragment() {
                             Log.d("LogInMainF", " 로그인 프레그먼트")
                             (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                         }.onFailure {
+                            when(it) {
+                                is FailGetSavedEmailException -> {
+                                    val message = "저장된 이메일 가져오기 실패"
+                                    val duration = Snackbar.LENGTH_SHORT
 
+                                    val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                    snackbar.setMargin(bottomDp = 66)
+                                    snackbar.show()
+                                }
+                                is FailSetSavedEmailException -> {
+                                    val message = "이메일 저장에 실패"
+                                    val duration = Snackbar.LENGTH_SHORT
+
+                                    val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                    snackbar.setMargin(bottomDp = 66)
+                                    snackbar.show()
+                                }
+                                is FailDeleteSavedEmailException -> {
+                                    val message = "저장된 이메일 삭제 실패"
+                                    val duration = Snackbar.LENGTH_SHORT
+
+                                    val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                    snackbar.setMargin(bottomDp = 66)
+                                    snackbar.show()
+                                }
+                            }
                         }
                     }
 
