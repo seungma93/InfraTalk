@@ -94,12 +94,17 @@ class FailFirebaseSelectUserException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-class FailLoadUserTokenException(
+class FailGetUserException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
 class FailLogoutException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailGetUserTokenException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)

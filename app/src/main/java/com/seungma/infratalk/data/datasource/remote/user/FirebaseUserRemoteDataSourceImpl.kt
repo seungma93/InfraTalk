@@ -12,10 +12,9 @@ import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailFirebaseSelectUserException
 import com.seungma.infratalk.data.FailFirebaseSignupException
-import com.seungma.infratalk.data.FailLoadUserTokenException
+import com.seungma.infratalk.data.FailGetUserException
 import com.seungma.infratalk.data.FailLogoutException
 import com.seungma.infratalk.data.FailResetPasswordException
-import com.seungma.infratalk.data.FailSelectLogInInfoException
 import com.seungma.infratalk.data.FailUpdateException
 import com.seungma.infratalk.data.FailUserDBInsertException
 import com.seungma.infratalk.data.FailVerifiedEmailException
@@ -350,7 +349,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 )
             }
         }.onFailure {
-            throw FailLoadUserTokenException(_message = "유저 토큰 가져오기 실패", throwable = it)
+            throw FailGetUserException(_message = "유저 정보 가져오기", throwable = it)
         }.getOrThrow()
 
     }

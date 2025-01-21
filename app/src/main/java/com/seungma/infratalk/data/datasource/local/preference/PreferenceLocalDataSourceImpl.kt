@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
+import com.seungma.infratalk.data.FailGetUserTokenException
 import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.response.preference.SavedEmailGetResponse
@@ -41,7 +42,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
                 )
             }
         }.onFailure {
-
+            throw FailGetUserTokenException(_message = "유저토큰 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
