@@ -109,6 +109,37 @@ class FailGetUserTokenException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailSetUserTokenException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailDeleteUserTokenException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailGetSavedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailSetSavedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+class FailDeleteSavedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+
+
+
+
+
+
 
 
 class FailInsertException(

@@ -5,11 +5,17 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
+import com.seungma.infratalk.data.FailDeleteSavedEmailException
+import com.seungma.infratalk.data.FailDeleteUserTokenException
+import com.seungma.infratalk.data.FailGetSavedEmailException
 import com.seungma.infratalk.data.FailGetUserTokenException
+import com.seungma.infratalk.data.FailSetSavedEmailException
+import com.seungma.infratalk.data.FailSetUserTokenException
 import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.response.preference.SavedEmailGetResponse
 import com.seungma.infratalk.data.model.response.preference.UserTokenResponse
+import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -47,7 +53,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
     }
 
     override fun setUserToken(userTokenSetRequest: UserTokenSetRequest) {
-        kotlin.runCatching {
+        runCatching {
             val cipher = getCipher(Cipher.ENCRYPT_MODE)
             val encryptedData = cipher.doFinal(userTokenSetRequest.token.toByteArray(charset(CHARSET)))
             val iv = cipher.iv
@@ -61,6 +67,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             editor.apply()
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: " + it.message)
+            throw FailSetUserTokenException(_message = "유저토큰 저장 실패", throwable = it)
         }
     }
 
@@ -79,6 +86,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: 수행완료")
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: " + it.message)
+            throw FailDeleteUserTokenException(_message = "유저토큰 삭제 실패", throwable = it)
         }
     }
 
@@ -101,7 +109,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
                 )
             }
         }.onFailure {
-
+            throw FailGetSavedEmailException(_message = "저장된 이메일 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
@@ -120,6 +128,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             editor.apply()
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: " + it.message)
+            throw FailSetSavedEmailException(_message = "이메일 저장 실패", throwable = it)
         }
     }
 
@@ -138,6 +147,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: 수행완료")
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: " + it.message)
+            throw FailDeleteSavedEmailException(_message = "저장된 이메일 삭제 실패", throwable = it)
         }
     }
 
