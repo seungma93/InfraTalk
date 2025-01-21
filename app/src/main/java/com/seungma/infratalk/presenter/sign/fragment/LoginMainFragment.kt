@@ -54,11 +54,16 @@ class LoginMainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
             // TODO 프리퍼런스 데이터 확인
-            val savedEmail = signViewModel.getSavedEmail().email
-            if(savedEmail.isNotEmpty()) {
-                emailEditText.setText(savedEmail)
-                cbId.isChecked = true
-            } else cbId.isChecked = false
+            runCatching {
+                val savedEmail = signViewModel.getSavedEmail().email
+                if(savedEmail.isNotEmpty()) {
+                    emailEditText.setText(savedEmail)
+                    cbId.isChecked = true
+                } else cbId.isChecked = false
+            }.onFailure {
+                // TODO 프리퍼런스 예외 처리
+            }
+
 
 
             btnSignUp.setOnClickListener {
@@ -83,7 +88,29 @@ class LoginMainFragment : Fragment() {
                     else -> {
                         showProgressBar()
                         viewLifecycleOwner.lifecycleScope.launch {
-                            signViewModel.logIn(LoginForm(inputId, inputPassword))
+                            runCatching {
+                                signViewModel.logIn(LoginForm(inputId, inputPassword))
+                            }.onFailure {
+                                when(it) {
+                                    is FailFirebaseLoginException -> {
+                                        val message = "로그인에 실패 했습니다"
+                                        val duration = Snackbar.LENGTH_SHORT
+
+                                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                        snackbar.setMargin(bottomDp = 66)
+                                        snackbar.show()
+                                    }
+                                    else -> {
+                                        val message = "로그인 중 알 수 없는 에러가 발생했습니다"
+                                        val duration = Snackbar.LENGTH_SHORT
+
+                                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                        snackbar.setMargin(bottomDp = 66)
+                                        snackbar.show()
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
@@ -122,21 +149,25 @@ class LoginMainFragment : Fragment() {
             signViewModel.viewEvent.collect {
                 when (it) {
                     is ViewEvent.LogIn -> {
-                        when(binding.cbId.isChecked) {
-                            true -> {
-                                //TODO 프리퍼런스 저장
-                                if(signViewModel.getSavedEmail().email != binding.emailEditText.text.toString()) {
-                                    signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
+                        runCatching {
+                            when(binding.cbId.isChecked) {
+                                true -> {
+                                    //TODO 프리퍼런스 저장
+                                    if(signViewModel.getSavedEmail().email != binding.emailEditText.text.toString()) {
+                                        signViewModel.setSavedEmail(savedEmailSetForm = SavedEmailSetForm(email = it.userEntity.email))
+                                    }
+                                }
+                                false -> {
+                                    //TODO 프리퍼런스 삭제
+                                    signViewModel.deleteSavedEmail()
                                 }
                             }
-                             false -> {
-                                 //TODO 프리퍼런스 삭제
-                                 signViewModel.deleteSavedEmail()
-                             }
+                            hideProgressBar()
+                            Log.d("LogInMainF", " 로그인 프레그먼트")
+                            (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
+                        }.onFailure {
+
                         }
-                        hideProgressBar()
-                        Log.d("LogInMainF", " 로그인 프레그먼트")
-                        (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }
 
                     is ViewEvent.Error -> {
