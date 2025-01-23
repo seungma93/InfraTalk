@@ -134,7 +134,15 @@ class FailDeleteSavedEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailSignupException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
+class FailUpdateUserInfoException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 
