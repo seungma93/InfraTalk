@@ -157,7 +157,7 @@ class FirebaseBoardRemoteDataSourceImpl @Inject constructor(
             )
 
         }.onFailure {
-            throw com.seungma.infratalk.data.FailUpdatetException("업데이트 실패")
+            //throw com.seungma.infratalk.data.FailUpdatetException("업데이트 실패")
         }.getOrThrow()
     }
 

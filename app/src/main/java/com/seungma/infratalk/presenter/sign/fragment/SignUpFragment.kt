@@ -237,12 +237,12 @@ class SignUpFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            is com.seungma.infratalk.data.FailUpdatetException -> Toast.makeText(
+                            is com.seungma.infratalk.data.FailUpdateException -> Toast.makeText(
                                 requireActivity(), "업데이트에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            is com.seungma.infratalk.data.FailSendEmailException -> Toast.makeText(
+                            is com.seungma.infratalk.data.FailVerifiedEmailException -> Toast.makeText(
                                 requireActivity(), "메일 전송에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()

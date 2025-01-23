@@ -106,7 +106,7 @@ class ResetPasswordFragment : DialogFragment(), View.OnClickListener {
 
                     is ViewEvent.Error -> {
                         when (it.errorCode) {
-                            is com.seungma.infratalk.data.FailSendEmailException -> {
+                            is com.seungma.infratalk.data.FailVerifiedEmailException -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE
                                 binding.completeText.text = "이메일이 틀렸습니다 확인해 주세요"

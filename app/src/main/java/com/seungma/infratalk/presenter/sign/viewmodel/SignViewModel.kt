@@ -48,9 +48,8 @@ class SignViewModel @Inject constructor(
     val viewEvent: SharedFlow<ViewEvent> = _viewEvent.asSharedFlow()
 
     suspend fun signUp(signUpForm: SignUpForm, imagesRequest: ImagesRequest?) {
-        Log.d("seungma", "SignViewModel.signUp")
         kotlin.runCatching {
-            val signUpResult = signUpUseCase.signUp(signUpForm)
+            val signUpResult = signUpUseCase(signUpForm)
             val updateUserEntity = updateUserInfoUseCase(
                 userInfoUpdateForm = UserInfoUpdateForm(
                     email = signUpResult.email,
@@ -65,10 +64,7 @@ class SignViewModel @Inject constructor(
             )
 
              */
-
-
             sendEmailUseCase.sendVerifiedEmail()
-
 
             _viewEvent.emit(
                 ViewEvent.SignUp(
@@ -80,8 +76,6 @@ class SignViewModel @Inject constructor(
                 )
             )
         }.onFailure {
-            Log.d("seungma", "사인뷰모델 온페일러")
-            Log.d("seungma", "사인뷰모델 온패일러" + it.stackTrace)
             deleteUserInfoUseCase.deleteUserInfo(signUpForm)
             _viewEvent.emit(ViewEvent.Error(it))
         }
