@@ -7,15 +7,10 @@ import com.seungma.infratalk.presenter.sign.form.SignUpForm
 import javax.inject.Inject
 
 
-interface SignUpUseCase {
-    suspend fun signUp(signUpForm: SignUpForm): UserEntity
-}
-
-class SignUpUseCaseImpl @Inject constructor(
+class SignUpUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository
-) : SignUpUseCase {
-    override suspend fun signUp(signUpForm: SignUpForm): UserEntity {
-        Log.d("SignUpU", "시작")
+){
+    suspend operator fun invoke(signUpForm: SignUpForm): UserEntity {
         return userDataRepository.signUp(signUpForm)
     }
 }
