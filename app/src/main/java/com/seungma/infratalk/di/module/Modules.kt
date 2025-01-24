@@ -85,7 +85,6 @@ import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
-import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
@@ -334,7 +333,7 @@ class Modules {
     class SendEmailUseCaseModule {
         @Provides
         fun providesSendEmailUseCase(userDataRepository: UserDataRepository): SendEmailUseCase {
-            return SendEmailUseCaseImpl(userDataRepository)
+            return SendEmailUseCase(userDataRepository)
         }
     }
 

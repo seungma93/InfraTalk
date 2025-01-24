@@ -64,7 +64,7 @@ class SignViewModel @Inject constructor(
             )
 
              */
-            sendEmailUseCase.sendVerifiedEmail()
+            sendEmailUseCase()
 
             _viewEvent.emit(
                 ViewEvent.SignUp(
