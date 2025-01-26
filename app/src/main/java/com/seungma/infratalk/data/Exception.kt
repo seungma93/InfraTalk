@@ -149,6 +149,10 @@ class FailSendEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailDeleteUserInfoException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

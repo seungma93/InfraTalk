@@ -76,7 +76,7 @@ class SignViewModel @Inject constructor(
                 )
             )
         }.onFailure {
-            deleteUserInfoUseCase.deleteUserInfo(signUpForm)
+            deleteUserInfoUseCase(signUpForm)
             _viewEvent.emit(ViewEvent.Error(it))
         }
     }

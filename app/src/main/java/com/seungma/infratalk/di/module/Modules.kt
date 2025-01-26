@@ -83,7 +83,6 @@ import com.seungma.infratalk.domain.mypage.usecase.LoadMyLikeCommentListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
-import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
@@ -405,7 +404,7 @@ class Modules {
     class DeleteUserInfoUseCaseModule {
         @Provides
         fun providesDeleteUserInfoUseCase(repository: UserDataRepository): DeleteUserInfoUseCase {
-            return DeleteUserInfoUseCaseImpl(repository)
+            return DeleteUserInfoUseCase(repository)
         }
     }
 
