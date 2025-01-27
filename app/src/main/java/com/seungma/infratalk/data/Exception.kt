@@ -154,6 +154,14 @@ class FailDeleteUserInfoException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailLoginException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+
+
+
 
 
 
