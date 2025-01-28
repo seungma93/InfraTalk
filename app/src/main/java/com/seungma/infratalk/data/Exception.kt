@@ -99,7 +99,7 @@ class FailGetUserException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-class FailLogoutException(
+class FailFirebaseLogoutException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
@@ -159,7 +159,10 @@ class FailLoginException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
+class FailLogoutException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

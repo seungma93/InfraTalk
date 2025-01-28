@@ -10,10 +10,10 @@ import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.FailFirebaseLogoutException
 import com.seungma.infratalk.data.FailFirebaseSelectUserException
 import com.seungma.infratalk.data.FailFirebaseSignupException
 import com.seungma.infratalk.data.FailGetUserException
-import com.seungma.infratalk.data.FailLogoutException
 import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.data.FailUpdateException
 import com.seungma.infratalk.data.FailUserDBInsertException
@@ -359,7 +359,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             preferenceDataSource.deleteUserToken()
             auth.signOut()
         }.onFailure {
-            throw FailLogoutException(_message = "로그아웃 실패", throwable = it)
+            throw FailFirebaseLogoutException(_message = "로그아웃 실패", throwable = it)
         }
 
     }
