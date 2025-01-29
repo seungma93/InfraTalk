@@ -94,7 +94,7 @@ class SignViewModel @Inject constructor(
         kotlin.runCatching {
             _viewEvent.emit(
                 ViewEvent.ResetPassword(
-                    resetPasswordUseCase.resetPassword(
+                    resetPasswordUseCase(
                         resetPasswordForm
                     )
                 )

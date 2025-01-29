@@ -73,7 +73,6 @@ import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.LogoutUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
-import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCaseImpl
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkCommentListUseCase
@@ -324,7 +323,7 @@ class Modules {
     class ResetPasswordUseCaseModule {
         @Provides
         fun providesResetPasswordUseCase(userDataRepository: UserDataRepository): ResetPasswordUseCase {
-            return ResetPasswordUseCaseImpl(userDataRepository)
+            return ResetPasswordUseCase(userDataRepository)
         }
     }
 
