@@ -84,7 +84,7 @@ class NotExistDBUserInfoException(
     val _message: String
 ) : Exception(_message)
 
-class FailResetPasswordException(
+class FailFirebaseResetPasswordException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
@@ -164,7 +164,10 @@ class FailLogoutException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
+class FailResetPasswordException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

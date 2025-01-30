@@ -11,10 +11,10 @@ import com.seungma.infratalk.data.ExistEmailException
 import com.seungma.infratalk.data.FailDeleteUserException
 import com.seungma.infratalk.data.FailFirebaseLoginException
 import com.seungma.infratalk.data.FailFirebaseLogoutException
+import com.seungma.infratalk.data.FailFirebaseResetPasswordException
 import com.seungma.infratalk.data.FailFirebaseSelectUserException
 import com.seungma.infratalk.data.FailFirebaseSignupException
 import com.seungma.infratalk.data.FailGetUserException
-import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.data.FailUpdateException
 import com.seungma.infratalk.data.FailUserDBInsertException
 import com.seungma.infratalk.data.FailVerifiedEmailException
@@ -285,7 +285,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             auth.sendPasswordResetEmail(resetPasswordRequest.email).await()
             UserResponse(resetPasswordRequest.email, null, null)
         }.onFailure {
-            throw FailResetPasswordException(_message = "패스워드 초기화 실패", throwable = it)
+            throw FailFirebaseResetPasswordException(_message = "파이어 베이스 패스워드 초기화 실패", throwable = it)
         }.getOrThrow()
     }
 
