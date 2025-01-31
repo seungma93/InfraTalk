@@ -7,6 +7,7 @@ import android.util.Base64
 import android.util.Log
 import com.seungma.infratalk.data.FailDeleteSavedEmailException
 import com.seungma.infratalk.data.FailDeleteUserTokenException
+import com.seungma.infratalk.data.FailFirebaseDeleteSavedEmailException
 import com.seungma.infratalk.data.FailGetSavedEmailException
 import com.seungma.infratalk.data.FailGetUserTokenException
 import com.seungma.infratalk.data.FailSetSavedEmailException
@@ -147,7 +148,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: 수행완료")
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: " + it.message)
-            throw FailDeleteSavedEmailException(_message = "저장된 이메일 삭제 실패", throwable = it)
+            throw FailFirebaseDeleteSavedEmailException(_message = "저장된 이메일 삭제 실패", throwable = it)
         }
     }
 

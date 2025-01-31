@@ -129,7 +129,7 @@ class FailSetSavedEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-class FailDeleteSavedEmailException(
+class FailFirebaseDeleteSavedEmailException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
@@ -168,6 +168,16 @@ class FailResetPasswordException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
+
+class FailDeleteSavedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
+
+
+
+
+
 
 
 
