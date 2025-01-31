@@ -2,6 +2,7 @@ package com.seungma.infratalk.presenter.sign.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
@@ -23,13 +24,14 @@ import com.seungma.infratalk.presenter.sign.form.UserInfoUpdateForm
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class ViewEvent {
     data class SignUp(val userEntity: UserEntity) : ViewEvent()
     data class LogIn(val userEntity: UserEntity) : ViewEvent()
     data class ResetPassword(val userEntity: UserEntity) : ViewEvent()
-    data class Error(val errorCode: Throwable) : ViewEvent()
+    data class Error(val throwable: Throwable) : ViewEvent()
 }
 
 class SignViewModel @Inject constructor(
@@ -77,7 +79,7 @@ class SignViewModel @Inject constructor(
             )
         }.onFailure {
             deleteUserInfoUseCase(signUpForm)
-            _viewEvent.emit(ViewEvent.Error(it))
+            _viewEvent.emit(ViewEvent.Error(throwable = it))
         }
     }
 
@@ -86,7 +88,7 @@ class SignViewModel @Inject constructor(
             Log.d("SignViewModel", "로그인 뷰 모델")
             _viewEvent.emit(ViewEvent.LogIn(logInUseCase(loginForm)))
         }.onFailure {
-            _viewEvent.emit(ViewEvent.Error(it))
+            _viewEvent.emit(ViewEvent.Error(throwable = it))
         }
     }
 
@@ -100,16 +102,23 @@ class SignViewModel @Inject constructor(
                 )
             )
         }.onFailure {
-            _viewEvent.emit(ViewEvent.Error(it))
+            _viewEvent.emit(ViewEvent.Error(throwable = it))
         }
     }
 
     fun setSavedEmail(savedEmailSetForm: SavedEmailSetForm) {
-        setSavedEmailUseCase(savedEmailSetForm = savedEmailSetForm)
+        runCatching {
+            setSavedEmailUseCase(savedEmailSetForm = savedEmailSetForm)
+        }.onFailure {
+            viewModelScope.launch {
+                _viewEvent.emit(ViewEvent.Error(throwable = it))
+            }
+        }
     }
 
     fun getSavedEmail(): SavedEmailGetEntity {
         return getSavedEmailUseCase()
+
     }
 
     fun deleteSavedEmail() {

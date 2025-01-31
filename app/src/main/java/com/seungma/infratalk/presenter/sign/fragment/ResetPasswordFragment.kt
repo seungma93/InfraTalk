@@ -105,7 +105,7 @@ class ResetPasswordFragment : DialogFragment(), View.OnClickListener {
                     }
 
                     is ViewEvent.Error -> {
-                        when (it.errorCode) {
+                        when (it.throwable) {
                             is com.seungma.infratalk.data.FailVerifiedEmailException -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE

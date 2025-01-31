@@ -201,7 +201,7 @@ class LoginMainFragment : Fragment() {
                     is ViewEvent.Error -> {
                         Log.d("LogInMainF", " 에러 발생")
                         hideProgressBar()
-                        when (it.errorCode) {
+                        when (it.throwable) {
                             is com.seungma.infratalk.data.NotExistEmailException -> {
                                 val message = "이메일이 존재하지 않습니다"
                                 val duration = Snackbar.LENGTH_SHORT
@@ -292,7 +292,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            else -> Log.d("LogInMain", it.errorCode.message.toString())
+                            else -> Log.d("LogInMain", it.throwable.message.toString())
                         }
                     }
 

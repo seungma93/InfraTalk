@@ -205,7 +205,7 @@ class SignUpFragment : Fragment() {
 
                     is ViewEvent.Error -> {
                         hideProgressBar()
-                        when (it.errorCode) {
+                        when (it.throwable) {
                             is com.seungma.infratalk.data.InvalidPasswordException ->
                                 Toast.makeText(
                                     requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
