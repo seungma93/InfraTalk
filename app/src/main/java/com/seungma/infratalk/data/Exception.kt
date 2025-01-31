@@ -119,7 +119,7 @@ class FailDeleteUserTokenException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-class FailGetSavedEmailException(
+class FailFirebaseGetSavedEmailException(
     private val _message: String,
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
@@ -174,7 +174,10 @@ class FailDeleteSavedEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
+class FailGetSavedEmailException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 

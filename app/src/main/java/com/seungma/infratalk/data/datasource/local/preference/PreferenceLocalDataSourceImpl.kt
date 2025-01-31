@@ -8,6 +8,7 @@ import android.util.Log
 import com.seungma.infratalk.data.FailDeleteSavedEmailException
 import com.seungma.infratalk.data.FailDeleteUserTokenException
 import com.seungma.infratalk.data.FailFirebaseDeleteSavedEmailException
+import com.seungma.infratalk.data.FailFirebaseGetSavedEmailException
 import com.seungma.infratalk.data.FailGetSavedEmailException
 import com.seungma.infratalk.data.FailGetUserTokenException
 import com.seungma.infratalk.data.FailSetSavedEmailException
@@ -110,7 +111,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
                 )
             }
         }.onFailure {
-            throw FailGetSavedEmailException(_message = "저장된 이메일 가져오기 실패", throwable = it)
+            throw FailFirebaseGetSavedEmailException(_message = "저장된 이메일 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
