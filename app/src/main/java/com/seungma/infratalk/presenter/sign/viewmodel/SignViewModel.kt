@@ -118,10 +118,15 @@ class SignViewModel @Inject constructor(
 
     fun getSavedEmail(): SavedEmailGetEntity {
         return getSavedEmailUseCase()
-
     }
 
     fun deleteSavedEmail() {
-        deleteSavedEmailUseCase()
+        runCatching {
+            deleteSavedEmailUseCase()
+        }.onFailure {
+            viewModelScope.launch {
+                _viewEvent.emit(ViewEvent.Error(throwable = it))
+            }
+        }
     }
 }
