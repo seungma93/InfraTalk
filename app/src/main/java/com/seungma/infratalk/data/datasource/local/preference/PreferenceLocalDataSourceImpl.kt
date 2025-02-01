@@ -5,19 +5,16 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
-import com.seungma.infratalk.data.FailDeleteSavedEmailException
 import com.seungma.infratalk.data.FailDeleteUserTokenException
 import com.seungma.infratalk.data.FailFirebaseDeleteSavedEmailException
 import com.seungma.infratalk.data.FailFirebaseGetSavedEmailException
-import com.seungma.infratalk.data.FailGetSavedEmailException
+import com.seungma.infratalk.data.FailFirebaseSetSavedEmailException
 import com.seungma.infratalk.data.FailGetUserTokenException
-import com.seungma.infratalk.data.FailSetSavedEmailException
 import com.seungma.infratalk.data.FailSetUserTokenException
 import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
 import com.seungma.infratalk.data.model.response.preference.SavedEmailGetResponse
 import com.seungma.infratalk.data.model.response.preference.UserTokenResponse
-import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -130,7 +127,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             editor.apply()
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: " + it.message)
-            throw FailSetSavedEmailException(_message = "이메일 저장 실패", throwable = it)
+            throw FailFirebaseSetSavedEmailException(_message = "이메일 저장 실패", throwable = it)
         }
     }
 
