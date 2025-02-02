@@ -6,10 +6,10 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
 import com.seungma.infratalk.data.FailDeleteUserTokenException
-import com.seungma.infratalk.data.FailFirebaseDeleteSavedEmailException
-import com.seungma.infratalk.data.FailFirebaseGetSavedEmailException
-import com.seungma.infratalk.data.FailFirebaseSetSavedEmailException
 import com.seungma.infratalk.data.FailGetUserTokenException
+import com.seungma.infratalk.data.FailPreferenceDeleteSavedEmailException
+import com.seungma.infratalk.data.FailPreferenceGetSavedEmailException
+import com.seungma.infratalk.data.FailPreferenceSetSavedEmailException
 import com.seungma.infratalk.data.FailSetUserTokenException
 import com.seungma.infratalk.data.model.request.preference.SavedEmailSetRequest
 import com.seungma.infratalk.data.model.request.preference.UserTokenSetRequest
@@ -108,7 +108,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
                 )
             }
         }.onFailure {
-            throw FailFirebaseGetSavedEmailException(_message = "저장된 이메일 가져오기 실패", throwable = it)
+            throw FailPreferenceGetSavedEmailException(_message = "저장된 이메일 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
@@ -127,7 +127,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             editor.apply()
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/setUserToken: " + it.message)
-            throw FailFirebaseSetSavedEmailException(_message = "이메일 저장 실패", throwable = it)
+            throw FailPreferenceSetSavedEmailException(_message = "이메일 저장 실패", throwable = it)
         }
     }
 
@@ -146,7 +146,7 @@ class PreferenceLocalDataSourceImpl(private val context: Context) : PreferenceDa
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: 수행완료")
         }.onFailure {
             Log.d("seungma", "PreferenceLocalDataSourceImpl/deleteUserToken: " + it.message)
-            throw FailFirebaseDeleteSavedEmailException(_message = "저장된 이메일 삭제 실패", throwable = it)
+            throw FailPreferenceDeleteSavedEmailException(_message = "저장된 이메일 삭제 실패", throwable = it)
         }
     }
 
