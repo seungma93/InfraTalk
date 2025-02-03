@@ -184,7 +184,10 @@ class FailSetSavedEmailException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
-
+class FailUpdateProfileImageException(
+    private val _message: String,
+    throwable: Throwable?
+) : Exception(throwable?.message, throwable)
 
 
 
