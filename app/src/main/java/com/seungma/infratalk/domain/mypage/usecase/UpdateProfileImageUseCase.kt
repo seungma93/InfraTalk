@@ -1,6 +1,7 @@
 package com.seungma.infratalk.domain.mypage.usecase
 
 import android.util.Log
+import com.seungma.infratalk.data.FailFirebaseUploadImageException
 import com.seungma.infratalk.data.FailUpdateProfileImageException
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCase
@@ -17,29 +18,26 @@ class UpdateProfileImageUseCase @Inject constructor(
         userInfoUpdateForm: UserInfoUpdateForm
     ): UserEntity {
         return runCatching {
-            when (imageRequest) {
-                null -> UserEntity(
+            imageRequest?.let {
+                val uploadImageResult = uploadImagesUseCase.uploadImages(imageRequest)
+                when (uploadImageResult.successUris.isEmpty()) {
+                    true -> throw FailFirebaseUploadImageException(_message = "이미지 업로드 실패")
+                    false -> {
+                        updateUserInfoUseCase(
+                            UserInfoUpdateForm(
+                                userInfoUpdateForm.email,
+                                userInfoUpdateForm.nickname,
+                                uploadImageResult.successUris.first()
+                            )
+                        )
+                    }
+                }
+            } ?: run {
+                UserEntity(
                     userInfoUpdateForm.email,
                     userInfoUpdateForm.nickname!!,
                     userInfoUpdateForm.image
                 )
-
-                else -> {
-                    Log.d("seungma","UpdateProfileImageUseCase.invoke")
-                    val uploadImageResult = uploadImagesUseCase.uploadImages(imageRequest)
-                    when (uploadImageResult.successUris.isEmpty()) {
-                        true -> throw com.seungma.infratalk.data.NoImageException("업로드할 이미지가 없습니다")
-                        false -> {
-                            updateUserInfoUseCase(
-                                UserInfoUpdateForm(
-                                    userInfoUpdateForm.email,
-                                    userInfoUpdateForm.nickname,
-                                    uploadImageResult.successUris[0]
-                                )
-                            )
-                        }
-                    }
-                }
             }
         }.onFailure {
             throw FailUpdateProfileImageException(_message = "프로필 사진 업데이트 실패", throwable = it)

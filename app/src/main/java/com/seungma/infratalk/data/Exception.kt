@@ -189,6 +189,9 @@ class FailUpdateProfileImageException(
     throwable: Throwable?
 ) : Exception(throwable?.message, throwable)
 
+class FailFirebaseUploadImageException(
+    val _message: String
+) : Exception(_message)
 
 
 
@@ -200,9 +203,7 @@ class FailInsertException(
 
 
 
-class NoImageException(
-    val _message: String
-) : Exception(_message)
+
 
 class FailSelectException(
     val _message: String,
