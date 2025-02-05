@@ -232,11 +232,6 @@ class SignUpFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            is com.seungma.infratalk.data.NoImageException -> Toast.makeText(
-                                requireActivity(), "업로드할 이미지가 없습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
                             is com.seungma.infratalk.data.FailUpdateException -> Toast.makeText(
                                 requireActivity(), "업데이트에 실패 했습니다",
                                 Toast.LENGTH_SHORT
