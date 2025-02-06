@@ -190,7 +190,7 @@ class SignUpFragment : Fragment() {
     }
 
     private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
             signViewModel.viewEvent.collect {
 
                 when (it) {
