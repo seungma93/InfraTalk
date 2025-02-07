@@ -45,9 +45,7 @@ class MyPageViewModel @Inject constructor(
 
     suspend fun updateUserInfo(userInfoUpdateForm: UserInfoUpdateForm) {
         kotlin.runCatching {
-            val userEntity = updateUserInfoUseCase(userInfoUpdateForm = userInfoUpdateForm)
-
-            com.seungma.infratalk.data.UserSingleton.userEntity = userEntity
+            updateUserInfoUseCase(userInfoUpdateForm = userInfoUpdateForm)
 
             _viewEvent.emit(
                 MyPageViewEvent.UpdateUserInfo(

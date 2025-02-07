@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.seungma.infratalk.data.UserSingleton.userEntity
 import com.seungma.infratalk.databinding.ListItemBoardContentBinding
 import com.seungma.infratalk.databinding.ListItemCommentBinding
 import com.seungma.infratalk.domain.board.entity.BoardEntity
@@ -78,7 +77,7 @@ class CommentListAdapter(
                         parent,
                         false
                     )
-                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick, imageClick)
+                BoardContentViewHolder(binding, boardBookmarkClick, boardLikeClick, imageClick, userEntity)
             }
 
             TYPE_COMMENT -> {
@@ -135,7 +134,8 @@ class BoardContentViewHolder(
     private val binding: ListItemBoardContentBinding,
     private val boardBookmarkClick: (BoardEntity) -> Unit,
     private val boardLikeClick: (BoardEntity) -> Unit,
-    private val imageClick: (BoardEntity) -> Unit
+    private val imageClick: (BoardEntity) -> Unit,
+    private val userEntity: UserEntity
 ) : RecyclerView.ViewHolder(binding.root) {
     private var boardEntity: BoardEntity? = null
 
