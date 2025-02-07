@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
-import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
@@ -37,7 +36,6 @@ sealed class ViewEvent {
 class SignViewModel @Inject constructor(
     private val signUpUseCase: SignUpUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
-    private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val logInUseCase: LoginUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
     private val deleteUserInfoUseCase: DeleteUserInfoUseCase,
@@ -59,13 +57,6 @@ class SignViewModel @Inject constructor(
                     image = imagesRequest?.imageUris?.first()
                 )
             )
-            /*
-            val updateProfileResult = updateProfileImageUseCase(
-                imagesRequest,
-                UserInfoUpdateForm(signUpResult.email, signUpForm.nickname, null)
-            )
-
-             */
             sendEmailUseCase()
 
             _viewEvent.emit(

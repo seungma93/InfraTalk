@@ -79,7 +79,6 @@ import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkCommentListUseC
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyCommentListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyLikeBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyLikeCommentListUseCase
-import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
@@ -362,16 +361,6 @@ class Modules {
         }
     }
 
-    @Module
-    class UpdateProfileImageUseCaseModule {
-        @Provides
-        fun providesUpdateImageContentUseCase(
-            uploadImagesUseCase: UploadImagesUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
-        ): UpdateProfileImageUseCase {
-            return UpdateProfileImageUseCase(uploadImagesUseCase, updateUserInfoUseCase)
-        }
-    }
     /*
         @Module
         class UpdateUserInfoUseCaseModule {
@@ -861,7 +850,6 @@ class Modules {
         fun providesSignViewModel(
             signUpUseCase: SignUpUseCase,
             sendEmailUseCase: SendEmailUseCase,
-            updateProfileImageUseCase: UpdateProfileImageUseCase,
             loginUseCase: LoginUseCase,
             resetPasswordUseCase: ResetPasswordUseCase,
             deleteUserInfoUseCase: DeleteUserInfoUseCase,
@@ -873,7 +861,6 @@ class Modules {
             return SignViewModel(
                 signUpUseCase,
                 sendEmailUseCase,
-                updateProfileImageUseCase,
                 loginUseCase,
                 resetPasswordUseCase,
                 deleteUserInfoUseCase,
