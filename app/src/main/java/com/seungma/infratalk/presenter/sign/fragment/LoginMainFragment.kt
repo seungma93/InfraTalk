@@ -265,11 +265,26 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            else -> Log.d("LogInMain", it.throwable.message.toString())
+                            else -> {
+                                Log.d("LogInMain", it.throwable.message.toString())
+                                val message = "알 수 없는 에러 발생"
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
                         }
                     }
 
-                    else -> {}
+                    else -> {
+                        val message = "알 수 없는 에러 발생"
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
                 }
             }
         }
