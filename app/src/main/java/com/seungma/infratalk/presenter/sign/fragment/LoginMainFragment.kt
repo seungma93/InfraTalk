@@ -14,8 +14,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.FailSelectException
+import com.seungma.infratalk.data.FailVerifiedEmailException
+import com.seungma.infratalk.data.InvalidEmailException
+import com.seungma.infratalk.data.NeedVerifiedEmailException
+import com.seungma.infratalk.data.NotExistEmailException
 import com.seungma.infratalk.data.NotExistFirebaseUserException
+import com.seungma.infratalk.data.UnKnownException
+import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.databinding.FragmentLoginMainBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
 import com.seungma.infratalk.presenter.common.CustomSnackbar
@@ -167,7 +175,7 @@ class LoginMainFragment : Fragment() {
                         Log.d("LogInMainF", " 에러 발생")
                         hideProgressBar()
                         when (it.throwable) {
-                            is com.seungma.infratalk.data.NotExistEmailException -> {
+                            is NotExistEmailException -> {
                                 val message = "이메일이 존재하지 않습니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -176,7 +184,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.InvalidEmailException -> {
+                            is InvalidEmailException -> {
                                 val message = "이메일을 확인하세요"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -185,7 +193,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.WrongPasswordException -> {
+                            is WrongPasswordException -> {
                                 val message = "암호가 틀렸습니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -194,7 +202,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.NeedVerifiedEmailException -> {
+                            is NeedVerifiedEmailException -> {
                                 val message = "이메일 인증이 필요합니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -203,7 +211,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.BlockedRequestException -> {
+                            is BlockedRequestException -> {
                                 val message = "요청이 많아 잠시 기다려 주세요"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -212,7 +220,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.FailVerifiedEmailException -> {
+                            is FailVerifiedEmailException -> {
                                 val message = "이메일 전송을 실패 했습니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -221,7 +229,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.FailSelectException -> {
+                            is FailSelectException -> {
                                 val message = "계정 정보 조회에 실패했습니다"
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -230,7 +238,7 @@ class LoginMainFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.seungma.infratalk.data.UnKnownException -> {
+                            is UnKnownException -> {
                                 val message = "알 수 없는 에러 발생"
                                 val duration = Snackbar.LENGTH_SHORT
 
