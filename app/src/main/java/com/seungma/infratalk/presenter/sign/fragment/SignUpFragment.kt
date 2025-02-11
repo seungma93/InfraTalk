@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.databinding.FragmentSignUpBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
@@ -49,12 +51,11 @@ class SignUpFragment : Fragment() {
 
         activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                Log.d("BoardWriteFragment", "퍼미션 체크 실행")
                 if (isGranted) {
                     // 권한이 필요한 작업 수행
                     navigateImage()
                 } else {
-                    Log.d("BoardWriteFragment", "퍼미션 허용 안됨 ")
+
                 }
             }
 
@@ -63,6 +64,11 @@ class SignUpFragment : Fragment() {
                 if (it.resultCode == Activity.RESULT_OK) {
                     it.data?.let { intent ->
                         binding.profileImage.setImageURI(intent.data)
+                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                            Glide.with(this)
+                                .load(intent.data)
+                                .apply(requestOptions)
+                                .into(binding.profileImage)
                         binding.profileImage.tag = intent.data
                     }
                 }
@@ -148,20 +154,17 @@ class SignUpFragment : Fragment() {
                         Manifest.permission.READ_MEDIA_IMAGES
                     ) == PackageManager.PERMISSION_GRANTED
                     -> {
-                        Log.d("BoardWriteFragment", "권한 있음")
                         // 권한이 존재하는 경우
                         navigateImage()
                     }
 
                     shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                         // 권한이 거부 되어 있는 경우
-                        Log.d("BoardWriteFragment", "권한 없음")
                         showPermissionContextPopup()
                     }
 
                     else -> {
                         // 처음 권한을 시도했을 때 띄움
-                        Log.d("BoardWriteFragment", "처음 시도")
                         activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                     }
                 }
