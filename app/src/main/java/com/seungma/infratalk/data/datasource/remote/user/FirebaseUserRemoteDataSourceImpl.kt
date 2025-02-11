@@ -2,22 +2,30 @@ package com.seungma.infratalk.data.datasource.remote.user
 
 
 import android.net.Uri
-import android.util.Log
-import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.JsonObject
 import com.seungma.infratalk.data.BlockedRequestException
 import com.seungma.infratalk.data.ExistEmailException
-import com.seungma.infratalk.data.FailDeleteException
-import com.seungma.infratalk.data.FailInsertException
-import com.seungma.infratalk.data.FailSelectLogInInfoException
-import com.seungma.infratalk.data.FailSendEmailException
-import com.seungma.infratalk.data.FailUpdatetException
+import com.seungma.infratalk.data.FailDeleteUserException
+import com.seungma.infratalk.data.FailFirebaseLoginException
+import com.seungma.infratalk.data.FailFirebaseLogoutException
+import com.seungma.infratalk.data.FailFirebaseResetPasswordException
+import com.seungma.infratalk.data.FailFirebaseSelectUserException
+import com.seungma.infratalk.data.FailFirebaseSignupException
+import com.seungma.infratalk.data.FailGetUserException
+import com.seungma.infratalk.data.FailUpdateException
+import com.seungma.infratalk.data.FailUserDBInsertException
+import com.seungma.infratalk.data.FailVerifiedEmailException
 import com.seungma.infratalk.data.InvalidEmailException
 import com.seungma.infratalk.data.InvalidPasswordException
+import com.seungma.infratalk.data.NeedVerifiedEmailException
+import com.seungma.infratalk.data.NotExistDBUserInfoException
 import com.seungma.infratalk.data.NotExistEmailException
+import com.seungma.infratalk.data.NotExistFirebaseCurrentUserException
+import com.seungma.infratalk.data.NotExistFirebaseUserException
+import com.seungma.infratalk.data.NotExistUpdateInfoException
 import com.seungma.infratalk.data.UnKnownException
 import com.seungma.infratalk.data.WrongPasswordException
 import com.seungma.infratalk.data.datasource.local.preference.PreferenceDataSource
@@ -37,7 +45,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import javax.security.auth.login.LoginException
 
 class FirebaseUserRemoteDataSourceImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -55,20 +62,50 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         const val ERROR_TOO_MANY_REQUESTS = "ERROR_TOO_MANY_REQUESTS"
     }
 
-    private fun separatedFirebaseErrorCode(errorCode: String): Exception {
-        return when (errorCode) {
-            ERROR_INVALID_EMAIL -> InvalidEmailException("유효하지 않은 이메일")
-            ERROR_WRONG_PASSWORD -> WrongPasswordException("잘못된 비밀번호")
-            ERROR_USER_NOT_FOUND -> NotExistEmailException("존재하지 않는 이메일")
-            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException("존재하는 이메일")
-            ERROR_WEAK_PASSWORD -> InvalidPasswordException("잘못된 형식의 비밀번호")
-            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException("블락된 요청")
-            else -> UnKnownException("알 수 없는 에러")
+    private fun separatedFirebaseErrorCode(throwable: Throwable): Exception {
+        return when (throwable.message) {
+            ERROR_INVALID_EMAIL -> InvalidEmailException(
+                _message = "유요하지 않은 이메일 입니다",
+                throwable = throwable
+            )
+
+            ERROR_WRONG_PASSWORD -> WrongPasswordException(
+                _message = "잘못된 비밀번호",
+                throwable = throwable
+            )
+
+            ERROR_USER_NOT_FOUND -> NotExistEmailException(
+                _message = "존재하지 않는 이메일",
+                throwable = throwable
+            )
+
+            ERROR_EMAIL_ALREADY_IN_USE -> ExistEmailException(
+                _message = "존재하는 이메일",
+                throwable = throwable
+            )
+
+            ERROR_WEAK_PASSWORD -> InvalidPasswordException(
+                _message = "잘못된 형식의 비밀번호",
+                throwable = throwable
+            )
+
+            ERROR_TOO_MANY_REQUESTS -> BlockedRequestException(
+                _message = "블락된 요청",
+                throwable = throwable
+            )
+
+            else -> UnKnownException(_message = "알 수 없는 에러")
         }
     }
 
     override suspend fun signUp(signupRequest: SignupRequest): UserResponse = coroutineScope {
         runCatching {
+            val authAsync = async {
+                auth.createUserWithEmailAndPassword(
+                    signupRequest.email,
+                    signupRequest.password
+                )
+            }
             val insertAsync = async {
                 database.collection("User").add(
                     UserEntity(
@@ -78,31 +115,35 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     )
                 )
             }
-            val authAsync = async {
-                auth.createUserWithEmailAndPassword(
-                    signupRequest.email,
-                    signupRequest.password
-                )
-            }
 
-            val resultInsert = insertAsync.await()
             val resultAuth = authAsync.await()
+            val resultInsert = insertAsync.await()
 
-            if (resultAuth.isSuccessful && resultInsert.isSuccessful) {
-                UserResponse(
-                    email = signupRequest.email,
-                    nickname = signupRequest.nickname,
-                    image = Uri.parse(signupRequest.imageUri)
+            // 예외를 명확히 던짐
+            if (!resultAuth.isSuccessful) {
+                throw FailFirebaseSignupException(
+                    _message = "파이어 베이스 가입 어스 실패",
+                    throwable = resultAuth.exception
                 )
-            } else {
-                throw LoginException("파이어베이스 로그인 로직 실패")
             }
+            if (!resultInsert.isSuccessful) {
+                throw FailUserDBInsertException(
+                    _message = "유저 디비 인서트 실패",
+                    throwable = resultInsert.exception
+                )
+            }
+
+            UserResponse(
+                email = signupRequest.email,
+                nickname = signupRequest.nickname,
+                image = Uri.parse(signupRequest.imageUri)
+            )
 
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it.errorCode)
-                is FirebaseException -> throw FailInsertException("인서트에 실패 했습니다")
-                else -> throw UnKnownException("알 수 없는 에러")
+                is FirebaseAuthException -> throw separatedFirebaseErrorCode(it)
+                is FailFirebaseSignupException, is FailUserDBInsertException -> throw it
+                else -> throw UnKnownException(_message = "알 수 없는 에러")
             }
         }.getOrThrow()
 
@@ -115,18 +156,22 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 val updateData = userInfoUpdateRequest.nickname?.let {
                     userInfoUpdateRequest.image?.let {
                         if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                            // 닉네임, 프로필
                             mapOf(
                                 "nickname" to userInfoUpdateRequest.nickname,
                                 "image" to userInfoUpdateRequest.image
                             )
-                        } else mapOf("nickname" to userInfoUpdateRequest.nickname, "image" to null)
-                    } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)
+                        } else mapOf(
+                            "nickname" to userInfoUpdateRequest.nickname,
+                            "image" to null
+                        ) // 닉네임, 기본 프로필
+                    } ?: mapOf("nickname" to userInfoUpdateRequest.nickname)    // 닉네임
                 } ?: run {
                     userInfoUpdateRequest.image?.let {
                         if (userInfoUpdateRequest.image != Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
-                            mapOf("image" to userInfoUpdateRequest.image)
-                        } else mapOf("image" to null)
-                    } ?: error("")
+                            mapOf("image" to userInfoUpdateRequest.image)   // 프로필
+                        } else mapOf("image" to null) // 기본 프로필
+                    } ?: throw NotExistUpdateInfoException(_message = "업데이트 할 내용이 없습니다")
                 }
 
 
@@ -149,8 +194,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                 userResponse
             }.onFailure {
-                Log.d("seungma", "유저데이터소스 업데이트 유저인포 터짐")
-                throw FailUpdatetException("업데이트 실패")
+                throw FailUpdateException(_message = "정보 업데이트 실패", throwable = it)
             }.getOrThrow()
         }
 
@@ -158,23 +202,20 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
         val currentUser = auth.currentUser
         return kotlin.runCatching {
             currentUser?.let {
-                Log.d("SendEmail", "데이터소스")
                 it.sendEmailVerification().await()
                 UserResponse(it.email, null, null)
             } ?: run {
-                Log.d("UserDataSource", "알 수 없는1")
-                throw UnKnownException("알 수 없는 에러")
+                throw NotExistFirebaseCurrentUserException("파이어베이스의 커렌트유저가 없습니다")
             }
         }.onFailure {
             when (it) {
-                is FirebaseAuthException -> throw FailSendEmailException(
-                    "메일 발송 실패"
+                is FirebaseAuthException -> throw FailVerifiedEmailException(
+                    _message = "이메일 인증 실패",
+                    throwable = it
                 )
 
-                else -> {
-                    Log.d("UserDataSource", "알 수 없는2")
-                    throw UnKnownException("알 수 없는 에러")
-                }
+                is NotExistFirebaseCurrentUserException -> throw it
+                else -> throw UnKnownException("알 수 없는 에러")
             }
         }.getOrThrow()
     }
@@ -187,7 +228,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 }
             UserResponse(email = deleteUserRequest.email, nickname = null, image = null)
         }.onFailure {
-            throw FailDeleteException("딜리트에 실패 했습니다")
+            throw FailDeleteUserException(_message = "유저정보 딜리트에 실패 했습니다", throwable = it)
         }.getOrThrow()
     }
 
@@ -199,13 +240,13 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
             user?.let {
                 if (!it.isEmailVerified) {
-                    Log.d("FirebaseUserDataSource", "이메일 인증 필요")
+                    throw NeedVerifiedEmailException(_message = "이메일 인증이 필요")
                 }
             } ?: run {
-                Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 실패")
+                throw NotExistFirebaseUserException(_message = "파이어베이스에 유저 정보 없음")
             }
         }.onFailure {
-            Log.d("FirebaseUserDataSource", "파이어 베이스 로그인 에러")
+            throw FailFirebaseLoginException(_message = "파이어 베이스 로그인 실패", throwable = it)
         }
 
         val snapshotAsync = async {
@@ -222,35 +263,29 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 preferenceDataSource.setUserToken(userTokenSetRequest = UserTokenSetRequest(token = it))
             }
         }
-
-
-        runCatching {
-            snapshot.documents.firstOrNull()?.let {
-                val data = it.data
-                data?.let {
-                    UserResponse(
-                        email = data["email"] as? String,
-                        nickname = data["nickname"] as? String,
-                        image = (data["image"] as? String)?.let { image ->
-                            Uri.parse(image)
-                        }
-                    )
-                }
-            } ?: run {
-                Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
-                throw error("")
+        snapshot.documents.firstOrNull()?.let {
+            val data = it.data
+            data?.let {
+                UserResponse(
+                    email = data["email"] as? String,
+                    nickname = data["nickname"] as? String,
+                    image = (data["image"] as? String)?.let { image ->
+                        Uri.parse(image)
+                    }
+                )
             }
-        }.onFailure {
-            Log.d("FirebaseUserDataSource", "로그인 정보 DB에 없음")
-        }.getOrThrow()
+        } ?: run {
+            throw NotExistDBUserInfoException(_message = "로그인 정보 DB에 없음")
+        }
+
     }
 
     override suspend fun resetPassword(resetPasswordRequest: ResetPasswordRequest): UserResponse {
-        return kotlin.runCatching {
+        return runCatching {
             auth.sendPasswordResetEmail(resetPasswordRequest.email).await()
             UserResponse(resetPasswordRequest.email, null, null)
         }.onFailure {
-            throw FailSendEmailException("메일 발송 실패")
+            throw FailFirebaseResetPasswordException(_message = "파이어 베이스 패스워드 초기화 실패", throwable = it)
         }.getOrThrow()
     }
 
@@ -262,24 +297,22 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             val snapshot = query.get().await()
 
             snapshot.documents.firstOrNull()?.let {
-                Log.d("comment", "유저데이터 소스 데이터" + it.data?.get("email") as? String)
                 UserResponse(
                     email = it.data?.get("email") as? String,
                     nickname = it.data?.get("nickname") as? String,
                     image = (it.data?.get("image") as? String)?.let { Uri.parse(it) }
                 )
             } ?: run {
-                throw FailSelectLogInInfoException("로그인 정보 가져오기 실패")
+                throw NotExistDBUserInfoException(_message = "로그인 정보 DB에 없음")
             }
         }.onFailure {
-
+            throw FailFirebaseSelectUserException(_message = "유저 정보 가져오기 실패", throwable = it)
         }.getOrThrow()
     }
 
 
     override suspend fun getUserMe(): UserResponse {
         val token = preferenceDataSource.getUserToken().token
-        Log.d("getUser", "토큰 :" + token)
         return runCatching {
             val apiKey = "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
             token?.let {
@@ -292,7 +325,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
                     )
                 val email = getUserMeResponse.users?.firstOrNull()?.email
-                Log.d("getUser", "겟 유저 이메일 :" + email)
                 email?.let {
                     val snapshot = database.collection("User")
                         .whereEqualTo("email", it).get().await()
@@ -310,7 +342,6 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                     }
                 }
             } ?: run {
-                Log.d("getUserMe", "토큰 없음")
                 UserResponse(
                     email = null,
                     nickname = null,
@@ -318,7 +349,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
                 )
             }
         }.onFailure {
-            throw Exception(it.message)
+            throw FailGetUserException(_message = "유저 정보 가져오기", throwable = it)
         }.getOrThrow()
 
     }
@@ -328,7 +359,7 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
             preferenceDataSource.deleteUserToken()
             auth.signOut()
         }.onFailure {
-            throw Exception(it.message)
+            throw FailFirebaseLogoutException(_message = "로그아웃 실패", throwable = it)
         }
 
     }

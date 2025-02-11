@@ -24,7 +24,6 @@ import dagger.Component
         Modules.UpdateUserInfoUseCaseModule::class,
         Modules.SignUpUseCaseModule::class,
         Modules.SendEmailUseCaseModule::class,
-        Modules.UpdateProfileImageUseCaseModule::class,
         Modules.LoginUseCaseModule::class,
         Modules.ResetPasswordUseCaseModule::class,
         Modules.DeleteUserInfoUseCaseModule::class,

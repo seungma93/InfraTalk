@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.seungma.infratalk.data.model.request.image.ImagesRequest
 import com.seungma.infratalk.databinding.FragmentSignUpBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
@@ -49,12 +51,11 @@ class SignUpFragment : Fragment() {
 
         activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                Log.d("BoardWriteFragment", "퍼미션 체크 실행")
                 if (isGranted) {
                     // 권한이 필요한 작업 수행
                     navigateImage()
                 } else {
-                    Log.d("BoardWriteFragment", "퍼미션 허용 안됨 ")
+
                 }
             }
 
@@ -63,6 +64,11 @@ class SignUpFragment : Fragment() {
                 if (it.resultCode == Activity.RESULT_OK) {
                     it.data?.let { intent ->
                         binding.profileImage.setImageURI(intent.data)
+                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                            Glide.with(this)
+                                .load(intent.data)
+                                .apply(requestOptions)
+                                .into(binding.profileImage)
                         binding.profileImage.tag = intent.data
                     }
                 }
@@ -145,24 +151,21 @@ class SignUpFragment : Fragment() {
                 when {
                     ContextCompat.checkSelfPermission(
                         requireActivity(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE
+                        Manifest.permission.READ_MEDIA_IMAGES
                     ) == PackageManager.PERMISSION_GRANTED
                     -> {
-                        Log.d("BoardWriteFragment", "권한 있음")
                         // 권한이 존재하는 경우
                         navigateImage()
                     }
 
-                    shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                         // 권한이 거부 되어 있는 경우
-                        Log.d("BoardWriteFragment", "권한 없음")
                         showPermissionContextPopup()
                     }
 
                     else -> {
                         // 처음 권한을 시도했을 때 띄움
-                        Log.d("BoardWriteFragment", "처음 시도")
-                        activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                     }
                 }
             }
@@ -182,7 +185,7 @@ class SignUpFragment : Fragment() {
             .setTitle("권한이 필요합니다")
             .setMessage("전자액자에서 사진을 선택하려면 권한이 필요합니다.")
             .setPositiveButton("동의하기") { _, _ ->
-                activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
             }
             .setNegativeButton("취소하기") { _, _ -> }
             .create()
@@ -190,7 +193,7 @@ class SignUpFragment : Fragment() {
     }
 
     private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launch {
             signViewModel.viewEvent.collect {
 
                 when (it) {
@@ -205,7 +208,7 @@ class SignUpFragment : Fragment() {
 
                     is ViewEvent.Error -> {
                         hideProgressBar()
-                        when (it.errorCode) {
+                        when (it.throwable) {
                             is com.seungma.infratalk.data.InvalidPasswordException ->
                                 Toast.makeText(
                                     requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
@@ -232,17 +235,12 @@ class SignUpFragment : Fragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            is com.seungma.infratalk.data.NoImageException -> Toast.makeText(
-                                requireActivity(), "업로드할 이미지가 없습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            is com.seungma.infratalk.data.FailUpdatetException -> Toast.makeText(
+                            is com.seungma.infratalk.data.FailUpdateException -> Toast.makeText(
                                 requireActivity(), "업데이트에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            is com.seungma.infratalk.data.FailSendEmailException -> Toast.makeText(
+                            is com.seungma.infratalk.data.FailVerifiedEmailException -> Toast.makeText(
                                 requireActivity(), "메일 전송에 실패 했습니다",
                                 Toast.LENGTH_SHORT
                             ).show()

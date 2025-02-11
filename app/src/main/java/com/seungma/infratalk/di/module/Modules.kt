@@ -73,21 +73,16 @@ import com.seungma.infratalk.domain.image.usecase.UploadImagesUseCaseImpl
 import com.seungma.infratalk.domain.login.usecase.LoginUseCase
 import com.seungma.infratalk.domain.login.usecase.LogoutUseCase
 import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCase
-import com.seungma.infratalk.domain.login.usecase.ResetPasswordUseCaseImpl
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyBookmarkCommentListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyCommentListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyLikeBoardListUseCase
 import com.seungma.infratalk.domain.mypage.usecase.LoadMyLikeCommentListUseCase
-import com.seungma.infratalk.domain.mypage.usecase.UpdateProfileImageUseCase
 import com.seungma.infratalk.domain.mypage.usecase.UpdateUserInfoUseCase
 import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCase
-import com.seungma.infratalk.domain.signup.usecase.DeleteUserInfoUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCase
-import com.seungma.infratalk.domain.signup.usecase.SendEmailUseCaseImpl
 import com.seungma.infratalk.domain.signup.usecase.SignUpUseCase
-import com.seungma.infratalk.domain.signup.usecase.SignUpUseCaseImpl
 import com.seungma.infratalk.domain.user.repository.UserDataRepository
 import com.seungma.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
 import com.seungma.infratalk.domain.user.usecase.GetSavedEmailUseCase
@@ -327,7 +322,7 @@ class Modules {
     class ResetPasswordUseCaseModule {
         @Provides
         fun providesResetPasswordUseCase(userDataRepository: UserDataRepository): ResetPasswordUseCase {
-            return ResetPasswordUseCaseImpl(userDataRepository)
+            return ResetPasswordUseCase(userDataRepository)
         }
     }
 
@@ -335,7 +330,7 @@ class Modules {
     class SendEmailUseCaseModule {
         @Provides
         fun providesSendEmailUseCase(userDataRepository: UserDataRepository): SendEmailUseCase {
-            return SendEmailUseCaseImpl(userDataRepository)
+            return SendEmailUseCase(userDataRepository)
         }
     }
 
@@ -343,7 +338,7 @@ class Modules {
     class SignUpUseCaseModule {
         @Provides
         fun providesSignUpUseCase(userDataRepository: UserDataRepository): SignUpUseCase {
-            return SignUpUseCaseImpl(userDataRepository)
+            return SignUpUseCase(userDataRepository)
         }
     }
 
@@ -366,16 +361,6 @@ class Modules {
         }
     }
 
-    @Module
-    class UpdateProfileImageUseCaseModule {
-        @Provides
-        fun providesUpdateImageContentUseCase(
-            uploadImagesUseCase: UploadImagesUseCase,
-            updateUserInfoUseCase: UpdateUserInfoUseCase
-        ): UpdateProfileImageUseCase {
-            return UpdateProfileImageUseCase(uploadImagesUseCase, updateUserInfoUseCase)
-        }
-    }
     /*
         @Module
         class UpdateUserInfoUseCaseModule {
@@ -407,7 +392,7 @@ class Modules {
     class DeleteUserInfoUseCaseModule {
         @Provides
         fun providesDeleteUserInfoUseCase(repository: UserDataRepository): DeleteUserInfoUseCase {
-            return DeleteUserInfoUseCaseImpl(repository)
+            return DeleteUserInfoUseCase(repository)
         }
     }
 
@@ -865,7 +850,6 @@ class Modules {
         fun providesSignViewModel(
             signUpUseCase: SignUpUseCase,
             sendEmailUseCase: SendEmailUseCase,
-            updateProfileImageUseCase: UpdateProfileImageUseCase,
             loginUseCase: LoginUseCase,
             resetPasswordUseCase: ResetPasswordUseCase,
             deleteUserInfoUseCase: DeleteUserInfoUseCase,
@@ -877,7 +861,6 @@ class Modules {
             return SignViewModel(
                 signUpUseCase,
                 sendEmailUseCase,
-                updateProfileImageUseCase,
                 loginUseCase,
                 resetPasswordUseCase,
                 deleteUserInfoUseCase,

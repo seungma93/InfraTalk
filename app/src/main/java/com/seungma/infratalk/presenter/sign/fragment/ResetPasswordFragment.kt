@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.seungma.infratalk.data.FailResetPasswordException
 import com.seungma.infratalk.databinding.FragmentDialogChangeAccountBinding
 import com.seungma.infratalk.di.component.DaggerSignFragmentComponent
 import com.seungma.infratalk.presenter.sign.form.ResetPasswordForm
@@ -105,11 +106,11 @@ class ResetPasswordFragment : DialogFragment(), View.OnClickListener {
                     }
 
                     is ViewEvent.Error -> {
-                        when (it.errorCode) {
-                            is com.seungma.infratalk.data.FailSendEmailException -> {
+                        when (it.throwable) {
+                            is FailResetPasswordException -> {
                                 binding.emailTextInput.visibility = View.GONE
                                 binding.btnFindPassword.visibility = View.GONE
-                                binding.completeText.text = "이메일이 틀렸습니다 확인해 주세요"
+                                binding.completeText.text = "패스워드 초기화 실패"
                                 binding.completeText.visibility = View.VISIBLE
                             }
                         }
