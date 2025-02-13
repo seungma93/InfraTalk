@@ -1,6 +1,7 @@
 package com.seungma.infratalk.data.mapper
 
 import android.net.Uri
+import com.seungma.infratalk.data.NotExistAuthorException
 import com.seungma.infratalk.data.model.response.board.BoardDeleteResponse
 import com.seungma.infratalk.data.model.response.board.BoardInsertResponse
 import com.seungma.infratalk.data.model.response.board.BoardMetaListResponse
@@ -16,12 +17,12 @@ import java.util.Date
 
 fun BoardMetaResponse.toEntity(): BoardMetaEntity {
     return BoardMetaEntity(
-        author = author?.toEntity() ?: UserEntity("", "", Uri.parse("")),
+        author = author?.toEntity() ?: throw NotExistAuthorException(_message = "게시글의 글쓴이가 없음"),
         title = title.orEmpty(),
         content = content.orEmpty(),
         images = images,
         createTime = createTime ?: Date(),
-        editTime = editTime ?: Date()
+        editTime = editTime
     )
 }
 
