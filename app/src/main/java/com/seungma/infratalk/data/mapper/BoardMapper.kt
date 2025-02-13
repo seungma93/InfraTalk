@@ -19,7 +19,7 @@ fun BoardMetaResponse.toEntity(): BoardMetaEntity {
         author = author?.toEntity() ?: UserEntity("", "", Uri.parse("")),
         title = title.orEmpty(),
         content = content.orEmpty(),
-        images = images ?: ImagesResultEntity(listOf(Uri.parse("")), listOf(Uri.parse(""))),
+        images = images,
         createTime = createTime ?: Date(),
         editTime = editTime ?: Date()
     )
