@@ -62,10 +62,6 @@ class BoardFragment : Fragment() {
         super.onAttach(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,7 +81,6 @@ class BoardFragment : Fragment() {
 
                 _adapter = BoardListAdapter(
                     itemClick = {
-                        Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
                         val endPoint = EndPoint.BoardContent(
                             boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
                                 boardAuthorEmail = it.author.email,
@@ -269,7 +264,6 @@ class BoardFragment : Fragment() {
                     is BoardViewEvent.ChatStart -> {
                         when (it.chatStartEntity.isSuccess) {
                             true -> {
-                                Log.d("seungma", "채팅 시작 성공")
                                 val endPoint = EndPoint.Chat(
                                     chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
                                         partnerEmail = it.chatStartEntity.chatPartner,
@@ -293,9 +287,6 @@ class BoardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
             val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
-            boardViewState.boardListEntity.boardList.map {
-                Log.d("seungma", "게시글 로드 :" + it)
-            }
             adapter.submitList(boardViewState.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
                 hideProgressBar()
@@ -343,7 +334,6 @@ class BoardFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 시작")
         blockLayoutTouch()
         binding.progressBar.isVisible = true
     }
@@ -356,7 +346,6 @@ class BoardFragment : Fragment() {
     }
 
     private fun hideProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 종료")
         clearBlockLayoutTouch()
         binding.progressBar.isVisible = false
     }
