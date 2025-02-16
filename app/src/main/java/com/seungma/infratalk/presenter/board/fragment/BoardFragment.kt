@@ -181,7 +181,7 @@ class BoardFragment : Fragment() {
                                     boardCreateTime = boardMetaEntity.createTime
                                 )
                             )
-                            adapter.submitList(boardViewState.boardListEntity.boardList) {
+                            adapter.submitList(boardViewModel.loadBoardList(BoardListLoadForm(reload = true)).boardListEntity.boardList) {
                                 hideProgressBar()
                             }
                         }
