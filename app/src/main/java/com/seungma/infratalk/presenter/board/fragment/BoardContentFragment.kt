@@ -189,7 +189,7 @@ class BoardContentFragment : Fragment() {
                     commentEntity.apply {
                         viewLifecycleOwner.lifecycleScope.launch {
                             showProgressBar()
-                            val viewState = boardContentViewModel.deleteComment(
+                            boardContentViewModel.deleteComment(
                                 commentDeleteForm = CommentDeleteForm(
                                     commentAuthorEmail = commentMetaEntity.author.email,
                                     commentCreateTime = commentMetaEntity.createTime
@@ -203,7 +203,8 @@ class BoardContentFragment : Fragment() {
                                     commentCreateTime = commentMetaEntity.createTime
                                 )
                             )
-                            commentAdapter.submitList(createListItem(viewState)) {
+                            commentAdapter.submitList(createListItem(reloadBoardContent())) {
+                                binding.rvComment.scrollToPosition(0)
                                 hideProgressBar()
                             }
                         }
