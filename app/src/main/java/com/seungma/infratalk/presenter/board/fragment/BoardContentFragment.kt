@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,7 +75,6 @@ class BoardContentFragment : Fragment() {
     private var _commentAdapter: CommentListAdapter? = null
     private val commentAdapter get() = _commentAdapter!!
     private val onCommentScrollListener: OnCommentScrollListener = OnCommentScrollListener({
-        Log.d("seungma", "람다 전달")
         moreItems()
     }, {
     })
@@ -93,7 +91,6 @@ class BoardContentFragment : Fragment() {
 
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStack()
             }
         }
@@ -445,7 +442,6 @@ class BoardContentFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 시작")
         blockLayoutTouch()
         binding.progressBar.isVisible = true
     }
@@ -458,7 +454,6 @@ class BoardContentFragment : Fragment() {
     }
 
     private fun hideProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 종료")
         clearBlockLayoutTouch()
         binding.progressBar.isVisible = false
     }
