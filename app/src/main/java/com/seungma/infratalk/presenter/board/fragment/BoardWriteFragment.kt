@@ -126,46 +126,59 @@ class BoardWriteFragment : Fragment() {
         binding.apply {
 
             viewLifecycleOwner.lifecycleScope.launch {
-                userEntity = boardViewModel.getUserMe()
+                runCatching {
+                    userEntity = boardViewModel.getUserMe()
 
-                btnInsert.setOnClickListener {
-                    Log.v("BoardWriteFragment", "등록 버튼 클릭")
-                    when {
-                        titleEditText.text.isNullOrEmpty() -> {
-                            Toast.makeText(
-                                requireActivity(),
-                                "제목을 입력하세요.",
-                                Toast.LENGTH_LONG
-                            ).show();
-                        }
 
-                        contextEditText.text.isNullOrEmpty() -> {
-                            Toast.makeText(
-                                requireActivity(),
-                                "내용을 입력하세요.",
-                                Toast.LENGTH_LONG
-                            ).show();
-                        }
 
-                        else -> {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                showProgressBar()
-                                boardViewModel.writeBoardContent(
-                                    boardContentInsertForm = BoardContentInsertForm(
-                                        author = userEntity,
-                                        title = binding.titleEditText.text.toString(),
-                                        content = binding.contextEditText.text.toString(),
-                                        images = when (adapter!!.getItems().isEmpty()) {
-                                            true -> null
-                                            false -> adapter!!.getItems()
-                                        },
-                                        editTime = null
+                    btnInsert.setOnClickListener {
+                        Log.v("BoardWriteFragment", "등록 버튼 클릭")
+                        when {
+                            titleEditText.text.isNullOrEmpty() -> {
+                                Toast.makeText(
+                                    requireActivity(),
+                                    "제목을 입력하세요.",
+                                    Toast.LENGTH_LONG
+                                ).show();
+                            }
+
+                            contextEditText.text.isNullOrEmpty() -> {
+                                Toast.makeText(
+                                    requireActivity(),
+                                    "내용을 입력하세요.",
+                                    Toast.LENGTH_LONG
+                                ).show();
+                            }
+
+                            else -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    showProgressBar()
+                                    boardViewModel.writeBoardContent(
+                                        boardContentInsertForm = BoardContentInsertForm(
+                                            author = userEntity,
+                                            title = binding.titleEditText.text.toString(),
+                                            content = binding.contextEditText.text.toString(),
+                                            images = when (adapter!!.getItems().isEmpty()) {
+                                                true -> null
+                                                false -> adapter!!.getItems()
+                                            },
+                                            editTime = null
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
+                }.onFailure {
+                    val message = "유저 정보를 못가져왔습니다."
+                    val duration = Snackbar.LENGTH_SHORT
+
+                    val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                    snackbar.setMargin(bottomDp = 66)
+                    snackbar.show()
                 }
+
+
             }
 
             btnUploadImage.setOnClickListener {
