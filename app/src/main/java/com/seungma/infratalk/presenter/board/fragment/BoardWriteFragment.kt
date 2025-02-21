@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,12 +56,10 @@ class BoardWriteFragment : Fragment() {
         DaggerBoardFragmentComponent.factory().create(context).inject(this)
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                Log.v("BoardWriteFragment", "퍼미션 체크 실행")
                 if (isGranted) {
                     // 권한이 필요한 작업 수행
                     navigateImage()
                 } else {
-                    Log.v("BoardWriteFragment", "퍼미션 허용 안됨 ")
                     handlePermissionDenied()
                 }
             }
@@ -96,7 +93,6 @@ class BoardWriteFragment : Fragment() {
 
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
 
             }
@@ -116,11 +112,6 @@ class BoardWriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("BoardWriteFragment", "갯수" + parentFragmentManager.backStackEntryCount)
-        Log.d(
-            "BoardWriteFragment",
-            "갯수2" + requireParentFragment().childFragmentManager.backStackEntryCount
-        )
         adapter = BoardWriteAdapter {}
 
         binding.apply {
@@ -132,7 +123,6 @@ class BoardWriteFragment : Fragment() {
 
 
                     btnInsert.setOnClickListener {
-                        Log.v("BoardWriteFragment", "등록 버튼 클릭")
                         when {
                             titleEditText.text.isNullOrEmpty() -> {
                                 Toast.makeText(
