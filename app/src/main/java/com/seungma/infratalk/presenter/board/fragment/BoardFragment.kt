@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentBoardBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -34,6 +36,7 @@ import com.seungma.infratalk.presenter.board.viewmodel.BoardViewEvent
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCreateForm
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.main.fragment.ChildFragmentNavigable
@@ -203,16 +206,25 @@ class BoardFragment : Fragment() {
                 initScrollListener()
 
             }.onFailure {
-                Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
-                /*
-                val message = "유저 정보를 못가져왔습니다."
-                val duration = Snackbar.LENGTH_SHORT
+                when(it) {
+                    is FailGetUserMeException -> {
+                        Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                        val message = "유저 정보를 못가져왔습니다."
+                        val duration = Snackbar.LENGTH_SHORT
 
-                val snackbar = CustomSnackbar.make(requireView(), message, duration)
-                snackbar.setMargin(bottomDp = 66)
-                snackbar.show()
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+                    else -> {
 
-                 */
+                    }
+                }
+
+
+
+
+
             }
 
 
