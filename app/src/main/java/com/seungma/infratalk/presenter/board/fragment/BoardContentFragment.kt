@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentBoardContentBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -280,12 +282,20 @@ class BoardContentFragment : Fragment() {
                     userEntity = userEntity
                 )
             }.onFailure {
-                val message = "유저 정보를 못가져왔습니다."
-                val duration = Snackbar.LENGTH_SHORT
+                when(it) {
+                    is FailGetUserMeException -> {
+                        Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                        val message = "유저 정보를 못가져왔습니다."
+                        val duration = Snackbar.LENGTH_SHORT
 
-                val snackbar = CustomSnackbar.make(requireView(), message, duration)
-                snackbar.setMargin(bottomDp = 66)
-                snackbar.show()
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+                    else -> {
+
+                    }
+                }
             }
 
 
