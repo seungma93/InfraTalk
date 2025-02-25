@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentBoardBinding
 import com.seungma.infratalk.di.component.DaggerBoardFragmentComponent
@@ -35,6 +36,7 @@ import com.seungma.infratalk.presenter.board.viewmodel.BoardViewEvent
 import com.seungma.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCreateForm
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.main.fragment.ChildFragmentNavigable
@@ -62,10 +64,6 @@ class BoardFragment : Fragment() {
         super.onAttach(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,7 +83,6 @@ class BoardFragment : Fragment() {
 
                 _adapter = BoardListAdapter(
                     itemClick = {
-                        Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
                         val endPoint = EndPoint.BoardContent(
                             boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
                                 boardAuthorEmail = it.author.email,
@@ -186,7 +183,7 @@ class BoardFragment : Fragment() {
                                     boardCreateTime = boardMetaEntity.createTime
                                 )
                             )
-                            adapter.submitList(boardViewState.boardListEntity.boardList) {
+                            adapter.submitList(boardViewModel.loadBoardList(BoardListLoadForm(reload = true)).boardListEntity.boardList) {
                                 hideProgressBar()
                             }
                         }
@@ -211,9 +208,23 @@ class BoardFragment : Fragment() {
             }.onFailure {
                 when(it) {
                     is FailGetUserMeException -> {
+                        Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                        val message = "유저 정보를 못가져왔습니다."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+                    else -> {
 
                     }
                 }
+
+
+
+
+
             }
 
 
@@ -269,7 +280,6 @@ class BoardFragment : Fragment() {
                     is BoardViewEvent.ChatStart -> {
                         when (it.chatStartEntity.isSuccess) {
                             true -> {
-                                Log.d("seungma", "채팅 시작 성공")
                                 val endPoint = EndPoint.Chat(
                                     chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
                                         partnerEmail = it.chatStartEntity.chatPartner,
@@ -293,9 +303,6 @@ class BoardFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             showProgressBar()
             val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
-            boardViewState.boardListEntity.boardList.map {
-                Log.d("seungma", "게시글 로드 :" + it)
-            }
             adapter.submitList(boardViewState.boardListEntity.boardList) {
                 binding.recyclerviewBoardList.scrollToPosition(0)
                 hideProgressBar()
@@ -343,7 +350,6 @@ class BoardFragment : Fragment() {
     }
 
     private fun showProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 시작")
         blockLayoutTouch()
         binding.progressBar.isVisible = true
     }
@@ -356,7 +362,6 @@ class BoardFragment : Fragment() {
     }
 
     private fun hideProgressBar() {
-        Log.d("BoardFragment", "프로그레스바 종료")
         clearBlockLayoutTouch()
         binding.progressBar.isVisible = false
     }

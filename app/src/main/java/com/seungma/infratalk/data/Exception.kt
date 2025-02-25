@@ -193,6 +193,13 @@ class FailFirebaseUploadImageException(
     val _message: String
 ) : Exception(_message)
 
+class NotExistAuthorException(
+    val _message: String
+) : Exception(_message)
+
+
+
+
 
 
 

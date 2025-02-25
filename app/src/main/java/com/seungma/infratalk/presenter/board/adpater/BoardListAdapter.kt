@@ -115,27 +115,29 @@ class BoardListAdapter(
                     }
 
                     it.boardMetaEntity.images?.let {
-                        lyImage.visibility = View.VISIBLE
-                        it.successUris.mapIndexed { index, uri ->
-                            when(index + 1) {
-                                1 -> Glide.with(itemView.context)
-                                    .load(uri)
-                                    .centerCrop()
-                                    .into(iv1)
-                                2 -> Glide.with(itemView.context)
-                                    .load(uri)
-                                    .centerCrop()
-                                    .into(iv2)
-                                3 -> Glide.with(itemView.context)
-                                    .load(uri)
-                                    .centerCrop()
-                                    .into(iv3)
-                                4 -> Glide.with(itemView.context)
-                                    .load(uri)
-                                    .centerCrop()
-                                    .into(iv4)
-                                else -> {
+                        if(it.successUris.isNotEmpty()) {
+                            lyImage.visibility = View.VISIBLE
+                            it.successUris.mapIndexed { index, uri ->
+                                when(index + 1) {
+                                    1 -> Glide.with(itemView.context)
+                                        .load(uri)
+                                        .centerCrop()
+                                        .into(iv1)
+                                    2 -> Glide.with(itemView.context)
+                                        .load(uri)
+                                        .centerCrop()
+                                        .into(iv2)
+                                    3 -> Glide.with(itemView.context)
+                                        .load(uri)
+                                        .centerCrop()
+                                        .into(iv3)
+                                    4 -> Glide.with(itemView.context)
+                                        .load(uri)
+                                        .centerCrop()
+                                        .into(iv4)
+                                    else -> {
 
+                                    }
                                 }
                             }
                         }
