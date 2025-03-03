@@ -14,10 +14,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentMyPageBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.user.entity.UserEntity
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import com.seungma.infratalk.presenter.main.fragment.ChildFragmentNavigable
 import com.seungma.infratalk.presenter.main.fragment.MainChildFragmentEndPoint
 import com.seungma.infratalk.presenter.mypage.viewmodel.MyPageViewModel
@@ -86,6 +88,15 @@ class MyPageFragment : Fragment() {
                 }.onFailure {
                     when(it) {
                         is FailGetUserMeException -> {
+                            Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                            val message = "유저 정보를 못가져왔습니다."
+                            val duration = Snackbar.LENGTH_SHORT
+
+                            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                            snackbar.setMargin(bottomDp = 66)
+                            snackbar.show()
+                        }
+                        else -> {
 
                         }
                     }
