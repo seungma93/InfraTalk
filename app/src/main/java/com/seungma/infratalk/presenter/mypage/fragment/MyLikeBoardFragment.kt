@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.seungma.infratalk.data.FailGetUserMeException
 import com.seungma.infratalk.databinding.FragmentMyLikeBoardBinding
 import com.seungma.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.seungma.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -28,6 +30,7 @@ import com.seungma.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.seungma.infratalk.presenter.board.form.BoardLikesDeleteForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.seungma.infratalk.presenter.chat.form.ChatRoomCreateForm
+import com.seungma.infratalk.presenter.common.CustomSnackbar
 import com.seungma.infratalk.presenter.main.activity.EndPoint
 import com.seungma.infratalk.presenter.main.activity.Navigable
 import com.seungma.infratalk.presenter.mypage.adapter.MyLikeBoardListAdapter
@@ -74,119 +77,137 @@ class MyLikeBoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
-            userEntity = myLikeBoardViewModel.getUserMe()
+            runCatching {
+                userEntity = myLikeBoardViewModel.getUserMe()
 
-            _adapter = MyLikeBoardListAdapter(
-                itemClick = {
-                    Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                    val endPoint = EndPoint.BoardContent(
-                        boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                            boardAuthorEmail = it.author.email,
-                            boardCreateTime = it.createTime
-                        )
-                    )
-                    (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-                },
-                bookmarkClick = { boardEntity ->
-                    boardEntity.apply {
-                        when (bookmarkEntity.isBookmark) {
-                            true -> {
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    val boardViewState = myLikeBoardViewModel.deleteBookMark(
-                                        BoardBookmarkDeleteForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        )
-                                    )
-                                    adapter.submitList(boardViewState.boardListEntity.boardList)
-                                }
-                            }
-
-                            false -> {
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    val boardViewState = myLikeBoardViewModel.addBookMark(
-                                        BoardBookmarkAddForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        )
-                                    )
-                                    adapter.submitList(boardViewState.boardListEntity.boardList)
-                                }
-                            }
-                        }
-                    }
-                },
-                likeClick = { boardEntity ->
-                    boardEntity.apply {
-                        when (likeEntity.isLike) {
-                            true -> {
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    val boardViewState = myLikeBoardViewModel.deleteLike(
-                                        BoardLikeDeleteForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        ), BoardLikeCountLoadForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        )
-                                    )
-                                    adapter.submitList(boardViewState.boardListEntity.boardList)
-                                }
-                            }
-
-                            false -> {
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    val boardViewState = myLikeBoardViewModel.addLike(
-                                        BoardLikeAddForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        ), BoardLikeCountLoadForm(
-                                            boardAuthorEmail = boardMetaEntity.author.email,
-                                            boardCreateTime = boardMetaEntity.createTime
-                                        )
-                                    )
-                                    adapter.submitList(boardViewState.boardListEntity.boardList)
-                                }
-                            }
-                        }
-                    }
-                },
-                deleteClick = { boardEntity ->
-                    showProgressBar()
-                    boardEntity.apply {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            val myBoardViewState = myLikeBoardViewModel.deleteBoard(
-                                boardDeleteForm = BoardDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                ),
-                                boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                ),
-                                boardLikesDeleteForm = BoardLikesDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                )
+                _adapter = MyLikeBoardListAdapter(
+                    itemClick = {
+                        Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
+                        val endPoint = EndPoint.BoardContent(
+                            boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
+                                boardAuthorEmail = it.author.email,
+                                boardCreateTime = it.createTime
                             )
-                            adapter.submitList(myBoardViewState.boardListEntity.boardList) {
-                                hideProgressBar()
+                        )
+                        (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                    },
+                    bookmarkClick = { boardEntity ->
+                        boardEntity.apply {
+                            when (bookmarkEntity.isBookmark) {
+                                true -> {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        val boardViewState = myLikeBoardViewModel.deleteBookMark(
+                                            BoardBookmarkDeleteForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            )
+                                        )
+                                        adapter.submitList(boardViewState.boardListEntity.boardList)
+                                    }
+                                }
+
+                                false -> {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        val boardViewState = myLikeBoardViewModel.addBookMark(
+                                            BoardBookmarkAddForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            )
+                                        )
+                                        adapter.submitList(boardViewState.boardListEntity.boardList)
+                                    }
+                                }
                             }
                         }
+                    },
+                    likeClick = { boardEntity ->
+                        boardEntity.apply {
+                            when (likeEntity.isLike) {
+                                true -> {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        val boardViewState = myLikeBoardViewModel.deleteLike(
+                                            BoardLikeDeleteForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            ), BoardLikeCountLoadForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            )
+                                        )
+                                        adapter.submitList(boardViewState.boardListEntity.boardList)
+                                    }
+                                }
+
+                                false -> {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        val boardViewState = myLikeBoardViewModel.addLike(
+                                            BoardLikeAddForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            ), BoardLikeCountLoadForm(
+                                                boardAuthorEmail = boardMetaEntity.author.email,
+                                                boardCreateTime = boardMetaEntity.createTime
+                                            )
+                                        )
+                                        adapter.submitList(boardViewState.boardListEntity.boardList)
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    deleteClick = { boardEntity ->
+                        showProgressBar()
+                        boardEntity.apply {
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                val myBoardViewState = myLikeBoardViewModel.deleteBoard(
+                                    boardDeleteForm = BoardDeleteForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    ),
+                                    boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    ),
+                                    boardLikesDeleteForm = BoardLikesDeleteForm(
+                                        boardAuthorEmail = boardMetaEntity.author.email,
+                                        boardCreateTime = boardMetaEntity.createTime
+                                    )
+                                )
+                                adapter.submitList(myBoardViewState.boardListEntity.boardList) {
+                                    hideProgressBar()
+                                }
+                            }
+                        }
+                    },
+                    chatClick = { boardMetaEntity ->
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val member =
+                                listOf(userEntity.email, boardMetaEntity.author.email)
+                            myLikeBoardViewModel.startChat(
+                                chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                                chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                            )
+                        }
+                    },
+                    userEntity = userEntity
+                )
+            }.onFailure {
+                when(it) {
+                    is FailGetUserMeException -> {
+                        Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                        val message = "유저 정보를 못가져왔습니다."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
                     }
-                },
-                chatClick = { boardMetaEntity ->
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        val member =
-                            listOf(userEntity.email, boardMetaEntity.author.email)
-                        myLikeBoardViewModel.startChat(
-                            chatRoomCreateForm = ChatRoomCreateForm(member = member),
-                            chatRoomCheckForm = ChatRoomCheckForm(member = member)
-                        )
+                    else -> {
+
                     }
-                },
-                userEntity = userEntity
-            )
+                }
+            }
+
 
             binding.rvMyLikeBoardList.adapter = adapter
         }
