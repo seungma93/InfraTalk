@@ -1,0 +1,41 @@
+package com.sm.infratalk.domain.mypage.usecase
+
+import android.net.Uri
+import android.util.Log
+import com.sm.infratalk.data.FailUpdateUserInfoException
+import com.sm.infratalk.data.model.request.image.ImagesRequest
+import com.sm.infratalk.domain.image.usecase.UploadImagesUseCase
+import com.sm.infratalk.domain.user.repository.UserDataRepository
+import com.sm.infratalk.domain.user.entity.UserEntity
+import com.sm.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
+import com.sm.infratalk.presenter.sign.form.UserInfoUpdateForm
+import javax.inject.Inject
+
+class UpdateUserInfoUseCase @Inject constructor(
+    private val userDataRepository: UserDataRepository,
+    private val uploadImagesUseCase: UploadImagesUseCase
+) {
+    suspend operator fun invoke(userInfoUpdateForm: UserInfoUpdateForm): UserEntity {
+        val imageUri = userInfoUpdateForm.image
+
+        return runCatching {
+            when (imageUri == null || imageUri == Uri.parse(MyAccountInfoEditFragment.DEFAULT_PROFILE_IMAGE)) {
+                true -> {
+                    userDataRepository.updateUserInfo(userInfoUpdateForm)
+                }
+
+                false -> {
+                    val uploadImageResult = uploadImagesUseCase.uploadImages(
+                        imagesRequest = ImagesRequest(
+                            imageUris = listOf(imageUri)
+                        )
+                    )
+                    Log.d("seungma", "업데이트유저인포")
+                    userDataRepository.updateUserInfo(userInfoUpdateForm.copy(image = uploadImageResult.successUris[0]))
+                }
+            }
+        }.onFailure {
+            throw FailUpdateUserInfoException(_message = "유저 정보 업데이트 실패", throwable = it)
+        }.getOrThrow()
+    }
+}

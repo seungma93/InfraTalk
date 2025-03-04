@@ -8,17 +8,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:793117663788:android:f8df5b0e35e5b7ff26a789",
+        "mobilesdk_app_id": "1:793117663788:android:4bd88954da50783726a789",
         "android_client_info": {
-          "package_name": "com.seungma.infratalk"
+          "package_name": "com.sm.infratalk"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "793117663788-uh6pqk02k6pcfu5lh86q5l0m23fsq3rf.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyDwVSV8A6EE15B-Vscpfxg-eovbSzRyocE"
@@ -26,12 +21,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "793117663788-uh6pqk02k6pcfu5lh86q5l0m23fsq3rf.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

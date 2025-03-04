@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace 'com.seungma.infratalk'
+    namespace 'com.sm.infratalk'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.seungma.infratalk"
+        applicationId "com.sm.infratalk"
         minSdk 23
         targetSdk 34
         versionCode 4
