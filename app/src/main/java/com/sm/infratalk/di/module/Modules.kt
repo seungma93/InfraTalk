@@ -103,7 +103,7 @@ import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.SplashViewModel
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import com.sm.infratalk.presenter.viewmodel.ViewModelKey
-import com.teamaejung.aejung.network.RetrofitClient
+import com.sm.infratalk.network.RetrofitClient
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

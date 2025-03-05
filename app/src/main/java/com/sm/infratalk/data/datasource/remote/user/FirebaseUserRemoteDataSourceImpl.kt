@@ -39,8 +39,8 @@ import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.data.model.response.user.UserResponse
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.mypage.fragment.MyAccountInfoEditFragment
-import com.teamaejung.aejung.network.RetrofitClient
-import com.teamaejung.aejung.network.service.FirebaseAuthService
+import com.sm.infratalk.network.RetrofitClient
+import com.sm.infratalk.network.service.FirebaseAuthService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await

@@ -1,4 +1,4 @@
-package com.teamaejung.aejung.network.service
+package com.sm.infratalk.network.service
 
 import com.google.gson.JsonObject
 import com.sm.infratalk.data.model.response.user.GetUserMeResponse

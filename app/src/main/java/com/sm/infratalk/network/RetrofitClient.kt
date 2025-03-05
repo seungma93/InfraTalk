@@ -1,4 +1,4 @@
-package com.teamaejung.aejung.network
+package com.sm.infratalk.network
 
 import android.util.Log
 import okhttp3.Interceptor
