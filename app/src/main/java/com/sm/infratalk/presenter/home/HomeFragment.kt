@@ -27,10 +27,10 @@ class HomeFragment : Fragment() {
 
         binding.apply {
             tvDeveloperInfo.text =
-                "[infratalk@home] uname -an \n[infratalk@home] 인프라 엔지니어 하던 안드로이드 개발자\n" +
+                "[infratalk@home] uname -an \n[infratalk@home] 안드로이드 개발자 전직 미들웨어 엔지니어\n" +
                         "[infratalk@home] email \n[infratalk@home] seungma93@naver.com " +
-                        "[infratalk@home] help \n[infratalk@home] 질문이 해결 안되면 답변 달아드립니다 \n" +
-                        "앱 사용시 문제가 있으면 이메일로 문의 주세요\n인프라 엔지니어 응원합니다"
+                        "[infratalk@home] help \n[infratalk@home]  \"앱 사용시 문제가 있으면 이메일로 문의 주세요"
+
 
             lyOracle.setOnClickListener {
                 // 정해진 URL을 여기에 넣어주세요.
