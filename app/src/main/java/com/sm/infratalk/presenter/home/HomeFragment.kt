@@ -29,8 +29,9 @@ class HomeFragment : Fragment() {
         binding.apply {
             tvDeveloperInfo.text =
                 "[infratalk@home] uname -an \n[infratalk@home] 안드로이드 개발자 전직 미들웨어 엔지니어\n" +
-                        "[infratalk@home] email \n[infratalk@home] seungma93@naver.com " +
-                        "[infratalk@home] help \n[infratalk@home]  앱 사용시 문제가 있으면 이메일로 문의 주세요"
+                        "[infratalk@home] help \n[infratalk@home] 앱 관련 문제 발생시 이메일 문의 \n" +
+                        "[infratalk@home] email \n[infratalk@home] seungma93@naver.com "
+
 
 
             lyOracle.setOnClickListener {
