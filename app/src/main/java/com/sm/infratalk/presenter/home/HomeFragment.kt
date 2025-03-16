@@ -3,6 +3,7 @@ package com.sm.infratalk.presenter.home
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,12 +28,14 @@ class HomeFragment : Fragment() {
 
         binding.apply {
             tvDeveloperInfo.text =
-                "[infratalk@home] uname -an \n[infratalk@home] 인프라 엔지니어 하던 안드로이드 개발자\n" +
-                        "[infratalk@home] email \n[infratalk@home] seungma93@naver.com " +
-                        "[infratalk@home] help \n[infratalk@home] 질문이 해결 안되면 답변 달아드립니다 \n" +
-                        "앱 사용시 문제가 있으면 이메일로 문의 주세요\n인프라 엔지니어 응원합니다"
+                "[infratalk@home] uname -an \n[infratalk@home] 안드로이드 개발자 전직 미들웨어 엔지니어\n" +
+                        "[infratalk@home] help \n[infratalk@home] 앱 관련 문제 발생시 이메일 문의 \n" +
+                        "[infratalk@home] email \n[infratalk@home] seungma93@naver.com "
+
+
 
             lyOracle.setOnClickListener {
+                Log.d("seungma","오라클")
                 // 정해진 URL을 여기에 넣어주세요.
                 val url = "https://docs.oracle.com/en/"
 
@@ -42,6 +45,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
 
@@ -55,6 +62,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
 
@@ -68,6 +79,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
 
@@ -81,6 +96,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
 
@@ -94,6 +113,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
 
@@ -107,6 +130,10 @@ class HomeFragment : Fragment() {
                 // 액티비티가 있는지 확인 후 실행
                 if (intent.resolveActivity(requireActivity().packageManager) != null) {
                     startActivity(intent)
+                } else {
+                    Log.d("seungma", "브라우저 없음")
+                    val chooser = Intent.createChooser(intent, "브라우저를 선택하세요")
+                    startActivity(chooser)
                 }
             }
         }
