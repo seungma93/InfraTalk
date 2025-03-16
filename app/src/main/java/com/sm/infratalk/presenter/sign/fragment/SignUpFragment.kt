@@ -78,22 +78,6 @@ class SignUpFragment : Fragment() {
     override fun onAttach(context: Context) {
         DaggerSignFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
-
-
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it.data?.let { intent ->
-                        binding.profileImage.setImageURI(intent.data)
-                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                            Glide.with(this)
-                                .load(intent.data)
-                                .apply(requestOptions)
-                                .into(binding.profileImage)
-                        binding.profileImage.tag = intent.data
-                    }
-                }
-            }
     }
 
     override fun onCreateView(
