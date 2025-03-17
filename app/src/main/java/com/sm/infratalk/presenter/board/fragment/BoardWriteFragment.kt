@@ -47,8 +47,13 @@ class BoardWriteFragment : Fragment() {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
         val imgList = uris.toMutableList()
 
-        if (imgList.size > 10) {
-            //Toast.makeText(this, "사진은 10장까지만 가능합니다.", Toast.LENGTH_LONG).show()
+        if (imgList.size > 5) {
+            val message = "사진은 5장까지만 가능합니다."
+            val duration = Snackbar.LENGTH_SHORT
+
+            val snackbar = CustomSnackbar.make(requireView(), message, duration)
+            snackbar.setMargin(bottomDp = 66)
+            snackbar.show()
         } else {
             adapter?.setItems(imgList)
         }
@@ -64,7 +69,7 @@ class BoardWriteFragment : Fragment() {
                         if (count > 5) {
                             Toast.makeText(
                                 requireActivity(),
-                                "사진은 10장까지만 가능합니다.",
+                                "사진은 5장까지만 가능합니다.",
                                 Toast.LENGTH_LONG
                             ).show();
                         } else {
