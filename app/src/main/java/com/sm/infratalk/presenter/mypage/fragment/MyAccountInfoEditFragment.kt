@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -55,20 +58,40 @@ class MyAccountInfoEditFragment : Fragment() {
     lateinit var myPageViewModelFactory: ViewModelProvider.Factory
     private val myPageViewModel: MyPageViewModel by viewModels { myPageViewModelFactory }
 
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "선택한 이미지 URI: $uri")
+            val requestOptions = RequestOptions.circleCropTransform().autoClone()
+            Glide.with(requireContext())
+                .load(uri)
+                .apply(requestOptions)
+                .into(binding.ivProfileImage)
+
+            binding.ivProfileImage.tag = uri
+        } else {
+            Log.d("PhotoPicker", "이미지가 선택되지 않음")
+        }
+    }
+
+    private val pickImageLegacy = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                Glide.with(requireContext())
+                    .load(uri)
+                    .apply(requestOptions)
+                    .into(binding.ivProfileImage)
+
+                binding.ivProfileImage.tag = uri
+            }
+        }
+    }
+
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
-        activityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                Log.d("BoardWriteFragment", "퍼미션 체크 실행")
-                if (isGranted) {
-                    // 권한이 필요한 작업 수행
-                    navigateImage()
-                } else {
-                    Log.d("BoardWriteFragment", "퍼미션 허용 안됨 ")
-                }
-            }
 
         activityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -169,32 +192,6 @@ class MyAccountInfoEditFragment : Fragment() {
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
-                                        /*
-                                                                        when (binding.profileImage.tag == profileUri) {
-
-                                                                            true -> {
-                                                                                Toast.makeText(
-                                                                                    requireActivity(), "변경된 내용이 없습니다",
-                                                                                    Toast.LENGTH_SHORT
-                                                                                ).show()
-                                                                            }
-
-                                                                            false -> {
-                                                                                viewLifecycleOwner.lifecycleScope.launch {
-                                                                                    showProgressBar()
-                                                                                    myPageViewModel.updateUserInfo(
-                                                                                        userInfoUpdateForm = UserInfoUpdateForm(
-                                                                                            email = email,
-                                                                                            nickname = null,
-                                                                                            image = binding.profileImage.tag as Uri
-                                                                                        )
-                                                                                    )
-                                                                                }
-                                                                            }
-                                                                        }
-
-                                         */
-
                                     }
 
                                     false -> {
@@ -222,36 +219,6 @@ class MyAccountInfoEditFragment : Fragment() {
                                                 )
                                             }
                                         }
-                                        /*
-                                        when (binding.profileImage == profileUri) {
-
-                                            true -> {
-                                                viewLifecycleOwner.lifecycleScope.launch {
-                                                    showProgressBar()
-                                                    myPageViewModel.updateUserInfo(
-                                                        userInfoUpdateForm = UserInfoUpdateForm(
-                                                            email = email,
-                                                            nickname = inputNickname,
-                                                            image = null
-                                                        )
-                                                    )
-                                                }
-                                            }
-
-                                            false -> {
-                                                viewLifecycleOwner.lifecycleScope.launch {
-                                                    showProgressBar()
-                                                    myPageViewModel.updateUserInfo(
-                                                        userInfoUpdateForm = UserInfoUpdateForm(
-                                                            email = email,
-                                                            nickname = inputNickname,
-                                                            image = binding.profileImage.tag as Uri
-                                                        )
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        */
                                     }
 
                                 }
@@ -261,28 +228,13 @@ class MyAccountInfoEditFragment : Fragment() {
 
 
                     ivProfileImage.setOnClickListener {
-                        when {
-                            ContextCompat.checkSelfPermission(
-                                requireActivity(),
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            ) == PackageManager.PERMISSION_GRANTED
-                            -> {
-                                Log.d("BoardWriteFragment", "권한 있음")
-                                // 권한이 존재하는 경우
-                                navigateImage()
-                            }
-
-                            shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
-                                // 권한이 거부 되어 있는 경우
-                                Log.d("BoardWriteFragment", "권한 없음")
-                                showPermissionContextPopup()
-                            }
-
-                            else -> {
-                                // 처음 권한을 시도했을 때 띄움
-                                Log.d("BoardWriteFragment", "처음 시도")
-                                activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            // API 33 이상: Photo Picker 사용
+                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        } else {
+                            // API 32 이하: 기존 방식 사용
+                            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                            pickImageLegacy.launch(intent)
                         }
                     }
                 }
@@ -310,24 +262,6 @@ class MyAccountInfoEditFragment : Fragment() {
 
 
         subscribe()
-    }
-
-    private fun navigateImage() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        activityResult.launch(intent)
-    }
-
-    private fun showPermissionContextPopup() {
-        AlertDialog.Builder(requireActivity())
-            .setTitle("권한이 필요합니다")
-            .setMessage("전자액자에서 사진을 선택하려면 권한이 필요합니다.")
-            .setPositiveButton("동의하기") { _, _ ->
-                activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-            .setNegativeButton("취소하기") { _, _ -> }
-            .create()
-            .show()
     }
 
     private fun subscribe() {
