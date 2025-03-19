@@ -2,6 +2,7 @@ package com.sm.infratalk.data.datasource.remote.user
 
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
@@ -100,46 +101,41 @@ class FirebaseUserRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun signUp(signupRequest: SignupRequest): UserResponse = coroutineScope {
         runCatching {
+            Log.d("seungma", "회원가입 1")
             val authAsync = async {
                 auth.createUserWithEmailAndPassword(
                     signupRequest.email,
                     signupRequest.password
                 )
             }
+            Log.d("seungma", "회원가입 2")
             val insertAsync = async {
                 database.collection("User").add(
                     UserEntity(
                         email = signupRequest.email,
                         nickname = signupRequest.nickname,
-                        image = Uri.parse(signupRequest.imageUri)
+                        image = signupRequest.imageUri?.let {
+                            Uri.parse(it)
+                        }
                     )
                 )
             }
-
+            Log.d("seungma", "회원가입 3")
             val resultAuth = authAsync.await()
             val resultInsert = insertAsync.await()
+            Log.d("seungma", "회원가입 4")
 
-            // 예외를 명확히 던짐
-            if (!resultAuth.isSuccessful) {
-                throw FailFirebaseSignupException(
-                    _message = "파이어 베이스 가입 어스 실패",
-                    throwable = resultAuth.exception
-                )
-            }
-            if (!resultInsert.isSuccessful) {
-                throw FailUserDBInsertException(
-                    _message = "유저 디비 인서트 실패",
-                    throwable = resultInsert.exception
-                )
-            }
-
+            Log.d("seungma", "회원가입 7")
             UserResponse(
                 email = signupRequest.email,
                 nickname = signupRequest.nickname,
-                image = Uri.parse(signupRequest.imageUri)
+                image = signupRequest.imageUri?.let {
+                    Uri.parse(it)
+                }
             )
 
         }.onFailure {
+            Log.d("seungma", "회원가입 실패 " + it.message)
             when (it) {
                 is FirebaseAuthException -> throw separatedFirebaseErrorCode(it)
                 is FailFirebaseSignupException, is FailUserDBInsertException -> throw it

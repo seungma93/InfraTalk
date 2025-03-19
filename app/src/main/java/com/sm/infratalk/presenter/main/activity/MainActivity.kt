@@ -68,7 +68,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
         when (endPoint) {
             is EndPoint.LoginMain -> {
                 val fragment = LoginMainFragment()
-                setFragment(fragment, R.id.activity_frame_layout, true)
+                setFragment(fragment, R.id.activity_frame_layout, false)
             }
 
             is EndPoint.SignUp -> {
