@@ -1,15 +1,11 @@
 package com.sm.infratalk.presenter.board.fragment
 
-import android.Manifest
-import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,10 +13,8 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -42,8 +36,6 @@ import javax.inject.Inject
 class BoardWriteFragment : Fragment() {
     private var _binding: FragmentBoardWriteBinding? = null
     private val binding get() = _binding!!
-    private lateinit var permissionLauncher: ActivityResultLauncher<String>
-    private lateinit var activityResult: ActivityResultLauncher<Intent>
     private var adapter: BoardWriteAdapter? = null
     private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
@@ -52,46 +44,51 @@ class BoardWriteFragment : Fragment() {
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
     private val boardViewModel: BoardViewModel by viewModels { boardViewModelFactory }
 
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+        val imgList = uris.toMutableList()
+
+        if (imgList.size > 5) {
+            val message = "사진은 5장까지만 가능합니다."
+            val duration = Snackbar.LENGTH_SHORT
+
+            val snackbar = CustomSnackbar.make(requireView(), message, duration)
+            snackbar.setMargin(bottomDp = 66)
+            snackbar.show()
+        } else {
+            adapter?.setItems(imgList)
+        }
+    }
+
+    private val pickImageLegacy =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imgList = mutableListOf<Uri>()
+                result.data?.let {
+                    it.clipData?.let { clipData ->
+                        val count = clipData.itemCount
+                        if (count > 5) {
+                            Toast.makeText(
+                                requireActivity(),
+                                "사진은 5장까지만 가능합니다.",
+                                Toast.LENGTH_LONG
+                            ).show();
+                        } else {
+
+                            (0 until count).forEach {
+                                val uri = clipData.getItemAt(it).uri
+                                imgList.add(uri)
+                            }
+                        }
+                    } ?: it.data?.let { uri -> imgList.add(uri) }
+                }
+                adapter?.setItems(imgList)
+            }
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         DaggerBoardFragmentComponent.factory().create(context).inject(this)
-        permissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    // 권한이 필요한 작업 수행
-                    navigateImage()
-                } else {
-                    handlePermissionDenied()
-                }
-            }
 
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-
-                if (it.resultCode == RESULT_OK) {
-                    val imgList = mutableListOf<Uri>()
-                    it.data?.let {
-                        it.clipData?.let { clipData ->
-                            val count = clipData.itemCount
-                            if (count > 5) {
-                                Toast.makeText(
-                                    requireActivity(),
-                                    "사진은 10장까지만 가능합니다.",
-                                    Toast.LENGTH_LONG
-                                ).show();
-                            } else {
-
-                                (0 until count).forEach {
-                                    val uri = clipData.getItemAt(it).uri
-                                    imgList.add(uri)
-                                }
-                            }
-                        } ?: it.data?.let { uri -> imgList.add(uri) }
-                    }
-                    adapter?.setItems(imgList)
-                }
-            }
 
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -162,16 +159,21 @@ class BoardWriteFragment : Fragment() {
                         }
                     }
                 }.onFailure {
-                    when(it) {
+                    when (it) {
                         is FailGetUserMeException -> {
                             Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
                             val message = "유저 정보를 못가져왔습니다."
                             val duration = Snackbar.LENGTH_SHORT
 
-                            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                            val snackbar = CustomSnackbar.make(
+                                requireActivity().findViewById(android.R.id.content),
+                                message,
+                                duration
+                            )
                             snackbar.setMargin(bottomDp = 66)
                             snackbar.show()
                         }
+
                         else -> {
 
                         }
@@ -182,35 +184,16 @@ class BoardWriteFragment : Fragment() {
             }
 
             btnUploadImage.setOnClickListener {
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                        // Android 13 이상: READ_MEDIA_IMAGES 권한 요청
-                        if (ContextCompat.checkSelfPermission(
-                                requireContext(),
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            // 권한이 이미 허용됨
-                            navigateImage()
-                        } else {
-                            // 권한 요청
-                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                        }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    // API 33 이상: Photo Picker 사용
+                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                } else {
+                    // API 32 이하: 기존 방식 사용
+                    val intent = Intent(Intent.ACTION_PICK).apply {
+                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // 다중 선택 허용
+                        type = "image/*"
                     }
-                    else -> {
-                        // Android 12 이하: READ_EXTERNAL_STORAGE 권한 요청
-                        if (ContextCompat.checkSelfPermission(
-                                requireContext(),
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            // 권한이 이미 허용됨
-                            navigateImage()
-                        } else {
-                            // 권한 요청
-                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
-                    }
+                    pickImageLegacy.launch(intent)
                 }
             }
 
@@ -280,54 +263,5 @@ class BoardWriteFragment : Fragment() {
         adapter = null
         _binding = null
     }
-
-    private fun navigateImage() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        activityResult.launch(intent)
-    }
-
-    // 권한 거부 시 처리 로직
-    private fun handlePermissionDenied() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            !ActivityCompat.shouldShowRequestPermissionRationale(
-                requireActivity(),
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    Manifest.permission.READ_MEDIA_IMAGES
-                else
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-        ) {
-            // "다시 묻지 않음" 선택됨
-            AlertDialog.Builder(requireContext())
-                .setTitle("권한 필요")
-                .setMessage("이미지를 선택하려면 권한이 필요합니다. 설정에서 권한을 허용해주세요.")
-                .setPositiveButton("설정으로 이동") { _, _ ->
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", requireContext().packageName, null)
-                    }
-                    startActivity(intent)
-                }
-                .setNegativeButton("취소") { dialog, _ -> dialog.dismiss() }
-                .show()
-        } else {
-            // 권한 설명 및 요청
-            AlertDialog.Builder(requireContext())
-                .setTitle("권한 필요")
-                .setMessage("이미지를 선택하려면 저장소 접근 권한이 필요합니다.")
-                .setPositiveButton("권한 요청") { _, _ ->
-                    permissionLauncher.launch(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                            Manifest.permission.READ_MEDIA_IMAGES
-                        else
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                    )
-                }
-                .setNegativeButton("취소") { dialog, _ -> dialog.dismiss() }
-                .show()
-        }
-    }
-
 
 }

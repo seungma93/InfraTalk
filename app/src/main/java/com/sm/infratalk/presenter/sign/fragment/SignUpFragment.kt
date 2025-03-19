@@ -1,13 +1,12 @@
 package com.sm.infratalk.presenter.sign.fragment
 
-import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,8 +14,8 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -44,35 +43,41 @@ class SignUpFragment : Fragment() {
     @Inject
     lateinit var signViewModelFactory: ViewModelProvider.Factory
     private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
+
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "선택한 이미지 URI: $uri")
+            binding.profileImage.setImageURI(uri)
+            val requestOptions = RequestOptions.circleCropTransform().autoClone()
+            Glide.with(this)
+                .load(uri)
+                .apply(requestOptions)
+                .into(binding.profileImage)
+            binding.profileImage.tag = uri
+        } else {
+            Log.d("PhotoPicker", "이미지가 선택되지 않음")
+        }
+    }
+
+    private val pickImageLegacy = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                binding.profileImage.setImageURI(uri)
+                val requestOptions = RequestOptions.circleCropTransform().autoClone()
+                Glide.with(this)
+                    .load(uri)
+                    .apply(requestOptions)
+                    .into(binding.profileImage)
+                binding.profileImage.tag = uri
+            }
+        }
+    }
+
     
     override fun onAttach(context: Context) {
         DaggerSignFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
-
-        activityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    // 권한이 필요한 작업 수행
-                    navigateImage()
-                } else {
-
-                }
-            }
-
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it.data?.let { intent ->
-                        binding.profileImage.setImageURI(intent.data)
-                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                            Glide.with(this)
-                                .load(intent.data)
-                                .apply(requestOptions)
-                                .into(binding.profileImage)
-                        binding.profileImage.tag = intent.data
-                    }
-                }
-            }
     }
 
     override fun onCreateView(
@@ -148,25 +153,13 @@ class SignUpFragment : Fragment() {
             }
 
             it.profileImage.setOnClickListener {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    ) == PackageManager.PERMISSION_GRANTED
-                    -> {
-                        // 권한이 존재하는 경우
-                        navigateImage()
-                    }
-
-                    shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
-                        // 권한이 거부 되어 있는 경우
-                        showPermissionContextPopup()
-                    }
-
-                    else -> {
-                        // 처음 권한을 시도했을 때 띄움
-                        activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                    }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    // API 33 이상: Photo Picker 사용
+                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                } else {
+                    // API 32 이하: 기존 방식 사용
+                    val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    pickImageLegacy.launch(intent)
                 }
             }
         }
@@ -174,23 +167,6 @@ class SignUpFragment : Fragment() {
         subscribe()
     }
 
-    private fun navigateImage() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        activityResult.launch(intent)
-    }
-
-    private fun showPermissionContextPopup() {
-        AlertDialog.Builder(requireActivity())
-            .setTitle("권한이 필요합니다")
-            .setMessage("전자액자에서 사진을 선택하려면 권한이 필요합니다.")
-            .setPositiveButton("동의하기") { _, _ ->
-                activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-            .setNegativeButton("취소하기") { _, _ -> }
-            .create()
-            .show()
-    }
 
     private fun subscribe() {
         viewLifecycleOwner.lifecycleScope.launch {
