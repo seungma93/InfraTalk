@@ -23,9 +23,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.data.model.request.image.ImagesRequest
 import com.sm.infratalk.databinding.FragmentSignUpBinding
 import com.sm.infratalk.di.component.DaggerSignFragmentComponent
+import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import com.sm.infratalk.presenter.sign.form.SignUpForm
@@ -175,10 +177,13 @@ class SignUpFragment : Fragment() {
                 when (it) {
                     is ViewEvent.SignUp -> {
                         hideProgressBar()
-                        Toast.makeText(
-                            requireActivity(), "회원가입 성공 이메일을 확인해 주세요",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
+                        val message = "회원가입 성공 이메일 인증이 필요합니다."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.LoginMain)
                     }
 
