@@ -190,41 +190,68 @@ class SignUpFragment : Fragment() {
                     is ViewEvent.Error -> {
                         hideProgressBar()
                         when (it.throwable) {
-                            is com.sm.infratalk.data.InvalidPasswordException ->
-                                Toast.makeText(
-                                    requireActivity(), "비밀번호는 6자리 이상이어야 합니다.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            is com.sm.infratalk.data.InvalidPasswordException -> {
+                                val message = "비밀번호는 6자리 이상이어야 합니다."
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.sm.infratalk.data.InvalidEmailException -> Toast.makeText(
-                                requireActivity(), "이메일 형식을 확인 하세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.sm.infratalk.data.ExistEmailException -> Toast.makeText(
-                                requireActivity(), "존재하는 이메일 입니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.sm.infratalk.data.InvalidEmailException -> {
+                                val message = "이메일 형식을 확인 하세요."
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.sm.infratalk.data.BlockedRequestException -> Toast.makeText(
-                                requireActivity(), "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.sm.infratalk.data.FailInsertException -> Toast.makeText(
-                                requireActivity(), "인서트에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.sm.infratalk.data.ExistEmailException -> {
+                                val message = "존재하는 이메일 입니다."
+                                val duration = Snackbar.LENGTH_SHORT
 
-                            is com.sm.infratalk.data.FailUpdateException -> Toast.makeText(
-                                requireActivity(), "업데이트에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
 
-                            is com.sm.infratalk.data.FailVerifiedEmailException -> Toast.makeText(
-                                requireActivity(), "메일 전송에 실패 했습니다",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            is com.sm.infratalk.data.BlockedRequestException -> {
+                                val message = "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.sm.infratalk.data.FailInsertException -> {
+                                val message = "인서트에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.sm.infratalk.data.FailUpdateException -> {
+                                val message = "업데이트에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
+                            is com.sm.infratalk.data.FailVerifiedEmailException -> {
+                                val message = "메일 전송에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
                         }
                     }
 
