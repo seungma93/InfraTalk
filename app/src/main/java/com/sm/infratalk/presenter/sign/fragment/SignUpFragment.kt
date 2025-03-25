@@ -102,30 +102,50 @@ class SignUpFragment : Fragment() {
                 val inputNickname = it.nicknameTextInput.editText!!.text.toString()
 
                 when {
-                    inputId.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "이메일을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    inputId.isNullOrEmpty() -> {
+                        val message = "이메일을 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
 
-                    inputPassword.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "비밀번호를 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
 
-                    inputPasswordCheck.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "비밀번호 확인을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    inputPassword.isNullOrEmpty() -> {
+                        val message = "비밀번호를 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
 
-                    inputNickname.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "닉네임을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
 
-                    inputPassword != inputPasswordCheck -> Toast.makeText(
-                        requireActivity(), "비밀번호 확인이 일치하지 않습니다",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    inputPasswordCheck.isNullOrEmpty() -> {
+                        val message = "비밀번호 확인을 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+
+                    inputNickname.isNullOrEmpty() -> {
+                        val message = "닉네임을 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+
+                    inputPassword != inputPasswordCheck -> {
+                        val message = "비밀번호 확인이 일치하지 않습니다."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
 
                     else -> {
                         viewLifecycleOwner.lifecycleScope.launch {
