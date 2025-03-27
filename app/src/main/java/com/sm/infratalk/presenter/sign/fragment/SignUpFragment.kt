@@ -24,6 +24,13 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
+import com.sm.infratalk.data.BlockedRequestException
+import com.sm.infratalk.data.ExistEmailException
+import com.sm.infratalk.data.FailInsertException
+import com.sm.infratalk.data.FailUpdateException
+import com.sm.infratalk.data.FailVerifiedEmailException
+import com.sm.infratalk.data.InvalidEmailException
+import com.sm.infratalk.data.InvalidPasswordException
 import com.sm.infratalk.data.model.request.image.ImagesRequest
 import com.sm.infratalk.databinding.FragmentSignUpBinding
 import com.sm.infratalk.di.component.DaggerSignFragmentComponent
@@ -210,7 +217,7 @@ class SignUpFragment : Fragment() {
                     is ViewEvent.Error -> {
                         hideProgressBar()
                         when (it.throwable) {
-                            is com.sm.infratalk.data.InvalidPasswordException -> {
+                            is InvalidPasswordException -> {
                                 val message = "비밀번호는 6자리 이상이어야 합니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -219,7 +226,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.InvalidEmailException -> {
+                            is InvalidEmailException -> {
                                 val message = "이메일 형식을 확인 하세요."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -228,7 +235,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.ExistEmailException -> {
+                            is ExistEmailException -> {
                                 val message = "존재하는 이메일 입니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -237,7 +244,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.BlockedRequestException -> {
+                            is BlockedRequestException -> {
                                 val message = "너무 많은 요청이 있었습니다 잠시 후 시도해 주세요."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -246,7 +253,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.FailInsertException -> {
+                            is FailInsertException -> {
                                 val message = "인서트에 실패 했습니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -255,7 +262,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.FailUpdateException -> {
+                            is FailUpdateException -> {
                                 val message = "업데이트에 실패 했습니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
@@ -264,7 +271,7 @@ class SignUpFragment : Fragment() {
                                 snackbar.show()
                             }
 
-                            is com.sm.infratalk.data.FailVerifiedEmailException -> {
+                            is FailVerifiedEmailException -> {
                                 val message = "메일 전송에 실패 했습니다."
                                 val duration = Snackbar.LENGTH_SHORT
 
