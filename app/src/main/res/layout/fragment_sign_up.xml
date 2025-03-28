@@ -69,13 +69,24 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tv_info_email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="인증 메일이 전송 됩니다."
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        app:layout_constraintTop_toBottomOf="@+id/email_text_input"
+        android:layout_marginTop="5dp"
+        android:gravity="center"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_text_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/shr_hint_password"
         style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@id/email_text_input"
+        app:layout_constraintTop_toBottomOf="@id/tv_info_email"
         app:layout_constraintStart_toStartOf="@id/guideline_left"
         app:layout_constraintEnd_toEndOf="@id/guideline_right"
         android:layout_marginTop="5dp">
@@ -105,13 +116,24 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tv_info_password"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="비밀번호는 6자리 이상 필요합니다."
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        app:layout_constraintTop_toBottomOf="@+id/password_check_text_input"
+        android:layout_marginTop="5dp"
+        android:gravity="center"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/nickname_text_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/shr_hint_nickname"
         style="@style/Widget.FreeTalk.TextInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/password_check_text_input"
+        app:layout_constraintTop_toBottomOf="@+id/tv_info_password"
         app:layout_constraintStart_toStartOf="@id/guideline_left"
         app:layout_constraintEnd_toEndOf="@id/guideline_right"
         android:layout_marginTop="5dp">

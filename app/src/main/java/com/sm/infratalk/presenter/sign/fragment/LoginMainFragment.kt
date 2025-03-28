@@ -83,15 +83,23 @@ class LoginMainFragment : Fragment() {
                 val inputPassword = binding.passwordTextInput.editText!!.text.toString()
 
                 when {
-                    inputId.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "이메일을 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    inputId.isNullOrEmpty() -> {
+                        val message = "이메일을 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
 
-                    inputPassword.isNullOrEmpty() -> Toast.makeText(
-                        requireActivity(), "비밀번호를 입력하세요",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
+
+                    inputPassword.isNullOrEmpty() -> {
+                        val message = "비밀번호를 입력하세요."
+                        val duration = Snackbar.LENGTH_SHORT
+
+                        val snackbar = CustomSnackbar.make(requireView(), message, duration)
+                        snackbar.setMargin(bottomDp = 66)
+                        snackbar.show()
+                    }
 
                     else -> {
                         showProgressBar()
