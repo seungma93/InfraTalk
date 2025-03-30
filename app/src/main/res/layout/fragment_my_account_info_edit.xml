@@ -53,13 +53,14 @@
         app:layout_constraintEnd_toEndOf="@id/guideline_right"
         app:layout_constraintStart_toStartOf="@id/guideline_left"
         app:layout_constraintTop_toBottomOf="@+id/iv_profile_image"
+        android:layout_marginTop="20dp"
         />
 
     <TextView
         android:id="@+id/tv_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="[infratalk@mypage] email \n[infratalk@mypage] 이메일"
+        android:text="[infratalk@mypage] email \n[infratalk@mypage] \n이메일"
         android:textColor="#ffffff"
         android:textSize="15dp"
         app:layout_constraintTop_toBottomOf="@id/btn_default_profile"
@@ -91,11 +92,13 @@
         android:id="@+id/btn_edit_complete"
         style="@style/Widget.FreeTalk.Button"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="65dp"
         android:text="수정완료"
-        app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
         app:layout_constraintStart_toStartOf="@id/guideline_left"
-        app:layout_constraintEnd_toEndOf="@id/guideline_right" />
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        app:layout_constraintTop_toBottomOf="@+id/nickname_text_input"
+
+        android:layout_marginTop="20dp"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
