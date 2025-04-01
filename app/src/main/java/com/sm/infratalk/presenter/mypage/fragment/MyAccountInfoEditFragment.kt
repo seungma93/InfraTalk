@@ -49,7 +49,6 @@ class MyAccountInfoEditFragment : Fragment() {
 
     private var _binding: FragmentMyAccountInfoEditBinding? = null
     private val binding get() = _binding!!
-    private lateinit var activityResultLauncher: ActivityResultLauncher<String>
     private lateinit var activityResult: ActivityResultLauncher<Intent>
     private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
@@ -187,10 +186,12 @@ class MyAccountInfoEditFragment : Fragment() {
                                                 )
                                             }
                                         } ?: run {
-                                            Toast.makeText(
-                                                requireActivity(), "변경된 내용이 없습니다",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            val message = "변경된 내용이 없습니다."
+                                            val duration = Snackbar.LENGTH_SHORT
+
+                                            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                            snackbar.setMargin(bottomDp = 66)
+                                            snackbar.show()
                                         }
                                     }
 
