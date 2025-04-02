@@ -165,10 +165,15 @@ class MyAccountInfoEditFragment : Fragment() {
                         val inputNickname = nicknameTextInput.editText?.text?.toString()
 
                         when {
-                            inputNickname.isNullOrEmpty() -> Toast.makeText(
-                                requireActivity(), "닉네임을 입력하세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            inputNickname.isNullOrEmpty() -> {
+                                val message = "닉네임을 입력하세요."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
 
                             else -> {
                                 when (inputNickname == nickname) {
