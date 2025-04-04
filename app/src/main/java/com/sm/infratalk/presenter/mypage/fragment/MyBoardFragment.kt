@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.databinding.FragmentMyBoardBinding
 import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -28,6 +29,7 @@ import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardLikesDeleteForm
 import com.sm.infratalk.presenter.board.listener.OnScrollListener
+import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import com.sm.infratalk.presenter.mypage.adapter.MyBoardListAdapter
@@ -57,11 +59,12 @@ class MyBoardFragment : Fragment() {
     private var _adapter: MyBoardListAdapter? = null
     private val adapter get() = _adapter!!
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
-        Toast.makeText(
-            requireContext(),
-            "마지막 페이지 입니다.",
-            Toast.LENGTH_SHORT
-        ).show()
+        val message = "마지막 페이지 입니다."
+        val duration = Snackbar.LENGTH_SHORT
+
+        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+        snackbar.setMargin(bottomDp = 66)
+        snackbar.show()
     })
 
     private lateinit var callback: OnBackPressedCallback
