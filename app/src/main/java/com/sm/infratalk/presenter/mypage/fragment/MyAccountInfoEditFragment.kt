@@ -1,11 +1,8 @@
 package com.sm.infratalk.presenter.mypage.fragment
 
-import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,12 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,7 +43,6 @@ class MyAccountInfoEditFragment : Fragment() {
 
     private var _binding: FragmentMyAccountInfoEditBinding? = null
     private val binding get() = _binding!!
-    private lateinit var activityResult: ActivityResultLauncher<Intent>
     private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
@@ -91,21 +84,6 @@ class MyAccountInfoEditFragment : Fragment() {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
-
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it.data?.let { intent ->
-                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                        Glide.with(requireContext())
-                            .load(intent.data)
-                            .apply(requestOptions)
-                            .into(binding.ivProfileImage)
-
-                        binding.ivProfileImage.tag = intent.data
-                    }
-                }
-            }
 
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
