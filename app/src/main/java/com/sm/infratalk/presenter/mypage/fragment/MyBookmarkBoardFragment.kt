@@ -45,7 +45,6 @@ class MyBookmarkBoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var _adapter: MyBookmarkBoardListAdapter? = null
     private val adapter get() = _adapter!!
-    private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
     @Inject
@@ -54,7 +53,7 @@ class MyBookmarkBoardFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()

@@ -63,7 +63,6 @@ class MyCommentFragment : Fragment() {
         snackbar.show()
     })
 
-    private lateinit var callback: OnBackPressedCallback
 
 
     @Inject
@@ -72,7 +71,7 @@ class MyCommentFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()

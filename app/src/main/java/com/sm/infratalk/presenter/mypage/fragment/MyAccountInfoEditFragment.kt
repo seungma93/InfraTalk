@@ -43,7 +43,6 @@ class MyAccountInfoEditFragment : Fragment() {
 
     private var _binding: FragmentMyAccountInfoEditBinding? = null
     private val binding get() = _binding!!
-    private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
     @Inject
@@ -84,8 +83,7 @@ class MyAccountInfoEditFragment : Fragment() {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
-
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
