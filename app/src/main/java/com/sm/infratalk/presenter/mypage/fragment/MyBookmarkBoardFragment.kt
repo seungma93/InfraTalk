@@ -244,7 +244,14 @@ class MyBookmarkBoardFragment : Fragment() {
                                 (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                             }
 
-                            false -> Log.d("seungma", "채팅방 시작 실패")
+                            false -> {
+                                val message = "채팅 시작에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
                         }
                     }
 
