@@ -73,19 +73,6 @@ class MyLikeCommentFragment : Fragment() {
                 userEntity = myLikeCommentViewModel.getUserMe()
 
                 _adapter = MyLikeCommentListAdapter(
-                    itemClick = {
-                        /*
-                        Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                        val endPoint = EndPoint.BoardContent(
-                            boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                                boardAuthorEmail = it.author.email,
-                                boardCreateTime = it.createTime
-                            )
-                        )
-                        (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-
-                         */
-                    },
                     bookmarkClick = { commentEntity ->
                         commentEntity.apply {
                             when (bookmarkEntity.isBookmark) {

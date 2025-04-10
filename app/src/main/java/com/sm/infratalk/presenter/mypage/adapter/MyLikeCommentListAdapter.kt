@@ -17,7 +17,6 @@ import java.util.Locale
 
 
 class MyLikeCommentListAdapter(
-    private val itemClick: (CommentMetaEntity) -> Unit,
     private val bookmarkClick: (CommentEntity) -> Unit,
     private val likeClick: (CommentEntity) -> Unit,
     private val deleteClick: (CommentEntity) -> Unit,
@@ -27,7 +26,7 @@ class MyLikeCommentListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             ListItemMyLikeCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick, userEntity)
+        return ViewHolder(binding, bookmarkClick, likeClick, deleteClick, userEntity)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -36,7 +35,6 @@ class MyLikeCommentListAdapter(
 
     class ViewHolder(
         private val binding: ListItemMyLikeCommentBinding,
-        private val itemClick: (CommentMetaEntity) -> Unit,
         private val bookmarkClick: (CommentEntity) -> Unit,
         private val likeClick: (CommentEntity) -> Unit,
         private val deleteClick: (CommentEntity) -> Unit,
@@ -47,12 +45,6 @@ class MyLikeCommentListAdapter(
 
         init {
             binding.apply {
-                root.setOnClickListener {
-                    commentEntity?.let {
-
-                        itemClick(it.commentMetaEntity)
-                    }
-                }
                 btnBookmark.setOnClickListener {
                     btnBookmark.isEnabled = false
                     commentEntity?.let {
