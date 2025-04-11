@@ -94,19 +94,6 @@ class MyCommentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _adapter = MyCommentListAdapter(
-            itemClick = {
-                /*
-                Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                val endPoint = EndPoint.BoardContent(
-                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                        boardAuthorEmail = it.author.email,
-                        boardCreateTime = it.createTime
-                    )
-                )
-                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-
-                 */
-            },
             bookmarkClick = { commentEntity ->
                 commentEntity.apply {
                     when (bookmarkEntity.isBookmark) {
