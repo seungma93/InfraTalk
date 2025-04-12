@@ -27,7 +27,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.R
 import com.sm.infratalk.data.FailGetUserMeException
 import com.sm.infratalk.databinding.FragmentMyAccountInfoEditBinding
-import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewEvent
@@ -60,7 +59,12 @@ class MyAccountInfoEditFragment : Fragment() {
 
             binding.ivProfileImage.tag = uri
         } else {
-            Log.d("PhotoPicker", "이미지가 선택되지 않음")
+            val message = "이미지 선택이 취소되었거나 실패했습니다."
+            val duration = Snackbar.LENGTH_SHORT
+
+            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+            snackbar.setMargin(bottomDp = 66)
+            snackbar.show()
         }
     }
 
@@ -75,6 +79,13 @@ class MyAccountInfoEditFragment : Fragment() {
                     .into(binding.ivProfileImage)
 
                 binding.ivProfileImage.tag = uri
+            } else {
+                val message = "이미지 선택이 취소되었거나 실패했습니다."
+                val duration = Snackbar.LENGTH_SHORT
+
+                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                snackbar.setMargin(bottomDp = 66)
+                snackbar.show()
             }
         }
     }
