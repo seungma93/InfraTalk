@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.sm.infratalk.R
 import com.sm.infratalk.databinding.ListItemMyBoardBinding
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.board.entity.BoardMetaEntity
@@ -93,6 +94,9 @@ class MyBoardListAdapter(
                             .apply(requestOptions)
                             .into(ivProfile)
 
+                    } ?: run {
+                        Glide.with(itemView.context).clear(ivProfile) // 이미지 없을 경우 제거
+                        ivProfile.setImageResource(R.drawable.ic_avatar) // 기본 이미지 설정
                     }
                     it.boardMetaEntity.images?.let {
                         lyImage.visibility = View.VISIBLE

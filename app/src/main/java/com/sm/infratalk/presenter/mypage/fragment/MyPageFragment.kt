@@ -135,24 +135,4 @@ class MyPageFragment : Fragment() {
             }
         }
     }
-
-    fun ImageView.loadProfileImage(
-        url: String?,
-        @DrawableRes defaultImage: Int = 0
-    ) {
-        val requestOptions = RequestOptions.circleCropTransform().autoClone()
-        Glide.with(this)
-            .load(url)
-            .apply(requestOptions)
-            .apply {
-                if (defaultImage != 0) {
-                    error(
-                        Glide.with(this@loadProfileImage)
-                            .load(defaultImage)
-                            .apply(requestOptions)
-                    )
-                }
-            }
-            .into(this)
-    }
 }

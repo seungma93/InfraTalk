@@ -1,11 +1,8 @@
 package com.sm.infratalk.presenter.mypage.fragment
 
-import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,12 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -33,7 +27,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.R
 import com.sm.infratalk.data.FailGetUserMeException
 import com.sm.infratalk.databinding.FragmentMyAccountInfoEditBinding
-import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewEvent
@@ -49,9 +42,6 @@ class MyAccountInfoEditFragment : Fragment() {
 
     private var _binding: FragmentMyAccountInfoEditBinding? = null
     private val binding get() = _binding!!
-    private lateinit var activityResultLauncher: ActivityResultLauncher<String>
-    private lateinit var activityResult: ActivityResultLauncher<Intent>
-    private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
     @Inject
@@ -69,7 +59,12 @@ class MyAccountInfoEditFragment : Fragment() {
 
             binding.ivProfileImage.tag = uri
         } else {
-            Log.d("PhotoPicker", "이미지가 선택되지 않음")
+            val message = "이미지 선택이 취소되었거나 실패했습니다."
+            val duration = Snackbar.LENGTH_SHORT
+
+            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+            snackbar.setMargin(bottomDp = 66)
+            snackbar.show()
         }
     }
 
@@ -84,6 +79,13 @@ class MyAccountInfoEditFragment : Fragment() {
                     .into(binding.ivProfileImage)
 
                 binding.ivProfileImage.tag = uri
+            } else {
+                val message = "이미지 선택이 취소되었거나 실패했습니다."
+                val duration = Snackbar.LENGTH_SHORT
+
+                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                snackbar.setMargin(bottomDp = 66)
+                snackbar.show()
             }
         }
     }
@@ -92,23 +94,7 @@ class MyAccountInfoEditFragment : Fragment() {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
 
-
-        activityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    it.data?.let { intent ->
-                        val requestOptions = RequestOptions.circleCropTransform().autoClone()
-                        Glide.with(requireContext())
-                            .load(intent.data)
-                            .apply(requestOptions)
-                            .into(binding.ivProfileImage)
-
-                        binding.ivProfileImage.tag = intent.data
-                    }
-                }
-            }
-
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
@@ -166,10 +152,15 @@ class MyAccountInfoEditFragment : Fragment() {
                         val inputNickname = nicknameTextInput.editText?.text?.toString()
 
                         when {
-                            inputNickname.isNullOrEmpty() -> Toast.makeText(
-                                requireActivity(), "닉네임을 입력하세요",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            inputNickname.isNullOrEmpty() -> {
+                                val message = "닉네임을 입력하세요."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
+
 
                             else -> {
                                 when (inputNickname == nickname) {
@@ -187,10 +178,12 @@ class MyAccountInfoEditFragment : Fragment() {
                                                 )
                                             }
                                         } ?: run {
-                                            Toast.makeText(
-                                                requireActivity(), "변경된 내용이 없습니다",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            val message = "변경된 내용이 없습니다."
+                                            val duration = Snackbar.LENGTH_SHORT
+
+                                            val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                            snackbar.setMargin(bottomDp = 66)
+                                            snackbar.show()
                                         }
                                     }
 

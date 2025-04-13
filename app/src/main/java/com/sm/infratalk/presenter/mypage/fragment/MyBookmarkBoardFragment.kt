@@ -45,7 +45,6 @@ class MyBookmarkBoardFragment : Fragment() {
     private val binding get() = _binding!!
     private var _adapter: MyBookmarkBoardListAdapter? = null
     private val adapter get() = _adapter!!
-    private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
     @Inject
@@ -54,7 +53,7 @@ class MyBookmarkBoardFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
@@ -245,7 +244,14 @@ class MyBookmarkBoardFragment : Fragment() {
                                 (requireActivity() as? Navigable)?.navigateFragment(endPoint)
                             }
 
-                            false -> Log.d("seungma", "채팅방 시작 실패")
+                            false -> {
+                                val message = "채팅 시작에 실패 했습니다."
+                                val duration = Snackbar.LENGTH_SHORT
+
+                                val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                                snackbar.setMargin(bottomDp = 66)
+                                snackbar.show()
+                            }
                         }
                     }
 

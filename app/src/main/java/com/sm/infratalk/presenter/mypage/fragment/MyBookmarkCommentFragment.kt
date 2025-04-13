@@ -38,7 +38,6 @@ class MyBookmarkCommentFragment : Fragment() {
     private val binding get() = _binding!!
     private var _adapter: MyBookmarkCommentListAdapter? = null
     private val adapter get() = _adapter!!
-    private lateinit var callback: OnBackPressedCallback
     private lateinit var userEntity: UserEntity
 
     @Inject
@@ -47,7 +46,7 @@ class MyBookmarkCommentFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
@@ -74,19 +73,6 @@ class MyBookmarkCommentFragment : Fragment() {
                 userEntity = myBookmarkCommentViewModel.getUserMe()
 
                 _adapter = MyBookmarkCommentListAdapter(
-                    itemClick = {
-                        /*
-                        Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                        val endPoint = EndPoint.BoardContent(
-                            boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                                boardAuthorEmail = it.author.email,
-                                boardCreateTime = it.createTime
-                            )
-                        )
-                        (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-
-                         */
-                    },
                     bookmarkClick = { commentEntity ->
                         commentEntity.apply {
                             when (bookmarkEntity.isBookmark) {

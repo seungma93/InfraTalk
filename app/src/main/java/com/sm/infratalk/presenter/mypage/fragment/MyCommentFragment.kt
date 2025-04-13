@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -15,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.databinding.FragmentMyCommentBinding
 import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
@@ -27,6 +27,7 @@ import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentRelatedBookmarksDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentRelatedLikesDeleteForm
 import com.sm.infratalk.presenter.board.listener.OnScrollListener
+import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.mypage.adapter.MyCommentListAdapter
 import com.sm.infratalk.presenter.mypage.form.MyCommentListLoadForm
 import com.sm.infratalk.presenter.mypage.viewmodel.MyCommentViewModel
@@ -54,14 +55,14 @@ class MyCommentFragment : Fragment() {
     private var _adapter: MyCommentListAdapter? = null
     private val adapter get() = _adapter!!
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
-        Toast.makeText(
-            requireContext(),
-            "마지막 페이지 입니다.",
-            Toast.LENGTH_SHORT
-        ).show()
+        val message = "마지막 페이지 입니다."
+        val duration = Snackbar.LENGTH_SHORT
+
+        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+        snackbar.setMargin(bottomDp = 66)
+        snackbar.show()
     })
 
-    private lateinit var callback: OnBackPressedCallback
 
 
     @Inject
@@ -70,7 +71,7 @@ class MyCommentFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         DaggerMyPageFragmentComponent.factory().create(context).inject(this)
-        callback = object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("BoardWriteFragment", "백스택 실행")
                 parentFragmentManager.popBackStackImmediate()
@@ -93,19 +94,6 @@ class MyCommentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _adapter = MyCommentListAdapter(
-            itemClick = {
-                /*
-                Log.d("comment", "클릭시 넘어온 board값" + it.author.email)
-                val endPoint = EndPoint.BoardContent(
-                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                        boardAuthorEmail = it.author.email,
-                        boardCreateTime = it.createTime
-                    )
-                )
-                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-
-                 */
-            },
             bookmarkClick = { commentEntity ->
                 commentEntity.apply {
                     when (bookmarkEntity.isBookmark) {

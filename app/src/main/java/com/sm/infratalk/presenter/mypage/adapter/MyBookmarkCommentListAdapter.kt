@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sm.infratalk.databinding.ListItemMyBookmarkCommentBinding
 import com.sm.infratalk.domain.comment.entity.CommentEntity
-import com.sm.infratalk.domain.comment.entity.CommentMetaEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,7 +16,6 @@ import java.util.Locale
 
 
 class MyBookmarkCommentListAdapter(
-    private val itemClick: (CommentMetaEntity) -> Unit,
     private val bookmarkClick: (CommentEntity) -> Unit,
     private val likeClick: (CommentEntity) -> Unit,
     private val deleteClick: (CommentEntity) -> Unit,
@@ -31,7 +29,7 @@ class MyBookmarkCommentListAdapter(
                 parent,
                 false
             )
-        return ViewHolder(binding, itemClick, bookmarkClick, likeClick, deleteClick, userEntity)
+        return ViewHolder(binding, bookmarkClick, likeClick, deleteClick, userEntity)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -40,7 +38,6 @@ class MyBookmarkCommentListAdapter(
 
     class ViewHolder(
         private val binding: ListItemMyBookmarkCommentBinding,
-        private val itemClick: (CommentMetaEntity) -> Unit,
         private val bookmarkClick: (CommentEntity) -> Unit,
         private val likeClick: (CommentEntity) -> Unit,
         private val deleteClick: (CommentEntity) -> Unit,
@@ -51,12 +48,6 @@ class MyBookmarkCommentListAdapter(
 
         init {
             binding.apply {
-                root.setOnClickListener {
-                    commentEntity?.let {
-
-                        itemClick(it.commentMetaEntity)
-                    }
-                }
                 btnBookmark.setOnClickListener {
                     btnBookmark.isEnabled = false
                     commentEntity?.let {
