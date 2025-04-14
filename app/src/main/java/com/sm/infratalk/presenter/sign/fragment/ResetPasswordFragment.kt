@@ -4,64 +4,23 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import com.sm.infratalk.data.FailResetPasswordException
-import com.sm.infratalk.databinding.FragmentDialogChangeAccountBinding
-import com.sm.infratalk.di.component.DaggerSignFragmentComponent
-import com.sm.infratalk.presenter.sign.form.ResetPasswordForm
+import com.sm.infratalk.presenter.sign.components.ResetPasswordDialog
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
-import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ResetPasswordFragment : DialogFragment(), View.OnClickListener {
-    private var _binding: FragmentDialogChangeAccountBinding? = null
-    private val binding get() = _binding!!
+class ResetPasswordFragment : DialogFragment() {
 
     @Inject
     lateinit var signViewModelFactory: ViewModelProvider.Factory
     private val signViewModel: SignViewModel by viewModels { signViewModelFactory }
-    /*
-    private val signViewModel: SignViewModel by lazy {
-        // dataSource
-        val firebaseRemoteDataSourceImpl =
-            FirebaseUserRemoteDataSourceImpl(Firebase.auth, Firebase.firestore)
-        val firebaseImageDataSourceImpl =
-            FirebaseImageRemoteDataSourceImpl(FirebaseStorage.getInstance())
-        // repository
-        val firebaseUserDataRepositoryImpl =
-            FirebaseUserDataRepositoryImpl(firebaseRemoteDataSourceImpl)
-        val firebaseImageDataRepositoryImpl =
-            FirebaseImageDataRepositoryImpl(firebaseImageDataSourceImpl)
-        // useCase
-        val uploadImageUseCaseImpl = UploadImagesUseCaseImpl(firebaseImageDataRepositoryImpl)
-        val updateUserInfoUseCaseImpl = UpdateUserInfoUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val signUpUseCaseImpl = SignUpUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val sendEmailUseCaseImpl = SendEmailUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val updateProfileImageUseCaseImpl =
-            UpdateProfileImageUseCaseImpl(uploadImageUseCaseImpl, updateUserInfoUseCaseImpl)
-        val logInUseCaseImpl = LogInUseCaseImpl(firebaseUserDataRepositoryImpl)
-        val resetPasswordUseCaseImpl = ResetPasswordUseCaseImpl(firebaseUserDataRepositoryImpl)
-        // factory
-        val factory = SignViewModelFactory(
-            signUpUseCaseImpl,
-            sendEmailUseCaseImpl,
-            updateProfileImageUseCaseImpl,
-            logInUseCaseImpl,
-            resetPasswordUseCaseImpl
-        )
-        ViewModelProvider(requireActivity(), factory).get(SignViewModel::class.java)
-    }
-
-     */
-
+    
     override fun onAttach(context: Context) {
         DaggerSignFragmentComponent.factory().create(context).inject(this)
         super.onAttach(context)
@@ -71,56 +30,15 @@ class ResetPasswordFragment : DialogFragment(), View.OnClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentDialogChangeAccountBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // 레이아웃 배경을 투명하게 해줌, 필수 아님
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        binding.btnFindPassword.setOnClickListener {
-            val inputId = binding.emailTextInput.editText!!.text.toString()
-            viewLifecycleOwner.lifecycleScope.launch {
-                Log.v("ChangeAccountFragment", inputId)
-                signViewModel.resetPassword(ResetPasswordForm(inputId))
-            }
-        }
-        subscribe()
-    }
-
-    override fun onClick(p0: View?) {
-        dismiss()
-    }
-
-    private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            signViewModel.viewEvent.collect {
-                when (it) {
-                    is ViewEvent.ResetPassword -> {
-                        binding.emailTextInput.visibility = View.GONE
-                        binding.btnFindPassword.visibility = View.GONE
-                        binding.completeText.text = "이메일로 재설정 링크를 보냈습니다"
-                        binding.completeText.visibility = View.VISIBLE
-                    }
-
-                    is ViewEvent.Error -> {
-                        when (it.throwable) {
-                            is FailResetPasswordException -> {
-                                binding.emailTextInput.visibility = View.GONE
-                                binding.btnFindPassword.visibility = View.GONE
-                                binding.completeText.text = "패스워드 초기화 실패"
-                                binding.completeText.visibility = View.VISIBLE
-                            }
-                        }
-                    }
-
-                    else -> {}
-                }
+    ): View {
+        // ComposeView를 반환하여 Compose를 사용합니다.
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ResetPasswordDialog(
+                    onDismissRequest = { dismiss() },
+                    signViewModel = signViewModel // 이 부분에서 ViewModel을 전달합니다.
+                )
             }
         }
     }
-
-
 }
