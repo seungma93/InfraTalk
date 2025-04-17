@@ -7,18 +7,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sm.infratalk.presenter.sign.form.LoginForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(viewModel: SignViewModel) {
-    val viewModel: SignViewModel by viewModels()
+fun LoginScreen(
+    viewModel: SignViewModel
+) {
     val coroutineScope = rememberCoroutineScope()
-
-    // ViewModel 상태 관찰
-    val loginState by viewModel.viewEvent.collectAsStateWithLifecycle()
+    val loginState by viewModel.viewEvent.collectAsState(initial = null)
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -34,7 +34,14 @@ fun LoginScreen(viewModel: SignViewModel) {
             }
             is ViewEvent.Error -> {
                 showProgressBar = false
-                showMessage = "에러 발생: " + (loginState as ViewEvent.Error).throwable.message
+                showMessage = (loginState as ViewEvent.Error).throwable.message ?: "알 수 없는 에러가 발생했습니다"
+            }
+            null -> {
+                showProgressBar = false
+                showMessage = ""
+            }
+            else -> {
+                showProgressBar = false
             }
         }
     }
@@ -78,12 +85,4 @@ fun LoginScreen(viewModel: SignViewModel) {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoginScreen() {
-    // 미리보기 용으로 Mock ViewModel 사용 또는 필요한 데이터 제공
-    val dummyViewModel = SignViewModel()
-    LoginScreen(viewModel = dummyViewModel)
 }
