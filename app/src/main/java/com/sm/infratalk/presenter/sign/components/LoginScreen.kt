@@ -3,10 +3,22 @@ package com.sm.infratalk.presenter.sign.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sm.infratalk.data.BlockedRequestException
+import com.sm.infratalk.data.FailFirebaseLoginException
+import com.sm.infratalk.data.FailSelectException
+import com.sm.infratalk.data.FailVerifiedEmailException
+import com.sm.infratalk.data.InvalidEmailException
+import com.sm.infratalk.data.NeedVerifiedEmailException
+import com.sm.infratalk.data.NotExistEmailException
+import com.sm.infratalk.data.NotExistFirebaseUserException
+import com.sm.infratalk.data.WrongPasswordException
+import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.sign.form.LoginForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
@@ -64,14 +76,20 @@ fun LoginScreen(
                     else -> "알 수 없는 에러가 발생했습니다"
                 }
                 // 에러 메시지 표시
-                CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current, 
+                /*
+                CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
                     message = errorMessage, 
-                    duration = androidx.compose.material3.SnackbarDuration.Short)
+                    duration = 1)
                     .setMargin(bottomDp = 66)
                     .show()
+
+                 */
             }
             null -> {
                 showProgressBar = false
+            }
+            else -> {
+
             }
         }
     }
@@ -114,18 +132,24 @@ fun LoginScreen(
                 onClick = {
                     when {
                         email.isEmpty() -> {
-                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current, 
+                            /*
+                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
                                 message = "이메일을 입력하세요.", 
                                 duration = androidx.compose.material3.SnackbarDuration.Short)
                                 .setMargin(bottomDp = 66)
                                 .show()
+
+                             */
                         }
                         password.isEmpty() -> {
-                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current, 
+                            /*
+                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
                                 message = "비밀번호를 입력하세요.", 
                                 duration = androidx.compose.material3.SnackbarDuration.Short)
                                 .setMargin(bottomDp = 66)
                                 .show()
+
+                             */
                         }
                         else -> {
                             showProgressBar = true
