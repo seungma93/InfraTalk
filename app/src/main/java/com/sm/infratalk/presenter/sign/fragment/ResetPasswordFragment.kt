@@ -1,8 +1,6 @@
 package com.sm.infratalk.presenter.sign.fragment
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.sm.infratalk.di.component.DaggerSignFragmentComponent
 import com.sm.infratalk.presenter.sign.components.ResetPasswordDialog
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import javax.inject.Inject
