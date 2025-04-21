@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -61,16 +65,13 @@ fun ResetPasswordDialog(
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.width(332.dp), 
             shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            shadowElevation = 8.dp
+            color = Color.White
         ) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 when (uiState) {
                     ResetPasswordUiState.Input -> {
@@ -78,24 +79,29 @@ fun ResetPasswordDialog(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            Spacer(modifier = Modifier.height(20.dp))
+
                             Text(
-                                text = "비밀번호 재설정",
-                                style = TextStyle(
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                text = "비밀번호 초기화",
+                                fontSize = 25.sp,
+                                modifier = Modifier.height(40.dp),
+                                textAlign = TextAlign.Center
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
 
                             OutlinedTextField(
                                 value = email,
                                 onValueChange = { email = it },
                                 label = { Text("이메일") },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(70.dp),
+
+                                shape = RoundedCornerShape(4.dp)
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
 
                             Button(
                                 onClick = {
@@ -103,29 +109,46 @@ fun ResetPasswordDialog(
                                         signViewModel.resetPassword(ResetPasswordForm(email))
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(60.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ),
+                                shape = RoundedCornerShape(4.dp)
                             ) {
-                                Text("비밀번호 찾기")
+                                Text(
+                                    "메일 전송",
+                                    fontSize = 16.sp
+                                )
                             }
+
+                            Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
                     ResetPasswordUiState.Success -> {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp)
                         ) {
                             Text(
-                                text = "이메일로 재설정 링크를 보냈습니다",
-                                style = TextStyle(
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                modifier = Modifier.padding(vertical = 16.dp)
+                                text = "이메일을 확인하세요",
+                                fontSize = 20.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
                             )
+
+                            Spacer(modifier = Modifier.height(20.dp))
 
                             Button(
                                 onClick = onDismissRequest,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(60.dp),
+                                shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text("확인")
                             }
@@ -134,21 +157,30 @@ fun ResetPasswordDialog(
                     ResetPasswordUiState.Failed -> {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp)
                         ) {
                             Text(
-                                text = "패스워드 초기화 실패",
-                                style = TextStyle(
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.Red
-                                ),
-                                modifier = Modifier.padding(vertical = 16.dp)
+                                text = "비밀번호 초기화 실패",
+                                fontSize = 20.sp,
+                                color = Color.Red,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
                             )
+
+                            Spacer(modifier = Modifier.height(20.dp))
 
                             Button(
                                 onClick = onDismissRequest,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(60.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red
+                                ),
+                                shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text("확인")
                             }
