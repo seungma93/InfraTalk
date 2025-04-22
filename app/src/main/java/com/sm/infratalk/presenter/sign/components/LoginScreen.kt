@@ -1,15 +1,26 @@
 package com.sm.infratalk.presenter.sign.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,6 +33,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.sm.infratalk.data.BlockedRequestException
@@ -108,88 +122,186 @@ fun LoginScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("이메일") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("비밀번호") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // 로고 이미지
+                Image(
+                    painter = painterResource(id = R.drawable.ic_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .padding(bottom = 16.dp)
+                )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Switch(
-                checked = rememberEmail,
-                onCheckedChange = { rememberEmail = it }
-            )
-            Text("아이디 저장")
-        }
+                // 앱 타이틀
+                Text(
+                    text = "InfraTalk",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(
-                onClick = {
-                    when {
-                        email.isEmpty() -> {
-                            /*
-                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
-                                message = "이메일을 입력하세요.", 
-                                duration = androidx.compose.material3.SnackbarDuration.Short)
-                                .setMargin(bottomDp = 66)
-                                .show()
+                // 이메일 입력
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("이메일") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Email,
+                            contentDescription = "Email",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                )
 
-                             */
-                        }
-                        password.isEmpty() -> {
-                            /*
-                            CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
-                                message = "비밀번호를 입력하세요.", 
-                                duration = androidx.compose.material3.SnackbarDuration.Short)
-                                .setMargin(bottomDp = 66)
-                                .show()
+                // 비밀번호 입력
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("비밀번호") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Lock,
+                            contentDescription = "Password",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                )
 
-                             */
-                        }
-                        else -> {
-                            showProgressBar = true
-                            scope.launch {
-                                viewModel.logIn(LoginForm(email, password))
+                // 아이디 저장 스위치
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(
+                        checked = rememberEmail,
+                        onCheckedChange = { rememberEmail = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    )
+                    Text(
+                        "아이디 저장",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // 로그인 버튼
+                Button(
+                    onClick = {
+                        when {
+                            email.isEmpty() -> {
+                                // 스낵바 코드 주석 처리
+                            }
+                            password.isEmpty() -> {
+                                // 스낵바 코드 주석 처리
+                            }
+                            else -> {
+                                showProgressBar = true
+                                scope.launch {
+                                    viewModel.logIn(LoginForm(email, password))
+                                }
                             }
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        "로그인",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            ) {
-                Text("로그인")
-            }
-            
-            Button(onClick = onSignUpClick) {
-                Text("회원가입")
-            }
-        }
 
-        TextButton(onClick = onResetPasswordClick) {
-            Text("비밀번호 찾기")
-        }
+                Spacer(modifier = Modifier.height(16.dp))
 
-        if (showProgressBar) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+                // 회원가입 버튼
+                OutlinedButton(
+                    onClick = onSignUpClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(
+                        "회원가입",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 비밀번호 찾기 버튼
+                TextButton(
+                    onClick = onResetPasswordClick,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "비밀번호 찾기",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            // 로딩 인디케이터
+            if (showProgressBar) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+            }
         }
     }
 }
