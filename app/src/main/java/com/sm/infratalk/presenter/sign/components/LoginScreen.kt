@@ -14,15 +14,16 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,6 +52,7 @@ import com.sm.infratalk.presenter.sign.form.LoginForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
+import com.sm.infratalk.R
 
 @Composable
 fun LoginScreen(
@@ -161,7 +163,7 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
@@ -184,7 +186,7 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
