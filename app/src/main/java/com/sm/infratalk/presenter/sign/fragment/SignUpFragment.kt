@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.sm.infratalk.data.model.request.image.ImagesRequest
 import com.sm.infratalk.di.component.DaggerSignFragmentComponent
 import com.sm.infratalk.presenter.sign.form.SignUpForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
@@ -73,14 +74,27 @@ class SignUpFragment : Fragment() {
                     onSignUpClick = { email, password, passwordCheck, nickname ->
                         if (password == passwordCheck) {
                             viewLifecycleOwner.lifecycleScope.launch {
-                                signViewModel.signUp(
-                                    signUpForm = SignUpForm(
-                                        email = email,
-                                        password = password,
-                                        nickname = nickname
-                                    ),
-                                    imagesRequest = null
-                                )
+                                selectedImageUri?.let {
+                                    signViewModel.signUp(
+                                        signUpForm = SignUpForm(
+                                            email = email,
+                                            password = password,
+                                            nickname = nickname
+                                        ),
+                                        imagesRequest = ImagesRequest(
+                                            imageUris = listOf(it)
+                                        )
+                                    )
+                                } ?: run {
+                                    signViewModel.signUp(
+                                        signUpForm = SignUpForm(
+                                            email = email,
+                                            password = password,
+                                            nickname = nickname
+                                        ),
+                                        imagesRequest = null
+                                    )
+                                }
                             }
                         } else {
                             Toast.makeText(requireContext(), "비밀번호가 일치하지 않습니다", Toast.LENGTH_SHORT).show()
@@ -94,7 +108,7 @@ class SignUpFragment : Fragment() {
                             pickImageLegacy.launch(intent)
                         }
                     },
-                    profileImageUri = selectedImageUri.toString()
+                    profileImageUri = selectedImageUri
                 )
             }
         }
