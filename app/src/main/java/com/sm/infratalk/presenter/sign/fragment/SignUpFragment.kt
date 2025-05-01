@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
@@ -37,6 +36,8 @@ class SignUpFragment : Fragment() {
     
     // 선택된 이미지 URI를 저장할 변수 추가
     private var selectedImageUri by mutableStateOf<Uri?>(null)
+    private var showSnackbar by mutableStateOf(false)
+    private var snackbarMessage by mutableStateOf("")
 
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
@@ -97,7 +98,8 @@ class SignUpFragment : Fragment() {
                                 }
                             }
                         } else {
-                            Toast.makeText(requireContext(), "비밀번호가 일치하지 않습니다", Toast.LENGTH_SHORT).show()
+                            snackbarMessage = "비밀번호가 일치하지 않습니다"
+                            showSnackbar = true
                         }
                     },
                     onProfileImageClick = {
@@ -108,7 +110,10 @@ class SignUpFragment : Fragment() {
                             pickImageLegacy.launch(intent)
                         }
                     },
-                    profileImageUri = selectedImageUri
+                    profileImageUri = selectedImageUri,
+                    showSnackbar = showSnackbar,
+                    snackbarMessage = snackbarMessage,
+                    onSnackbarDismissed = { showSnackbar = false }
                 )
             }
         }
