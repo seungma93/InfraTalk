@@ -15,16 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,8 +31,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.sm.infratalk.presenter.common.CustomSnackbar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     isLoading: Boolean = false,
@@ -54,114 +48,101 @@ fun SignUpScreen(
     var passwordCheck by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(showSnackbar) {
-        if (showSnackbar) {
-            snackbarHostState.showSnackbar(
-                message = snackbarMessage,
-                duration = SnackbarDuration.Short
-            )
-            onSnackbarDismissed()
-        }
-    }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-    ) { paddingValues ->
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(Color.LightGray)
+                    .clickable { onProfileImageClick() }
             ) {
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray)
-                        .clickable { onProfileImageClick() }
-                ) {
-                    if (profileImageUri != null) {
-                        AsyncImage(
-                            model = profileImageUri,
-                            contentDescription = "Profile Image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Default Profile",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .align(Alignment.Center),
-                            tint = Color.White
-                        )
-                    }
+                if (profileImageUri != null) {
+                    AsyncImage(
+                        model = profileImageUri,
+                        contentDescription = "Profile Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Default Profile",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .align(Alignment.Center),
+                        tint = Color.White
+                    )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("이메일") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("이메일") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("비밀번호") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("비밀번호") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = passwordCheck,
-                    onValueChange = { passwordCheck = it },
-                    label = { Text("비밀번호 확인") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = passwordCheck,
+                onValueChange = { passwordCheck = it },
+                label = { Text("비밀번호 확인") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = nickname,
-                    onValueChange = { nickname = it },
-                    label = { Text("닉네임") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = nickname,
+                onValueChange = { nickname = it },
+                label = { Text("닉네임") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = { onSignUpClick(email, password, passwordCheck, nickname) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Text("회원가입")
-                    }
+            Button(
+                onClick = { onSignUpClick(email, password, passwordCheck, nickname) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text("회원가입")
                 }
             }
         }
+        
+        CustomSnackbar(
+            message = snackbarMessage,
+            isVisible = showSnackbar,
+            onDismiss = onSnackbarDismissed,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
