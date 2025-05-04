@@ -3,10 +3,16 @@ package com.sm.infratalk.presenter.sign.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -39,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.sm.infratalk.R
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailFirebaseLoginException
 import com.sm.infratalk.data.FailSelectException
@@ -48,27 +55,31 @@ import com.sm.infratalk.data.NeedVerifiedEmailException
 import com.sm.infratalk.data.NotExistEmailException
 import com.sm.infratalk.data.NotExistFirebaseUserException
 import com.sm.infratalk.data.WrongPasswordException
+import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.sign.form.LoginForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
-import com.sm.infratalk.R
 
 @Composable
 fun LoginScreen(
     viewModel: SignViewModel,
     onSignUpClick: () -> Unit,
     onLoginSuccess: () -> Unit,
-    onResetPasswordClick: () -> Unit
+    onResetPasswordClick: () -> Unit,
+    onError: (String) -> Unit = {},
+    showSnackbar: Boolean = false,
+    snackbarMessage: String = "",
+    onDismissSnackbar: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showProgressBar by remember { mutableStateOf(false) }
     var rememberEmail by remember { mutableStateOf(false) }
+    
     val scope = rememberCoroutineScope()
     
     LaunchedEffect(Unit) {
-        // 저장된 이메일 불러오기
         runCatching {
             val savedEmail = viewModel.getSavedEmail().email
             if (savedEmail.isNotEmpty()) {
@@ -78,10 +89,10 @@ fun LoginScreen(
         }
     }
 
-    val loginState by viewModel.viewEvent.collectAsState(initial = null)
-
-    LaunchedEffect(loginState) {
-        when (loginState) {
+    val viewEvent by viewModel.viewEvent.collectAsState(initial = null)
+    
+    LaunchedEffect(viewEvent) {
+        when (viewEvent) {
             is ViewEvent.LogIn -> {
                 if (rememberEmail && email != viewModel.getSavedEmail().email) {
                     viewModel.setSavedEmail(com.sm.infratalk.presenter.sign.form.SavedEmailSetForm(email))
@@ -93,34 +104,25 @@ fun LoginScreen(
             }
             is ViewEvent.Error -> {
                 showProgressBar = false
-                val errorMessage = when (val error = (loginState as ViewEvent.Error).throwable) {
+                val error = (viewEvent as ViewEvent.Error).throwable
+                val errorMessage = when (error) {
                     is NotExistEmailException -> "이메일이 존재하지 않습니다"
                     is InvalidEmailException -> "이메일을 확인하세요"
                     is WrongPasswordException -> "암호가 틀렸습니다"
                     is NeedVerifiedEmailException -> "이메일 인증이 필요합니다"
                     is BlockedRequestException -> "요청이 많아 잠시 기다려 주세요"
-                    is FailVerifiedEmailException -> "이메일 전송을 실패 했습니다"
+                    is FailVerifiedEmailException -> "이메일 전송을 실패했습니다"
                     is FailSelectException -> "계정 정보 조회에 실패했습니다"
-                    is FailFirebaseLoginException -> "파이어 베이스 로그인 실패"
-                    is NotExistFirebaseUserException -> "데이터 베이스에 유저 정보가 없습니다"
-                    else -> "알 수 없는 에러가 발생했습니다"
+                    is FailFirebaseLoginException -> "파이어베이스 로그인 실패"
+                    is NotExistFirebaseUserException -> "데이터베이스에 유저 정보가 없습니다"
+                    else -> "로그인 중 오류가 발생했습니다: ${error.message}"
                 }
-                // 에러 메시지 표시
-                /*
-                CustomSnackbar.make(composeView = androidx.compose.ui.platform.LocalView.current,
-                    message = errorMessage, 
-                    duration = 1)
-                    .setMargin(bottomDp = 66)
-                    .show()
-
-                 */
+                onError(errorMessage)
             }
-            null -> {
-                showProgressBar = false
+            is ViewEvent.Loading -> {
+                showProgressBar = true
             }
-            else -> {
-
-            }
+            else -> {}
         }
     }
 
@@ -226,10 +228,12 @@ fun LoginScreen(
                     onClick = {
                         when {
                             email.isEmpty() -> {
-                                // 스낵바 코드 주석 처리
+                                snackbarMessage = "이메일을 입력하세요"
+                                showSnackbar = true
                             }
                             password.isEmpty() -> {
-                                // 스낵바 코드 주석 처리
+                                snackbarMessage = "비밀번호를 입력하세요"
+                                showSnackbar = true
                             }
                             else -> {
                                 showProgressBar = true
@@ -304,6 +308,13 @@ fun LoginScreen(
                     )
                 }
             }
+            
+            CustomSnackbar(
+                message = snackbarMessage,
+                isVisible = showSnackbar,
+                onDismiss = onDismissSnackbar,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
