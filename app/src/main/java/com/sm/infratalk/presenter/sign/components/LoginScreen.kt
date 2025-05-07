@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailFirebaseLoginException
 import com.sm.infratalk.data.FailSelectException
@@ -48,6 +52,7 @@ import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     viewModel: SignViewModel,
@@ -118,61 +123,53 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "InfraTalk",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                
-                Spacer(modifier = Modifier.height(48.dp))
-                
+                Spacer(modifier = Modifier.weight(0.4f))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(bottom = 20.dp)
+                ) {
+                    // Image(
+                    //     painter = painterResource(id = R.drawable.ic_logo),
+                    //     contentDescription = "Logo",
+                    //     modifier = Modifier.size(width = 200.dp, height = 100.dp)
+                    // )
+
+                    Text(
+                        text = "InfraTalk",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontSize = 50.sp
+                        ),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                }
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("이메일") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.width(250.dp),
                     singleLine = true
                 )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
+
+                Spacer(modifier = Modifier.height(5.dp))
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("비밀번호") },
                     visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.width(250.dp),
                     singleLine = true
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Switch(
-                        checked = rememberEmail,
-                        onCheckedChange = { rememberEmail = it }
-                    )
-                    Text("이메일 저장")
-                    
-                    Spacer(modifier = Modifier.weight(1f))
-                    
-                    Text(
-                        text = "비밀번호 찾기",
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onResetPasswordClick() }
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Button(
                     onClick = {
                         when {
@@ -195,29 +192,57 @@ fun LoginScreen(
                             }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .width(250.dp)
+                        .height(65.dp)
                 ) {
                     Text(
                         "로그인",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp
                     )
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 40.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("계정이 없으신가요? ")
-                    Text(
-                        text = "회원가입",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onSignUpClick() }
+                    Checkbox(
+                        checked = rememberEmail,
+                        onCheckedChange = { rememberEmail = it }
                     )
+                    Text("아이디 저장")
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(
+                        onClick = { onSignUpClick() }
+                    ) {
+                        Text(
+                            "회원가입",
+                            fontSize = 18.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    TextButton(
+                        onClick = { onResetPasswordClick() }
+                    ) {
+                        Text(
+                            "암호 초기화",
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
             }
 
             if (showProgressBar) {
@@ -227,13 +252,10 @@ fun LoginScreen(
                         .background(Color.Black.copy(alpha = 0.5f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(60.dp)
-                    )
+                    CircularProgressIndicator()
                 }
             }
-            
+
             CustomSnackbar(
                 message = snackbarMessage,
                 isVisible = showSnackbar,
