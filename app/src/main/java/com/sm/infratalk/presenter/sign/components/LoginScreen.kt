@@ -1,7 +1,7 @@
 package com.sm.infratalk.presenter.sign.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,10 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sm.infratalk.R
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailFirebaseLoginException
 import com.sm.infratalk.data.FailSelectException
@@ -132,11 +134,11 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(bottom = 20.dp)
                 ) {
-                    // Image(
-                    //     painter = painterResource(id = R.drawable.ic_logo),
-                    //     contentDescription = "Logo",
-                    //     modifier = Modifier.size(width = 200.dp, height = 100.dp)
-                    // )
+                     Image(
+                         painter = painterResource(id = R.drawable.ic_logo),
+                         contentDescription = "Logo",
+                         modifier = Modifier.size(width = 200.dp, height = 100.dp)
+                     )
 
                     Text(
                         text = "InfraTalk",
