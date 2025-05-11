@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -126,23 +127,27 @@ fun LoginScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
+            val guidelineLeft = 0.2f
+            val guidelineRight = 0.8f
+            val guidelineTop = 0.4f
+
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.weight(0.4f))
+                Spacer(modifier = Modifier.fillMaxHeight(guidelineTop))
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth(guidelineRight - guidelineLeft)
+                        .padding(bottom = 20.dp)
                 ) {
-                     Image(
-                         painter = painterResource(id = R.drawable.ic_logo),
-                         contentDescription = "Logo",
-                         modifier = Modifier.size(width = 200.dp, height = 100.dp)
-                     )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_logo),
+                        contentDescription = "Logo",
+                        modifier = Modifier.size(width = 200.dp, height = 100.dp)
+                    )
 
                     Text(
                         text = "InfraTalk",
@@ -154,6 +159,8 @@ fun LoginScreen(
                         modifier = Modifier.padding(top = 10.dp)
                     )
                 }
+
+                Spacer(modifier = Modifier.height(35.dp))
 
                 OutlinedTextField(
                     value = email,
@@ -173,8 +180,6 @@ fun LoginScreen(
                     modifier = Modifier.width(250.dp),
                     singleLine = true
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
@@ -212,7 +217,7 @@ fun LoginScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 40.dp),
+                        .padding(start = (guidelineLeft * 100).dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
