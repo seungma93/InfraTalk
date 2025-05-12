@@ -234,7 +234,10 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(
-                        onClick = { onSignUpClick() }
+                        onClick = { onSignUpClick() },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = colorPrimaryDark
+                        )
                     ) {
                         Text(
                             "회원가입",
@@ -245,7 +248,10 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.width(10.dp))
 
                     TextButton(
-                        onClick = { onResetPasswordClick() }
+                        onClick = { onResetPasswordClick() },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = colorPrimaryDark
+                        )
                     ) {
                         Text(
                             "암호 초기화",
