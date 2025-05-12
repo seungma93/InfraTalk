@@ -1,4 +1,3 @@
-
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +13,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -124,8 +125,15 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { onSignUpClick(email, password, passwordCheck, nickname) },
-                modifier = Modifier.fillMaxWidth()
+                onClick = { 
+                    if (!isLoading) {
+                        onSignUpClick(email, password, passwordCheck, nickname) 
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
