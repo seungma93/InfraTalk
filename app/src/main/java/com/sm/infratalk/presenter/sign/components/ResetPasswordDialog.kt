@@ -83,7 +83,7 @@ fun ResetPasswordDialog(
             Surface(
                 modifier = Modifier.width(332.dp), 
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White
+                color = MaterialTheme.colorScheme.surface
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -146,7 +146,8 @@ fun ResetPasswordDialog(
                                 ) {
                                     Text(
                                         "메일 전송",
-                                        fontSize = 16.sp
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onPrimary
                                     )
                                 }
 
@@ -175,9 +176,15 @@ fun ResetPasswordDialog(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(60.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    ),
                                     shape = RoundedCornerShape(4.dp)
                                 ) {
-                                    Text("확인")
+                                    Text(
+                                        "확인",
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 }
                             }
                         }
