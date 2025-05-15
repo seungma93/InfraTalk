@@ -100,7 +100,9 @@ fun ResetPasswordDialog(
                                 Text(
                                     text = "비밀번호 초기화",
                                     fontSize = 25.sp,
-                                    modifier = Modifier.height(40.dp),
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .fillMaxWidth(),
                                     textAlign = TextAlign.Center
                                 )
 
@@ -151,6 +153,7 @@ fun ResetPasswordDialog(
                                     )
                                 }
 
+                                // 하단 여백을 XML과 동일하게 맞춤
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
@@ -161,12 +164,15 @@ fun ResetPasswordDialog(
                                     .fillMaxWidth()
                                     .padding(vertical = 20.dp)
                             ) {
+                                // complete_text와 동일한 스타일과 여백 적용
                                 Text(
                                     text = "이메일을 확인하세요",
                                     fontSize = 20.sp,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 20.dp)
+                                        .height(50.dp)
+                                        .padding(start = 20.dp),
+                                    textAlign = TextAlign.Start
                                 )
 
                                 Spacer(modifier = Modifier.height(20.dp))
@@ -186,6 +192,8 @@ fun ResetPasswordDialog(
                                         color = MaterialTheme.colorScheme.onPrimary
                                     )
                                 }
+                                
+                                Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
                         ResetPasswordUiState.Failed -> {
@@ -201,7 +209,9 @@ fun ResetPasswordDialog(
                                     color = Color.Red,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 20.dp)
+                                        .height(50.dp)
+                                        .padding(start = 20.dp),
+                                    textAlign = TextAlign.Start
                                 )
 
                                 Spacer(modifier = Modifier.height(20.dp))
@@ -216,8 +226,13 @@ fun ResetPasswordDialog(
                                     ),
                                     shape = RoundedCornerShape(4.dp)
                                 ) {
-                                    Text("확인")
+                                    Text(
+                                        "확인",
+                                        color = Color.White
+                                    )
                                 }
+                                
+                                Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
                     }
