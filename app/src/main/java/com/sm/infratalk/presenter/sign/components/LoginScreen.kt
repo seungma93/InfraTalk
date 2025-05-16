@@ -26,12 +26,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalConfiguration
 import com.sm.infratalk.R
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailFirebaseLoginException
@@ -127,41 +128,41 @@ fun LoginScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val guidelineLeft = 0.2f
-            val guidelineRight = 0.8f
-            val guidelineTop = 0.4f
-
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.fillMaxHeight(guidelineTop))
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(guidelineRight - guidelineLeft)
-                        .padding(bottom = 20.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.4f)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(width = 200.dp, height = 100.dp)
-                    )
-
-                    Text(
-                        text = "InfraTalk",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontSize = 50.sp
-                        ),
-                        fontWeight = FontWeight.Bold,
-                        color = colorPrimaryDark,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.size(width = 200.dp, height = 100.dp)
+                        )
+                        
+                        Text(
+                            text = "InfraTalk",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontSize = 50.sp
+                            ),
+                            fontWeight = FontWeight.Bold,
+                            color = colorPrimaryDark,
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(35.dp))
-
+                
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -169,9 +170,9 @@ fun LoginScreen(
                     modifier = Modifier.width(250.dp),
                     singleLine = true
                 )
-
-                Spacer(modifier = Modifier.height(5.dp))
-
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -180,7 +181,9 @@ fun LoginScreen(
                     modifier = Modifier.width(250.dp),
                     singleLine = true
                 )
-
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
                 Button(
                     onClick = {
                         when {
@@ -213,25 +216,26 @@ fun LoginScreen(
                         fontSize = 20.sp
                     )
                 }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = (guidelineLeft * 100).dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = rememberEmail,
-                        onCheckedChange = { rememberEmail = it }
-                    )
-                    Text("아이디 저장")
+                
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = (0.2f * LocalConfiguration.current.screenWidthDp).dp)
+                    ) {
+                        Checkbox(
+                            checked = rememberEmail,
+                            onCheckedChange = { rememberEmail = it }
+                        )
+                        Text("아이디 저장")
+                    }
                 }
-
+                
                 Spacer(modifier = Modifier.height(20.dp))
-
+                
                 Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     TextButton(
                         onClick = { onSignUpClick() },
@@ -244,9 +248,9 @@ fun LoginScreen(
                             fontSize = 18.sp
                         )
                     }
-
+                    
                     Spacer(modifier = Modifier.width(10.dp))
-
+                    
                     TextButton(
                         onClick = { onResetPasswordClick() },
                         colors = ButtonDefaults.textButtonColors(
@@ -259,21 +263,15 @@ fun LoginScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
             }
-
+            
             if (showProgressBar) {
-                Box(
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                        .align(Alignment.Center)
+                )
             }
-
+            
             CustomSnackbar(
                 message = snackbarMessage,
                 isVisible = showSnackbar,
