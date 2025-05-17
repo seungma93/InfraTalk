@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailResetPasswordException
@@ -254,4 +255,70 @@ sealed class ResetPasswordUiState {
     object Input : ResetPasswordUiState()
     object Success : ResetPasswordUiState()
     object Failed : ResetPasswordUiState()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResetPasswordDialogPreview() {
+    Box(modifier = Modifier.padding(16.dp)) {
+        Surface(
+            modifier = Modifier.width(332.dp), 
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "비밀번호 초기화",
+                        fontSize = 25.sp,
+                        modifier = Modifier
+                            .height(40.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    OutlinedTextField(
+                        value = "example@email.com",
+                        onValueChange = { },
+                        label = { Text("이메일") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(70.dp),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = { },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1976D2) // 기본 블루 색상
+                        ),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            "메일 전송",
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
+    }
 }
