@@ -26,22 +26,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalConfiguration
 import com.sm.infratalk.R
 import com.sm.infratalk.data.BlockedRequestException
 import com.sm.infratalk.data.FailFirebaseLoginException
@@ -278,6 +279,140 @@ fun LoginScreen(
                 onDismiss = onDismissSnackbar,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val onSignUpClick: () -> Unit = {}
+    val onLoginSuccess: () -> Unit = {}
+    val onResetPasswordClick: () -> Unit = {}
+    val onError: (String) -> Unit = {}
+    
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.White
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.4f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 200.dp, height = 100.dp)
+                                .background(Color.LightGray)
+                        )
+                        
+                        Text(
+                            text = "InfraTalk",
+                            fontSize = 50.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1976D2),
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(35.dp))
+                
+                OutlinedTextField(
+                    value = "user@example.com",
+                    onValueChange = { },
+                    label = { Text("이메일") },
+                    modifier = Modifier.width(250.dp),
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                OutlinedTextField(
+                    value = "••••••••",
+                    onValueChange = { },
+                    label = { Text("비밀번호") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.width(250.dp),
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .width(250.dp)
+                        .height(65.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1976D2)
+                    )
+                ) {
+                    Text(
+                        "로그인",
+                        fontSize = 20.sp
+                    )
+                }
+                
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 70.dp)
+                    ) {
+                        Checkbox(
+                            checked = true,
+                            onCheckedChange = { }
+                        )
+                        Text("아이디 저장")
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                Row(
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TextButton(
+                        onClick = { },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color(0xFF1976D2)
+                        )
+                    ) {
+                        Text(
+                            "회원가입",
+                            fontSize = 18.sp
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(10.dp))
+                    
+                    TextButton(
+                        onClick = { },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color(0xFF1976D2)
+                        )
+                    ) {
+                        Text(
+                            "암호 초기화",
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
         }
     }
 }
