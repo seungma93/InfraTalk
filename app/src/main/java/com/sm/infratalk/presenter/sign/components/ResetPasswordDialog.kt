@@ -39,6 +39,9 @@ import com.sm.infratalk.presenter.sign.form.ResetPasswordForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
+import androidx.annotation.ColorRes
+import androidx.compose.ui.res.colorResource
+import com.sm.infratalk.R
 
 @Composable
 fun ResetPasswordDialog(
@@ -48,7 +51,6 @@ fun ResetPasswordDialog(
     var email by remember { mutableStateOf("") }
     var uiState by remember { mutableStateOf<ResetPasswordUiState>(ResetPasswordUiState.Input) }
     
-    // 스낵바 상태 변수 추가
     var showSnackbar by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
 
@@ -64,7 +66,6 @@ fun ResetPasswordDialog(
                     if (event.throwable is FailResetPasswordException) {
                         uiState = ResetPasswordUiState.Failed
                     }
-                    // 에러 메시지를 스낵바로 표시
                     snackbarMessage = when (val error = event.throwable) {
                         is FailResetPasswordException -> "비밀번호 초기화 요청 실패"
                         is NotExistEmailException -> "등록되지 않은 이메일입니다"
@@ -84,7 +85,7 @@ fun ResetPasswordDialog(
             Surface(
                 modifier = Modifier.width(332.dp), 
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface
+                color = Color.White
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -124,7 +125,6 @@ fun ResetPasswordDialog(
                                 Button(
                                     onClick = {
                                         if (email.isEmpty()) {
-                                            // 이메일이 비어있을 경우 스낵바 표시
                                             snackbarMessage = "이메일을 입력해주세요"
                                             showSnackbar = true
                                         } else {
@@ -132,7 +132,6 @@ fun ResetPasswordDialog(
                                                 try {
                                                     signViewModel.resetPassword(ResetPasswordForm(email))
                                                 } catch (e: Exception) {
-                                                    // 예외 발생 시 스낵바 표시
                                                     snackbarMessage = "오류가 발생했습니다: ${e.message}"
                                                     showSnackbar = true
                                                 }
@@ -143,29 +142,27 @@ fun ResetPasswordDialog(
                                         .fillMaxWidth()
                                         .height(60.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
+                                        containerColor = colorResource(id = R.color.colorAccent)
                                     ),
                                     shape = RoundedCornerShape(4.dp)
                                 ) {
                                     Text(
-                                        "메일 전송",
+                                        "메일 전송", 
                                         fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.onPrimary
+                                        color = colorResource(id = R.color.textColorPrimary)
                                     )
                                 }
 
-                                // 하단 여백을 XML과 동일하게 맞춤
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
                         ResetPasswordUiState.Success -> {
                             Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                                horizontalAlignment = Alignment.Start,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 20.dp)
                             ) {
-                                // complete_text와 동일한 스타일과 여백 적용
                                 Text(
                                     text = "이메일을 확인하세요",
                                     fontSize = 20.sp,
@@ -182,15 +179,16 @@ fun ResetPasswordDialog(
                                     onClick = onDismissRequest,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(60.dp),
+                                        .height(60.dp)
+                                        .padding(horizontal = 16.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer
                                     ),
                                     shape = RoundedCornerShape(4.dp)
                                 ) {
                                     Text(
                                         "확인",
-                                        color = MaterialTheme.colorScheme.onPrimary
+                                        color = Color.White
                                     )
                                 }
                                 
@@ -240,7 +238,6 @@ fun ResetPasswordDialog(
                 }
             }
             
-            // CustomSnackbar 추가
             CustomSnackbar(
                 message = snackbarMessage,
                 isVisible = showSnackbar,
