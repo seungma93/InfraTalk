@@ -302,7 +302,7 @@ fun ResetPasswordDialogPreview() {
                             .fillMaxWidth()
                             .height(60.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1976D2) // 기본 블루 색상
+                            containerColor = colorResource(id = R.color.colorAccent)
                         ),
                         shape = RoundedCornerShape(4.dp)
                     ) {
