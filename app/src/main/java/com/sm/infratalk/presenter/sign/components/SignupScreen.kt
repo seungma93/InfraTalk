@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.sm.infratalk.R
@@ -155,4 +156,18 @@ fun SignUpScreen(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SignUpScreenPreview() {
+    SignUpScreen(
+        isLoading = false,
+        onSignUpClick = { _, _, _, _ -> },
+        onProfileImageClick = { },
+        profileImageUri = null,
+        showSnackbar = false,
+        snackbarMessage = "",
+        onSnackbarDismissed = { }
+    )
 }
