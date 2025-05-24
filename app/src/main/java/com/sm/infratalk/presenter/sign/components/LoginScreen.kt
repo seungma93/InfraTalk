@@ -161,7 +161,11 @@ private fun LoginContent(
                     ) {
                         Checkbox(
                             checked = rememberEmail,
-                            onCheckedChange = onRememberEmailChange
+                            onCheckedChange = onRememberEmailChange,
+                            colors = androidx.compose.material3.CheckboxDefaults.colors(
+                                checkedColor = colorPrimaryDark,
+                                checkmarkColor = androidx.compose.ui.graphics.Color.White
+                            )
                         )
                         Text("아이디 저장")
                     }
