@@ -33,6 +33,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.sm.infratalk.R
 import com.sm.infratalk.presenter.common.CustomSnackbar
@@ -133,7 +134,9 @@ fun SignUpScreen(
                         onSignUpClick(email, password, passwordCheck, nickname) 
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.colorAccent)
                 )
@@ -144,7 +147,10 @@ fun SignUpScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    Text("회원가입")
+                    Text(
+                        "회원가입",
+                        fontSize = 16.sp
+                    )
                 }
             }
         }
