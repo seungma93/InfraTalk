@@ -30,7 +30,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,19 +56,22 @@ fun SignUpScreen(
     var nickname by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(48.dp))
 
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(Color.LightGray)
+                    .size(200.dp)
                     .clickable { onProfileImageClick() }
             ) {
                 if (profileImageUri != null) {
@@ -78,12 +83,11 @@ fun SignUpScreen(
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.Default.Person,
+                        painter = painterResource(id = R.drawable.ic_baseline_person_24),
                         contentDescription = "Default Profile",
                         modifier = Modifier
-                            .size(50.dp)
-                            .align(Alignment.Center),
-                        tint = Color.White
+                            .size(200.dp)
+                            .align(Alignment.Center)
                     )
                 }
             }
@@ -94,39 +98,55 @@ fun SignUpScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("이메일") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
+            )
+            
+            Text(
+                text = "인증 메일이 전송 됩니다.",
+                modifier = Modifier
+                    .fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
+                    .padding(top = 5.dp),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("비밀번호") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             OutlinedTextField(
                 value = passwordCheck,
                 onValueChange = { passwordCheck = it },
                 label = { Text("비밀번호 확인") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
+            )
+            
+            Text(
+                text = "비밀번호는 6자리 이상 필요합니다.",
+                modifier = Modifier
+                    .fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
+                    .padding(top = 5.dp),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             OutlinedTextField(
                 value = nickname,
                 onValueChange = { nickname = it },
                 label = { Text("닉네임") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Button(
                 onClick = { 
@@ -135,23 +155,16 @@ fun SignUpScreen(
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                    .fillMaxWidth(0.8f) // 수정: 0.6f → 0.8f
+                    .height(60.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.colorAccent)
                 )
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                } else {
-                    Text(
-                        "회원가입",
-                        fontSize = 16.sp
-                    )
-                }
+                Text(
+                    "회원가입",
+                    fontSize = 16.sp
+                )
             }
         }
         
