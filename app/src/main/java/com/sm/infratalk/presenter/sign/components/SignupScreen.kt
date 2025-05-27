@@ -72,13 +72,17 @@ fun SignUpScreen(
             Box(
                 modifier = Modifier
                     .size(200.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
                     .clickable { onProfileImageClick() }
             ) {
                 if (profileImageUri != null) {
                     AsyncImage(
                         model = profileImageUri,
                         contentDescription = "Profile Image",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
                 } else {
