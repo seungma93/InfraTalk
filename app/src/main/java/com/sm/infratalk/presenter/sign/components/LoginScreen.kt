@@ -123,7 +123,12 @@ private fun LoginContent(
                     onValueChange = onEmailChange,
                     label = { Text("이메일") },
                     modifier = Modifier.width(250.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = colorPrimaryDark,
+                        cursorColor = colorPrimaryDark,
+                        focusedLabelColor = colorPrimaryDark
+                    )
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -134,7 +139,12 @@ private fun LoginContent(
                     label = { Text("비밀번호") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.width(250.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = colorPrimaryDark,
+                        cursorColor = colorPrimaryDark,
+                        focusedLabelColor = colorPrimaryDark
+                    )
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
