@@ -100,7 +100,7 @@ fun ResetPasswordDialogUI(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(70.dp),
-                                    shape = RoundedCornerShape(4.dp),
+                                    shape = RoundedCornerShape(10),
                                     colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
                                         focusedBorderColor = colorPrimaryDark,
                                         cursorColor = colorPrimaryDark,
