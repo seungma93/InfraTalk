@@ -100,7 +100,6 @@ fun ResetPasswordDialogUI(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(70.dp),
-                                    shape = RoundedCornerShape(10),
                                     colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
                                         focusedBorderColor = colorPrimaryDark,
                                         cursorColor = colorPrimaryDark,
@@ -119,7 +118,7 @@ fun ResetPasswordDialogUI(
                                         // primaryDark 색상으로 변경
                                         containerColor = colorPrimaryDark
                                     ),
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(10)
                                 ) {
                                     Text(
                                         "메일 전송",
@@ -159,7 +158,7 @@ fun ResetPasswordDialogUI(
                                         // primaryDark 색상으로 변경
                                         containerColor = colorPrimaryDark
                                     ),
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(10)
                                 ) {
                                     Text(
                                         "확인",
@@ -199,7 +198,7 @@ fun ResetPasswordDialogUI(
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color.Red
                                     ),
-                                    shape = RoundedCornerShape(4.dp)
+                                    shape = RoundedCornerShape(10)
                                 ) {
                                     Text(
                                         "확인",
