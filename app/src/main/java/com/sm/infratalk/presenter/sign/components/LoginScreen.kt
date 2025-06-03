@@ -58,6 +58,7 @@ import com.sm.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Color
 
 // UI 컴포넌트 (상태 없음, 순수 UI 표현)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -191,7 +192,7 @@ private fun LoginContent(
                     TextButton(
                         onClick = onSignUpClick,
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = colorPrimaryDark
+                            contentColor = Color.Black
                         )
                     ) {
                         Text(
@@ -205,7 +206,7 @@ private fun LoginContent(
                     TextButton(
                         onClick = onResetPasswordClick,
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = colorPrimaryDark
+                            contentColor = Color.Black
                         )
                     ) {
                         Text(
