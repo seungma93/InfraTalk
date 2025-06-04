@@ -155,7 +155,7 @@ private fun LoginContent(
                     onClick = onLoginClick,
                     modifier = Modifier
                         .width(250.dp)
-                        .height(65.dp),
+                        .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = colorPrimaryDark),
                     shape = RoundedCornerShape(10)
                 ) {
