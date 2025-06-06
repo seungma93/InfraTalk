@@ -220,7 +220,8 @@ private fun LoginContent(
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier
-                        .align(Alignment.Center)
+                        .align(Alignment.Center),
+                    color = colorPrimaryDark
                 )
             }
             
