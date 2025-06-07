@@ -53,11 +53,13 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var passwordCheck by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
+    val colorPrimaryDark = colorResource(id = R.color.colorPrimaryDark)
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
+                color = colorPrimaryDark
             )
         }
         
