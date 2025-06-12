@@ -69,11 +69,12 @@ class MainActivity() : AppCompatActivity(), Navigable {
         setContentView(binding.root)
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
+
+        checkAndRequestPermissions()
         
         when(loginSuccessKey) {
             true -> {
                 navigateFragment(EndPoint.Main)
-                checkAndRequestPermissions()
             }
             false -> navigateFragment(EndPoint.LoginMain)
         }
