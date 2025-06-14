@@ -1,6 +1,7 @@
 package com.sm.infratalk.data.datasource.remote.chat
 
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -28,4 +29,5 @@ interface ChatDataSource {
     suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
     suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
     fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse>
+    fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest):Flow<NotifyChatMessageResponse>
 }

@@ -10,6 +10,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.sm.infratalk.data.datasource.remote.user.UserDataSource
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -32,15 +33,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-data class NotifyChatEvent(
+data class NotifyChatMessageResponse(
     val roomId: String,
     val sender: String,
     val content: String,
@@ -52,8 +50,8 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val userDataSource: UserDataSource
 ) : ChatDataSource {
     private var lastDocument: DocumentSnapshot? = null
-    private val _chatEvent = MutableSharedFlow<NotifyChatEvent>()
-    val chatEvent: SharedFlow<NotifyChatEvent> get() = _chatEvent.asSharedFlow()
+    //private val _chatEvent = MutableSharedFlow<NotifyChatEvent>()
+    //val chatEvent: SharedFlow<NotifyChatEvent> get() = _chatEvent.asSharedFlow()
 
     override suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse {
         return kotlin.runCatching {
@@ -471,6 +469,10 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
 
         }
+    }
+
+    override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<NotifyChatMessageResponse> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse {
