@@ -472,7 +472,69 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     }
 
     override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<NotifyChatMessageResponse> {
-        TODO("Not yet implemented")
+        return callbackFlow {
+            kotlin.runCatching {
+                val snapshotListener = database.collection("ChatRoom")
+                    .whereArrayContains("member", chatMessageNotifyRequest.email) // ← 이메일 포함된 방만
+                    .get()
+                    .addOnSuccessListener { chatRoomSnapshot ->
+                        chatRoomSnapshot.documents.forEach { chatRoomDocument ->
+                            val chatRoomId = chatRoomDocument.id
+
+                            val chatListener = database.collection("ChatRoom")
+                                .document(chatRoomId)
+                                .collection("Chat")
+                                .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
+                                .orderBy("sendTime", Query.Direction.DESCENDING)
+                                .addSnapshotListener { snapshot, error ->
+                                    if (error != null) {
+                                        return@addSnapshotListener
+                                    }
+
+                                    val documents = snapshot?.documentChanges
+                                        ?.filter { it.type == DocumentChange.Type.ADDED }
+                                        ?.map { it.document }
+                                        ?: emptyList()
+
+                                    trySend(documents)
+                                }
+
+                            awaitClose {
+                                chatListener.remove()
+                            }
+                        }
+                    }
+            }.onFailure {
+                it.printStackTrace()
+
+                if (it is CancellationException) {
+                    Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+                } else throw com.sm.infratalk.data.FailSelectException(
+                    "셀렉트에 실패 했습니다",
+                    it
+                )
+
+            }.getOrThrow()
+        }.map { documents ->
+            coroutineScope {
+                documents.map { document ->
+                    val senderEmail = document.getString("senderEmail") ?: ""
+                    val userInfo =
+                        async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = senderEmail)) }
+                    userInfo to document
+                }.map { (userInfo, document) ->
+                    NotifyChatMessageResponse(
+                        sender = userInfo.await(),
+                        content = document.getString("content"),
+                        sendTime = document.getTimestamp("sendTime")?.toDate(),
+                        chatRoomId = document.getString("chatRoomId"),
+                        isLastPage = true
+                    )
+                }.let {
+                    NotifyChatMessageResponse(it)
+                }
+            }
+        }
     }
 
     override suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse {
