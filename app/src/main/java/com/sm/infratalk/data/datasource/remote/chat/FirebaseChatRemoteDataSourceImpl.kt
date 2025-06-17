@@ -29,6 +29,7 @@ import com.sm.infratalk.data.model.response.chat.ChatRoomLeaveResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomListResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomResponse
 import com.sm.infratalk.data.model.response.chat.LastChatMessageResponse
+import com.sm.infratalk.data.model.response.chat.NotifyChatMessageResponse
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
@@ -37,14 +38,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
 
-data class NotifyChatMessageResponse(
-    val roomId: String,
-    val sender: String,
-    val content: String,
-    val sendTimestamp: Timestamp
-)
+
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val database: FirebaseFirestore,
@@ -544,7 +541,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 roomId = document.getString("chatRoomId") ?: "",      // 채팅방 ID
                 sender = document.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
                 content = document.getString("content") ?: "",        // 메시지 내용
-                sendTimestamp = document.getTimestamp("sendTime") ?: Timestamp.now()  // 전송 시간
+                sendTimestamp = document.getTimestamp("sendTime")?.toDate() ?: Timestamp.now().toDate()  // 전송 시간
             )
         }
     }
