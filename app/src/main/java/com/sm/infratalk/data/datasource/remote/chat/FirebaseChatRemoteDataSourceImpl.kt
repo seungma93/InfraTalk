@@ -6,6 +6,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.sm.infratalk.data.datasource.remote.user.UserDataSource
@@ -471,39 +472,61 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+    /**
+     * 사용자가 속한 채팅방의 새로운 메시지를 실시간으로 감지하여 알림을 보내는 함수
+     * @param chatMessageNotifyRequest 알림을 받을 사용자의 이메일이 포함된 요청 객체
+     * @return Flow<NotifyChatMessageResponse> 새로운 메시지가 있을 때마다 알림을 전송하는 Flow
+     */
     override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<NotifyChatMessageResponse> {
         return callbackFlow {
+            // 모든 리스너를 관리하기 위한 리스트
+            val listeners = mutableListOf<ListenerRegistration>()
+            
             kotlin.runCatching {
-                val snapshotListener = database.collection("ChatRoom")
-                    .whereArrayContains("member", chatMessageNotifyRequest.email) // ← 이메일 포함된 방만
-                    .get()
-                    .addOnSuccessListener { chatRoomSnapshot ->
-                        chatRoomSnapshot.documents.forEach { chatRoomDocument ->
-                            val chatRoomId = chatRoomDocument.id
+                // 1. 사용자가 속한 채팅방들의 변경사항을 감지하는 리스너
+                val chatRoomListener = database.collection("ChatRoom")
+                    .whereArrayContains("member", chatMessageNotifyRequest.email)
+                    .addSnapshotListener { chatRoomSnapshot, chatRoomError ->
+                        if (chatRoomError != null) {
+                            return@addSnapshotListener
+                        }
 
+                        // 2. 각 채팅방의 변경사항에 대해 처리
+                        chatRoomSnapshot?.documentChanges?.forEach { chatRoomChange ->
+                            val chatRoomId = chatRoomChange.document.id
+                            
+                            // 3. 각 채팅방의 새로운 메시지를 감지하는 리스너
                             val chatListener = database.collection("ChatRoom")
                                 .document(chatRoomId)
                                 .collection("Chat")
                                 .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
                                 .orderBy("sendTime", Query.Direction.DESCENDING)
-                                .addSnapshotListener { snapshot, error ->
-                                    if (error != null) {
+                                .addSnapshotListener { chatSnapshot, chatError ->
+                                    if (chatError != null) {
                                         return@addSnapshotListener
                                     }
 
-                                    val documents = snapshot?.documentChanges
+                                    // 4. 새로 추가된 메시지만 필터링하여 전송
+                                    chatSnapshot?.documentChanges
                                         ?.filter { it.type == DocumentChange.Type.ADDED }
-                                        ?.map { it.document }
-                                        ?: emptyList()
-
-                                    trySend(documents)
+                                        ?.forEach { chatChange ->
+                                            val document = chatChange.document
+                                            trySend(document)
+                                        }
                                 }
-
-                            awaitClose {
-                                chatListener.remove()
-                            }
+                            
+                            // 5. 채팅 메시지 리스너를 관리 리스트에 추가
+                            listeners.add(chatListener)
                         }
                     }
+                
+                // 6. 채팅방 리스너도 관리 리스트에 추가
+                listeners.add(chatRoomListener)
+
+                // 7. Flow가 종료될 때 모든 리스너 제거
+                awaitClose {
+                    listeners.forEach { it.remove() }
+                }
             }.onFailure {
                 it.printStackTrace()
 
@@ -515,25 +538,14 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 )
 
             }.getOrThrow()
-        }.map { documents ->
-            coroutineScope {
-                documents.map { document ->
-                    val senderEmail = document.getString("senderEmail") ?: ""
-                    val userInfo =
-                        async { userDataSource.selectUserInfo(UserSelectRequest(userEmail = senderEmail)) }
-                    userInfo to document
-                }.map { (userInfo, document) ->
-                    NotifyChatMessageResponse(
-                        sender = userInfo.await(),
-                        content = document.getString("content"),
-                        sendTime = document.getTimestamp("sendTime")?.toDate(),
-                        chatRoomId = document.getString("chatRoomId"),
-                        isLastPage = true
-                    )
-                }.let {
-                    NotifyChatMessageResponse(it)
-                }
-            }
+        }.map { document ->
+            // 8. 문서를 NotifyChatMessageResponse 형태로 변환
+            NotifyChatMessageResponse(
+                roomId = document.getString("chatRoomId") ?: "",      // 채팅방 ID
+                sender = document.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
+                content = document.getString("content") ?: "",        // 메시지 내용
+                sendTimestamp = document.getTimestamp("sendTime") ?: Timestamp.now()  // 전송 시간
+            )
         }
     }
 
