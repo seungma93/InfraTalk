@@ -21,6 +21,7 @@ import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.data.model.response.chat.ChatMessageListResponse
+import com.sm.infratalk.data.model.response.chat.ChatMessageNotifyResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageSendResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCheckResponse
@@ -29,7 +30,6 @@ import com.sm.infratalk.data.model.response.chat.ChatRoomLeaveResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomListResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomResponse
 import com.sm.infratalk.data.model.response.chat.LastChatMessageResponse
-import com.sm.infratalk.data.model.response.chat.NotifyChatMessageResponse
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
@@ -474,7 +474,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
      * @param chatMessageNotifyRequest 알림을 받을 사용자의 이메일이 포함된 요청 객체
      * @return Flow<NotifyChatMessageResponse> 새로운 메시지가 있을 때마다 알림을 전송하는 Flow
      */
-    override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<NotifyChatMessageResponse> {
+    override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<ChatMessageNotifyResponse> {
         return callbackFlow {
             // 모든 리스너를 관리하기 위한 리스트
             val listeners = mutableListOf<ListenerRegistration>()
@@ -537,7 +537,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
             }.getOrThrow()
         }.map { document ->
             // 8. 문서를 NotifyChatMessageResponse 형태로 변환
-            NotifyChatMessageResponse(
+            ChatMessageNotifyResponse(
                 roomId = document.getString("chatRoomId") ?: "",      // 채팅방 ID
                 sender = document.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
                 content = document.getString("content") ?: "",        // 메시지 내용
