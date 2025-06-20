@@ -8,6 +8,7 @@ import com.sm.infratalk.domain.chat.entity.ChatRoomEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomLeaveEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.sm.infratalk.presenter.chat.form.ChatMessageListLoadForm
+import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
 import com.sm.infratalk.presenter.chat.form.ChatMessageSendForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
@@ -28,4 +29,5 @@ interface ChatDataRepository {
     suspend fun loadChatRoom(chatRoomLoadForm: ChatRoomLoadForm): ChatRoomEntity
     suspend fun leaveChatRoom(chatRoomLeaveForm: ChatRoomLeaveForm): ChatRoomLeaveEntity
     fun loadRealTimeChatRoom(realTimeChatRoomLoadForm: RealTimeChatRoomLoadForm): Flow<ChatRoomEntity>
+    fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatMessageNotifyEntity>
 }
