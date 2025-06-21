@@ -29,5 +29,5 @@ interface ChatDataSource {
     suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
     suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
     fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse>
-    fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest):Flow<NotifyChatMessageResponse>
+    fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest):Flow<ChatMessageNotifyResponse>
 }
