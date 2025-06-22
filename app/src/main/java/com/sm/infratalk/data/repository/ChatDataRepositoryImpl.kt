@@ -13,6 +13,7 @@ import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.domain.chat.entity.ChatMessageListEntity
+import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
 import com.sm.infratalk.domain.chat.entity.ChatMessageSendEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCheckEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCreateEntity
@@ -21,6 +22,7 @@ import com.sm.infratalk.domain.chat.entity.ChatRoomLeaveEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.sm.infratalk.domain.chat.repository.ChatDataRepository
 import com.sm.infratalk.presenter.chat.form.ChatMessageListLoadForm
+import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
 import com.sm.infratalk.presenter.chat.form.ChatMessageSendForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
@@ -128,5 +130,9 @@ class ChatDataRepositoryImpl @Inject constructor(
                 chatRoomId = realTimeChatRoomLoadForm.chatRoomId
             )
         ).map { it.toEntity() }
+    }
+
+    override fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatMessageNotifyEntity> {
+        TODO("Not yet implemented")
     }
 }
