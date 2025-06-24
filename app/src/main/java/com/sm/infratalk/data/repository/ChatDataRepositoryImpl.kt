@@ -4,6 +4,7 @@ import com.sm.infratalk.data.datasource.remote.chat.ChatDataSource
 import com.sm.infratalk.data.datasource.remote.user.UserDataSource
 import com.sm.infratalk.data.mapper.toEntity
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -133,6 +134,10 @@ class ChatDataRepositoryImpl @Inject constructor(
     }
 
     override fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatMessageNotifyEntity> {
-        TODO("Not yet implemented")
+        return chatDataSource.notifyChatMessage(
+            ChatMessageNotifyRequest(
+                email = chatMessageNotifyForm.email
+            )
+        ).map { it.toEntity() }
     }
 }
