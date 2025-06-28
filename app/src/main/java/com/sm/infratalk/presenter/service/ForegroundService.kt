@@ -15,10 +15,10 @@ import com.sm.infratalk.presenter.main.activity.MainActivity
 
 class ForegroundService : Service() {
     companion object {
-        private const val CHANNEL_ID = "InfraTalkServiceChannel"
+        private const val CHANNEL_ID = "InfraTalkMessageChannel"
         private const val NOTIFICATION_ID = 1
-        private const val CHANNEL_NAME = "InfraTalk Service"
-        private const val CHANNEL_DESCRIPTION = "InfraTalk foreground service channel"
+        private const val CHANNEL_NAME = "InfraTalk Messages"
+        private const val CHANNEL_DESCRIPTION = "InfraTalk message notification channel"
     }
 
     override fun onCreate() {
@@ -41,9 +41,11 @@ class ForegroundService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = CHANNEL_DESCRIPTION
+                enableVibration(true)
+                enableLights(true)
             }
             
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -61,9 +63,40 @@ class ForegroundService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("InfraTalk")
-            .setContentText("서비스가 실행 중입니다")
+            .setContentText("메시지 알림이 활성화되어 있습니다")
             .setSmallIcon(R.drawable.ic_logo)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(false)
+            .setOngoing(true)
             .build()
+    }
+
+    fun updateNotification(message: String, sender: String) {
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(sender)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.ic_logo)
+            .setContentIntent(createPendingIntent())
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(true)
+            .build()
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun createPendingIntent(): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        return PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
     }
 } 
