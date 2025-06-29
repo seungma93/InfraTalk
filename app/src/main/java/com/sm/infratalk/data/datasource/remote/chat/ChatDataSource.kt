@@ -10,6 +10,7 @@ import com.sm.infratalk.data.model.request.chat.ChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.response.chat.ChatMessageListResponse
+import com.sm.infratalk.data.model.response.chat.ChatMessageNotifyResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageSendResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCheckResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCreateResponse
