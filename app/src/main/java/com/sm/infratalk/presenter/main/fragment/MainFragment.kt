@@ -8,6 +8,8 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.FragmentMainBinding
 import com.sm.infratalk.domain.user.entity.UserEntity
@@ -23,6 +25,8 @@ import com.sm.infratalk.presenter.mypage.fragment.MyCommentFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyLikeBoardFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyLikeCommentFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyPageFragment
+import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewModel
+import javax.inject.Inject
 
 interface ChildFragmentNavigable {
     fun navigateFragment(endPoint: MainChildFragmentEndPoint)
@@ -47,6 +51,11 @@ sealed class MainChildFragmentEndPoint {
 class MainFragment : Fragment(), ChildFragmentNavigable {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var serviceViewModelFactory: ViewModelProvider.Factory
+    private val serviceViewModel: MyPageViewModel by viewModels { serviceViewModelFactory }
+
 
 
     override fun onCreateView(
