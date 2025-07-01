@@ -104,6 +104,7 @@ import com.sm.infratalk.presenter.sign.viewmodel.SplashViewModel
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import com.sm.infratalk.presenter.viewmodel.ViewModelKey
 import com.sm.infratalk.network.RetrofitClient
+import com.sm.infratalk.presenter.service.ServiceViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -1109,6 +1110,17 @@ class Modules {
             return SplashViewModel(
                 getUserMeUseCase
             )
+        }
+    }
+
+    @Module
+    class ServiceViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(ServiceViewModel::class)
+        fun providesServiceViewModel(
+        ): ViewModel {
+            return ServiceViewModel()
         }
     }
 }
