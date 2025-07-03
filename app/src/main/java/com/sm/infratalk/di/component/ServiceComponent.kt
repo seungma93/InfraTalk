@@ -13,4 +13,9 @@ import dagger.Component
 
 interface ServiceComponent {
     fun inject(service: ForegroundService)
+
+    @Component.Factory
+    interface Factory {
+        fun create(): ServiceComponent
+    }
 } 
