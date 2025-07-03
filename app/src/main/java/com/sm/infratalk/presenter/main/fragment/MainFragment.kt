@@ -1,5 +1,6 @@
 package com.sm.infratalk.presenter.main.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.FragmentMainBinding
+import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.fragment.BoardFragment
 import com.sm.infratalk.presenter.board.fragment.BoardWriteFragment
@@ -56,7 +59,10 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
     lateinit var serviceViewModelFactory: ViewModelProvider.Factory
     private val serviceViewModel: MyPageViewModel by viewModels { serviceViewModelFactory }
 
-
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        DaggerServiceComponent.factory().create(context).inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
