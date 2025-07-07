@@ -9,7 +9,8 @@ import dagger.Component
 
 @Component(
     modules = [
-        Modules.ServiceViewModelModule::class
+        Modules.ServiceViewModelModule::class,
+        Modules.ViewModelFactoryModule::class
     ]
 )
 
