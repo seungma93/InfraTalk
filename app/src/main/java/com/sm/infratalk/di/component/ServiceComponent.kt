@@ -9,6 +9,13 @@ import dagger.Component
 
 @Component(
     modules = [
+
+        // DataSource
+        Modules.FirebaseChatDataSourceModule::class,
+        // Repository
+        Modules.ChatDataRepositoryModule::class,
+
+        // ViewModel
         Modules.ServiceViewModelModule::class,
         Modules.ViewModelFactoryModule::class
     ]
