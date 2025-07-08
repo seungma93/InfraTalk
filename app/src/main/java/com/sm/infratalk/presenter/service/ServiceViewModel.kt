@@ -4,14 +4,31 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
+import com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
+import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ServiceViewModel : ViewModel() {
+class ServiceViewModel @Inject constructor(
+    private val notifyChatMessageUseCase: NotifyChatMessageUseCase
+) : ViewModel() {
     private val _isServiceRunning = MutableStateFlow(false)
     val isServiceRunning: StateFlow<Boolean> = _isServiceRunning.asStateFlow()
+
+    private val _chatNotification = MutableStateFlow<ChatMessageNotifyEntity?>(null)
+    val chatNotification: StateFlow<ChatMessageNotifyEntity?> = _chatNotification.asStateFlow()
+
+    fun observeChatNotification(email: String) {
+        viewModelScope.launch {
+            notifyChatMessageUseCase(ChatMessageNotifyForm(email)).collect { entity ->
+                _chatNotification.value = entity
+            }
+        }
+    }
 
     fun startService(context: Context) {
         viewModelScope.launch {

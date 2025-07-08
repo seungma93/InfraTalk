@@ -1119,8 +1119,9 @@ class Modules {
         @IntoMap
         @ViewModelKey(ServiceViewModel::class)
         fun providesServiceViewModel(
+            notifyChatMessageUseCase: com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
         ): ViewModel {
-            return ServiceViewModel()
+            return ServiceViewModel(notifyChatMessageUseCase)
         }
     }
 }

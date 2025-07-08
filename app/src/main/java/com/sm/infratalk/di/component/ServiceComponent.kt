@@ -9,9 +9,19 @@ import dagger.Component
 
 @Component(
     modules = [
+        // Firebase
+        Modules.FirebaseAuthModule::class,
+        Modules.FirebaseFirestoreModule::class,
+        Modules.FirebaseStorageModule::class,
+
+        // Preference & Network
+        Modules.PreferenceModule::class,
+        Modules.RetrofitClientModule::class,
 
         // DataSource
+        Modules.FirebaseUserDataSourceModule::class,
         Modules.FirebaseChatDataSourceModule::class,
+        
         // Repository
         Modules.ChatDataRepositoryModule::class,
 
@@ -24,6 +34,7 @@ import dagger.Component
 
 interface ServiceComponent {
     fun inject(fragment: MainFragment)
+    fun inject(service: ForegroundService)
 
     @Component.Factory
     interface Factory {
