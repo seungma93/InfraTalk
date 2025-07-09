@@ -2,6 +2,7 @@ package com.sm.infratalk.presenter.service
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
@@ -31,6 +32,7 @@ class ServiceViewModel @Inject constructor(
     }
 
     fun startService(context: Context) {
+        Log.d("seungma", "서비스 시작 뷰모델")
         viewModelScope.launch {
             val serviceIntent = Intent(context, ForegroundService::class.java)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

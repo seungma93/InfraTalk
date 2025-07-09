@@ -10,16 +10,21 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.ActivityMainBinding
+import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.sm.infratalk.presenter.board.fragment.BoardContentFragment
 import com.sm.infratalk.presenter.chat.fragment.ChatFragment
 import com.sm.infratalk.presenter.main.fragment.MainFragment
+import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewModel
 import com.sm.infratalk.presenter.service.ServiceViewModel
 import com.sm.infratalk.presenter.sign.fragment.LoginMainFragment
 import com.sm.infratalk.presenter.sign.fragment.SignUpFragment
+import javax.inject.Inject
 
 sealed class EndPoint {
     object LoginMain : EndPoint()
@@ -40,7 +45,9 @@ class MainActivity() : AppCompatActivity(), Navigable {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
     private var loginSuccessKey: Boolean = false
-    private val serviceViewModel: ServiceViewModel by viewModels()
+    @Inject
+    lateinit var serviceViewModelFactory: ViewModelProvider.Factory
+    private var serviceViewModel: ServiceViewModel? = null
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
@@ -70,22 +77,31 @@ class MainActivity() : AppCompatActivity(), Navigable {
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
 
-        checkAndRequestPermissions()
+        // Dagger 초기화
+        DaggerServiceComponent.factory().create(this).inject(this)
         
-        when(loginSuccessKey) {
+        // serviceViewModel 초기화
+        serviceViewModel = ViewModelProvider(this, serviceViewModelFactory)[ServiceViewModel::class.java]
+
+        checkAndRequestPermissions()
+
+        when (loginSuccessKey) {
             true -> {
                 navigateFragment(EndPoint.Main)
             }
+
             false -> navigateFragment(EndPoint.LoginMain)
         }
     }
 
     private fun checkAndRequestPermissions() {
+        Log.d("seungma", "checkAndRequestPermissions")
         val permissionsToRequest = requiredPermissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }.toTypedArray()
 
-        if (permissionsToRequest.isEmpty()) {
+        if (permissionsToRequest.isEmpty() || permissionsToRequest.first() == "android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING") {
+            Log.d("seungma", "checkAndRequestPermissions True")
             startServiceIfNeeded()
         } else {
             permissionLauncher.launch(permissionsToRequest)
@@ -93,15 +109,16 @@ class MainActivity() : AppCompatActivity(), Navigable {
     }
 
     private fun startServiceIfNeeded() {
+        Log.d("seungma", "startServiceIfNeeded")
         if (loginSuccessKey) {
-            serviceViewModel.startService(this)
+            serviceViewModel?.startService(this)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         if (loginSuccessKey) {
-            serviceViewModel.stopService(this)
+            serviceViewModel?.stopService(this)
         }
         _binding = null
     }

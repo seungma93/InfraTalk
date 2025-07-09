@@ -55,13 +55,9 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var serviceViewModelFactory: ViewModelProvider.Factory
-    private val serviceViewModel: MyPageViewModel by viewModels { serviceViewModelFactory }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        DaggerServiceComponent.factory().create(context).inject(this)
     }
 
     override fun onCreateView(

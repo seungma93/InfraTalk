@@ -88,6 +88,7 @@ import com.sm.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
 import com.sm.infratalk.domain.user.usecase.GetSavedEmailUseCase
 import com.sm.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.sm.infratalk.domain.user.usecase.SetSavedEmailUseCase
+import com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.sm.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -1114,12 +1115,22 @@ class Modules {
     }
 
     @Module
+    class NotifyChatMessageUseCaseModule {
+        @Provides
+        fun providesNotifyChatMessageUseCase(
+            chatDataRepository: ChatDataRepository
+        ): NotifyChatMessageUseCase {
+            return NotifyChatMessageUseCase(chatDataRepository)
+        }
+    }
+
+    @Module
     class ServiceViewModelModule {
         @Provides
         @IntoMap
         @ViewModelKey(ServiceViewModel::class)
         fun providesServiceViewModel(
-            notifyChatMessageUseCase: com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
+            notifyChatMessageUseCase: NotifyChatMessageUseCase
         ): ViewModel {
             return ServiceViewModel(notifyChatMessageUseCase)
         }

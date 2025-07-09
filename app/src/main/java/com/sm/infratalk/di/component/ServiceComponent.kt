@@ -2,6 +2,7 @@ package com.sm.infratalk.di.component
 
 import android.content.Context
 import com.sm.infratalk.di.module.Modules
+import com.sm.infratalk.presenter.main.activity.MainActivity
 import com.sm.infratalk.presenter.main.fragment.MainFragment
 import com.sm.infratalk.presenter.service.ForegroundService
 import dagger.BindsInstance
@@ -33,7 +34,7 @@ import dagger.Component
 
 
 interface ServiceComponent {
-    fun inject(fragment: MainFragment)
+    fun inject(activity: MainActivity)
     fun inject(service: ForegroundService)
 
     @Component.Factory
