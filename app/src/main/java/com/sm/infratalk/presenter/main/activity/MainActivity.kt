@@ -6,21 +6,17 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.ActivityMainBinding
-import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.sm.infratalk.presenter.board.fragment.BoardContentFragment
 import com.sm.infratalk.presenter.chat.fragment.ChatFragment
 import com.sm.infratalk.presenter.main.fragment.MainFragment
-import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewModel
 import com.sm.infratalk.presenter.service.ServiceViewModel
 import com.sm.infratalk.presenter.sign.fragment.LoginMainFragment
 import com.sm.infratalk.presenter.sign.fragment.SignUpFragment
@@ -77,8 +73,6 @@ class MainActivity() : AppCompatActivity(), Navigable {
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
 
-        // Dagger 초기화
-        DaggerServiceComponent.factory().create(this).inject(this)
         
         // serviceViewModel 초기화
         serviceViewModel = ViewModelProvider(this, serviceViewModelFactory)[ServiceViewModel::class.java]
