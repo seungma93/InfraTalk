@@ -11,12 +11,14 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.sm.infratalk.R
 import com.sm.infratalk.di.module.Modules
 import com.sm.infratalk.presenter.main.activity.MainActivity
+import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
-class ForegroundService : Service() {
+class ForegroundService : Service(), ViewModelStoreOwner {
     companion object {
         private const val CHANNEL_ID = "InfraTalkMessageChannel"
         private const val NOTIFICATION_ID = 1
@@ -24,11 +26,19 @@ class ForegroundService : Service() {
         private const val CHANNEL_DESCRIPTION = "InfraTalk message notification channel"
     }
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    
+    private lateinit var serviceViewModel: ServiceViewModel
+
 
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+
+        // ViewModel 초기화
+        serviceViewModel = ViewModelProvider(this, viewModelFactory)[ServiceViewModel::class.java]
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -40,6 +50,11 @@ class ForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
+
+    override val viewModelStore: androidx.lifecycle.ViewModelStore
+        get() = androidx.lifecycle.ViewModelStore()
+
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -104,4 +119,6 @@ class ForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
     }
+
+
 } 
