@@ -73,9 +73,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
 
-        
-        // serviceViewModel 초기화
-        serviceViewModel = ViewModelProvider(this, serviceViewModelFactory)[ServiceViewModel::class.java]
+
 
         checkAndRequestPermissions()
 
