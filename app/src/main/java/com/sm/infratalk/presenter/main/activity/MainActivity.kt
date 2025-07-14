@@ -1,6 +1,8 @@
 package com.sm.infratalk.presenter.main.activity
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.ActivityMainBinding
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -17,9 +20,11 @@ import com.sm.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.sm.infratalk.presenter.board.fragment.BoardContentFragment
 import com.sm.infratalk.presenter.chat.fragment.ChatFragment
 import com.sm.infratalk.presenter.main.fragment.MainFragment
+import com.sm.infratalk.presenter.service.ForegroundService
 import com.sm.infratalk.presenter.service.ServiceViewModel
 import com.sm.infratalk.presenter.sign.fragment.LoginMainFragment
 import com.sm.infratalk.presenter.sign.fragment.SignUpFragment
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class EndPoint {
@@ -41,9 +46,6 @@ class MainActivity() : AppCompatActivity(), Navigable {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
     private var loginSuccessKey: Boolean = false
-    @Inject
-    lateinit var serviceViewModelFactory: ViewModelProvider.Factory
-    private var serviceViewModel: ServiceViewModel? = null
 
     private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
@@ -62,7 +64,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (allGranted) {
-            startServiceIfNeeded()
+            startService(this)
         }
     }
 
@@ -94,24 +96,14 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
         if (permissionsToRequest.isEmpty() || permissionsToRequest.first() == "android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING") {
             Log.d("seungma", "checkAndRequestPermissions True")
-            startServiceIfNeeded()
+            startService(this)
         } else {
             permissionLauncher.launch(permissionsToRequest)
         }
     }
 
-    private fun startServiceIfNeeded() {
-        Log.d("seungma", "startServiceIfNeeded")
-        if (loginSuccessKey) {
-            serviceViewModel?.startService(this)
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        if (loginSuccessKey) {
-            serviceViewModel?.stopService(this)
-        }
         _binding = null
     }
 
@@ -163,6 +155,23 @@ class MainActivity() : AppCompatActivity(), Navigable {
             is EndPoint.Error -> {
             }
         }
+    }
+
+    fun startService(context: Context) {
+        Log.d("seungma", "서비스 시작 뷰모델")
+            val serviceIntent = Intent(context, ForegroundService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
+
+    }
+
+    fun stopService(context: Context) {
+            val serviceIntent = Intent(context, ForegroundService::class.java)
+            context.stopService(serviceIntent)
+
     }
 
 }

@@ -30,25 +30,4 @@ class ServiceViewModel @Inject constructor(
             }
         }
     }
-
-    fun startService(context: Context) {
-        Log.d("seungma", "서비스 시작 뷰모델")
-        viewModelScope.launch {
-            val serviceIntent = Intent(context, ForegroundService::class.java)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
-            } else {
-                context.startService(serviceIntent)
-            }
-            _isServiceRunning.value = true
-        }
-    }
-
-    fun stopService(context: Context) {
-        viewModelScope.launch {
-            val serviceIntent = Intent(context, ForegroundService::class.java)
-            context.stopService(serviceIntent)
-            _isServiceRunning.value = false
-        }
-    }
 } 
