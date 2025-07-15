@@ -44,6 +44,9 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
+        serviceViewModel.observeChatNotification(
+            email = ""
+        )
         return START_STICKY
     }
 
