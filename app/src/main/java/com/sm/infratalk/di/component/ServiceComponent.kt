@@ -23,6 +23,7 @@ import dagger.Component
         
         // Repository
         Modules.ChatDataRepositoryModule::class,
+        Modules.UserDataRepositoryModule::class,
 
         // ViewModel
         Modules.ServiceViewModelModule::class,

@@ -26,7 +26,7 @@ class ServiceViewModel @Inject constructor(
     private val _chatNotification = MutableStateFlow<ChatMessageNotifyEntity?>(null)
     val chatNotification: StateFlow<ChatMessageNotifyEntity?> = _chatNotification.asStateFlow()
 
-    private fun observeChatNotification() {
+    fun observeChatNotification() {
         viewModelScope.launch {
             val userEntity = getUserMeUseCase()
             notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { entity ->

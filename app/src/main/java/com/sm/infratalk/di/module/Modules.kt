@@ -1130,9 +1130,10 @@ class Modules {
         @IntoMap
         @ViewModelKey(ServiceViewModel::class)
         fun providesServiceViewModel(
-            notifyChatMessageUseCase: NotifyChatMessageUseCase
+            notifyChatMessageUseCase: NotifyChatMessageUseCase,
+            getUserMeUseCase: GetUserMeUseCase
         ): ViewModel {
-            return ServiceViewModel(notifyChatMessageUseCase)
+            return ServiceViewModel(notifyChatMessageUseCase, getUserMeUseCase)
         }
     }
 }

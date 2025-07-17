@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -16,6 +17,10 @@ import com.sm.infratalk.R
 import com.sm.infratalk.di.module.Modules
 import com.sm.infratalk.presenter.main.activity.MainActivity
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ForegroundService : Service(), ViewModelStoreOwner {
@@ -33,6 +38,8 @@ class ForegroundService : Service(), ViewModelStoreOwner {
 
 
 
+
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -44,9 +51,9 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
-        serviceViewModel.observeChatNotification(
-            email = ""
-        )
+
+        serviceViewModel.observeChatNotification()
+
         return START_STICKY
     }
 
@@ -54,9 +61,10 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         return null
     }
 
+
+
     override val viewModelStore: androidx.lifecycle.ViewModelStore
         get() = androidx.lifecycle.ViewModelStore()
-
 
 
     private fun createNotificationChannel() {
@@ -121,6 +129,14 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    private fun subscribe() {
+        CoroutineScope(Dispatchers.IO + Job()).launch {
+            serviceViewModel.chatNotification.collect { chatMessage ->
+                Log.d("seungma", "채팅 들어옴 " + chatMessage)
+            }
+        }
     }
 
 
