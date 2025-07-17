@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.sm.infratalk.R
+import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.di.module.Modules
 import com.sm.infratalk.presenter.main.activity.MainActivity
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
@@ -42,6 +43,9 @@ class ForegroundService : Service(), ViewModelStoreOwner {
 
     override fun onCreate() {
         super.onCreate()
+        DaggerServiceComponent.factory().create(this).inject(this)
+
+
         createNotificationChannel()
 
         // ViewModel 초기화
@@ -53,6 +57,8 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         startForeground(NOTIFICATION_ID, notification)
 
         serviceViewModel.observeChatNotification()
+
+        subscribe()
 
         return START_STICKY
     }

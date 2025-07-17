@@ -64,7 +64,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (allGranted) {
-            startService(this)
+            //startService(this)
         }
     }
 
@@ -81,6 +81,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
         when (loginSuccessKey) {
             true -> {
+                startService(this)
                 navigateFragment(EndPoint.Main)
             }
 
@@ -96,7 +97,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
         if (permissionsToRequest.isEmpty() || permissionsToRequest.first() == "android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING") {
             Log.d("seungma", "checkAndRequestPermissions True")
-            startService(this)
+            //startService(this)
         } else {
             permissionLauncher.launch(permissionsToRequest)
         }
