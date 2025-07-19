@@ -138,9 +138,11 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     }
 
     private fun subscribe() {
+        Log.d("seungma", "subscribe 시작")
         CoroutineScope(Dispatchers.IO + Job()).launch {
+            Log.d("seungma", "subscribe collect 시작")
             serviceViewModel.chatNotification.collect { chatMessage ->
-                Log.d("seungma", "채팅 들어옴 " + chatMessage)
+                Log.d("seungma", "채팅 들어옴: $chatMessage")
             }
         }
     }
