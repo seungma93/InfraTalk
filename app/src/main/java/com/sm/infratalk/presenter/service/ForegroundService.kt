@@ -143,6 +143,11 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             Log.d("seungma", "subscribe collect 시작")
             serviceViewModel.chatNotification.collect { chatMessage ->
                 Log.d("seungma", "채팅 들어옴: $chatMessage")
+                
+                // 채팅 메시지가 null이 아닐 때만 노티 보내기
+                chatMessage?.let { message ->
+                    updateNotification(message.content, message.sender)
+                }
             }
         }
     }
