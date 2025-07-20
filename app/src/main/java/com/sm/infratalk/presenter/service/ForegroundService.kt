@@ -111,18 +111,45 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     }
 
     fun updateNotification(message: String, sender: String) {
+        val groupKey = "message_notification_group"
+        val notificationId = System.currentTimeMillis().toInt()
+        
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra("open_chat", true)
+            putExtra("chat_id", sender)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        // 개별 알림 생성
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_logo)
             .setContentTitle(sender)
             .setContentText(message)
-            .setSmallIcon(R.drawable.ic_logo)
-            .setContentIntent(createPendingIntent())
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setContentIntent(pendingIntent)
+            .setGroup(groupKey)
             .setAutoCancel(true)
+            .build()
+        
+        // 그룹 요약 알림 생성
+        val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_logo)
+            .setContentTitle("")
+            .setContentText("")
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setDefaults(0)
+            .setSilent(true)
+            .setGroup(groupKey)
+            .setGroupSummary(true)
             .build()
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(notificationId, notification)  // 개별 알림
+        notificationManager.notify(0, summaryNotification)       // 그룹 요약 알림
     }
 
     private fun createPendingIntent(): PendingIntent {
