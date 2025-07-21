@@ -118,6 +118,7 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             putExtra("open_chat", true)
             putExtra("chat_id", sender)
+            putExtra("navigate_to", "chat_room")  // 채팅방으로 이동하라는 플래그
         }
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
