@@ -75,7 +75,8 @@ class MainActivity() : AppCompatActivity(), Navigable {
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
 
-
+        // 노티 클릭으로 들어온 경우 처리
+        handleNotificationIntent()
 
         checkAndRequestPermissions()
 
@@ -100,6 +101,21 @@ class MainActivity() : AppCompatActivity(), Navigable {
             //startService(this)
         } else {
             permissionLauncher.launch(permissionsToRequest)
+        }
+    }
+
+    private fun handleNotificationIntent() {
+        val openChat = intent.getBooleanExtra("open_chat", false)
+        val navigateTo = intent.getStringExtra("navigate_to")
+        val chatId = intent.getStringExtra("chat_id")
+        
+        if (openChat && navigateTo == "chat_room" && chatId != null) {
+            Log.d("MainActivity", "노티 클릭으로 채팅방 이동: $chatId")
+            // 채팅방으로 이동하는 로직
+            // ChatPrimaryKeyEntity 생성 후 ChatFragment로 이동
+            //TODO Key에 들어갈 partnerEmail 작업 필요
+            //val chatPrimaryKey = ChatPrimaryKeyEntity(chatId)
+            //navigateFragment(EndPoint.Chat(chatPrimaryKey))
         }
     }
 
