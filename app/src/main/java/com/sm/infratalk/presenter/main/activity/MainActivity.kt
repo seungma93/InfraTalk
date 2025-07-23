@@ -107,15 +107,17 @@ class MainActivity() : AppCompatActivity(), Navigable {
     private fun handleNotificationIntent() {
         val openChat = intent.getBooleanExtra("open_chat", false)
         val navigateTo = intent.getStringExtra("navigate_to")
-        val chatId = intent.getStringExtra("chat_id")
-        
-        if (openChat && navigateTo == "chat_room" && chatId != null) {
-            Log.d("MainActivity", "노티 클릭으로 채팅방 이동: $chatId")
+        val roomId = intent.getStringExtra("room_id")
+        val senderId = intent.getStringExtra("sender_id")
+
+
+        if(roomId != null && senderId != null){
+            Log.d("MainActivity", "노티 클릭으로 채팅방 이동: $roomId")
             // 채팅방으로 이동하는 로직
             // ChatPrimaryKeyEntity 생성 후 ChatFragment로 이동
             //TODO Key에 들어갈 partnerEmail 작업 필요
-            //val chatPrimaryKey = ChatPrimaryKeyEntity(chatId)
-            //navigateFragment(EndPoint.Chat(chatPrimaryKey))
+            val chatPrimaryKey = ChatPrimaryKeyEntity(roomId, senderId)
+            navigateFragment(EndPoint.Chat(chatPrimaryKey))
         }
     }
 

@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.sm.infratalk.R
 import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.di.module.Modules
+import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
 import com.sm.infratalk.presenter.main.activity.MainActivity
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -110,15 +111,14 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             .build()
     }
 
-    fun updateNotification(message: String, sender: String) {
+    fun updateNotification(chatMessageNotifyEntity: ChatMessageNotifyEntity) {
         val groupKey = "message_notification_group"
         val notificationId = System.currentTimeMillis().toInt()
         
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra("open_chat", true)
-            putExtra("chat_id", sender)
-            putExtra("navigate_to", "chat_room")  // 채팅방으로 이동하라는 플래그
+            putExtra("room_id", chatMessageNotifyEntity.roomId)
+            putExtra("sender_id", chatMessageNotifyEntity.sender)
         }
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -127,8 +127,8 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         // 개별 알림 생성
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_logo)
-            .setContentTitle(sender)
-            .setContentText(message)
+            .setContentTitle(chatMessageNotifyEntity.sender)
+            .setContentText(chatMessageNotifyEntity.content)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setContentIntent(pendingIntent)
@@ -174,7 +174,7 @@ class ForegroundService : Service(), ViewModelStoreOwner {
                 
                 // 채팅 메시지가 null이 아닐 때만 노티 보내기
                 chatMessage?.let { message ->
-                    updateNotification(message.content, message.sender)
+                    updateNotification(message)
                 }
             }
         }
