@@ -32,20 +32,16 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         private const val CHANNEL_NAME = "InfraTalk Messages"
         private const val CHANNEL_DESCRIPTION = "InfraTalk message notification channel"
     }
-
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    
     private lateinit var serviceViewModel: ServiceViewModel
 
-
-
-
+    override val viewModelStore: androidx.lifecycle.ViewModelStore
+        get() = androidx.lifecycle.ViewModelStore()
 
     override fun onCreate() {
         super.onCreate()
         DaggerServiceComponent.factory().create(this).inject(this)
-
 
         createNotificationChannel()
 
@@ -69,11 +65,6 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     }
 
 
-
-    override val viewModelStore: androidx.lifecycle.ViewModelStore
-        get() = androidx.lifecycle.ViewModelStore()
-
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -82,8 +73,6 @@ class ForegroundService : Service(), ViewModelStoreOwner {
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = CHANNEL_DESCRIPTION
-                enableVibration(true)
-                enableLights(true)
             }
             
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -153,17 +142,6 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         notificationManager.notify(0, summaryNotification)       // 그룹 요약 알림
     }
 
-    private fun createPendingIntent(): PendingIntent {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        return PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-    }
 
     private fun subscribe() {
         Log.d("seungma", "subscribe 시작")
