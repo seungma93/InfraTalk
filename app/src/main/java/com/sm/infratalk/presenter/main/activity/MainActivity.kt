@@ -105,8 +105,6 @@ class MainActivity() : AppCompatActivity(), Navigable {
     }
 
     private fun handleNotificationIntent() {
-        val openChat = intent.getBooleanExtra("open_chat", false)
-        val navigateTo = intent.getStringExtra("navigate_to")
         val roomId = intent.getStringExtra("room_id")
         val senderId = intent.getStringExtra("sender_id")
 
@@ -123,7 +121,18 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
     override fun onDestroy() {
         super.onDestroy()
+        // 모든 서비스 종료
+        stopAllServices()
         _binding = null
+    }
+
+    private fun stopAllServices() {
+        Log.d("MainActivity", "모든 서비스 종료")
+        // ForegroundService 종료
+        stopService(this)
+        
+        // 다른 서비스들도 있다면 여기에 추가
+        // stopService(Intent(this, OtherService::class.java))
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
