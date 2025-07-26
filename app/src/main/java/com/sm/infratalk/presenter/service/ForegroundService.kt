@@ -105,7 +105,7 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         val notificationId = System.currentTimeMillis().toInt()
         
         val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra("room_id", chatMessageNotifyEntity.roomId)
             putExtra("sender_id", chatMessageNotifyEntity.sender)
         }
