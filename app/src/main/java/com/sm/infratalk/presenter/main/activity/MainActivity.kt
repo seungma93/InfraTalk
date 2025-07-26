@@ -68,15 +68,18 @@ class MainActivity() : AppCompatActivity(), Navigable {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // 노티 클릭으로 들어온 경우 처리
+        handleNotificationIntent()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
-
-        // 노티 클릭으로 들어온 경우 처리
-        handleNotificationIntent()
 
         checkAndRequestPermissions()
 
