@@ -101,6 +101,8 @@ class ForegroundService : Service(), ViewModelStoreOwner {
     }
 
     fun updateNotification(chatMessageNotifyEntity: ChatMessageNotifyEntity) {
+        Log.d("ForegroundService", "updateNotification 호출: ${chatMessageNotifyEntity.content}")
+        
         val groupKey = "message_notification_group"
         val notificationId = System.currentTimeMillis().toInt()
         
@@ -109,6 +111,8 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             putExtra("room_id", chatMessageNotifyEntity.roomId)
             putExtra("sender_id", chatMessageNotifyEntity.sender)
         }
+        
+        Log.d("ForegroundService", "노티 Intent 생성: room_id=${chatMessageNotifyEntity.roomId}, sender_id=${chatMessageNotifyEntity.sender}")
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

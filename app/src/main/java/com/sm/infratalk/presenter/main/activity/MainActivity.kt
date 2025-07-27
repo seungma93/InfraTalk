@@ -68,28 +68,34 @@ class MainActivity() : AppCompatActivity(), Navigable {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        // 노티 클릭으로 들어온 경우 처리
-        handleNotificationIntent()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
-        Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
+        Log.d("MainActivity", "onCreate - 로그인 성공키: $loginSuccessKey")
+        Log.d("MainActivity", "onCreate - Intent extras: ${intent.extras}")
+
 
         checkAndRequestPermissions()
 
         when (loginSuccessKey) {
             true -> {
+                Log.d("MainActivity", "onCreate - 로그인 성공: 서비스 시작 및 Main으로 이동")
                 startService(this)
                 navigateFragment(EndPoint.Main)
             }
+            false -> {
+                Log.d("MainActivity", "onCreate - 로그인 실패: LoginMain으로 이동")
+                val roomId = intent?.getStringExtra("room_id")
+                roomId?.let {
+                    handleNotificationIntent()
+                } ?: run {
+                    navigateFragment(EndPoint.LoginMain)
+                }
 
-            false -> navigateFragment(EndPoint.LoginMain)
+            }
         }
     }
 
@@ -110,10 +116,11 @@ class MainActivity() : AppCompatActivity(), Navigable {
     private fun handleNotificationIntent() {
         val roomId = intent.getStringExtra("room_id")
         val senderId = intent.getStringExtra("sender_id")
-
+        
+        Log.d("MainActivity", "handleNotificationIntent - roomId: $roomId, senderId: $senderId")
 
         if(roomId != null && senderId != null){
-            Log.d("MainActivity", "노티 클릭으로 채팅방 이동: $roomId")
+            Log.d("MainActivity", "handleNotificationIntent: 노티 클릭으로 채팅방 이동: $roomId")
             // 채팅방으로 이동하는 로직
             // ChatPrimaryKeyEntity 생성 후 ChatFragment로 이동
             //TODO Key에 들어갈 partnerEmail 작업 필요
@@ -136,6 +143,24 @@ class MainActivity() : AppCompatActivity(), Navigable {
         
         // 다른 서비스들도 있다면 여기에 추가
         // stopService(Intent(this, OtherService::class.java))
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.d("MainActivity", "onNewIntent 호출됨")
+        Log.d("MainActivity", "onNewIntent - Intent extras: ${intent?.extras}")
+        
+        // 노티 클릭으로 들어온 경우 처리
+        val roomId = intent?.getStringExtra("room_id")
+        val senderId = intent?.getStringExtra("sender_id")
+        
+        Log.d("MainActivity", "onNewIntent - roomId: $roomId, senderId: $senderId")
+        
+        if(roomId != null && senderId != null){
+            Log.d("MainActivity", "onNewIntent: 노티 클릭으로 채팅방 이동: $roomId")
+            val chatPrimaryKey = ChatPrimaryKeyEntity(roomId, senderId)
+            navigateFragment(EndPoint.Chat(chatPrimaryKey))
+        }
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
