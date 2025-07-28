@@ -147,20 +147,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.d("MainActivity", "onNewIntent 호출됨")
-        Log.d("MainActivity", "onNewIntent - Intent extras: ${intent?.extras}")
-        
-        // 노티 클릭으로 들어온 경우 처리
-        val roomId = intent?.getStringExtra("room_id")
-        val senderId = intent?.getStringExtra("sender_id")
-        
-        Log.d("MainActivity", "onNewIntent - roomId: $roomId, senderId: $senderId")
-        
-        if(roomId != null && senderId != null){
-            Log.d("MainActivity", "onNewIntent: 노티 클릭으로 채팅방 이동: $roomId")
-            val chatPrimaryKey = ChatPrimaryKeyEntity(roomId, senderId)
-            navigateFragment(EndPoint.Chat(chatPrimaryKey))
-        }
+        handleNotificationIntent()
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
