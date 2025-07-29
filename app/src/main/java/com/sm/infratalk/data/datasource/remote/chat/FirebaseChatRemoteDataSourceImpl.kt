@@ -478,7 +478,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         return callbackFlow {
             // 모든 리스너를 관리하기 위한 리스트
             val listeners = mutableListOf<ListenerRegistration>()
-            
+
             kotlin.runCatching {
                 // 1. 사용자가 속한 채팅방들의 변경사항을 감지하는 리스너
                 val chatRoomListener = database.collection("ChatRoom")
@@ -491,7 +491,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                         // 2. 각 채팅방의 변경사항에 대해 처리
                         chatRoomSnapshot?.documentChanges?.forEach { chatRoomChange ->
                             val chatRoomId = chatRoomChange.document.id
-                            
+
                             // 3. 각 채팅방의 새로운 메시지를 감지하는 리스너
                             val chatListener = database.collection("ChatRoom")
                                 .document(chatRoomId)
@@ -507,16 +507,21 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                                     chatSnapshot?.documentChanges
                                         ?.filter { it.type == DocumentChange.Type.ADDED }
                                         ?.forEach { chatChange ->
-                                            val document = chatChange.document
-                                            trySend(document)
+
+                                            trySend(
+                                                NotifyChatDocumentSnapshot(
+                                                    chat = chatChange.document,
+                                                    chatRoom = chatRoomChange.document
+                                                )
+                                            )
                                         }
                                 }
-                            
+
                             // 5. 채팅 메시지 리스너를 관리 리스트에 추가
                             listeners.add(chatListener)
                         }
                     }
-                
+
                 // 6. 채팅방 리스너도 관리 리스트에 추가
                 listeners.add(chatRoomListener)
 
@@ -536,12 +541,23 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
             }.getOrThrow()
         }.map { document ->
+
+            val chatRoomDocument = document.chatRoom
+            val chatDocument = document.chat
+
+            val memberList = chatRoomDocument.get("member") as? List<*>
+
+            val sender = memberList?.find {
+                it != userDataSource.getUserMe().email
+            }
+
             // 8. 문서를 NotifyChatMessageResponse 형태로 변환
             ChatMessageNotifyResponse(
-                roomId = document.getString("chatRoomId") ?: "",      // 채팅방 ID
-                sender = document.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
-                content = document.getString("content") ?: "",        // 메시지 내용
-                sendTimestamp = document.getTimestamp("sendTime")?.toDate() ?: Timestamp.now().toDate()  // 전송 시간
+                roomId = chatRoomDocument.getString("roomName") ?: "",      // 채팅방 ID
+                sender = sender as? String ?: "",     // 메시지 발신자 이메일
+                content = chatDocument.getString("content") ?: "",        // 메시지 내용
+                sendTimestamp = chatDocument.getTimestamp("sendTime")?.toDate() ?: Timestamp.now()
+                    .toDate()  // 전송 시간
             )
         }
     }
@@ -591,3 +607,9 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
 
 }
+
+
+data class NotifyChatDocumentSnapshot(
+    val chat: DocumentSnapshot,      // chat 메시지 문서
+    val chatRoom: DocumentSnapshot   // chatRoom 문서
+)
