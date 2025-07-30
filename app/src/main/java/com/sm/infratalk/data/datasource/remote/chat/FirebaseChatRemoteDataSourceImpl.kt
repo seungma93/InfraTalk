@@ -37,6 +37,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import javax.inject.Inject
@@ -540,21 +541,19 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
                 )
 
             }.getOrThrow()
-        }.map { document ->
+        }.mapNotNull { document ->
 
             val chatRoomDocument = document.chatRoom
             val chatDocument = document.chat
 
-            val memberList = chatRoomDocument.get("member") as? List<*>
+            val sender = chatDocument.getString("senderEmail") ?: ""
 
-            val sender = memberList?.find {
-                it != userDataSource.getUserMe().email
-            }
+            if( sender == userDataSource.getUserMe().email ) return@mapNotNull null
 
             // 8. 문서를 NotifyChatMessageResponse 형태로 변환
             ChatMessageNotifyResponse(
                 roomId = chatRoomDocument.getString("roomName") ?: "",      // 채팅방 ID
-                sender = sender as? String ?: "",     // 메시지 발신자 이메일
+                sender = chatDocument.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
                 content = chatDocument.getString("content") ?: "",        // 메시지 내용
                 sendTimestamp = chatDocument.getTimestamp("sendTime")?.toDate() ?: Timestamp.now()
                     .toDate()  // 전송 시간
