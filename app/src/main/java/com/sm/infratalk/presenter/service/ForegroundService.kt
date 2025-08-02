@@ -153,10 +153,12 @@ class ForegroundService : Service(), ViewModelStoreOwner {
             Log.d("seungma", "subscribe collect 시작")
             serviceViewModel.chatNotification.collect { chatMessage ->
                 Log.d("seungma", "채팅 들어옴: $chatMessage")
-                
-                // 채팅 메시지가 null이 아닐 때만 노티 보내기
+
+
+
+                // 채팅 메시지가 null이 아니고, 채팅방 활성이 아닐때 노티 밣생
                 chatMessage?.let { message ->
-                    updateNotification(message)
+                    if(!ActiveChatTracker.isActiveChatWith(message.roomId)) updateNotification(message)
                 }
             }
         }
