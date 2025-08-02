@@ -21,8 +21,6 @@ object ActiveChatTracker {
         Log.d("ActiveChatTracker", "활성 채팅방 설정: $chatId")
     }
 
-    fun getActiveChat(): String? = activeChatId
-
     fun isActiveChatWith(chatId: String): Boolean {
         return activeChatId == chatId
     }
