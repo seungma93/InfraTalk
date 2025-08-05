@@ -43,14 +43,19 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         super.onCreate()
         DaggerServiceComponent.factory().create(this).inject(this)
 
-        createNotificationChannel()
+        createNotificationChannel(
+            channelId = CHANNEL_ID,
+            channelName = CHANNEL_NAME,
+            channelDescription = CHANNEL_DESCRIPTION,
+            context = this
+        )
 
         // ViewModel 초기화
         serviceViewModel = ViewModelProvider(this, viewModelFactory)[ServiceViewModel::class.java]
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = createNotification()
+        val notification = createNotification(context = this, channelId = CHANNEL_ID)
         startForeground(NOTIFICATION_ID, notification)
 
         serviceViewModel.observeChatNotification()
@@ -64,89 +69,6 @@ class ForegroundService : Service(), ViewModelStoreOwner {
         return null
     }
 
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = CHANNEL_DESCRIPTION
-            }
-            
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun createNotification(): Notification {
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("InfraTalk")
-            .setContentText("메시지 알림이 활성화되어 있습니다")
-            .setSmallIcon(R.drawable.ic_logo)
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setAutoCancel(false)
-            .setOngoing(true)
-            .build()
-    }
-
-    fun updateNotification(chatMessageNotifyEntity: ChatMessageNotifyEntity) {
-        Log.d("ForegroundService", "updateNotification 호출: ${chatMessageNotifyEntity.content}")
-        
-        val groupKey = "message_notification_group"
-        val notificationId = System.currentTimeMillis().toInt()
-        
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra("room_id", chatMessageNotifyEntity.roomId)
-            putExtra("sender_id", chatMessageNotifyEntity.sender)
-        }
-        
-        Log.d("ForegroundService", "노티 Intent 생성: room_id=${chatMessageNotifyEntity.roomId}, sender_id=${chatMessageNotifyEntity.sender}")
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        
-        // 개별 알림 생성
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_logo)
-            .setContentTitle(chatMessageNotifyEntity.sender)
-            .setContentText(chatMessageNotifyEntity.content)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setContentIntent(pendingIntent)
-            .setGroup(groupKey)
-            .setAutoCancel(true)
-            .build()
-        
-        // 그룹 요약 알림 생성
-        val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_logo)
-            .setContentTitle("")
-            .setContentText("")
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setDefaults(0)
-            .setSilent(true)
-            .setGroup(groupKey)
-            .setGroupSummary(true)
-            .build()
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationId, notification)  // 개별 알림
-        notificationManager.notify(0, summaryNotification)       // 그룹 요약 알림
-    }
-
-
     private fun subscribe() {
         Log.d("seungma", "subscribe 시작")
         CoroutineScope(Dispatchers.IO + Job()).launch {
@@ -158,7 +80,9 @@ class ForegroundService : Service(), ViewModelStoreOwner {
 
                 // 채팅 메시지가 null이 아니고, 채팅방 활성이 아닐때 노티 밣생
                 chatMessage?.let { message ->
-                    if(!ActiveChatTracker.isActiveChatWith(message.roomId)) updateNotification(message)
+                    if(!ActiveChatTracker.isActiveChatWith(message.roomId)) updateNotification(
+                        chatMessageNotifyEntity = message, context = this@ForegroundService, channelId = CHANNEL_ID
+                    )
                 }
             }
         }
