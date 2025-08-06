@@ -72,7 +72,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
         Log.d("MainActivity", "onCreate - 로그인 성공키: $loginSuccessKey")
         Log.d("MainActivity", "onCreate - Intent extras: ${intent.extras}")
@@ -83,7 +83,6 @@ class MainActivity() : AppCompatActivity(), Navigable {
         when (loginSuccessKey) {
             true -> {
                 Log.d("MainActivity", "onCreate - 로그인 성공: 서비스 시작 및 Main으로 이동")
-                startService(this)
                 navigateFragment(EndPoint.Main)
             }
             false -> {
@@ -131,18 +130,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
 
     override fun onDestroy() {
         super.onDestroy()
-        // 모든 서비스 종료
-        stopAllServices()
         _binding = null
-    }
-
-    private fun stopAllServices() {
-        Log.d("MainActivity", "모든 서비스 종료")
-        // ForegroundService 종료
-        stopService(this)
-        
-        // 다른 서비스들도 있다면 여기에 추가
-        // stopService(Intent(this, OtherService::class.java))
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -200,21 +188,6 @@ class MainActivity() : AppCompatActivity(), Navigable {
         }
     }
 
-    fun startService(context: Context) {
-        Log.d("seungma", "서비스 시작 뷰모델")
-            val serviceIntent = Intent(context, ForegroundService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
-            } else {
-                context.startService(serviceIntent)
-            }
 
-    }
-
-    fun stopService(context: Context) {
-            val serviceIntent = Intent(context, ForegroundService::class.java)
-            context.stopService(serviceIntent)
-
-    }
 
 }

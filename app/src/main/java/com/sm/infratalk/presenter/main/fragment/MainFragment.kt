@@ -1,6 +1,8 @@
 package com.sm.infratalk.presenter.main.fragment
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,6 +31,7 @@ import com.sm.infratalk.presenter.mypage.fragment.MyLikeBoardFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyLikeCommentFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyPageFragment
 import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewModel
+import com.sm.infratalk.presenter.service.ForegroundService
 import javax.inject.Inject
 
 interface ChildFragmentNavigable {
@@ -197,5 +200,20 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         }
     }
 
+    private fun startService(context: Context) {
+        Log.d("seungma", "서비스 시작 뷰모델")
+        val serviceIntent = Intent(context, ForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
+
+    }
+
+    private fun stopService(context: Context) {
+        val serviceIntent = Intent(context, ForegroundService::class.java)
+        context.stopService(serviceIntent)
+    }
 
 }
