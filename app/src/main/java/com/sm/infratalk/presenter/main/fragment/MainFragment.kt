@@ -67,13 +67,17 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        startService(requireContext())
+
+
         binding.apply {
 
             if(childFragmentManager.fragments.isEmpty()){
@@ -112,6 +116,11 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, menuInflater)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(requireContext())
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
