@@ -25,7 +25,8 @@ data class ChatStartEntity(
 
 data class ChatPrimaryKeyEntity(
     val partnerEmail: String,
-    val chatRoomId: String
+    val chatRoomId: String,
+    val chatRoomName: String
 ) : Serializable
 
 data class ChatMessageSendEntity(
