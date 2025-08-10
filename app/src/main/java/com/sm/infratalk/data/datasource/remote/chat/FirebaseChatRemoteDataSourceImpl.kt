@@ -552,7 +552,7 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
             // 8. 문서를 NotifyChatMessageResponse 형태로 변환
             ChatMessageNotifyResponse(
-                roomId = chatRoomDocument.getString("roomName") ?: "",      // 채팅방 ID
+                roomId = chatRoomDocument.id,      // 채팅방 ID
                 sender = chatDocument.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
                 content = chatDocument.getString("content") ?: "",        // 메시지 내용
                 sendTimestamp = chatDocument.getTimestamp("sendTime")?.toDate() ?: Timestamp.now()
