@@ -1,23 +1,12 @@
 package com.sm.infratalk.presenter.service
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import com.sm.infratalk.R
 import com.sm.infratalk.di.component.DaggerServiceComponent
-import com.sm.infratalk.di.module.Modules
-import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
-import com.sm.infratalk.presenter.main.activity.MainActivity
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

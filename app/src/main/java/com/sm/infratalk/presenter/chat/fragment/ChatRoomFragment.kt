@@ -86,8 +86,7 @@ class ChatRoomFragment : Fragment() {
                                 1 -> chatRoomEntity.leaveMember.first()
                                 else -> chatRoomEntity.member?.find { it != userEmail } ?: error("")
                             },
-                            chatRoomId = chatRoomEntity.primaryKey,
-                            chatRoomName = chatRoomEntity.roomName
+                            chatRoomId = chatRoomEntity.primaryKey
                         )
                     )
                     (requireActivity() as? Navigable)?.navigateFragment(endPoint)

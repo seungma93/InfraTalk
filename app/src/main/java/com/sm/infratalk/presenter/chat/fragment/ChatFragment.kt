@@ -197,7 +197,7 @@ class ChatFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        ActiveChatTracker.setActiveChat(chatId = chatPrimaryKeyEntity.chatRoomName)
+        ActiveChatTracker.setActiveChat(chatId = chatPrimaryKeyEntity.chatRoomId)
 
     }
 

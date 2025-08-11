@@ -102,6 +102,7 @@ fun ChatRoomLeaveResponse.toEntity(): ChatRoomLeaveEntity {
 fun ChatMessageNotifyResponse.toEntity(): com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity {
     return com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity(
         roomId = roomId.orEmpty(),
+        roomName = roomName.orEmpty(),
         sender = sender.orEmpty(),
         content = content.orEmpty(),
         sendTimestamp = sendTimestamp ?: java.util.Date()
