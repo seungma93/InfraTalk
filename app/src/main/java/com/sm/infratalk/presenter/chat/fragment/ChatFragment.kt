@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.test.core.app.ActivityScenario.launch
 import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.databinding.FragmentChatBinding
 import com.sm.infratalk.di.component.DaggerChatFragmentComponent
@@ -197,7 +196,7 @@ class ChatFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        ActiveChatTracker.setActiveChat(chatId = chatPrimaryKeyEntity.chatRoomId)
+        ActiveChatTracker.setActiveChat(chatRoomId = chatPrimaryKeyEntity.chatRoomId)
 
     }
 
