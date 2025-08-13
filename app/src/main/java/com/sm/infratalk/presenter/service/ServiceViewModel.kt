@@ -10,8 +10,11 @@ import com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,8 +26,8 @@ class ServiceViewModel @Inject constructor(
     private val _isServiceRunning = MutableStateFlow(false)
     val isServiceRunning: StateFlow<Boolean> = _isServiceRunning.asStateFlow()
 
-    private val _chatNotification = MutableStateFlow<ChatMessageNotifyEntity?>(null)
-    val chatNotification: StateFlow<ChatMessageNotifyEntity?> = _chatNotification.asStateFlow()
+    private val _chatNotification = MutableSharedFlow<ChatMessageNotifyEntity?>()
+    val chatNotification: SharedFlow<ChatMessageNotifyEntity?> = _chatNotification.asSharedFlow()
 
     fun observeChatNotification() {
         viewModelScope.launch {
@@ -36,7 +39,7 @@ class ServiceViewModel @Inject constructor(
                 Log.d("seungma", "사용자 이메일: ${userEntity.email}")
                 notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { entity ->
                     Log.d("seungma", "채팅 알림 수신: $entity")
-                    _chatNotification.value = entity
+                    _chatNotification.emit(entity)
                 }
             } else {
                 Log.e("seungma", "사용자 정보가 null입니다")
