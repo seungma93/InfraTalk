@@ -23,8 +23,6 @@ class ServiceViewModel @Inject constructor(
     private val notifyChatMessageUseCase: NotifyChatMessageUseCase,
     private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
-    private val _isServiceRunning = MutableStateFlow(false)
-    val isServiceRunning: StateFlow<Boolean> = _isServiceRunning.asStateFlow()
 
     private val _chatNotification = MutableSharedFlow<ChatMessageNotifyEntity?>()
     val chatNotification: SharedFlow<ChatMessageNotifyEntity?> = _chatNotification.asSharedFlow()
