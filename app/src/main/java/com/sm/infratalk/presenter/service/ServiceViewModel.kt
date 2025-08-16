@@ -19,13 +19,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class ChatNotifyViewEvent(
+    val chatNotifyEntity: ChatMessageNotifyEntity
+)
+
 class ServiceViewModel @Inject constructor(
     private val notifyChatMessageUseCase: NotifyChatMessageUseCase,
     private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
 
-    private val _chatNotification = MutableSharedFlow<ChatMessageNotifyEntity?>()
-    val chatNotification: SharedFlow<ChatMessageNotifyEntity?> = _chatNotification.asSharedFlow()
+    private val _chatNotification = MutableSharedFlow<ChatNotifyViewEvent>()
+    val chatNotification: SharedFlow<ChatNotifyViewEvent> = _chatNotification.asSharedFlow()
 
     fun observeChatNotification() {
         viewModelScope.launch {
@@ -37,7 +41,9 @@ class ServiceViewModel @Inject constructor(
                 Log.d("seungma", "사용자 이메일: ${userEntity.email}")
                 notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { entity ->
                     Log.d("seungma", "채팅 알림 수신: $entity")
-                    _chatNotification.emit(entity)
+                    _chatNotification.emit(ChatNotifyViewEvent(
+                        chatNotifyEntity = entity
+                    ))
                 }
             } else {
                 Log.e("seungma", "사용자 정보가 null입니다")
