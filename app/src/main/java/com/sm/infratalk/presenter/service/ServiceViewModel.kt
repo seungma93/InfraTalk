@@ -28,8 +28,8 @@ class ServiceViewModel @Inject constructor(
     private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
 
-    private val _chatNotification = MutableSharedFlow<ChatNotifyViewEvent>()
-    val chatNotification: SharedFlow<ChatNotifyViewEvent> = _chatNotification.asSharedFlow()
+    private val _chatNotifyViewEvent = MutableSharedFlow<ChatNotifyViewEvent>()
+    val chatNotifyViewEvent: SharedFlow<ChatNotifyViewEvent> = _chatNotifyViewEvent.asSharedFlow()
 
     fun observeChatNotification() {
         viewModelScope.launch {
@@ -41,7 +41,7 @@ class ServiceViewModel @Inject constructor(
                 Log.d("seungma", "사용자 이메일: ${userEntity.email}")
                 notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { entity ->
                     Log.d("seungma", "채팅 알림 수신: $entity")
-                    _chatNotification.emit(ChatNotifyViewEvent(
+                    _chatNotifyViewEvent.emit(ChatNotifyViewEvent(
                         chatNotifyEntity = entity
                     ))
                 }
