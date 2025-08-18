@@ -14,7 +14,7 @@ import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.domain.chat.entity.ChatMessageListEntity
-import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
+import com.sm.infratalk.domain.chat.entity.ChatNotifyEntity
 import com.sm.infratalk.domain.chat.entity.ChatMessageSendEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCheckEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCreateEntity
@@ -133,7 +133,7 @@ class ChatDataRepositoryImpl @Inject constructor(
         ).map { it.toEntity() }
     }
 
-    override fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatMessageNotifyEntity> {
+    override fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatNotifyEntity> {
         return chatDataSource.notifyChatMessage(
             ChatMessageNotifyRequest(
                 email = chatMessageNotifyForm.email

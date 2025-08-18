@@ -1,26 +1,20 @@
 package com.sm.infratalk.presenter.service
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
+import com.sm.infratalk.domain.chat.entity.ChatNotifyEntity
 import com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
-import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ChatNotifyViewEvent(
-    val chatNotifyEntity: ChatMessageNotifyEntity
+    val chatNotifyEntity: ChatNotifyEntity
 )
 
 class ServiceViewModel @Inject constructor(

@@ -99,8 +99,8 @@ fun ChatRoomLeaveResponse.toEntity(): ChatRoomLeaveEntity {
     )
 }
 
-fun ChatMessageNotifyResponse.toEntity(): com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity {
-    return com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity(
+fun ChatMessageNotifyResponse.toEntity(): com.sm.infratalk.domain.chat.entity.ChatNotifyEntity {
+    return com.sm.infratalk.domain.chat.entity.ChatNotifyEntity(
         roomId = roomId.orEmpty(),
         roomName = roomName.orEmpty(),
         sender = sender.orEmpty(),

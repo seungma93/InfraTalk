@@ -2,7 +2,7 @@ package com.sm.infratalk.domain.chat.entity
 
 import java.util.Date
 
-data class ChatMessageNotifyEntity(
+data class ChatNotifyEntity(
     val roomId: String,
     val roomName: String,
     val sender: String,

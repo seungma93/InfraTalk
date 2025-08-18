@@ -10,7 +10,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.sm.infratalk.R
-import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
+import com.sm.infratalk.domain.chat.entity.ChatNotifyEntity
 import com.sm.infratalk.presenter.main.activity.MainActivity
 
 fun createNotificationChannel(channelId: String, channelName: String, channelDescription: String, context: Context) {
@@ -48,7 +48,7 @@ fun createNotification(context: Context, channelId: String): Notification {
         .build()
 }
 
-fun updateNotification(chatMessageNotifyEntity: ChatMessageNotifyEntity, context: Context, channelId: String) {
+fun updateNotification(chatMessageNotifyEntity: ChatNotifyEntity, context: Context, channelId: String) {
     Log.d("ForegroundService", "updateNotification 호출: ${chatMessageNotifyEntity.content}")
 
     val groupKey = "message_notification_group"

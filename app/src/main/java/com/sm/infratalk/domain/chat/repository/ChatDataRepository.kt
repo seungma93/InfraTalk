@@ -1,7 +1,7 @@
 package com.sm.infratalk.domain.chat.repository
 
 import com.sm.infratalk.domain.chat.entity.ChatMessageListEntity
-import com.sm.infratalk.domain.chat.entity.ChatMessageNotifyEntity
+import com.sm.infratalk.domain.chat.entity.ChatNotifyEntity
 import com.sm.infratalk.domain.chat.entity.ChatMessageSendEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCheckEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCreateEntity
@@ -30,5 +30,5 @@ interface ChatDataRepository {
     suspend fun loadChatRoom(chatRoomLoadForm: ChatRoomLoadForm): ChatRoomEntity
     suspend fun leaveChatRoom(chatRoomLeaveForm: ChatRoomLeaveForm): ChatRoomLeaveEntity
     fun loadRealTimeChatRoom(realTimeChatRoomLoadForm: RealTimeChatRoomLoadForm): Flow<ChatRoomEntity>
-    fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatMessageNotifyEntity>
+    fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatNotifyEntity>
 }
