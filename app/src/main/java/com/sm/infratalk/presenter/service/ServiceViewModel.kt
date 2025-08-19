@@ -30,17 +30,13 @@ class ServiceViewModel @Inject constructor(
             Log.d("seungma", "observeChatNotification 시작")
             val userEntity = getUserMeUseCase()
             Log.d("seungma", "getUserMeUseCase 결과: $userEntity")
-            
-            if (userEntity != null) {
-                Log.d("seungma", "사용자 이메일: ${userEntity.email}")
-                notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { entity ->
-                    Log.d("seungma", "채팅 알림 수신: $entity")
-                    _chatNotifyViewEvent.emit(ChatNotifyViewEvent(
-                        chatNotifyEntity = entity
-                    ))
-                }
-            } else {
-                Log.e("seungma", "사용자 정보가 null입니다")
+
+            Log.d("seungma", "사용자 이메일: ${userEntity.email}")
+            notifyChatMessageUseCase(ChatMessageNotifyForm(userEntity.email)).collect { chatNotifyEntity ->
+                Log.d("seungma", "채팅 알림 수신: $chatNotifyEntity")
+                _chatNotifyViewEvent.emit(ChatNotifyViewEvent(
+                    chatNotifyEntity = chatNotifyEntity
+                ))
             }
         }
     }
