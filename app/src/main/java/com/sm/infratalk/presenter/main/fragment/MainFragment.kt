@@ -74,8 +74,7 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        startService(requireContext())
+        Log.d("seungma", "MainFragment onViewCreated")
 
 
         binding.apply {
@@ -118,10 +117,6 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         super.onCreateOptionsMenu(menu, menuInflater)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        stopService(requireContext())
-    }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
         val transaction = childFragmentManager.beginTransaction()
