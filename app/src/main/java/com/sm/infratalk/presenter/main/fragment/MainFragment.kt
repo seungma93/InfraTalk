@@ -117,6 +117,11 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         super.onCreateOptionsMenu(menu, menuInflater)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(context = requireContext())
+    }
+
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
         val transaction = childFragmentManager.beginTransaction()
@@ -204,20 +209,10 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         }
     }
 
-    private fun startService(context: Context) {
-        Log.d("seungma", "서비스 시작 뷰모델")
-        val serviceIntent = Intent(context, ForegroundService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
-        } else {
-            context.startService(serviceIntent)
-        }
-
-    }
-
     private fun stopService(context: Context) {
         val serviceIntent = Intent(context, ForegroundService::class.java)
         context.stopService(serviceIntent)
     }
+
 
 }
