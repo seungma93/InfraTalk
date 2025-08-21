@@ -1,6 +1,7 @@
 package com.sm.infratalk.data.mapper
 
 import com.sm.infratalk.data.model.response.chat.ChatMessageListResponse
+import com.sm.infratalk.data.model.response.chat.ChatMessageNotifyResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageSendResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCheckResponse
@@ -95,5 +96,15 @@ fun LastChatMessageResponse.toEntity(): LastChatMessageEntity {
 fun ChatRoomLeaveResponse.toEntity(): ChatRoomLeaveEntity {
     return ChatRoomLeaveEntity(
         isSuccess = isSuccess ?: false
+    )
+}
+
+fun ChatMessageNotifyResponse.toEntity(): com.sm.infratalk.domain.chat.entity.ChatNotifyEntity {
+    return com.sm.infratalk.domain.chat.entity.ChatNotifyEntity(
+        roomId = roomId.orEmpty(),
+        roomName = roomName.orEmpty(),
+        sender = sender.orEmpty(),
+        content = content.orEmpty(),
+        sendTimestamp = sendTimestamp ?: java.util.Date()
     )
 }

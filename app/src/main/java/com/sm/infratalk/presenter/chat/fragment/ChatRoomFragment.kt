@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.test.core.app.ActivityScenario.launch
 import com.sm.infratalk.data.FailGetUserMeException
 import com.sm.infratalk.databinding.FragmentChatRoomBinding
 import com.sm.infratalk.di.component.DaggerChatRoomFragmentComponent

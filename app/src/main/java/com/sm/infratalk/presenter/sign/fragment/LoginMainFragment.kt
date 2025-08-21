@@ -1,6 +1,8 @@
 package com.sm.infratalk.presenter.sign.fragment
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,6 +31,7 @@ import com.sm.infratalk.di.component.DaggerSignFragmentComponent
 import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
+import com.sm.infratalk.presenter.service.ForegroundService
 import com.sm.infratalk.presenter.sign.form.LoginForm
 import com.sm.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
@@ -175,6 +178,7 @@ class LoginMainFragment : Fragment() {
                                     signViewModel.deleteSavedEmail()
                                 }
                             }
+                            startService(context = requireContext())
                             hideProgressBar()
                             (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     }
@@ -297,4 +301,16 @@ class LoginMainFragment : Fragment() {
             }
         }
     }
+
+    private fun startService(context: Context) {
+        Log.d("seungma", "서비스 시작 뷰모델")
+        val serviceIntent = Intent(context, ForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
+
+    }
+
 }

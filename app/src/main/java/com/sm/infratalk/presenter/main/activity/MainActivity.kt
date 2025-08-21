@@ -1,9 +1,18 @@
 package com.sm.infratalk.presenter.main.activity
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.ActivityMainBinding
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -11,8 +20,12 @@ import com.sm.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.sm.infratalk.presenter.board.fragment.BoardContentFragment
 import com.sm.infratalk.presenter.chat.fragment.ChatFragment
 import com.sm.infratalk.presenter.main.fragment.MainFragment
+import com.sm.infratalk.presenter.service.ForegroundService
+import com.sm.infratalk.presenter.service.ServiceViewModel
 import com.sm.infratalk.presenter.sign.fragment.LoginMainFragment
 import com.sm.infratalk.presenter.sign.fragment.SignUpFragment
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class EndPoint {
     object LoginMain : EndPoint()
@@ -34,17 +47,95 @@ class MainActivity() : AppCompatActivity(), Navigable {
     private val binding get() = _binding!!
     private var loginSuccessKey: Boolean = false
 
+    private val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING
+        )
+    } else {
+        arrayOf(
+            Manifest.permission.FOREGROUND_SERVICE
+        )
+    }
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.entries.all { it.value }
+        if (allGranted) {
+            //startService(this)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         loginSuccessKey = intent.getBooleanExtra("loginSuccessKey", false)
-        Log.d("MainActivity", "로그인 성공키 :" + loginSuccessKey)
-        when(loginSuccessKey) {
-            true -> navigateFragment(EndPoint.Main)
-            false -> navigateFragment(EndPoint.LoginMain)
+        Log.d("MainActivity", "onCreate - 로그인 성공키: $loginSuccessKey")
+        Log.d("MainActivity", "onCreate - Intent extras: ${intent.extras}")
+
+
+        checkAndRequestPermissions()
+
+        when (loginSuccessKey) {
+            true -> {
+                Log.d("MainActivity", "onCreate - 로그인 성공: 서비스 시작 및 Main으로 이동")
+                navigateFragment(EndPoint.Main)
+            }
+            false -> {
+                Log.d("MainActivity", "onCreate - 로그인 실패: LoginMain으로 이동")
+                val roomId = intent?.getStringExtra("room_id")
+                roomId?.let {
+                    handleNotificationIntent()
+                } ?: run {
+                    navigateFragment(EndPoint.LoginMain)
+                }
+
+            }
         }
+    }
+
+    private fun checkAndRequestPermissions() {
+        Log.d("seungma", "checkAndRequestPermissions")
+        val permissionsToRequest = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }.toTypedArray()
+
+        if (permissionsToRequest.isEmpty() || permissionsToRequest.first() == "android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING") {
+            Log.d("seungma", "checkAndRequestPermissions True")
+            //startService(this)
+        } else {
+            permissionLauncher.launch(permissionsToRequest)
+        }
+    }
+
+    private fun handleNotificationIntent() {
+        val roomId = intent.getStringExtra("room_id")
+        val senderId = intent.getStringExtra("sender_id")
+        
+        Log.d("MainActivity", "handleNotificationIntent - roomId: $roomId, senderId: $senderId")
+
+        if(roomId != null && senderId != null){
+            Log.d("MainActivity", "handleNotificationIntent: 노티 클릭으로 채팅방 이동: $roomId")
+            // 채팅방으로 이동하는 로직
+            // ChatPrimaryKeyEntity 생성 후 ChatFragment로 이동
+            //TODO Key에 들어갈 partnerEmail 작업 필요
+            val chatPrimaryKey = ChatPrimaryKeyEntity(roomId, senderId)
+            navigateFragment(EndPoint.Chat(chatPrimaryKey))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleNotificationIntent()
     }
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
@@ -96,5 +187,7 @@ class MainActivity() : AppCompatActivity(), Navigable {
             }
         }
     }
+
+
 
 }

@@ -1,5 +1,8 @@
 package com.sm.infratalk.presenter.main.fragment
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,8 +11,12 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.sm.infratalk.R
 import com.sm.infratalk.databinding.FragmentMainBinding
+import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
+import com.sm.infratalk.di.component.DaggerServiceComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.fragment.BoardFragment
 import com.sm.infratalk.presenter.board.fragment.BoardWriteFragment
@@ -23,6 +30,9 @@ import com.sm.infratalk.presenter.mypage.fragment.MyCommentFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyLikeBoardFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyLikeCommentFragment
 import com.sm.infratalk.presenter.mypage.fragment.MyPageFragment
+import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewModel
+import com.sm.infratalk.presenter.service.ForegroundService
+import javax.inject.Inject
 
 interface ChildFragmentNavigable {
     fun navigateFragment(endPoint: MainChildFragmentEndPoint)
@@ -49,17 +59,24 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
     private val binding get() = _binding!!
 
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("seungma", "MainFragment onViewCreated")
+
+
         binding.apply {
 
             if(childFragmentManager.fragments.isEmpty()){
@@ -99,6 +116,12 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, menuInflater)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(context = requireContext())
+    }
+
 
     private fun setFragment(fragment: Fragment, viewId: Int, backStackToken: Boolean) {
         val transaction = childFragmentManager.beginTransaction()
@@ -184,6 +207,11 @@ class MainFragment : Fragment(), ChildFragmentNavigable {
 
             else -> {}
         }
+    }
+
+    private fun stopService(context: Context) {
+        val serviceIntent = Intent(context, ForegroundService::class.java)
+        context.stopService(serviceIntent)
     }
 
 

@@ -4,6 +4,7 @@ import com.sm.infratalk.data.datasource.remote.chat.ChatDataSource
 import com.sm.infratalk.data.datasource.remote.user.UserDataSource
 import com.sm.infratalk.data.mapper.toEntity
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -13,6 +14,7 @@ import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.domain.chat.entity.ChatMessageListEntity
+import com.sm.infratalk.domain.chat.entity.ChatNotifyEntity
 import com.sm.infratalk.domain.chat.entity.ChatMessageSendEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCheckEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomCreateEntity
@@ -21,6 +23,7 @@ import com.sm.infratalk.domain.chat.entity.ChatRoomLeaveEntity
 import com.sm.infratalk.domain.chat.entity.ChatRoomListEntity
 import com.sm.infratalk.domain.chat.repository.ChatDataRepository
 import com.sm.infratalk.presenter.chat.form.ChatMessageListLoadForm
+import com.sm.infratalk.presenter.chat.form.ChatMessageNotifyForm
 import com.sm.infratalk.presenter.chat.form.ChatMessageSendForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
@@ -126,6 +129,14 @@ class ChatDataRepositoryImpl @Inject constructor(
         return chatDataSource.loadRealTimeChatRoom(
             realTimeChatRoomLoadRequest = RealTimeChatRoomLoadRequest(
                 chatRoomId = realTimeChatRoomLoadForm.chatRoomId
+            )
+        ).map { it.toEntity() }
+    }
+
+    override fun notifyChatMessage(chatMessageNotifyForm: ChatMessageNotifyForm): Flow<ChatNotifyEntity> {
+        return chatDataSource.notifyChatMessage(
+            ChatMessageNotifyRequest(
+                email = chatMessageNotifyForm.email
             )
         ).map { it.toEntity() }
     }
