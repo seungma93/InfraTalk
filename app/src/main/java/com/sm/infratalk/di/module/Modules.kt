@@ -88,6 +88,7 @@ import com.sm.infratalk.domain.user.usecase.DeleteSavedEmailUseCase
 import com.sm.infratalk.domain.user.usecase.GetSavedEmailUseCase
 import com.sm.infratalk.domain.user.usecase.GetUserMeUseCase
 import com.sm.infratalk.domain.user.usecase.SetSavedEmailUseCase
+import com.sm.infratalk.domain.chat.usecase.NotifyChatMessageUseCase
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.sm.infratalk.presenter.chat.viewmodel.ChatRoomViewModel
@@ -104,6 +105,7 @@ import com.sm.infratalk.presenter.sign.viewmodel.SplashViewModel
 import com.sm.infratalk.presenter.viewmodel.ViewModelFactory
 import com.sm.infratalk.presenter.viewmodel.ViewModelKey
 import com.sm.infratalk.network.RetrofitClient
+import com.sm.infratalk.presenter.service.ServiceViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -1109,6 +1111,29 @@ class Modules {
             return SplashViewModel(
                 getUserMeUseCase
             )
+        }
+    }
+
+    @Module
+    class NotifyChatMessageUseCaseModule {
+        @Provides
+        fun providesNotifyChatMessageUseCase(
+            chatDataRepository: ChatDataRepository
+        ): NotifyChatMessageUseCase {
+            return NotifyChatMessageUseCase(chatDataRepository)
+        }
+    }
+
+    @Module
+    class ServiceViewModelModule {
+        @Provides
+        @IntoMap
+        @ViewModelKey(ServiceViewModel::class)
+        fun providesServiceViewModel(
+            notifyChatMessageUseCase: NotifyChatMessageUseCase,
+            getUserMeUseCase: GetUserMeUseCase
+        ): ViewModel {
+            return ServiceViewModel(notifyChatMessageUseCase, getUserMeUseCase)
         }
     }
 }

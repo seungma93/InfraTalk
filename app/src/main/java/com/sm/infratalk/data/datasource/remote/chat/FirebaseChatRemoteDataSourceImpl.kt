@@ -6,10 +6,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.sm.infratalk.data.datasource.remote.user.UserDataSource
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -19,6 +21,7 @@ import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.user.UserSelectRequest
 import com.sm.infratalk.data.model.response.chat.ChatMessageListResponse
+import com.sm.infratalk.data.model.response.chat.ChatMessageNotifyResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageSendResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCheckResponse
@@ -34,8 +37,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
+
 
 
 class FirebaseChatRemoteDataSourceImpl @Inject constructor(
@@ -43,6 +49,8 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
     private val userDataSource: UserDataSource
 ) : ChatDataSource {
     private var lastDocument: DocumentSnapshot? = null
+    //private val _chatEvent = MutableSharedFlow<NotifyChatEvent>()
+    //val chatEvent: SharedFlow<NotifyChatEvent> get() = _chatEvent.asSharedFlow()
 
     override suspend fun createChatRoom(chatRoomCreateRequest: ChatRoomCreateRequest): ChatRoomCreateResponse {
         return kotlin.runCatching {
@@ -462,6 +470,98 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+    /**
+     * 사용자가 속한 채팅방의 새로운 메시지를 실시간으로 감지하여 알림을 보내는 함수
+     * @param chatMessageNotifyRequest 알림을 받을 사용자의 이메일이 포함된 요청 객체
+     * @return Flow<NotifyChatMessageResponse> 새로운 메시지가 있을 때마다 알림을 전송하는 Flow
+     */
+    override fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest): Flow<ChatMessageNotifyResponse> {
+        return callbackFlow {
+            // 모든 리스너를 관리하기 위한 리스트
+            val listeners = mutableListOf<ListenerRegistration>()
+
+            kotlin.runCatching {
+                // 1. 사용자가 속한 채팅방들의 변경사항을 감지하는 리스너
+                val chatRoomListener = database.collection("ChatRoom")
+                    .whereArrayContains("member", chatMessageNotifyRequest.email)
+                    .addSnapshotListener { chatRoomSnapshot, chatRoomError ->
+                        if (chatRoomError != null) {
+                            return@addSnapshotListener
+                        }
+
+                        // 2. 각 채팅방의 변경사항에 대해 처리
+                        chatRoomSnapshot?.documentChanges?.forEach { chatRoomChange ->
+                            val chatRoomId = chatRoomChange.document.id
+
+                            // 3. 각 채팅방의 새로운 메시지를 감지하는 리스너
+                            val chatListener = database.collection("ChatRoom")
+                                .document(chatRoomId)
+                                .collection("Chat")
+                                .whereGreaterThanOrEqualTo("sendTime", Timestamp.now())
+                                .orderBy("sendTime", Query.Direction.DESCENDING)
+                                .addSnapshotListener { chatSnapshot, chatError ->
+                                    if (chatError != null) {
+                                        return@addSnapshotListener
+                                    }
+
+                                    // 4. 새로 추가된 메시지만 필터링하여 전송
+                                    chatSnapshot?.documentChanges
+                                        ?.filter { it.type == DocumentChange.Type.ADDED }
+                                        ?.forEach { chatChange ->
+
+                                            trySend(
+                                                NotifyChatDocumentSnapshot(
+                                                    chat = chatChange.document,
+                                                    chatRoom = chatRoomChange.document
+                                                )
+                                            )
+                                        }
+                                }
+
+                            // 5. 채팅 메시지 리스너를 관리 리스트에 추가
+                            listeners.add(chatListener)
+                        }
+                    }
+
+                // 6. 채팅방 리스너도 관리 리스트에 추가
+                listeners.add(chatRoomListener)
+
+                // 7. Flow가 종료될 때 모든 리스너 제거
+                awaitClose {
+                    listeners.forEach { it.remove() }
+                }
+            }.onFailure {
+                it.printStackTrace()
+
+                if (it is CancellationException) {
+                    Log.d("seungma", it.stackTraceToString() + it.javaClass.toString())
+                } else throw com.sm.infratalk.data.FailSelectException(
+                    "셀렉트에 실패 했습니다",
+                    it
+                )
+
+            }.getOrThrow()
+        }.mapNotNull { document ->
+
+            val chatRoomDocument = document.chatRoom
+            val chatDocument = document.chat
+
+            val sender = chatDocument.getString("senderEmail") ?: ""
+
+            if( sender == userDataSource.getUserMe().email ) return@mapNotNull null
+
+            // 8. 문서를 NotifyChatMessageResponse 형태로 변환
+            ChatMessageNotifyResponse(
+                roomId = chatRoomDocument.id,      // 채팅방 ID
+                roomName = chatRoomDocument.getString("roomName") ?: "",
+                sender = chatDocument.getString("senderEmail") ?: "",     // 메시지 발신자 이메일
+                content = chatDocument.getString("content") ?: "",        // 메시지 내용
+                sendTimestamp = chatDocument.getTimestamp("sendTime")?.toDate() ?: Timestamp.now()
+                    .toDate()  // 전송 시간
+            )
+        }
+    }
+
     override suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse {
         return kotlin.runCatching {
             val snapshot = database.collection("ChatRoom")
@@ -507,3 +607,9 @@ class FirebaseChatRemoteDataSourceImpl @Inject constructor(
 
 
 }
+
+
+data class NotifyChatDocumentSnapshot(
+    val chat: DocumentSnapshot,      // chat 메시지 문서
+    val chatRoom: DocumentSnapshot   // chatRoom 문서
+)

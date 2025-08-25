@@ -1,6 +1,8 @@
 package com.sm.infratalk.presenter.sign.fragment
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +20,9 @@ import com.sm.infratalk.di.component.DaggerSignFragmentComponent
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import com.sm.infratalk.presenter.sign.components.LoginScreen
+import com.sm.infratalk.presenter.service.ForegroundService
+import com.sm.infratalk.presenter.sign.form.LoginForm
+import com.sm.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import javax.inject.Inject
 
@@ -44,13 +49,14 @@ class LoginMainFragment : Fragment() {
 
                 // ViewModel의 이벤트를 구독
                 val viewEvent by signViewModel.viewEvent.collectAsState(initial = null)
-                
+
                 LoginScreen(
                     viewModel = signViewModel,
                     onSignUpClick = {
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.SignUp)
                     },
                     onLoginSuccess = {
+                        startService(context = requireContext())
                         (requireActivity() as? Navigable)?.navigateFragment(EndPoint.Main)
                     },
                     onResetPasswordClick = {
@@ -70,4 +76,16 @@ class LoginMainFragment : Fragment() {
             }
         }
     }
+
+    private fun startService(context: Context) {
+        Log.d("seungma", "서비스 시작 뷰모델")
+        val serviceIntent = Intent(context, ForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
+
+    }
+
 }

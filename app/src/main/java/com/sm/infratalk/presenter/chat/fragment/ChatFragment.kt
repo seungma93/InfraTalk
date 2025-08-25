@@ -29,6 +29,7 @@ import com.sm.infratalk.presenter.chat.viewmodel.ChatViewEvent
 import com.sm.infratalk.presenter.chat.viewmodel.ChatViewModel
 import com.sm.infratalk.presenter.chat.viewmodel.ChatViewModelFactory
 import com.sm.infratalk.presenter.common.CustomSnackbar
+import com.sm.infratalk.presenter.service.ActiveChatTracker
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -191,6 +192,17 @@ class ChatFragment : Fragment() {
         subscribe()
         initScrollListener()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ActiveChatTracker.setActiveChat(chatRoomId = chatPrimaryKeyEntity.chatRoomId)
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ActiveChatTracker.setActiveChat(null)
     }
 
     private fun createChatItem(viewState: ChatViewModel.ChatViewState): List<ChatItem> =

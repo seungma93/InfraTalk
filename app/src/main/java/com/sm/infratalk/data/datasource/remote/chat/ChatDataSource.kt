@@ -1,6 +1,7 @@
 package com.sm.infratalk.data.datasource.remote.chat
 
 import com.sm.infratalk.data.model.request.chat.ChatMessageListLoadRequest
+import com.sm.infratalk.data.model.request.chat.ChatMessageNotifyRequest
 import com.sm.infratalk.data.model.request.chat.ChatMessageSendRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCheckRequest
 import com.sm.infratalk.data.model.request.chat.ChatRoomCreateRequest
@@ -9,6 +10,7 @@ import com.sm.infratalk.data.model.request.chat.ChatRoomLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatMessageLoadRequest
 import com.sm.infratalk.data.model.request.chat.RealTimeChatRoomLoadRequest
 import com.sm.infratalk.data.model.response.chat.ChatMessageListResponse
+import com.sm.infratalk.data.model.response.chat.ChatMessageNotifyResponse
 import com.sm.infratalk.data.model.response.chat.ChatMessageSendResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCheckResponse
 import com.sm.infratalk.data.model.response.chat.ChatRoomCreateResponse
@@ -28,4 +30,5 @@ interface ChatDataSource {
     suspend fun loadChatRoom(chatRoomLoadRequest: ChatRoomLoadRequest): ChatRoomResponse
     suspend fun leaveChatRoom(chatRoomLeaveRequest: ChatRoomLeaveRequest): ChatRoomLeaveResponse
     fun loadRealTimeChatRoom(realTimeChatRoomLoadRequest: RealTimeChatRoomLoadRequest): Flow<ChatRoomResponse>
+    fun notifyChatMessage(chatMessageNotifyRequest: ChatMessageNotifyRequest):Flow<ChatMessageNotifyResponse>
 }
