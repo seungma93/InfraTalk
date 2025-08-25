@@ -27,6 +27,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.sm.infratalk.R
 import com.sm.infratalk.data.FailGetUserMeException
 import com.sm.infratalk.databinding.FragmentMyAccountInfoEditBinding
+import com.sm.infratalk.di.component.DaggerMyPageFragmentComponent
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.common.CustomSnackbar
 import com.sm.infratalk.presenter.mypage.viewmodel.MyPageViewEvent
