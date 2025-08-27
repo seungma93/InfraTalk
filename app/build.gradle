@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace 'com.sm.infratalk'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.sm.infratalk"
         minSdk 23
-        targetSdk 34
-        versionCode 5
-        versionName "1.0.5"
+        targetSdk 35
+        versionCode 6
+        versionName "1.0.6" // 프로덕트 배포 버전 1.0.6
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -54,7 +54,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:31.0.0')
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies
@@ -84,9 +84,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'junit:junit:4.13.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    kapt 'com.github.bumptech.glide:compiler:4.12.0'
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
 
     // Declare the dependency for the Cloud Firestore library
     // When using the BoM, you don't specify versions in Firebase library dependencies
