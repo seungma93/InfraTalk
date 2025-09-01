@@ -9,8 +9,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sm.infratalk.domain.board.entity.BoardEntity
+import com.sm.infratalk.domain.board.entity.BoardMetaEntity
+import com.sm.infratalk.domain.board.entity.BookmarkEntity
+import com.sm.infratalk.domain.board.entity.LikeCountEntity
+import com.sm.infratalk.domain.board.entity.LikeEntity
+import com.sm.infratalk.domain.user.entity.UserEntity
+import java.util.Date
 
 
 // 리스트 전체
@@ -41,3 +48,41 @@ fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun PreviewBoardItemList() {
+    val dummyItems = listOf(
+        BoardEntity(
+            boardMetaEntity = BoardMetaEntity(
+                author = UserEntity(
+                    email = "",
+                    nickname = "",
+                    image = null
+                ), title = "", content = "", images = null, createTime = Date(), editTime = null
+
+            ),
+            bookmarkEntity = BookmarkEntity(isBookmark = false),
+            likeEntity = LikeEntity(isLike = false),
+            likeCountEntity = LikeCountEntity(likeCount = 0)
+        ),
+        BoardEntity(
+            boardMetaEntity = BoardMetaEntity(
+                author = UserEntity(
+                    email = "",
+                    nickname = "",
+                    image = null
+                ), images = null, createTime = Date(), editTime = null
+            ),
+            bookmarkEntity = BookmarkEntity(isBookmark = false),
+            likeEntity = LikeEntity(isLike = false),
+            likeCountEntity = LikeCountEntity(likeCount = 0)
+        )
+    )
+
+    BoardItemList(
+        items = dummyItems,
+        onItemClick = {},
+        onRemove = {},
+        onLoadMore = {}
+    )
+}
