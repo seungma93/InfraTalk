@@ -47,7 +47,7 @@ fun BoardItemList(
 // 아이템
 @Composable
 fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
-    Row(
+    Column (
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp)
     ) {
         // TODO("작성자, 날짜")
@@ -68,6 +68,28 @@ fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
             Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.title)
             Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.content)
         // TODO("버튼")
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_chat),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+            )
+            Image(
+                painter = painterResource(id = R.drawable.btn_like_default),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+            )
+            Image(
+                painter = painterResource(id = R.drawable.btn_like_default),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+            )
+        }
+
     }
 }
 
@@ -79,7 +101,7 @@ fun PreviewBoardItemList() {
             boardMetaEntity = BoardMetaEntity(
                 author = UserEntity(
                     email = "123",
-                    nickname = "",
+                    nickname = "123",
                     image = null
                 ), title = "123", content = "123", images = null, createTime = Date(), editTime = null
 
@@ -92,7 +114,7 @@ fun PreviewBoardItemList() {
             boardMetaEntity = BoardMetaEntity(
                 author = UserEntity(
                     email = "123",
-                    nickname = "",
+                    nickname = "123",
                     image = null
                 ), images = null, createTime = Date(), editTime = null
             ),
