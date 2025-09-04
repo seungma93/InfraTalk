@@ -2,6 +2,7 @@ package com.sm.infratalk.presenter.board.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.board.entity.BoardMetaEntity
@@ -53,23 +55,28 @@ fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
         // TODO("작성자, 날짜")
         Row(modifier = Modifier.fillMaxWidth()) {
             Image(
-                painter = painterResource(id = R.drawable.ic_avatar),
+                painter = item.boardMetaEntity.images?.let {
+                    rememberAsyncImagePainter(it.successUris)
+                } ?: run {
+                    painterResource(id = R.drawable.ic_avatar)
+                },
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Column {
-                Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.author.nickname)
-                Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.createTime.toString())
+                Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.author.nickname)
+                Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.createTime.toString())
             }
         }
 
         // TODO("제목, 내용")
-            Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.title)
-            Text(modifier = Modifier.size(20.dp), text = item.boardMetaEntity.content)
+            Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
+            Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
         // TODO("버튼")
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly) {
             Image(
                 painter = painterResource(id = R.drawable.ic_chat),
                 contentDescription = stringResource(R.string.app_name),
@@ -103,7 +110,7 @@ fun PreviewBoardItemList() {
                     email = "123",
                     nickname = "123",
                     image = null
-                ), title = "123", content = "123", images = null, createTime = Date(), editTime = null
+                ), title = "안녕하세요", content = "테스트 합니다", images = null, createTime = Date(), editTime = null
 
             ),
             bookmarkEntity = BookmarkEntity(isBookmark = false),
