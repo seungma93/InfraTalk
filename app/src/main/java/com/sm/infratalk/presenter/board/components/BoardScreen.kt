@@ -3,14 +3,11 @@ package com.sm.infratalk.presenter.board.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.board.entity.BoardMetaEntity
@@ -36,21 +34,38 @@ import java.util.Date
 fun BoardItemList(
     items: List<BoardEntity>,
     onItemClick: (BoardEntity) -> Unit,
+    onBookmarkClick: (BoardEntity) -> Unit,
+    onLikeClick: (BoardEntity) -> Unit,
+    onChatClick: (BoardEntity) -> Unit,
     onRemove: (String) -> Unit,
     onLoadMore: () -> Unit
 ) {
     LazyColumn {
         items(items) { item ->
-            BoardItemRow(item = item, onClick = { onItemClick(item) })
+            BoardItemRow(
+                item = item, onClick = { onItemClick(item) },
+                onBookmarkClick = { onBookmarkClick(item) },
+                onLikeClick = { onLikeClick(item) },
+                onChatClick = { onChatClick(item) }
+            )
         }
     }
 }
 
 // 아이템
 @Composable
-fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
-    Column (
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp)
+fun BoardItemRow(
+    item: BoardEntity,
+    onClick: () -> Unit,
+    onBookmarkClick: () -> Unit,
+    onLikeClick: () -> Unit,
+    onChatClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp)
     ) {
         // TODO("작성자, 날짜")
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -65,18 +80,32 @@ fun BoardItemRow(item: BoardEntity, onClick: () -> Unit) {
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Column {
-                Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.author.nickname)
-                Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.createTime.toString())
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    text = item.boardMetaEntity.author.nickname
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    text = item.boardMetaEntity.createTime.toString()
+                )
             }
         }
 
         // TODO("제목, 내용")
-            Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
-            Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
+        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
+        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
         // TODO("버튼")
 
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_chat),
                 contentDescription = stringResource(R.string.app_name),
@@ -110,7 +139,12 @@ fun PreviewBoardItemList() {
                     email = "123",
                     nickname = "123",
                     image = null
-                ), title = "안녕하세요", content = "테스트 합니다", images = null, createTime = Date(), editTime = null
+                ),
+                title = "안녕하세요",
+                content = "테스트 합니다",
+                images = null,
+                createTime = Date(),
+                editTime = null
 
             ),
             bookmarkEntity = BookmarkEntity(isBookmark = false),
@@ -135,6 +169,9 @@ fun PreviewBoardItemList() {
         items = dummyItems,
         onItemClick = {},
         onRemove = {},
+        onBookmarkClick = {},
+        onLikeClick = {},
+        onChatClick = {},
         onLoadMore = {}
     )
 }
