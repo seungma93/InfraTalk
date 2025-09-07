@@ -109,19 +109,25 @@ fun BoardItemRow(
             Image(
                 painter = painterResource(id = R.drawable.ic_chat),
                 contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                modifier = Modifier.clickable {
+                    onChatClick()
+                }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Image(
                 painter = painterResource(id = R.drawable.btn_like_default),
                 contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                modifier = Modifier.clickable {
+                    onLikeClick()
+                }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Image(
                 painter = painterResource(id = R.drawable.btn_like_default),
                 contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                modifier = Modifier.clickable {
+                    onBookmarkClick()
+                }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
         }
