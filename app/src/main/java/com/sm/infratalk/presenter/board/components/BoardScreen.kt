@@ -43,10 +43,11 @@ fun BoardItemList(
     LazyColumn {
         items(items) { item ->
             BoardItemRow(
-                item = item, onClick = { onItemClick(item) },
-                onBookmarkClick = { onBookmarkClick(item) },
-                onLikeClick = { onLikeClick(item) },
-                onChatClick = { onChatClick(item) }
+                item = item,
+                onClick = onItemClick,
+                onBookmarkClick = onBookmarkClick,
+                onLikeClick = onLikeClick,
+                onChatClick = onChatClick
             )
         }
     }
@@ -56,15 +57,15 @@ fun BoardItemList(
 @Composable
 fun BoardItemRow(
     item: BoardEntity,
-    onClick: () -> Unit,
-    onBookmarkClick: () -> Unit,
-    onLikeClick: () -> Unit,
-    onChatClick: () -> Unit
+    onClick: (BoardEntity) -> Unit,
+    onBookmarkClick: (BoardEntity) -> Unit,
+    onLikeClick: (BoardEntity) -> Unit,
+    onChatClick: (BoardEntity) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable { onClick(item) }
             .padding(16.dp)
     ) {
         // TODO("작성자, 날짜")
@@ -110,7 +111,7 @@ fun BoardItemRow(
                 painter = painterResource(id = R.drawable.ic_chat),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
-                    onChatClick()
+                    onChatClick(item)
                 }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
@@ -118,7 +119,7 @@ fun BoardItemRow(
                 painter = painterResource(id = R.drawable.btn_like_default),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
-                    onLikeClick()
+                    onLikeClick(item)
                 }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
@@ -126,7 +127,7 @@ fun BoardItemRow(
                 painter = painterResource(id = R.drawable.btn_like_default),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
-                    onBookmarkClick()
+                    onBookmarkClick(item)
                 }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
