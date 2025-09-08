@@ -11,6 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -26,8 +31,24 @@ import com.sm.infratalk.domain.board.entity.BookmarkEntity
 import com.sm.infratalk.domain.board.entity.LikeCountEntity
 import com.sm.infratalk.domain.board.entity.LikeEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
+import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
 import java.util.Date
 
+
+
+@Composable
+fun BoardScreen(
+    viewModel: BoardViewModel
+) {
+
+    var boardItems by remember { mutableStateOf<List<BoardEntity>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+
+    }
+}
 
 // 리스트 전체
 @Composable
