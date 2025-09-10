@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,6 +23,7 @@ import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.chat.entity.ChatPrimaryKeyEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.adpater.BoardListAdapter
+import com.sm.infratalk.presenter.board.components.BoardScreen
 import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarksDeleteForm
@@ -46,13 +48,13 @@ import javax.inject.Inject
 
 
 class BoardFragment : Fragment() {
-    private var _binding: FragmentBoardBinding? = null
+    /*private var _binding: FragmentBoardBinding? = null
     private val binding get() = _binding!!
     private var _adapter: BoardListAdapter? = null
     private val adapter get() = _adapter!!
     private val onScrollListener: OnScrollListener = OnScrollListener({ moreItems() }, {
     })
-    private lateinit var userEntity: UserEntity
+    private lateinit var userEntity: UserEntity*/
 
     @Inject
     lateinit var boardViewModelFactory: ViewModelProvider.Factory
@@ -68,305 +70,326 @@ class BoardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentBoardBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-
-            kotlin.runCatching {
-                userEntity = boardViewModel.getUserMe()
-
-
-                _adapter = BoardListAdapter(
-                    itemClick = {
-                        val endPoint = EndPoint.BoardContent(
-                            boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                                boardAuthorEmail = it.author.email,
-                                boardCreateTime = it.createTime
-                            )
-                        )
-                        (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-                    },
-                    bookmarkClick = { boardEntity ->
-                        boardEntity.apply {
-                            when (bookmarkEntity.isBookmark) {
-                                true -> {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        val boardViewState = boardViewModel.deleteBookMark(
-                                            BoardBookmarkDeleteForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            )
-                                        )
-                                        adapter.submitList(boardViewState.boardListEntity.boardList)
-                                    }
-                                }
-
-                                false -> {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        val boardViewState = boardViewModel.addBookMark(
-                                            BoardBookmarkAddForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            )
-                                        )
-                                        adapter.submitList(boardViewState.boardListEntity.boardList)
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    likeClick = { boardEntity ->
-                        boardEntity.apply {
-                            when (likeEntity.isLike) {
-                                true -> {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        val boardViewState = boardViewModel.deleteLike(
-                                            BoardLikeDeleteForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            ), BoardLikeCountLoadForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            )
-                                        )
-                                        adapter.submitList(boardViewState.boardListEntity.boardList)
-                                    }
-                                }
-
-                                false -> {
-                                    viewLifecycleOwner.lifecycleScope.launch {
-                                        val boardViewState = boardViewModel.addLike(
-                                            BoardLikeAddForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            ), BoardLikeCountLoadForm(
-                                                boardAuthorEmail = boardMetaEntity.author.email,
-                                                boardCreateTime = boardMetaEntity.createTime
-                                            )
-                                        )
-                                        adapter.submitList(boardViewState.boardListEntity.boardList)
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    chatClick = { boardMetaEntity ->
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            val member =
-                                listOf(userEntity.email, boardMetaEntity.author.email)
-                            boardViewModel.startChat(
-                                chatRoomCreateForm = ChatRoomCreateForm(member = member),
-                                chatRoomCheckForm = ChatRoomCheckForm(member = member)
-                            )
-                        }
-                    },
-                    userEntity =userEntity,
-                    deleteClick = { boardMetaEntity ->
-                        showProgressBar()
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            val boardViewState = boardViewModel.deleteBoard(
-                                boardDeleteForm = BoardDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                ),
-                                boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                ),
-                                boardLikesDeleteForm = BoardLikesDeleteForm(
-                                    boardAuthorEmail = boardMetaEntity.author.email,
-                                    boardCreateTime = boardMetaEntity.createTime
-                                )
-                            )
-                            adapter.submitList(boardViewModel.loadBoardList(BoardListLoadForm(reload = true)).boardListEntity.boardList) {
-                                hideProgressBar()
-                            }
-                        }
-                    }
-                )
-                // 나의 게시글 버튼
-                binding.btnFabMyList.setOnClickListener {
-                    val endPoint =
-                        MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
-                    (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-                    toggleFab(isFabOpen = true)
-                }
-
-                _adapter?.let {
-                    binding.recyclerviewBoardList.adapter = it
-                }
-
-                subscribe()
-                loadBoardList()
-                initScrollListener()
-
-            }.onFailure {
-                when(it) {
-                    is FailGetUserMeException -> {
-                        Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
-                        val message = "유저 정보를 못가져왔습니다."
-                        val duration = Snackbar.LENGTH_SHORT
-
-                        val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
-                        snackbar.setMargin(bottomDp = 66)
-                        snackbar.show()
-                    }
-                    else -> {
-
-                    }
-                }
-
-
-
-
-
-            }
-
-
-        }
-
-        var isFabOpen = false
-
-        binding.apply {
-            // fab 메뉴
-            btnFabMenu.setOnClickListener {
-                isFabOpen = toggleFab(isFabOpen)
-            }
-            // 글쓰기 버튼
-            btnFabWrite.setOnClickListener {
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(
-                    MainChildFragmentEndPoint.BoardWrite
-                )
-                toggleFab(isFabOpen = true)
-            }
-            // 북마크 버튼
-            btnFabBookmark.setOnClickListener {
-                val endPoint =
-                    MainChildFragmentEndPoint.MyBookmarkBoard
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-                toggleFab(isFabOpen = true)
-            }
-            // 좋아요 버튼
-            btnFabLike.setOnClickListener {
-                val endPoint = MainChildFragmentEndPoint.MyLikeBoard
-                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
-                toggleFab(isFabOpen = true)
-            }
-
-            // 스와이프
-            swipeRefreshLayout.setOnRefreshListener {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    kotlin.runCatching {
-                        boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
-                    }
-                    swipeRefreshLayout.isRefreshing = false
-                }
-
-            }
-            recyclerviewBoardList.itemAnimator = null
-        }
-
-    }
-
-    private fun subscribe() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            boardViewModel.viewEvent.collect {
-                when (it) {
-                    is BoardViewEvent.ChatStart -> {
-                        when (it.chatStartEntity.isSuccess) {
-                            true -> {
-                                val endPoint = EndPoint.Chat(
-                                    chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
-                                        partnerEmail = it.chatStartEntity.chatPartner,
-                                        chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
-                                    )
-                                )
-                                (requireActivity() as? Navigable)?.navigateFragment(endPoint)
-                            }
-
-                            false -> Log.d("seungma", "채팅방 시작 실패")
-                        }
-                    }
-
-                    else -> {}
-                }
+    ): View? {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BoardScreen(viewModel = boardViewModel)
             }
         }
-    }
-
-    private fun loadBoardList() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            showProgressBar()
-            val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
-            adapter.submitList(boardViewState.boardListEntity.boardList) {
-                binding.recyclerviewBoardList.scrollToPosition(0)
-                hideProgressBar()
-            }
-
-        }
-    }
-
-    private fun initScrollListener() {
-        binding.recyclerviewBoardList.addOnScrollListener(onScrollListener)
-    }
-
-    private fun moreItems() {
-        showProgressBar()
-        viewLifecycleOwner.lifecycleScope.launch {
-            val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
-            adapter.submitList(boardViewState.boardListEntity.boardList) {
-                hideProgressBar()
-            }
-        }
-    }
-
-    private fun toggleFab(isFabOpen: Boolean): Boolean {
-        return if (isFabOpen) {
-            AnimatorSet().apply {
-                this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", 0f),
-                    ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f),
-                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", 0f),
-                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f)
-                )
-            }.start()
-            false
-        } else {
-            AnimatorSet().apply {
-                this.playTogether(
-                    ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", -800f),
-                    ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -600f),
-                    ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", -400f),
-                    ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f)
-                )
-            }.start()
-            true
-        }
-    }
-
-    private fun showProgressBar() {
-        blockLayoutTouch()
-        binding.progressBar.isVisible = true
-    }
-
-    private fun blockLayoutTouch() {
-        requireActivity().window?.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-    }
-
-    private fun hideProgressBar() {
-        clearBlockLayoutTouch()
-        binding.progressBar.isVisible = false
-    }
-
-    private fun clearBlockLayoutTouch() {
-        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }
+
+
+
+
+
+
+/*
+override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+): View {
+    _binding = FragmentBoardBinding.inflate(inflater, container, false)
+    return binding.root
+}
+}
+
+
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    viewLifecycleOwner.lifecycleScope.launch {
+
+        kotlin.runCatching {
+            userEntity = boardViewModel.getUserMe()
+
+
+            _adapter = BoardListAdapter(
+                itemClick = {
+                    val endPoint = EndPoint.BoardContent(
+                        boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
+                            boardAuthorEmail = it.author.email,
+                            boardCreateTime = it.createTime
+                        )
+                    )
+                    (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                },
+                bookmarkClick = { boardEntity ->
+                    boardEntity.apply {
+                        when (bookmarkEntity.isBookmark) {
+                            true -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val boardViewState = boardViewModel.deleteBookMark(
+                                        BoardBookmarkDeleteForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        )
+                                    )
+                                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                                }
+                            }
+
+                            false -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val boardViewState = boardViewModel.addBookMark(
+                                        BoardBookmarkAddForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        )
+                                    )
+                                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                                }
+                            }
+                        }
+                    }
+                },
+                likeClick = { boardEntity ->
+                    boardEntity.apply {
+                        when (likeEntity.isLike) {
+                            true -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val boardViewState = boardViewModel.deleteLike(
+                                        BoardLikeDeleteForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        ), BoardLikeCountLoadForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        )
+                                    )
+                                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                                }
+                            }
+
+                            false -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    val boardViewState = boardViewModel.addLike(
+                                        BoardLikeAddForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        ), BoardLikeCountLoadForm(
+                                            boardAuthorEmail = boardMetaEntity.author.email,
+                                            boardCreateTime = boardMetaEntity.createTime
+                                        )
+                                    )
+                                    adapter.submitList(boardViewState.boardListEntity.boardList)
+                                }
+                            }
+                        }
+                    }
+                },
+                chatClick = { boardMetaEntity ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val member =
+                            listOf(userEntity.email, boardMetaEntity.author.email)
+                        boardViewModel.startChat(
+                            chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                            chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                        )
+                    }
+                },
+                userEntity =userEntity,
+                deleteClick = { boardMetaEntity ->
+                    showProgressBar()
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val boardViewState = boardViewModel.deleteBoard(
+                            boardDeleteForm = BoardDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            ),
+                            boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            ),
+                            boardLikesDeleteForm = BoardLikesDeleteForm(
+                                boardAuthorEmail = boardMetaEntity.author.email,
+                                boardCreateTime = boardMetaEntity.createTime
+                            )
+                        )
+                        adapter.submitList(boardViewModel.loadBoardList(BoardListLoadForm(reload = true)).boardListEntity.boardList) {
+                            hideProgressBar()
+                        }
+                    }
+                }
+            )
+            // 나의 게시글 버튼
+            binding.btnFabMyList.setOnClickListener {
+                val endPoint =
+                    MainChildFragmentEndPoint.MyBoard(userEntity = userEntity)
+                (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+                toggleFab(isFabOpen = true)
+            }
+
+            _adapter?.let {
+                binding.recyclerviewBoardList.adapter = it
+            }
+
+            subscribe()
+            loadBoardList()
+            initScrollListener()
+
+        }.onFailure {
+            when(it) {
+                is FailGetUserMeException -> {
+                    Log.d("seungma", "게시판 버튼 2번 선택 에러 " + it.message)
+                    val message = "유저 정보를 못가져왔습니다."
+                    val duration = Snackbar.LENGTH_SHORT
+
+                    val snackbar = CustomSnackbar.make(requireActivity().findViewById(android.R.id.content), message, duration)
+                    snackbar.setMargin(bottomDp = 66)
+                    snackbar.show()
+                }
+                else -> {
+
+                }
+            }
+
+
+
+
+
+        }
+
+
+    }
+
+    var isFabOpen = false
+
+    binding.apply {
+        // fab 메뉴
+        btnFabMenu.setOnClickListener {
+            isFabOpen = toggleFab(isFabOpen)
+        }
+        // 글쓰기 버튼
+        btnFabWrite.setOnClickListener {
+            (parentFragment as? ChildFragmentNavigable)?.navigateFragment(
+                MainChildFragmentEndPoint.BoardWrite
+            )
+            toggleFab(isFabOpen = true)
+        }
+        // 북마크 버튼
+        btnFabBookmark.setOnClickListener {
+            val endPoint =
+                MainChildFragmentEndPoint.MyBookmarkBoard
+            (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            toggleFab(isFabOpen = true)
+        }
+        // 좋아요 버튼
+        btnFabLike.setOnClickListener {
+            val endPoint = MainChildFragmentEndPoint.MyLikeBoard
+            (parentFragment as? ChildFragmentNavigable)?.navigateFragment(endPoint)
+            toggleFab(isFabOpen = true)
+        }
+
+        // 스와이프
+        swipeRefreshLayout.setOnRefreshListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                kotlin.runCatching {
+                    boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+                }
+                swipeRefreshLayout.isRefreshing = false
+            }
+
+        }
+        recyclerviewBoardList.itemAnimator = null
+    }
+
+}
+
+private fun subscribe() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        boardViewModel.viewEvent.collect {
+            when (it) {
+                is BoardViewEvent.ChatStart -> {
+                    when (it.chatStartEntity.isSuccess) {
+                        true -> {
+                            val endPoint = EndPoint.Chat(
+                                chatPrimaryKeyEntity = ChatPrimaryKeyEntity(
+                                    partnerEmail = it.chatStartEntity.chatPartner,
+                                    chatRoomId = it.chatStartEntity.chatRoomId ?: error("")
+                                )
+                            )
+                            (requireActivity() as? Navigable)?.navigateFragment(endPoint)
+                        }
+
+                        false -> Log.d("seungma", "채팅방 시작 실패")
+                    }
+                }
+
+                else -> {}
+            }
+        }
+    }
+}
+
+private fun loadBoardList() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        showProgressBar()
+        val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = true))
+        adapter.submitList(boardViewState.boardListEntity.boardList) {
+            binding.recyclerviewBoardList.scrollToPosition(0)
+            hideProgressBar()
+        }
+
+    }
+}
+
+private fun initScrollListener() {
+    binding.recyclerviewBoardList.addOnScrollListener(onScrollListener)
+}
+
+private fun moreItems() {
+    showProgressBar()
+    viewLifecycleOwner.lifecycleScope.launch {
+        val boardViewState = boardViewModel.loadBoardList(BoardListLoadForm(reload = false))
+        adapter.submitList(boardViewState.boardListEntity.boardList) {
+            hideProgressBar()
+        }
+    }
+}
+
+private fun toggleFab(isFabOpen: Boolean): Boolean {
+    return if (isFabOpen) {
+        AnimatorSet().apply {
+            this.playTogether(
+                ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", 0f),
+                ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", 0f),
+                ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", 0f),
+                ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", 0f)
+            )
+        }.start()
+        false
+    } else {
+        AnimatorSet().apply {
+            this.playTogether(
+                ObjectAnimator.ofFloat(binding.btnFabLike, "translationY", -800f),
+                ObjectAnimator.ofFloat(binding.btnFabBookmark, "translationY", -600f),
+                ObjectAnimator.ofFloat(binding.btnFabMyList, "translationY", -400f),
+                ObjectAnimator.ofFloat(binding.btnFabWrite, "translationY", -200f)
+            )
+        }.start()
+        true
+    }
+}
+
+private fun showProgressBar() {
+    blockLayoutTouch()
+    binding.progressBar.isVisible = true
+}
+
+private fun blockLayoutTouch() {
+    requireActivity().window?.setFlags(
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+    )
+}
+
+private fun hideProgressBar() {
+    clearBlockLayoutTouch()
+    binding.progressBar.isVisible = false
+}
+
+private fun clearBlockLayoutTouch() {
+    requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+}
+}*/
