@@ -19,25 +19,33 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.sm.infratalk.R
+import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.board.entity.BoardMetaEntity
 import com.sm.infratalk.domain.board.entity.BookmarkEntity
 import com.sm.infratalk.domain.board.entity.LikeCountEntity
 import com.sm.infratalk.domain.board.entity.LikeEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
+import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
+import com.sm.infratalk.presenter.main.activity.EndPoint
+import com.sm.infratalk.presenter.main.activity.Navigable
+import kotlinx.coroutines.launch
 import java.util.Date
 
 
@@ -48,6 +56,9 @@ fun BoardScreen(
 
     var boardItems by remember { mutableStateOf<List<BoardEntity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         isLoading = true
@@ -68,11 +79,48 @@ fun BoardScreen(
         }
 
     } else {
+        val coroutineScope = rememberCoroutineScope()
+
         BoardItemList(
-            items = boardItems,
-            onItemClick = {},
-            onBookmarkClick = {},
-            onLikeClick = {}, onChatClick = {}, onRemove = {}, onLoadMore = {}
+            items = viewState.boardListEntity.boardList,
+            onItemClick = {
+                val endPoint = EndPoint.BoardContent(
+                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
+                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                        boardCreateTime = it.createTime
+                    )
+                )
+                (context as? Navigable)?.navigateFragment(endPoint)
+            },
+            onBookmarkClick = {
+
+                when (it.bookmarkEntity.isBookmark) {
+                    true -> {
+                        coroutineScope.launch {
+                            viewModel.deleteBookMark(
+                                BoardBookmarkDeleteForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                )
+                            )
+                        }
+                    }
+                    false -> {
+
+                    }
+                }
+
+
+            },
+            onLikeClick = {
+
+            }, onChatClick = {
+
+            }, onRemove = {
+
+            }, onLoadMore = {
+
+            }
         )
     }
 }
