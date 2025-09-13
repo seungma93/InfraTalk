@@ -41,11 +41,14 @@ import com.sm.infratalk.domain.board.entity.LikeCountEntity
 import com.sm.infratalk.domain.board.entity.LikeEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
+import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import kotlinx.coroutines.launch
+import java.util.Collections.emptyList
 import java.util.Date
 
 
@@ -105,6 +108,7 @@ fun BoardScreen(
                             )
                         }
                     }
+
                     false -> {
 
                     }
@@ -113,7 +117,26 @@ fun BoardScreen(
 
             },
             onLikeClick = {
+                when (it.likeEntity.isLike) {
+                    true -> {
+                        coroutineScope.launch {
+                            viewModel.deleteLike(
+                                boardLikeDeleteForm = BoardLikeDeleteForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                ),
+                                boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                )
+                            )
+                        }
+                    }
 
+                    false -> {
+
+                    }
+                }
             }, onChatClick = {
 
             }, onRemove = {
