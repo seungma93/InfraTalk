@@ -47,6 +47,8 @@ import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
+import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
+import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import kotlinx.coroutines.launch
@@ -158,6 +160,14 @@ fun BoardScreen(
                     }
                 }
             }, onChatClick = {
+                coroutineScope.launch {
+                    val userEntity = viewModel.getUserMe()
+                    val member = listOf(userEntity.email, it.boardMetaEntity.author.email)
+                    viewModel.startChat(
+                        chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                        chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                    )
+                }
 
             }, onRemove = {
 
