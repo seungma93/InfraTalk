@@ -40,7 +40,9 @@ import com.sm.infratalk.domain.board.entity.BookmarkEntity
 import com.sm.infratalk.domain.board.entity.LikeCountEntity
 import com.sm.infratalk.domain.board.entity.LikeEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
+import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
@@ -110,7 +112,14 @@ fun BoardScreen(
                     }
 
                     false -> {
-
+                        coroutineScope.launch {
+                            viewModel.addBookMark(
+                                BoardBookmarkAddForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                )
+                            )
+                        }
                     }
                 }
 
@@ -134,7 +143,18 @@ fun BoardScreen(
                     }
 
                     false -> {
-
+                        coroutineScope.launch {
+                            viewModel.addLike(
+                                boardLikeAddForm = BoardLikeAddForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                ),
+                                boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                    boardAuthorEmail = it.boardMetaEntity.author.email,
+                                    boardCreateTime = it.boardMetaEntity.createTime
+                                )
+                            )
+                        }
                     }
                 }
             }, onChatClick = {
