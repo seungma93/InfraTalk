@@ -42,9 +42,12 @@ import com.sm.infratalk.domain.board.entity.LikeEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardBookmarksDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardLikesDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardViewModel
 import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
@@ -170,6 +173,22 @@ fun BoardScreen(
                 }
 
             }, onRemove = {
+                coroutineScope.launch {
+                    viewModel.deleteBoard(
+                        boardDeleteForm = BoardDeleteForm(
+                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                            boardCreateTime = it.boardMetaEntity.createTime
+                        ),
+                        boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                            boardCreateTime = it.boardMetaEntity.createTime
+                        ),
+                        boardLikesDeleteForm = BoardLikesDeleteForm(
+                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                            boardCreateTime = it.boardMetaEntity.createTime
+                        ),
+                    )
+                }
 
             }, onLoadMore = {
 
@@ -186,7 +205,7 @@ fun BoardItemList(
     onBookmarkClick: (BoardEntity) -> Unit,
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit,
-    onRemove: (String) -> Unit,
+    onRemove: (BoardEntity) -> Unit,
     onLoadMore: () -> Unit
 ) {
     LazyColumn {
