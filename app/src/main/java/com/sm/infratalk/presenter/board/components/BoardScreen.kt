@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -54,6 +56,7 @@ import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Collections.emptyList
 import java.util.Date
@@ -212,7 +215,28 @@ fun BoardItemList(
     onRemove: (BoardEntity) -> Unit,
     onLoadMore: () -> Unit
 ) {
-    LazyColumn {
+    // 스크롤 상태 관리
+    val listState = rememberLazyListState()
+    
+    // 스크롤 감지 및 더보기 호출
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                if (visibleItems.isNotEmpty()) {
+                    val lastVisibleItem = visibleItems.last()
+                    val totalItems = listState.layoutInfo.totalItemsCount
+                    
+                    // 마지막 아이템이 보이면 더보기 호출
+                    if (lastVisibleItem.index >= totalItems - 1) {
+                        onLoadMore()
+                    }
+                }
+            }
+    }
+    
+    LazyColumn(
+        state = listState  // 스크롤 상태 연결
+    ) {
         items(items) { item ->
             BoardItemRow(
                 item = item,
