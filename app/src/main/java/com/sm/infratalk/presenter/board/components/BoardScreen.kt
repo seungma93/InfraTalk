@@ -25,6 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -66,20 +68,25 @@ import java.util.Date
 fun BoardScreen(
     viewModel: BoardViewModel
 ) {
-
-    var boardItems by remember { mutableStateOf<List<BoardEntity>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
+    var isLoadingMore by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
 
+    // ViewState 변경 감지 로그
+    LaunchedEffect(viewState) {
+        Log.d("BoardScreen", "ViewState 변경됨! 아이템 개수: ${viewState.boardListEntity.boardList.size}")
+        Log.d("BoardScreen", "첫 번째 아이템 북마크 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.bookmarkEntity?.isBookmark}")
+        Log.d("BoardScreen", "첫 번째 아이템 좋아요 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.likeEntity?.isLike}")
+    }
+
+    // 초기 데이터 로드
     LaunchedEffect(Unit) {
         isLoading = true
         try {
-            val result = viewModel.loadBoardList(BoardListLoadForm(reload = true))
-            boardItems = result.boardListEntity.boardList
+            viewModel.loadBoardList(BoardListLoadForm(reload = true))
         } catch (e: Exception) {
-            // 에러 처리
             Log.d("BoardScreen", "게시글 로드 실패", e)
         } finally {
             isLoading = false
@@ -106,27 +113,32 @@ fun BoardScreen(
                 (context as? Navigable)?.navigateFragment(endPoint)
             },
             onBookmarkClick = {
+                Log.d("BoardScreen", "북마크 클릭! 현재 상태: ${it.bookmarkEntity.isBookmark}, 게시글: ${it.boardMetaEntity.title}")
 
                 when (it.bookmarkEntity.isBookmark) {
                     true -> {
                         coroutineScope.launch {
-                            viewModel.deleteBookMark(
+                            Log.d("BoardScreen", "북마크 삭제 시작")
+                            val result = viewModel.deleteBookMark(
                                 BoardBookmarkDeleteForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            Log.d("BoardScreen", "북마크 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
                         }
                     }
 
                     false -> {
                         coroutineScope.launch {
-                            viewModel.addBookMark(
+                            Log.d("BoardScreen", "북마크 추가 시작")
+                            val result = viewModel.addBookMark(
                                 BoardBookmarkAddForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            Log.d("BoardScreen", "북마크 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
                         }
                     }
                 }
@@ -134,10 +146,13 @@ fun BoardScreen(
 
             },
             onLikeClick = {
+                Log.d("BoardScreen", "좋아요 클릭! 현재 상태: ${it.likeEntity.isLike}, 게시글: ${it.boardMetaEntity.title}")
+
                 when (it.likeEntity.isLike) {
                     true -> {
                         coroutineScope.launch {
-                            viewModel.deleteLike(
+                            Log.d("BoardScreen", "좋아요 삭제 시작")
+                            val result = viewModel.deleteLike(
                                 boardLikeDeleteForm = BoardLikeDeleteForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
@@ -147,12 +162,14 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            Log.d("BoardScreen", "좋아요 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
                         }
                     }
 
                     false -> {
                         coroutineScope.launch {
-                            viewModel.addLike(
+                            Log.d("BoardScreen", "좋아요 추가 시작")
+                            val result = viewModel.addLike(
                                 boardLikeAddForm = BoardLikeAddForm(
                                     boardAuthorEmail = it.boardMetaEntity.author.email,
                                     boardCreateTime = it.boardMetaEntity.createTime
@@ -162,6 +179,7 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
+                            Log.d("BoardScreen", "좋아요 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
                         }
                     }
                 }
@@ -194,12 +212,22 @@ fun BoardScreen(
                 }
 
             }, onLoadMore = {
-                coroutineScope.launch {
-                    viewModel.loadBoardList(boardListLoadForm = BoardListLoadForm(
-                        reload = false
-                    ))
+                // 중복 호출 방지
+                if (!isLoadingMore) {
+                    isLoadingMore = true
+                    coroutineScope.launch {
+                        try {
+                            Log.d("BoardScreen", "더보기 로드 시작")
+                            viewModel.loadBoardList(BoardListLoadForm(reload = false))
+                            Log.d("BoardScreen", "더보기 로드 완료")
+                        } catch (e: Exception) {
+                            Log.e("BoardScreen", "더보기 로드 실패", e)
+                        } finally {
+                            isLoadingMore = false
+                        }
+                    }
                 }
-            }
+            }, isLoadingMore = isLoadingMore
         )
     }
 }
@@ -213,21 +241,23 @@ fun BoardItemList(
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit,
     onRemove: (BoardEntity) -> Unit,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    isLoadingMore: Boolean = false
 ) {
     // 스크롤 상태 관리
     val listState = rememberLazyListState()
     
     // 스크롤 감지 및 더보기 호출
-    LaunchedEffect(listState) {
+    LaunchedEffect(listState, isLoadingMore) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo }
             .collect { visibleItems ->
-                if (visibleItems.isNotEmpty()) {
+                if (visibleItems.isNotEmpty() && !isLoadingMore) {
                     val lastVisibleItem = visibleItems.last()
                     val totalItems = listState.layoutInfo.totalItemsCount
                     
-                    // 마지막 아이템이 보이면 더보기 호출
-                    if (lastVisibleItem.index >= totalItems - 1) {
+                    // 마지막에서 3번째 아이템이 보이면 더보기 호출
+                    if (lastVisibleItem.index >= totalItems - 3) {
+                        Log.d("BoardScreen", "스크롤 감지: 더보기 호출 (${lastVisibleItem.index}/${totalItems})")
                         onLoadMore()
                     }
                 }
@@ -247,14 +277,18 @@ fun BoardItemList(
             )
         }
 
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        // 로딩 인디케이터는 로딩 중일 때만 표시
+        if (isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                    Log.d("BoardScreen", "로딩 인디케이터 표시 중...")
+                }
             }
         }
         
@@ -324,7 +358,13 @@ fun BoardItemRow(
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Image(
-                painter = painterResource(id = R.drawable.btn_star_default),
+                painter = painterResource(
+                    id = if (item.bookmarkEntity.isBookmark) {
+                        R.drawable.btn_star_pressed  // 북마크된 상태
+                    } else {
+                        R.drawable.btn_star_default   // 북마크 안된 상태
+                    }
+                ),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
                     onBookmarkClick(item)
@@ -332,7 +372,13 @@ fun BoardItemRow(
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
             Image(
-                painter = painterResource(id = R.drawable.btn_like_default),
+                painter = painterResource(
+                    id = if (item.likeEntity.isLike) {
+                        R.drawable.btn_like_pressed  // 좋아요된 상태
+                    } else {
+                        R.drawable.btn_like_default   // 좋아요 안된 상태
+                    }
+                ),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
                     onLikeClick(item)
@@ -387,6 +433,7 @@ fun PreviewBoardItemList() {
         onBookmarkClick = {},
         onLikeClick = {},
         onChatClick = {},
-        onLoadMore = {}
+        onLoadMore = {},
+        isLoadingMore = false
     )
 }
