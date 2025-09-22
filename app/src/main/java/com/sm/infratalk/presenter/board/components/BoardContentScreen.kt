@@ -1,5 +1,6 @@
 package com.sm.infratalk.presenter.board.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -17,13 +19,55 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
+import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
+import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun BoardContentScreen(
-    viewModel: BoardContentViewModel
+    viewModel: BoardContentViewModel,
+    boardEntity: BoardEntity
 ) {
 
+    val coroutineScope = rememberCoroutineScope()
+
+    BoardContent(
+        item = boardEntity,
+        onBookmarkClick = {
+            when (it.bookmarkEntity.isBookmark) {
+                true -> {
+                    coroutineScope.launch {
+                        Log.d("BoardScreen", "북마크 삭제 시작")
+                        val result = viewModel.deleteBoardContentBookmark(
+                            BoardBookmarkDeleteForm(
+                                boardAuthorEmail = it.boardMetaEntity.author.email,
+                                boardCreateTime = it.boardMetaEntity.createTime
+                            )
+                        )
+                    }
+                }
+
+                false -> {
+                    coroutineScope.launch {
+                        Log.d("BoardScreen", "북마크 추가 시작")
+                        val result = viewModel.addBoardContentBookmark(
+                            BoardBookmarkAddForm(
+                                boardAuthorEmail = it.boardMetaEntity.author.email,
+                                boardCreateTime = it.boardMetaEntity.createTime
+                            )
+                        )
+                    }
+                }
+            }
+        },
+        onLikeClick = {
+
+        },
+        onChatClick = {
+
+        }
+    )
 }
 
 @Composable
