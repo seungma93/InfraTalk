@@ -28,6 +28,7 @@ fun BoardContentScreen(
 
 @Composable
 fun BoardContent(
+    item: BoardEntity,
     onBookmarkClick: (BoardEntity) -> Unit,
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit
