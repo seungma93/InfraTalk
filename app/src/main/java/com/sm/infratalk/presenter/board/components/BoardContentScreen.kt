@@ -218,6 +218,56 @@ fun BoardCommentList(
 @Composable
 fun BoardCommentItemRow(
     item: CommentEntity,
+    onBookmarkClick: (CommentEntity) -> Unit,
+    onLikeClick: (CommentEntity) -> Unit
+
 ) {
-    
+    Column {
+        Text(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp),
+            text = item.commentMetaEntity.author.nickname)
+
+        Text(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp),
+            text = item.commentMetaEntity.content)
+        Row {
+            Text(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+                text = item.commentMetaEntity.createTime.toString())
+            Image(
+                painter = painterResource(
+                    id = if (item.bookmarkEntity.isBookmark) {
+                        R.drawable.btn_star_pressed  // 북마크된 상태
+                    } else {
+                        R.drawable.btn_star_default   // 북마크 안된 상태
+                    }
+                ),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.clickable {
+                    onBookmarkClick(item)
+                }, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+            )
+            Image(
+                painter = painterResource(
+                    id = if (item.likeEntity.isLike) {
+                        R.drawable.btn_like_pressed  // 좋아요된 상태
+                    } else {
+                        R.drawable.btn_like_default   // 좋아요 안된 상태
+                    }
+                ),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.clickable {
+                    onLikeClick(item)
+                }, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+            )
+            Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                text = item.likeCountEntity.likeCount.toString()
+            )
+        }
+    }
 }
