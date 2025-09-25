@@ -4,13 +4,21 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -210,9 +218,60 @@ fun BoardContent(
 
 @Composable
 fun BoardCommentList(
-
+    items: List<CommentEntity>,
+    onBookmarkClick: (CommentEntity) -> Unit,
+    onLikeClick: (CommentEntity) -> Unit,
+    isLoadingMore: Boolean = false
 ) {
+// 스크롤 상태 관리
+    val listState = rememberLazyListState()
 
+    // 스크롤 감지 및 더보기 호출
+    LaunchedEffect(listState, isLoadingMore) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                if (visibleItems.isNotEmpty() && !isLoadingMore) {
+                    val lastVisibleItem = visibleItems.last()
+                    val totalItems = listState.layoutInfo.totalItemsCount
+
+                    // 마지막에서 3번째 아이템이 보이면 더보기 호출
+                    if (lastVisibleItem.index >= totalItems - 3) {
+                        Log.d("BoardScreen", "스크롤 감지: 더보기 호출 (${lastVisibleItem.index}/${totalItems})")
+                        onLoadMore()
+                    }
+                }
+            }
+    }
+
+    LazyColumn(
+        state = listState  // 스크롤 상태 연결
+    ) {
+        items(items) { item ->
+            BoardItemRow(
+                item = item,
+                onClick = onItemClick,
+                onBookmarkClick = onBookmarkClick,
+                onLikeClick = onLikeClick,
+                onChatClick = onChatClick
+            )
+        }
+
+        // 로딩 인디케이터는 로딩 중일 때만 표시
+        if (isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                    Log.d("BoardScreen", "로딩 인디케이터 표시 중...")
+                }
+            }
+        }
+
+    }
 }
 
 @Composable
@@ -220,7 +279,6 @@ fun BoardCommentItemRow(
     item: CommentEntity,
     onBookmarkClick: (CommentEntity) -> Unit,
     onLikeClick: (CommentEntity) -> Unit
-
 ) {
     Column {
         Text(modifier = Modifier
