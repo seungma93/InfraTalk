@@ -247,12 +247,10 @@ fun BoardCommentList(
         state = listState  // 스크롤 상태 연결
     ) {
         items(items) { item ->
-            BoardItemRow(
+            BoardCommentItemRow(
                 item = item,
-                onClick = onItemClick,
                 onBookmarkClick = onBookmarkClick,
-                onLikeClick = onLikeClick,
-                onChatClick = onChatClick
+                onLikeClick = onLikeClick
             )
         }
 
