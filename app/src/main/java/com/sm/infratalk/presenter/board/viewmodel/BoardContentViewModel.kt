@@ -72,7 +72,7 @@ class BoardContentViewModel @Inject constructor(
     private val getUserMeUseCase: GetUserMeUseCase
 ) : ViewModel() {
     private val _viewEvent = MutableSharedFlow<BoardContentViewEvent>()
-    private val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
+    val viewEvent: SharedFlow<BoardContentViewEvent> = _viewEvent.asSharedFlow()
 
     private val _viewState = MutableStateFlow<BoardContentViewState>(
         BoardContentViewState(
@@ -80,7 +80,7 @@ class BoardContentViewModel @Inject constructor(
             commentListEntity = null
         )
     )
-    private val viewState: StateFlow<BoardContentViewState> = _viewState.asStateFlow()
+    val viewState: StateFlow<BoardContentViewState> = _viewState.asStateFlow()
 
     data class BoardContentViewState(
         val boardEntity: BoardEntity?,
