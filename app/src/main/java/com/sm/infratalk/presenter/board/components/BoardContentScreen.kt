@@ -16,7 +16,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +29,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.google.android.gms.common.util.CollectionUtils
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.comment.entity.CommentEntity
@@ -35,10 +38,7 @@ import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
-import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
-import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @Composable
 fun BoardContentScreen(
@@ -47,6 +47,8 @@ fun BoardContentScreen(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(false) }
+    var isLoadingMore by remember { mutableStateOf(false) }
 
 
     Column {
@@ -221,6 +223,7 @@ fun BoardCommentList(
     items: List<CommentEntity>,
     onBookmarkClick: (CommentEntity) -> Unit,
     onLikeClick: (CommentEntity) -> Unit,
+    onLoadMore: () -> Unit,
     isLoadingMore: Boolean = false
 ) {
 // 스크롤 상태 관리
