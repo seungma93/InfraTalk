@@ -39,13 +39,15 @@ import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardListLoadForm
+import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @Composable
 fun BoardContentScreen(
-    viewModel: BoardContentViewModel,
-    boardEntity: BoardEntity
+    viewModel: BoardContentViewModel
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -62,81 +64,106 @@ fun BoardContentScreen(
     } else {
         Column {
             // 게시글 상셍
-            BoardContent(
-                item = boardEntity,
-                onBookmarkClick = {
-                    when (it.bookmarkEntity.isBookmark) {
-                        true -> {
-                            coroutineScope.launch {
-                                viewModel.deleteBoardContentBookmark(
-                                    BoardBookmarkDeleteForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
+            viewState.boardEntity?.let { boardEntity ->
+                BoardContent(
+                    item = boardEntity,
+                    onBookmarkClick = {
+                        when (it.bookmarkEntity.isBookmark) {
+                            true -> {
+                                coroutineScope.launch {
+                                    viewModel.deleteBoardContentBookmark(
+                                        BoardBookmarkDeleteForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
 
-                        false -> {
-                            coroutineScope.launch {
-                                viewModel.addBoardContentBookmark(
-                                    BoardBookmarkAddForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
+                            false -> {
+                                coroutineScope.launch {
+                                    viewModel.addBoardContentBookmark(
+                                        BoardBookmarkAddForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
+                    },
+                    onLikeClick = {
+                        when (it.likeEntity.isLike) {
+                            true -> {
+                                coroutineScope.launch {
+                                    viewModel.deleteBoardContentLike(
+                                        boardLikeDeleteForm = BoardLikeDeleteForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        ),
+                                        boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        )
+                                    )
+                                }
+                            }
+
+                            false -> {
+                                coroutineScope.launch {
+                                    viewModel.addBoardContentLike(
+                                        boardLikeAddForm = BoardLikeAddForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        ),
+                                        boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                            boardAuthorEmail = it.boardMetaEntity.author.email,
+                                            boardCreateTime = it.boardMetaEntity.createTime
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    onChatClick = {
                     }
-                },
-                onLikeClick = {
-                    when (it.likeEntity.isLike) {
-                        true -> {
-                            coroutineScope.launch {
-                                viewModel.deleteBoardContentLike(
-                                    boardLikeDeleteForm = BoardLikeDeleteForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
-                                    ),
-                                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
-                                    )
-                                )
-                            }
-                        }
-
-                        false -> {
-                            coroutineScope.launch {
-                                viewModel.addBoardContentLike(
-                                    boardLikeAddForm = BoardLikeAddForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
-                                    ),
-                                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                                        boardCreateTime = it.boardMetaEntity.createTime
-                                    )
-                                )
-                            }
-                        }
-                    }
-                },
-                onChatClick = {
-                }
-            )
-
-            // 댓글
-            viewState.commentListEntity?.let { commentListEntity ->
-
-                BoardCommentList (
-                    items = commentListEntity.commentList,
-                    onBookmarkClick = {},
-                    onLikeClick = {},
-                    onLoadMore = {},
-                    isLoadingMore = false
-
                 )
+                // 댓글
+                viewState.commentListEntity?.let { commentListEntity ->
+
+                    BoardCommentList (
+                        items = commentListEntity.commentList,
+                        onBookmarkClick = {
+
+                        },
+                        onLikeClick = {
+
+                        },
+                        onLoadMore = {
+                            // 중복 호출 방지
+                            if (!isLoadingMore) {
+                                isLoadingMore = true
+                                coroutineScope.launch {
+                                    try {
+                                        Log.d("BoardScreen", "더보기 로드 시작")
+                                        viewModel.loadCommentList(commentMetaListLoadForm = CommentMetaListLoadForm(
+                                            boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
+                                            boardCreateTime = boardEntity.boardMetaEntity.createTime,
+                                            reload = false,
+                                        ))
+                                        Log.d("BoardScreen", "더보기 로드 완료")
+                                    } catch (e: Exception) {
+                                        Log.e("BoardScreen", "더보기 로드 실패", e)
+                                    } finally {
+                                        isLoadingMore = false
+                                    }
+                                }
+                            }
+                        },
+                        isLoadingMore = isLoadingMore
+
+                    )
+                }
             }
 
         }
