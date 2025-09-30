@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
@@ -40,6 +41,11 @@ import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardListLoadForm
+import com.sm.infratalk.presenter.board.form.CommentBookmarkAddForm
+import com.sm.infratalk.presenter.board.form.CommentBookmarkDeleteForm
+import com.sm.infratalk.presenter.board.form.CommentLikeAddForm
+import com.sm.infratalk.presenter.board.form.CommentLikeCountLoadForm
+import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
@@ -133,11 +139,66 @@ fun BoardContentScreen(
 
                     BoardCommentList (
                         items = commentListEntity.commentList,
-                        onBookmarkClick = {
+                        onBookmarkClick = { commentEntity ->
+                            commentEntity.apply {
+                                when (bookmarkEntity.isBookmark) {
+                                    true -> {
+                                        coroutineScope.launch {
+                                            viewModel.deleteCommentBookmark(
+                                                commentBookmarkDeleteForm = CommentBookmarkDeleteForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                )
+                                            )
+                                        }
 
+                                    }
+
+                                    false -> {
+                                        coroutineScope.launch {
+                                            viewModel.addCommentBookmark(
+                                                commentBookmarkAddForm = CommentBookmarkAddForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         },
-                        onLikeClick = {
+                        onLikeClick = { commentEntity ->
+                            commentEntity.apply {
+                                when (likeEntity.isLike) {
+                                    true -> {
+                                        coroutineScope.launch {
+                                            viewModel.deleteCommentLike(
+                                                commentLikeDeleteForm = CommentLikeDeleteForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                )
+                                            )
+                                        }
+                                    }
 
+                                    false -> {
+                                        coroutineScope.launch {
+                                            viewModel.addCommentLike(
+                                                commentLikeAddForm = CommentLikeAddForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                    commentAuthorEmail = commentMetaEntity.author.email,
+                                                    commentCreateTime = commentMetaEntity.createTime
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         },
                         onLoadMore = {
                             // 중복 호출 방지
