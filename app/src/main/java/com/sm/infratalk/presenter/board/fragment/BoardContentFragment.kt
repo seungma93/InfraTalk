@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -26,6 +27,8 @@ import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.adpater.BoardContentImageAdapter
 import com.sm.infratalk.presenter.board.adpater.CommentListAdapter
 import com.sm.infratalk.presenter.board.adpater.ListItem
+import com.sm.infratalk.presenter.board.components.BoardContentScreen
+import com.sm.infratalk.presenter.board.components.BoardScreen
 import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkLoadForm
@@ -100,6 +103,18 @@ class BoardContentFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BoardContentScreen(viewModel = boardContentViewModel)
+            }
+        }
     }
 
     /*
