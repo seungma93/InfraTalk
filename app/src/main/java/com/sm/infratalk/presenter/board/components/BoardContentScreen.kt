@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
@@ -40,7 +39,6 @@ import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
-import com.sm.infratalk.presenter.board.form.BoardListLoadForm
 import com.sm.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentLikeAddForm
@@ -49,7 +47,6 @@ import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @Composable
 fun BoardContentScreen(
@@ -251,7 +248,11 @@ fun BoardContent(
         Row(modifier = Modifier.fillMaxWidth()) {
             Image(
                 painter = item.boardMetaEntity.images?.let {
-                    rememberAsyncImagePainter(it.successUris)
+                    if(it.successUris.isNotEmpty()) {
+                        rememberAsyncImagePainter(it.successUris)
+                    } else {
+                        painterResource(id = R.drawable.ic_avatar)
+                    }
                 } ?: run {
                     painterResource(id = R.drawable.ic_avatar)
                 },
