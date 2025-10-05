@@ -287,14 +287,14 @@ fun BoardContent(
                 .padding(vertical = 10.dp, horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Image(
+            /*Image(
                 painter = painterResource(id = R.drawable.ic_chat),
                 contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.clickable {
                     onChatClick(item)
                 }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
+            )*/
             Image(
                 painter = painterResource(
                     id = if (item.bookmarkEntity.isBookmark) {
