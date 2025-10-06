@@ -34,6 +34,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.comment.entity.CommentEntity
+import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
@@ -389,13 +390,28 @@ fun BoardCommentList(
 fun BoardCommentItemRow(
     item: CommentEntity,
     onBookmarkClick: (CommentEntity) -> Unit,
-    onLikeClick: (CommentEntity) -> Unit
+    onLikeClick: (CommentEntity) -> Unit,
+    userEntity: UserEntity
 ) {
     Column {
-        Text(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
-            text = item.commentMetaEntity.author.nickname)
+        Row {
+            Text(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+                text = item.commentMetaEntity.author.nickname)
+            if(userEntity.email == item.commentMetaEntity.author.email){
+                Image(
+                    painter = painterResource(
+                        id = R.drawable.ic_clear
+                    ),
+                    contentDescription = stringResource(R.string.app_name),
+                    modifier = Modifier.clickable {
+                        onBookmarkClick(item)
+                    }, // 크기, 패딩 등 지정 가능
+                    contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+                )
+            }
+        }
 
         Text(modifier = Modifier
             .fillMaxWidth()
