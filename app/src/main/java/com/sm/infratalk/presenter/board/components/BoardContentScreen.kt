@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.test.core.app.ActivityScenario.launch
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
@@ -47,6 +48,8 @@ import com.sm.infratalk.presenter.board.form.CommentLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -335,10 +338,12 @@ fun BoardCommentList(
     onBookmarkClick: (CommentEntity) -> Unit,
     onLikeClick: (CommentEntity) -> Unit,
     onLoadMore: () -> Unit,
-    isLoadingMore: Boolean = false
+    isLoadingMore: Boolean = false,
+    userEntity: UserEntity
 ) {
 // 스크롤 상태 관리
     val listState = rememberLazyListState()
+
 
     // 스크롤 감지 및 더보기 호출
     LaunchedEffect(listState, isLoadingMore) {
@@ -364,7 +369,9 @@ fun BoardCommentList(
             BoardCommentItemRow(
                 item = item,
                 onBookmarkClick = onBookmarkClick,
-                onLikeClick = onLikeClick
+                onLikeClick = onLikeClick,
+                userEntity = userEntity
+
             )
         }
 
