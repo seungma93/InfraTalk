@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.test.core.app.ActivityScenario.launch
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardEntity
@@ -48,8 +47,6 @@ import com.sm.infratalk.presenter.board.form.CommentLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,7 +58,11 @@ fun BoardContentScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(false) }
     var isLoadingMore by remember { mutableStateOf(false) }
+    var userEntity by remember { mutableStateOf<UserEntity?>(null) }
 
+    LaunchedEffect(Unit) {
+        userEntity = viewModel.getUserMe()
+    }
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -222,7 +223,8 @@ fun BoardContentScreen(
                                 }
                             }
                         },
-                        isLoadingMore = isLoadingMore
+                        isLoadingMore = isLoadingMore,
+                        userEntity = userEntity ?: throw Exception("유저 정보가 없습니다.")
 
                     )
                 }
