@@ -71,7 +71,7 @@ fun BoardContentScreen(
 
     } else {
         Column {
-            // 게시글 상셍
+            // 게시글 상세
             viewState.boardEntity?.let { boardEntity ->
                 BoardContent(
                     item = boardEntity,
@@ -245,6 +245,8 @@ fun BoardContent(
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit
 ) {
+    val listState = rememberLazyListState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -284,7 +286,27 @@ fun BoardContent(
 
         // TODO("제목, 내용")
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
+        LazyColumn(
+            state = listState  // 스크롤 상태 연결
+        ) {
+            item.boardMetaEntity.images?.successUris?.let { items ->
+                items(items = items) { item ->
+                    /*
+                    BoardCommentItemRow(
+                        item = item,
+                        onBookmarkClick = onBookmarkClick,
+                        onLikeClick = onLikeClick,
+                        userEntity = userEntity
+
+                    )
+
+                     */
+                }
+            }
+
+        }
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
+
         // TODO("버튼")
 
         Row(
