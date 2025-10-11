@@ -1,5 +1,6 @@
 package com.sm.infratalk.presenter.board.components
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -291,22 +292,21 @@ fun BoardContent(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp), // 리스트 자체의 높이
+                .height(120.dp)
+                .clickable {
+
+                }, // 리스트 자체의 높이
             horizontalArrangement = Arrangement.spacedBy(8.dp), // 아이템 간격
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp),
+
         ) {
             item.boardMetaEntity.images?.successUris?.let { items ->
                 items(items = items) { item ->
-                    /*
-                    BoardCommentItemRow(
+
+                    ImageItemRow(
                         item = item,
-                        onBookmarkClick = onBookmarkClick,
-                        onLikeClick = onLikeClick,
-                        userEntity = userEntity
 
                     )
-
-                     */
                 }
             }
 
@@ -493,72 +493,17 @@ fun BoardCommentItemRow(
         }
     }
 }
-/*
+
 
 @Composable
 fun ImageItemRow(
-    item: CommentEntity
+    item: Uri
 ) {
     Column {
         Row {
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp),
-                text = item.commentMetaEntity.author.nickname)
-            if(userEntity.email == item.commentMetaEntity.author.email){
-                Image(
-                    painter = painterResource(
-                        id = R.drawable.ic_clear
-                    ),
-                    contentDescription = stringResource(R.string.app_name),
-                    modifier = Modifier.clickable {
-                        onBookmarkClick(item)
-                    }, // 크기, 패딩 등 지정 가능
-                    contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-                )
-            }
+
+
         }
 
-        Text(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
-            text = item.commentMetaEntity.content)
-        Row {
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp),
-                text = item.commentMetaEntity.createTime.toString())
-            Image(
-                painter = painterResource(
-                    id = if (item.bookmarkEntity.isBookmark) {
-                        R.drawable.btn_star_pressed  // 북마크된 상태
-                    } else {
-                        R.drawable.btn_star_default   // 북마크 안된 상태
-                    }
-                ),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable {
-                    onBookmarkClick(item)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-            Image(
-                painter = painterResource(
-                    id = if (item.likeEntity.isLike) {
-                        R.drawable.btn_like_pressed  // 좋아요된 상태
-                    } else {
-                        R.drawable.btn_like_default   // 좋아요 안된 상태
-                    }
-                ),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable {
-                    onLikeClick(item)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-            Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                text = item.likeCountEntity.likeCount.toString()
-            )
-        }
     }
-}*/
+}
