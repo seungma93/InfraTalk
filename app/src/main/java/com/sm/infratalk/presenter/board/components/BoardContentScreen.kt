@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -499,11 +500,14 @@ fun BoardCommentItemRow(
 fun ImageItemRow(
     item: Uri
 ) {
-    Column {
-        Row {
-
-
-        }
-
+    Box(modifier = Modifier) {
+        Image(
+            painter = rememberAsyncImagePainter(model = item),
+            contentDescription = "selected image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f) // 정사각형 형태 (원하면 제거 가능)
+        )
     }
 }
