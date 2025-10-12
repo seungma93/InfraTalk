@@ -51,6 +51,7 @@ import com.sm.infratalk.presenter.board.form.CommentLikeAddForm
 import com.sm.infratalk.presenter.board.form.CommentLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
+import com.sm.infratalk.presenter.board.fragment.DialogImageFragment
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
 
@@ -250,6 +251,7 @@ fun BoardContent(
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false)}
 
     Column(
         modifier = Modifier
@@ -295,7 +297,7 @@ fun BoardContent(
                 .fillMaxWidth()
                 .height(120.dp)
                 .clickable {
-
+                    showDialog = true
                 }, // 리스트 자체의 높이
             horizontalArrangement = Arrangement.spacedBy(8.dp), // 아이템 간격
             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -312,6 +314,11 @@ fun BoardContent(
             }
 
         }
+
+        if(showDialog) {
+            // 다이어로그 호출
+        }
+
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
 
         // TODO("버튼")
