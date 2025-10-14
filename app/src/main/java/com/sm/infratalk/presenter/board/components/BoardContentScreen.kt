@@ -51,7 +51,6 @@ import com.sm.infratalk.presenter.board.form.CommentLikeAddForm
 import com.sm.infratalk.presenter.board.form.CommentLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
-import com.sm.infratalk.presenter.board.fragment.DialogImageFragment
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
 
@@ -516,5 +515,85 @@ fun ImageItemRow(
                 .fillMaxWidth()
                 .aspectRatio(1f) // 정사각형 형태 (원하면 제거 가능)
         )
+    }
+}
+
+@Composable
+fun ImageSliderDialog(
+    images: List<Uri>,
+    initialIndex: Int = 0,
+    onDismiss: () -> Unit
+) {
+    var currentIndex by remember { mutableStateOf(initialIndex) }
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.9f))
+        ) {
+            // 닫기 버튼
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_clear),
+                    contentDescription = "닫기",
+                    tint = Color.White
+                )
+            }
+
+            // 이미지 카운터
+            Text(
+                text = "${currentIndex + 1} / ${images.size}",
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(16.dp)
+            )
+
+            // 이미지 슬라이더
+            LazyRow(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(images.size) { index ->
+                    Image(
+                        painter = rememberAsyncImagePainter(images[index]),
+                        contentDescription = "이미지 ${index + 1}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+
+            // 인디케이터 (작은 점들)
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(images.size) { index ->
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                color = if (index == currentIndex) Color.White else Color.Gray,
+                                shape = CircleShape
+                            )
+                            .padding(horizontal = 4.dp)
+                    )
+                }
+            }
+        }
     }
 }
