@@ -561,15 +561,6 @@ fun ImageSliderDialog(
                 )
             }
 
-            // 이미지 카운터
-            Text(
-                text = "${currentIndex + 1} / ${images.size}",
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(16.dp)
-            )
-
             // 이미지 슬라이더
             LazyRow(
                 state = listState,
@@ -589,25 +580,14 @@ fun ImageSliderDialog(
                 }
             }
 
-            // 인디케이터 (작은 점들)
-            Row(
+            // 숫자 표시 인디케이터 (Bottom Center)
+            Text(
+                text = "${currentIndex + 1} / ${images.size}",
+                color = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(images.size) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                color = if (index == currentIndex) Color.White else Color.Gray,
-                                shape = CircleShape
-                            )
-                            .padding(horizontal = 4.dp)
-                    )
-                }
-            }
+                    .padding(16.dp)
+            )
         }
     }
 }
