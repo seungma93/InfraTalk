@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
@@ -77,8 +79,14 @@ fun BoardScreen(
     // ViewState 변경 감지 로그
     LaunchedEffect(viewState) {
         Log.d("BoardScreen", "ViewState 변경됨! 아이템 개수: ${viewState.boardListEntity.boardList.size}")
-        Log.d("BoardScreen", "첫 번째 아이템 북마크 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.bookmarkEntity?.isBookmark}")
-        Log.d("BoardScreen", "첫 번째 아이템 좋아요 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.likeEntity?.isLike}")
+        Log.d(
+            "BoardScreen",
+            "첫 번째 아이템 북마크 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.bookmarkEntity?.isBookmark}"
+        )
+        Log.d(
+            "BoardScreen",
+            "첫 번째 아이템 좋아요 상태: ${viewState.boardListEntity.boardList.firstOrNull()?.likeEntity?.isLike}"
+        )
     }
 
     // 초기 데이터 로드
@@ -113,7 +121,10 @@ fun BoardScreen(
                 (context as? Navigable)?.navigateFragment(endPoint)
             },
             onBookmarkClick = {
-                Log.d("BoardScreen", "북마크 클릭! 현재 상태: ${it.bookmarkEntity.isBookmark}, 게시글: ${it.boardMetaEntity.title}")
+                Log.d(
+                    "BoardScreen",
+                    "북마크 클릭! 현재 상태: ${it.bookmarkEntity.isBookmark}, 게시글: ${it.boardMetaEntity.title}"
+                )
 
                 when (it.bookmarkEntity.isBookmark) {
                     true -> {
@@ -125,7 +136,10 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
-                            Log.d("BoardScreen", "북마크 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
+                            Log.d(
+                                "BoardScreen",
+                                "북마크 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                            )
                         }
                     }
 
@@ -138,7 +152,10 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
-                            Log.d("BoardScreen", "북마크 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
+                            Log.d(
+                                "BoardScreen",
+                                "북마크 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                            )
                         }
                     }
                 }
@@ -146,7 +163,10 @@ fun BoardScreen(
 
             },
             onLikeClick = {
-                Log.d("BoardScreen", "좋아요 클릭! 현재 상태: ${it.likeEntity.isLike}, 게시글: ${it.boardMetaEntity.title}")
+                Log.d(
+                    "BoardScreen",
+                    "좋아요 클릭! 현재 상태: ${it.likeEntity.isLike}, 게시글: ${it.boardMetaEntity.title}"
+                )
 
                 when (it.likeEntity.isLike) {
                     true -> {
@@ -162,7 +182,10 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
-                            Log.d("BoardScreen", "좋아요 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
+                            Log.d(
+                                "BoardScreen",
+                                "좋아요 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                            )
                         }
                     }
 
@@ -179,7 +202,10 @@ fun BoardScreen(
                                     boardCreateTime = it.boardMetaEntity.createTime
                                 )
                             )
-                            Log.d("BoardScreen", "좋아요 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}")
+                            Log.d(
+                                "BoardScreen",
+                                "좋아요 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                            )
                         }
                     }
                 }
@@ -246,7 +272,7 @@ fun BoardItemList(
 ) {
     // 스크롤 상태 관리
     val listState = rememberLazyListState()
-    
+
     // 스크롤 감지 및 더보기 호출
     LaunchedEffect(listState, isLoadingMore) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo }
@@ -254,16 +280,19 @@ fun BoardItemList(
                 if (visibleItems.isNotEmpty() && !isLoadingMore) {
                     val lastVisibleItem = visibleItems.last()
                     val totalItems = listState.layoutInfo.totalItemsCount
-                    
+
                     // 마지막에서 3번째 아이템이 보이면 더보기 호출
                     if (lastVisibleItem.index >= totalItems - 3) {
-                        Log.d("BoardScreen", "스크롤 감지: 더보기 호출 (${lastVisibleItem.index}/${totalItems})")
+                        Log.d(
+                            "BoardScreen",
+                            "스크롤 감지: 더보기 호출 (${lastVisibleItem.index}/${totalItems})"
+                        )
                         onLoadMore()
                     }
                 }
             }
     }
-    
+
     LazyColumn(
         state = listState  // 스크롤 상태 연결
     ) {
@@ -291,7 +320,7 @@ fun BoardItemList(
                 }
             }
         }
-        
+
     }
 }
 
@@ -342,6 +371,16 @@ fun BoardItemRow(
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
         // TODO("버튼")
+
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+        ) {
+            item.boardMetaEntity.images?.let {
+
+            }
+        }
 
         Row(
             modifier = Modifier
