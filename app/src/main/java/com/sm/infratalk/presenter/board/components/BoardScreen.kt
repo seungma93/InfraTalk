@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,8 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,9 +59,7 @@ import com.sm.infratalk.presenter.chat.form.ChatRoomCheckForm
 import com.sm.infratalk.presenter.chat.form.ChatRoomCreateForm
 import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.Collections.emptyList
 import java.util.Date
 
 
@@ -89,7 +86,7 @@ fun BoardScreen(
         )
     }
 
-    // 초기 데이터 로드
+    // 초기 데이터 로
     LaunchedEffect(Unit) {
         isLoading = true
         try {
@@ -376,10 +373,23 @@ fun BoardItemRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-        ) {
-            item.boardMetaEntity.images?.let {
+                .clickable {
 
+                }, // 리스트 자체의 높이
+            horizontalArrangement = Arrangement.spacedBy(8.dp), // 아이템 간격
+            contentPadding = PaddingValues(horizontal = 16.dp),
+
+            ) {
+            item.boardMetaEntity.images?.successUris?.let { items ->
+                items(items = items) { item ->
+
+                    ImageItemRow(
+                        item = item,
+
+                        )
+                }
             }
+
         }
 
         Row(
