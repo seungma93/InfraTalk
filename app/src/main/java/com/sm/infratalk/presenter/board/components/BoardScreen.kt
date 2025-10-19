@@ -369,27 +369,21 @@ fun BoardItemRow(
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
         // TODO("버튼")
 
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .clickable {
 
-                }, // 리스트 자체의 높이
-            horizontalArrangement = Arrangement.spacedBy(8.dp), // 아이템 간격
-            contentPadding = PaddingValues(horizontal = 16.dp),
 
+        item.boardMetaEntity.images?.successUris?.takeIf { it.isNotEmpty() }?.let { items ->
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clickable { },
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
-            item.boardMetaEntity.images?.successUris?.let { items ->
-                items(items = items) { item ->
-
-                    ImageItemRow(
-                        item = item,
-
-                        )
+                items(items) { item ->
+                    ImageItemRow(item = item)
                 }
             }
-
         }
 
         Row(
