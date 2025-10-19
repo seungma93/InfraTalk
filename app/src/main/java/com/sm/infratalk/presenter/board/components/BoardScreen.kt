@@ -376,7 +376,7 @@ fun BoardItemRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
-                    .clickable { },
+                    ,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
