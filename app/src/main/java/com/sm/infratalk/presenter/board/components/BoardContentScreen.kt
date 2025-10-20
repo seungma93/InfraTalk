@@ -44,6 +44,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.sm.infratalk.R
+import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.board.entity.BoardEntity
 import com.sm.infratalk.domain.comment.entity.CommentEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
@@ -63,6 +64,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun BoardContentScreen(
+    boardContentPrimaryKeyEntity: BoardContentPrimaryKeyEntity,
     viewModel: BoardContentViewModel
 ) {
 
@@ -80,7 +82,6 @@ fun BoardContentScreen(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
-
     } else {
         Column {
             // 게시글 상세

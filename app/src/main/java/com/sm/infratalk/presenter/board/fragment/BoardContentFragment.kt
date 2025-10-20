@@ -72,10 +72,6 @@ class BoardContentFragment : Fragment() {
 
    /* private var _binding: FragmentBoardContentBinding? = null
     private val binding get() = _binding!!
-    private val boardContentPrimaryKeyEntity
-        get() = requireArguments().getSerializable(
-            BOARD_ITEM_KEY
-        ) as BoardContentPrimaryKeyEntity
     private lateinit var callback: OnBackPressedCallback
     private var _boardContentImageAdapter: BoardContentImageAdapter? = null
     private val boardContentImageAdapter get() = _boardContentImageAdapter!!
@@ -85,8 +81,11 @@ class BoardContentFragment : Fragment() {
         moreItems()
     }, {
     })*/
+   private val boardContentPrimaryKeyEntity
+       get() = requireArguments().getSerializable(
+           BOARD_ITEM_KEY
+       ) as BoardContentPrimaryKeyEntity
    private lateinit var callback: OnBackPressedCallback
-    private lateinit var userEntity: UserEntity
 
 
     @Inject
@@ -112,7 +111,7 @@ class BoardContentFragment : Fragment() {
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                BoardContentScreen(viewModel = boardContentViewModel)
+                BoardContentScreen(viewModel = boardContentViewModel, boardContentPrimaryKeyEntity = boardContentPrimaryKeyEntity)
             }
         }
     }
