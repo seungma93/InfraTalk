@@ -50,9 +50,12 @@ import com.sm.infratalk.domain.comment.entity.CommentEntity
 import com.sm.infratalk.domain.user.entity.UserEntity
 import com.sm.infratalk.presenter.board.form.BoardBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.BoardBookmarkDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardBookmarkLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeAddForm
 import com.sm.infratalk.presenter.board.form.BoardLikeCountLoadForm
 import com.sm.infratalk.presenter.board.form.BoardLikeDeleteForm
+import com.sm.infratalk.presenter.board.form.BoardLikeLoadForm
+import com.sm.infratalk.presenter.board.form.BoardLoadForm
 import com.sm.infratalk.presenter.board.form.CommentBookmarkAddForm
 import com.sm.infratalk.presenter.board.form.CommentBookmarkDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentLikeAddForm
@@ -61,6 +64,7 @@ import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @Composable
 fun BoardContentScreen(
@@ -76,6 +80,25 @@ fun BoardContentScreen(
 
     LaunchedEffect(Unit) {
         userEntity = viewModel.getUserMe()
+        boardContentPrimaryKeyEntity.apply {
+            viewModel.loadBoardAndComment(
+                boardLoadForm = BoardLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                boardBookmarkLoadForm = BoardBookmarkLoadForm(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime
+                ),
+                boardLikeLoadForm = BoardLikeLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime
+                ),
+                commentMetaListLoadForm = CommentMetaListLoadForm(
+                    boardAuthorEmail = boardAuthorEmail,
+                    boardCreateTime = boardCreateTime,
+                    reload = false
+                )
+            )
+        }
     }
 
     if (isLoading) {
