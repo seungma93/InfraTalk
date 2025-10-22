@@ -78,26 +78,40 @@ fun BoardContentScreen(
     var isLoadingMore by remember { mutableStateOf(false) }
     var userEntity by remember { mutableStateOf<UserEntity?>(null) }
 
+    // 유저 정보 로드
     LaunchedEffect(Unit) {
         userEntity = viewModel.getUserMe()
-        boardContentPrimaryKeyEntity.apply {
-            viewModel.loadBoardAndComment(
-                boardLoadForm = BoardLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
-                boardBookmarkLoadForm = BoardBookmarkLoadForm(
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime
-                ),
-                boardLikeLoadForm = BoardLikeLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
-                boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime
-                ),
-                commentMetaListLoadForm = CommentMetaListLoadForm(
-                    boardAuthorEmail = boardAuthorEmail,
-                    boardCreateTime = boardCreateTime,
-                    reload = false
+    }
+
+    // 최초 게시글과 댓글 데이터 로드
+    LaunchedEffect(boardContentPrimaryKeyEntity) {
+        isLoading = true
+        try {
+            Log.d("BoardContentScreen", "최초 데이터 로드 시작")
+            boardContentPrimaryKeyEntity.apply {
+                viewModel.loadBoardAndComment(
+                    boardLoadForm = BoardLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                    boardBookmarkLoadForm = BoardBookmarkLoadForm(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime = boardCreateTime
+                    ),
+                    boardLikeLoadForm = BoardLikeLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime = boardCreateTime
+                    ),
+                    commentMetaListLoadForm = CommentMetaListLoadForm(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime = boardCreateTime,
+                        reload = true  // 최초 로드이므로 true로 변경
+                    )
                 )
-            )
+            }
+            Log.d("BoardContentScreen", "최초 데이터 로드 완료")
+        } catch (e: Exception) {
+            Log.e("BoardContentScreen", "최초 데이터 로드 실패", e)
+        } finally {
+            isLoading = false
         }
     }
 

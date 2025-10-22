@@ -81,12 +81,11 @@ class BoardContentFragment : Fragment() {
         moreItems()
     }, {
     })*/
-   private val boardContentPrimaryKeyEntity
-       get() = requireArguments().getSerializable(
-           BOARD_ITEM_KEY
-       ) as BoardContentPrimaryKeyEntity
-   private lateinit var callback: OnBackPressedCallback
-
+    private val boardContentPrimaryKeyEntity
+        get() = requireArguments().getSerializable(
+            BOARD_ITEM_KEY
+        ) as BoardContentPrimaryKeyEntity
+    private lateinit var callback: OnBackPressedCallback
 
     @Inject
     lateinit var boardContentViewModelFactory: ViewModelProvider.Factory
@@ -111,7 +110,7 @@ class BoardContentFragment : Fragment() {
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                BoardContentScreen(viewModel = boardContentViewModel, boardContentPrimaryKeyEntity = boardContentPrimaryKeyEntity)
+                BoardContentScreen(boardContentPrimaryKeyEntity = boardContentPrimaryKeyEntity, viewModel = boardContentViewModel)
             }
         }
     }
