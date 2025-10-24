@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +71,7 @@ fun BoardScreen(
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var isLoadingMore by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -106,7 +109,28 @@ fun BoardScreen(
     } else {
         val coroutineScope = rememberCoroutineScope()
 
-        BoardItemList(
+        // Pull-to-refresh 로직
+        val onRefresh = {
+            isRefreshing = true
+            coroutineScope.launch {
+                try {
+                    Log.d("BoardScreen", "Pull-to-refresh 시작")
+                    viewModel.loadBoardList(BoardListLoadForm(reload = true))
+                    Log.d("BoardScreen", "Pull-to-refresh 완료")
+                } catch (e: Exception) {
+                    Log.e("BoardScreen", "Pull-to-refresh 실패", e)
+                } finally {
+                    isRefreshing = false
+                }
+            }
+        }
+
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            BoardItemList(
             items = viewState.boardListEntity.boardList,
             onItemClick = {
                 val endPoint = EndPoint.BoardContent(
@@ -252,6 +276,7 @@ fun BoardScreen(
                 }
             }, isLoadingMore = isLoadingMore
         )
+        }
     }
 }
 
