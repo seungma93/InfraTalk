@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -76,6 +78,7 @@ fun BoardContentScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(false) }
     var isLoadingMore by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(false) }
     var userEntity by remember { mutableStateOf<UserEntity?>(null) }
 
     // 유저 정보 로드
@@ -188,10 +191,33 @@ fun BoardContentScreen(
                 )
                 // 댓글
                 viewState.commentListEntity?.let { commentListEntity ->
+                    // Pull-to-refresh 로직
+                    val onRefresh = {
+                        isRefreshing = true
+                        coroutineScope.launch {
+                            try {
+                                Log.d("BoardContentScreen", "댓글 Pull-to-refresh 시작")
+                                viewModel.loadCommentList(commentMetaListLoadForm = CommentMetaListLoadForm(
+                                    boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
+                                    boardCreateTime = boardEntity.boardMetaEntity.createTime,
+                                    reload = true,  // 댓글만 리프레시
+                                ))
+                                Log.d("BoardContentScreen", "댓글 Pull-to-refresh 완료")
+                            } catch (e: Exception) {
+                                Log.e("BoardContentScreen", "댓글 Pull-to-refresh 실패", e)
+                            } finally {
+                                isRefreshing = false
+                            }
+                        }
+                    }
 
-                    BoardCommentList (
-                        items = commentListEntity.commentList,
-                        onBookmarkClick = { commentEntity ->
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing),
+                        onRefresh = onRefresh
+                    ) {
+                        BoardCommentList (
+                            items = commentListEntity.commentList,
+                            onBookmarkClick = { commentEntity ->
                             commentEntity.apply {
                                 when (bookmarkEntity.isBookmark) {
                                     true -> {
@@ -276,7 +302,8 @@ fun BoardContentScreen(
                         isLoadingMore = isLoadingMore,
                         userEntity = userEntity ?: throw Exception("유저 정보가 없습니다.")
 
-                    )
+                        )
+                    }
                 }
             }
 
