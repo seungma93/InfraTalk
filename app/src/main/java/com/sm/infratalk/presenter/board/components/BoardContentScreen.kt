@@ -192,7 +192,7 @@ fun BoardContentScreen(
                 // 댓글
                 viewState.commentListEntity?.let { commentListEntity ->
                     // Pull-to-refresh 로직
-                    val onRefresh = {
+                    val onRefresh: () -> Unit = {
                         isRefreshing = true
                         coroutineScope.launch {
                             try {
