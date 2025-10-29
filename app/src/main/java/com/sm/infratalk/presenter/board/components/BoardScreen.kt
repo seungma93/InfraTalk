@@ -110,7 +110,7 @@ fun BoardScreen(
         val coroutineScope = rememberCoroutineScope()
 
         // Pull-to-refresh 로직
-        val onRefresh = {
+        val onRefresh:() -> Unit = {
             isRefreshing = true
             coroutineScope.launch {
                 try {
