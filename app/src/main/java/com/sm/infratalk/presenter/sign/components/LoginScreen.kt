@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -58,7 +59,6 @@ import com.sm.infratalk.presenter.sign.form.SavedEmailSetForm
 import com.sm.infratalk.presenter.sign.viewmodel.SignViewModel
 import com.sm.infratalk.presenter.sign.viewmodel.ViewEvent
 import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Color
 
 // UI 컴포넌트 (상태 없음, 순수 UI 표현)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,11 +126,7 @@ private fun LoginContent(
                     label = { Text("이메일") },
                     modifier = Modifier.width(250.dp),
                     singleLine = true,
-                    colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = colorPrimaryDark,
-                        cursorColor = colorPrimaryDark,
-                        focusedLabelColor = colorPrimaryDark
-                    )
+                    colors = androidx.compose.material3.TextFieldDefaults.colors()
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -142,11 +138,7 @@ private fun LoginContent(
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.width(250.dp),
                     singleLine = true,
-                    colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = colorPrimaryDark,
-                        cursorColor = colorPrimaryDark,
-                        focusedLabelColor = colorPrimaryDark
-                    )
+                    colors = androidx.compose.material3.TextFieldDefaults.colors()
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
