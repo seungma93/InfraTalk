@@ -458,19 +458,32 @@ fun BoardCommentList(
 ) {
 // 스크롤 상태 관리
     val listState = rememberLazyListState()
+    var lastLoadTriggeredIndex by remember { mutableStateOf(-1) }
 
+    // items가 변경되면 (새 댓글이 추가되면) lastLoadTriggeredIndex 리셋
+    LaunchedEffect(items.size) {
+        lastLoadTriggeredIndex = -1
+    }
 
     // 스크롤 감지 및 더보기 호출
     LaunchedEffect(listState, isLoadingMore) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-            .collect { visibleItems ->
-                if (visibleItems.isNotEmpty() && !isLoadingMore) {
-                    val lastVisibleItem = visibleItems.last()
+        snapshotFlow { 
+            val visibleItems = listState.layoutInfo.visibleItemsInfo
+            if (visibleItems.isNotEmpty()) {
+                visibleItems.last().index
+            } else {
+                -1
+            }
+        }
+            .collect { lastVisibleIndex ->
+                if (lastVisibleIndex != -1 && !isLoadingMore) {
                     val totalItems = listState.layoutInfo.totalItemsCount
 
                     // 마지막에서 3번째 아이템이 보이면 더보기 호출
-                    if (lastVisibleItem.index >= totalItems - 3) {
-                        Log.d("BoardScreen", "스크롤 감지: 더보기 호출 (${lastVisibleItem.index}/${totalItems})")
+                    // 그리고 마지막으로 호출한 인덱스와 다를 때만 호출
+                    if (lastVisibleIndex >= totalItems - 3 && lastVisibleIndex != lastLoadTriggeredIndex) {
+                        Log.d("BoardScreen", "스크롤 감지: 더보기 호출 (${lastVisibleIndex}/${totalItems})")
+                        lastLoadTriggeredIndex = lastVisibleIndex
                         onLoadMore()
                     }
                 }
