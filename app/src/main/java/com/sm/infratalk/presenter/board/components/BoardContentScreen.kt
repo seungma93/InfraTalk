@@ -15,15 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -45,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
 import com.sm.infratalk.domain.board.entity.BoardEntity
@@ -66,7 +64,6 @@ import com.sm.infratalk.presenter.board.form.CommentLikeDeleteForm
 import com.sm.infratalk.presenter.board.form.CommentMetaListLoadForm
 import com.sm.infratalk.presenter.board.viewmodel.BoardContentViewModel
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @Composable
 fun BoardContentScreen(
@@ -125,6 +122,7 @@ fun BoardContentScreen(
     } else {
         Column {
             // 게시글 상세
+            Log.d("seungma", "게시글 상세 뷰스테이트 " + viewState.boardEntity)
             viewState.boardEntity?.let { boardEntity ->
                 BoardContent(
                     item = boardEntity,
@@ -330,7 +328,7 @@ fun BoardContent(
             .padding(16.dp)
     ) {
         // TODO("작성자, 날짜")
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
             Image(
                 painter = item.boardMetaEntity.images?.let {
                     if(it.successUris.isNotEmpty()) {
@@ -352,6 +350,7 @@ fun BoardContent(
                         .padding(horizontal = 10.dp),
                     text = item.boardMetaEntity.author.nickname
                 )
+                Log.d("seungma", "보드 텍스트 " + item.boardMetaEntity.author.nickname)
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
