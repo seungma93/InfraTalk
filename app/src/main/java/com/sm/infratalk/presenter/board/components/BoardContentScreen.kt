@@ -649,9 +649,7 @@ fun ImageSliderDialog(
                     Image(
                         painter = rememberAsyncImagePainter(images[index]),
                         contentDescription = "이미지 ${index + 1}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
+                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 }
