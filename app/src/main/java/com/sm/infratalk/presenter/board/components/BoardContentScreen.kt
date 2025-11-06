@@ -365,6 +365,7 @@ fun BoardContent(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .height(120.dp)
                 .clickable {
                     showDialog = true
