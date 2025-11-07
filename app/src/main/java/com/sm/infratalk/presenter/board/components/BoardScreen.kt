@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.sm.infratalk.R
 import com.sm.infratalk.domain.board.entity.BoardContentPrimaryKeyEntity
@@ -359,7 +362,16 @@ fun BoardItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(item) }
-            .padding(16.dp)
+            .drawBehind {
+            val stroke = 3.dp.toPx()
+            val y = size.height - stroke / 2
+            drawLine(
+                color = Color(0xFFF1F1F1),
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = stroke
+            )
+        }
     ) {
         // TODO("작성자, 날짜")
         Row(modifier = Modifier.fillMaxWidth()) {
