@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -326,6 +328,16 @@ fun BoardContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .drawBehind {
+                val stroke = 3.dp.toPx()
+                val y = size.height - stroke / 2
+                drawLine(
+                    color = Color(0xFFF1F1F1),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = stroke
+                )
+            }
     ) {
         // TODO("작성자, 날짜")
         Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
