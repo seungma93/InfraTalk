@@ -327,7 +327,6 @@ fun BoardContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .drawBehind {
                 val stroke = 3.dp.toPx()
                 val y = size.height - stroke / 2
