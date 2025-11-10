@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -113,7 +114,7 @@ fun BoardScreen(
         val coroutineScope = rememberCoroutineScope()
 
         // Pull-to-refresh 로직
-        val onRefresh:() -> Unit = {
+        val onRefresh: () -> Unit = {
             isRefreshing = true
             coroutineScope.launch {
                 try {
@@ -134,151 +135,151 @@ fun BoardScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             BoardItemList(
-            items = viewState.boardListEntity.boardList,
-            onItemClick = {
-                val endPoint = EndPoint.BoardContent(
-                    boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
-                        boardAuthorEmail = it.boardMetaEntity.author.email,
-                        boardCreateTime = it.createTime
-                    )
-                )
-                (context as? Navigable)?.navigateFragment(endPoint)
-            },
-            onBookmarkClick = {
-                Log.d(
-                    "BoardScreen",
-                    "북마크 클릭! 현재 상태: ${it.bookmarkEntity.isBookmark}, 게시글: ${it.boardMetaEntity.title}"
-                )
-
-                when (it.bookmarkEntity.isBookmark) {
-                    true -> {
-                        coroutineScope.launch {
-                            Log.d("BoardScreen", "북마크 삭제 시작")
-                            val result = viewModel.deleteBookMark(
-                                BoardBookmarkDeleteForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                )
-                            )
-                            Log.d(
-                                "BoardScreen",
-                                "북마크 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
-                            )
-                        }
-                    }
-
-                    false -> {
-                        coroutineScope.launch {
-                            Log.d("BoardScreen", "북마크 추가 시작")
-                            val result = viewModel.addBookMark(
-                                BoardBookmarkAddForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                )
-                            )
-                            Log.d(
-                                "BoardScreen",
-                                "북마크 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
-                            )
-                        }
-                    }
-                }
-
-
-            },
-            onLikeClick = {
-                Log.d(
-                    "BoardScreen",
-                    "좋아요 클릭! 현재 상태: ${it.likeEntity.isLike}, 게시글: ${it.boardMetaEntity.title}"
-                )
-
-                when (it.likeEntity.isLike) {
-                    true -> {
-                        coroutineScope.launch {
-                            Log.d("BoardScreen", "좋아요 삭제 시작")
-                            val result = viewModel.deleteLike(
-                                boardLikeDeleteForm = BoardLikeDeleteForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                ),
-                                boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                )
-                            )
-                            Log.d(
-                                "BoardScreen",
-                                "좋아요 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
-                            )
-                        }
-                    }
-
-                    false -> {
-                        coroutineScope.launch {
-                            Log.d("BoardScreen", "좋아요 추가 시작")
-                            val result = viewModel.addLike(
-                                boardLikeAddForm = BoardLikeAddForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                ),
-                                boardLikeCountLoadForm = BoardLikeCountLoadForm(
-                                    boardAuthorEmail = it.boardMetaEntity.author.email,
-                                    boardCreateTime = it.boardMetaEntity.createTime
-                                )
-                            )
-                            Log.d(
-                                "BoardScreen",
-                                "좋아요 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
-                            )
-                        }
-                    }
-                }
-            }, onChatClick = {
-                coroutineScope.launch {
-                    val userEntity = viewModel.getUserMe()
-                    val member = listOf(userEntity.email, it.boardMetaEntity.author.email)
-                    viewModel.startChat(
-                        chatRoomCreateForm = ChatRoomCreateForm(member = member),
-                        chatRoomCheckForm = ChatRoomCheckForm(member = member)
-                    )
-                }
-
-            }, onRemove = {
-                coroutineScope.launch {
-                    viewModel.deleteBoard(
-                        boardDeleteForm = BoardDeleteForm(
+                items = viewState.boardListEntity.boardList,
+                onItemClick = {
+                    val endPoint = EndPoint.BoardContent(
+                        boardContentPrimaryKeyEntity = BoardContentPrimaryKeyEntity(
                             boardAuthorEmail = it.boardMetaEntity.author.email,
-                            boardCreateTime = it.boardMetaEntity.createTime
-                        ),
-                        boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
-                            boardAuthorEmail = it.boardMetaEntity.author.email,
-                            boardCreateTime = it.boardMetaEntity.createTime
-                        ),
-                        boardLikesDeleteForm = BoardLikesDeleteForm(
-                            boardAuthorEmail = it.boardMetaEntity.author.email,
-                            boardCreateTime = it.boardMetaEntity.createTime
-                        ),
+                            boardCreateTime = it.createTime
+                        )
                     )
-                }
+                    (context as? Navigable)?.navigateFragment(endPoint)
+                },
+                onBookmarkClick = {
+                    Log.d(
+                        "BoardScreen",
+                        "북마크 클릭! 현재 상태: ${it.bookmarkEntity.isBookmark}, 게시글: ${it.boardMetaEntity.title}"
+                    )
 
-            }, onLoadMore = {
-                // 중복 호출 방지
-                if (!isLoadingMore) {
-                    isLoadingMore = true
+                    when (it.bookmarkEntity.isBookmark) {
+                        true -> {
+                            coroutineScope.launch {
+                                Log.d("BoardScreen", "북마크 삭제 시작")
+                                val result = viewModel.deleteBookMark(
+                                    BoardBookmarkDeleteForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    )
+                                )
+                                Log.d(
+                                    "BoardScreen",
+                                    "북마크 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                                )
+                            }
+                        }
+
+                        false -> {
+                            coroutineScope.launch {
+                                Log.d("BoardScreen", "북마크 추가 시작")
+                                val result = viewModel.addBookMark(
+                                    BoardBookmarkAddForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    )
+                                )
+                                Log.d(
+                                    "BoardScreen",
+                                    "북마크 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                                )
+                            }
+                        }
+                    }
+
+
+                },
+                onLikeClick = {
+                    Log.d(
+                        "BoardScreen",
+                        "좋아요 클릭! 현재 상태: ${it.likeEntity.isLike}, 게시글: ${it.boardMetaEntity.title}"
+                    )
+
+                    when (it.likeEntity.isLike) {
+                        true -> {
+                            coroutineScope.launch {
+                                Log.d("BoardScreen", "좋아요 삭제 시작")
+                                val result = viewModel.deleteLike(
+                                    boardLikeDeleteForm = BoardLikeDeleteForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    ),
+                                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    )
+                                )
+                                Log.d(
+                                    "BoardScreen",
+                                    "좋아요 삭제 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                                )
+                            }
+                        }
+
+                        false -> {
+                            coroutineScope.launch {
+                                Log.d("BoardScreen", "좋아요 추가 시작")
+                                val result = viewModel.addLike(
+                                    boardLikeAddForm = BoardLikeAddForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    ),
+                                    boardLikeCountLoadForm = BoardLikeCountLoadForm(
+                                        boardAuthorEmail = it.boardMetaEntity.author.email,
+                                        boardCreateTime = it.boardMetaEntity.createTime
+                                    )
+                                )
+                                Log.d(
+                                    "BoardScreen",
+                                    "좋아요 추가 완료, 결과 아이템 개수: ${result.boardListEntity.boardList.size}"
+                                )
+                            }
+                        }
+                    }
+                }, onChatClick = {
                     coroutineScope.launch {
-                        try {
-                            Log.d("BoardScreen", "더보기 로드 시작")
-                            viewModel.loadBoardList(BoardListLoadForm(reload = false))
-                            Log.d("BoardScreen", "더보기 로드 완료")
-                        } catch (e: Exception) {
-                            Log.e("BoardScreen", "더보기 로드 실패", e)
-                        } finally {
-                            isLoadingMore = false
+                        val userEntity = viewModel.getUserMe()
+                        val member = listOf(userEntity.email, it.boardMetaEntity.author.email)
+                        viewModel.startChat(
+                            chatRoomCreateForm = ChatRoomCreateForm(member = member),
+                            chatRoomCheckForm = ChatRoomCheckForm(member = member)
+                        )
+                    }
+
+                }, onRemove = {
+                    coroutineScope.launch {
+                        viewModel.deleteBoard(
+                            boardDeleteForm = BoardDeleteForm(
+                                boardAuthorEmail = it.boardMetaEntity.author.email,
+                                boardCreateTime = it.boardMetaEntity.createTime
+                            ),
+                            boardBookmarksDeleteForm = BoardBookmarksDeleteForm(
+                                boardAuthorEmail = it.boardMetaEntity.author.email,
+                                boardCreateTime = it.boardMetaEntity.createTime
+                            ),
+                            boardLikesDeleteForm = BoardLikesDeleteForm(
+                                boardAuthorEmail = it.boardMetaEntity.author.email,
+                                boardCreateTime = it.boardMetaEntity.createTime
+                            ),
+                        )
+                    }
+
+                }, onLoadMore = {
+                    // 중복 호출 방지
+                    if (!isLoadingMore) {
+                        isLoadingMore = true
+                        coroutineScope.launch {
+                            try {
+                                Log.d("BoardScreen", "더보기 로드 시작")
+                                viewModel.loadBoardList(BoardListLoadForm(reload = false))
+                                Log.d("BoardScreen", "더보기 로드 완료")
+                            } catch (e: Exception) {
+                                Log.e("BoardScreen", "더보기 로드 실패", e)
+                            } finally {
+                                isLoadingMore = false
+                            }
                         }
                     }
-                }
-            }, isLoadingMore = isLoadingMore
-        )
+                }, isLoadingMore = isLoadingMore
+            )
         }
     }
 }
@@ -363,18 +364,23 @@ fun BoardItemRow(
             .fillMaxWidth()
             .clickable { onClick(item) }
             .drawBehind {
-            val stroke = 3.dp.toPx()
-            val y = size.height - stroke / 2
-            drawLine(
-                color = Color(0xFFF1F1F1),
-                start = Offset(0f, y),
-                end = Offset(size.width, y),
-                strokeWidth = stroke
-            )
-        }
+                val stroke = 3.dp.toPx()
+                val y = size.height - stroke / 2
+                drawLine(
+                    color = Color(0xFFF1F1F1),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
+                    strokeWidth = stroke
+                )
+            }
     ) {
-        // TODO("작성자, 날짜")
-        Row(modifier = Modifier.fillMaxWidth()) {
+
+        Row(
+            modifier = Modifier
+                .width(width = 50.dp)
+                .height(height = 50.dp)
+        )
+        {
             Image(
                 painter = item.boardMetaEntity.images?.let {
                     rememberAsyncImagePainter(it.successUris)
@@ -401,10 +407,9 @@ fun BoardItemRow(
             }
         }
 
-        // TODO("제목, 내용")
+
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
         Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
-        // TODO("버튼")
 
 
 
@@ -412,8 +417,7 @@ fun BoardItemRow(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
-                    ,
+                    .height(120.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
