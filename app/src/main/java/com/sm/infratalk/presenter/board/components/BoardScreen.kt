@@ -408,8 +408,8 @@ fun BoardItemRow(
         }
 
 
-        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
-        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
+        Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.title)
+        Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.content)
 
 
 
