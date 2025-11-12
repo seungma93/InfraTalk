@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -38,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -408,8 +410,20 @@ fun BoardItemRow(
         }
 
 
-        Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.title)
-        Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), text = item.boardMetaEntity.content)
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            fontSize = 20.sp,
+            text = item.boardMetaEntity.title
+        )
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            fontSize = 15.sp,
+            text = item.boardMetaEntity.content
+        )
 
 
 
@@ -417,7 +431,7 @@ fun BoardItemRow(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(60.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
