@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
@@ -92,12 +93,18 @@ fun BoardContentScreen(
             Log.d("BoardContentScreen", "최초 데이터 로드 시작")
             boardContentPrimaryKeyEntity.apply {
                 viewModel.loadBoardAndComment(
-                    boardLoadForm = BoardLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                    boardLoadForm = BoardLoadForm(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime = boardCreateTime
+                    ),
                     boardBookmarkLoadForm = BoardBookmarkLoadForm(
                         boardAuthorEmail = boardAuthorEmail,
                         boardCreateTime = boardCreateTime
                     ),
-                    boardLikeLoadForm = BoardLikeLoadForm(boardAuthorEmail = boardAuthorEmail, boardCreateTime = boardCreateTime),
+                    boardLikeLoadForm = BoardLikeLoadForm(
+                        boardAuthorEmail = boardAuthorEmail,
+                        boardCreateTime = boardCreateTime
+                    ),
                     boardLikeCountLoadForm = BoardLikeCountLoadForm(
                         boardAuthorEmail = boardAuthorEmail,
                         boardCreateTime = boardCreateTime
@@ -197,11 +204,13 @@ fun BoardContentScreen(
                         coroutineScope.launch {
                             try {
                                 Log.d("BoardContentScreen", "댓글 Pull-to-refresh 시작")
-                                viewModel.loadCommentList(commentMetaListLoadForm = CommentMetaListLoadForm(
-                                    boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
-                                    boardCreateTime = boardEntity.boardMetaEntity.createTime,
-                                    reload = true,  // 댓글만 리프레시
-                                ))
+                                viewModel.loadCommentList(
+                                    commentMetaListLoadForm = CommentMetaListLoadForm(
+                                        boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
+                                        boardCreateTime = boardEntity.boardMetaEntity.createTime,
+                                        reload = true,  // 댓글만 리프레시
+                                    )
+                                )
                                 Log.d("BoardContentScreen", "댓글 Pull-to-refresh 완료")
                             } catch (e: Exception) {
                                 Log.e("BoardContentScreen", "댓글 Pull-to-refresh 실패", e)
@@ -215,92 +224,96 @@ fun BoardContentScreen(
                         state = rememberSwipeRefreshState(isRefreshing),
                         onRefresh = onRefresh
                     ) {
-                        BoardCommentList (
+                        BoardCommentList(
                             items = commentListEntity.commentList,
                             onBookmarkClick = { commentEntity ->
-                            commentEntity.apply {
-                                when (bookmarkEntity.isBookmark) {
-                                    true -> {
-                                        coroutineScope.launch {
-                                            viewModel.deleteCommentBookmark(
-                                                commentBookmarkDeleteForm = CommentBookmarkDeleteForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
+                                commentEntity.apply {
+                                    when (bookmarkEntity.isBookmark) {
+                                        true -> {
+                                            coroutineScope.launch {
+                                                viewModel.deleteCommentBookmark(
+                                                    commentBookmarkDeleteForm = CommentBookmarkDeleteForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    )
                                                 )
-                                            )
+                                            }
+
                                         }
 
-                                    }
-
-                                    false -> {
-                                        coroutineScope.launch {
-                                            viewModel.addCommentBookmark(
-                                                commentBookmarkAddForm = CommentBookmarkAddForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
+                                        false -> {
+                                            coroutineScope.launch {
+                                                viewModel.addCommentBookmark(
+                                                    commentBookmarkAddForm = CommentBookmarkAddForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        onLikeClick = { commentEntity ->
-                            commentEntity.apply {
-                                when (likeEntity.isLike) {
-                                    true -> {
-                                        coroutineScope.launch {
-                                            viewModel.deleteCommentLike(
-                                                commentLikeDeleteForm = CommentLikeDeleteForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
-                                                ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
+                            },
+                            onLikeClick = { commentEntity ->
+                                commentEntity.apply {
+                                    when (likeEntity.isLike) {
+                                        true -> {
+                                            coroutineScope.launch {
+                                                viewModel.deleteCommentLike(
+                                                    commentLikeDeleteForm = CommentLikeDeleteForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    ),
+                                                    commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
-                                    }
 
-                                    false -> {
-                                        coroutineScope.launch {
-                                            viewModel.addCommentLike(
-                                                commentLikeAddForm = CommentLikeAddForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
-                                                ), commentLikeCountLoadForm = CommentLikeCountLoadForm(
-                                                    commentAuthorEmail = commentMetaEntity.author.email,
-                                                    commentCreateTime = commentMetaEntity.createTime
+                                        false -> {
+                                            coroutineScope.launch {
+                                                viewModel.addCommentLike(
+                                                    commentLikeAddForm = CommentLikeAddForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    ),
+                                                    commentLikeCountLoadForm = CommentLikeCountLoadForm(
+                                                        commentAuthorEmail = commentMetaEntity.author.email,
+                                                        commentCreateTime = commentMetaEntity.createTime
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        onLoadMore = {
-                            // 중복 호출 방지
-                            if (!isLoadingMore) {
-                                isLoadingMore = true
-                                coroutineScope.launch {
-                                    try {
-                                        Log.d("BoardScreen", "더보기 로드 시작")
-                                        viewModel.loadCommentList(commentMetaListLoadForm = CommentMetaListLoadForm(
-                                            boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
-                                            boardCreateTime = boardEntity.boardMetaEntity.createTime,
-                                            reload = false,
-                                        ))
-                                        Log.d("BoardScreen", "더보기 로드 완료")
-                                    } catch (e: Exception) {
-                                        Log.e("BoardScreen", "더보기 로드 실패", e)
-                                    } finally {
-                                        isLoadingMore = false
+                            },
+                            onLoadMore = {
+                                // 중복 호출 방지
+                                if (!isLoadingMore) {
+                                    isLoadingMore = true
+                                    coroutineScope.launch {
+                                        try {
+                                            Log.d("BoardScreen", "더보기 로드 시작")
+                                            viewModel.loadCommentList(
+                                                commentMetaListLoadForm = CommentMetaListLoadForm(
+                                                    boardAuthorEmail = boardEntity.boardMetaEntity.author.email,
+                                                    boardCreateTime = boardEntity.boardMetaEntity.createTime,
+                                                    reload = false,
+                                                )
+                                            )
+                                            Log.d("BoardScreen", "더보기 로드 완료")
+                                        } catch (e: Exception) {
+                                            Log.e("BoardScreen", "더보기 로드 실패", e)
+                                        } finally {
+                                            isLoadingMore = false
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        isLoadingMore = isLoadingMore,
-                        userEntity = userEntity ?: throw Exception("유저 정보가 없습니다.")
+                            },
+                            isLoadingMore = isLoadingMore,
+                            userEntity = userEntity ?: throw Exception("유저 정보가 없습니다.")
 
                         )
                     }
@@ -309,8 +322,6 @@ fun BoardContentScreen(
 
         }
     }
-    
-
 
 
 }
@@ -322,7 +333,7 @@ fun BoardContent(
     onLikeClick: (BoardEntity) -> Unit,
     onChatClick: (BoardEntity) -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(false)}
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -339,10 +350,14 @@ fun BoardContent(
             }
     ) {
         // TODO("작성자, 날짜")
-        Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
             Image(
                 painter = item.boardMetaEntity.images?.let {
-                    if(it.successUris.isNotEmpty()) {
+                    if (it.successUris.isNotEmpty()) {
                         rememberAsyncImagePainter(it.successUris)
                     } else {
                         painterResource(id = R.drawable.ic_avatar)
@@ -372,7 +387,18 @@ fun BoardContent(
         }
 
         // TODO("제목, 내용")
-        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.title)
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = item.boardMetaEntity.title,
+            fontSize = 20.sp
+        )
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = item.boardMetaEntity.content,
+            fontSize = 15.sp
+        )
+
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -384,20 +410,20 @@ fun BoardContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp), // 아이템 간격
             contentPadding = PaddingValues(horizontal = 16.dp),
 
-        ) {
+            ) {
             item.boardMetaEntity.images?.successUris?.let { items ->
                 items(items = items) { item ->
 
                     ImageItemRow(
                         item = item,
 
-                    )
+                        )
                 }
             }
 
         }
 
-        if(showDialog) {
+        if (showDialog) {
 
             item.boardMetaEntity.images?.successUris?.let {
                 // 다이어로그 호출
@@ -408,7 +434,6 @@ fun BoardContent(
 
         }
 
-        Text(modifier = Modifier.fillMaxWidth(), text = item.boardMetaEntity.content)
 
         // TODO("버튼")
 
@@ -479,7 +504,7 @@ fun BoardCommentList(
 
     // 스크롤 감지 및 더보기 호출
     LaunchedEffect(listState, isLoadingMore) {
-        snapshotFlow { 
+        snapshotFlow {
             val visibleItems = listState.layoutInfo.visibleItemsInfo
             if (visibleItems.isNotEmpty()) {
                 visibleItems.last().index
@@ -542,11 +567,13 @@ fun BoardCommentItemRow(
 ) {
     Column {
         Row {
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp),
-                text = item.commentMetaEntity.author.nickname)
-            if(userEntity.email == item.commentMetaEntity.author.email){
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = item.commentMetaEntity.author.nickname
+            )
+            if (userEntity.email == item.commentMetaEntity.author.email) {
                 Image(
                     painter = painterResource(
                         id = R.drawable.ic_clear
@@ -560,15 +587,19 @@ fun BoardCommentItemRow(
             }
         }
 
-        Text(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
-            text = item.commentMetaEntity.content)
-        Row {
-            Text(modifier = Modifier
+        Text(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp),
-                text = item.commentMetaEntity.createTime.toString())
+            text = item.commentMetaEntity.content
+        )
+        Row {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = item.commentMetaEntity.createTime.toString()
+            )
             Image(
                 painter = painterResource(
                     id = if (item.bookmarkEntity.isBookmark) {
@@ -597,7 +628,10 @@ fun BoardCommentItemRow(
                 }, // 크기, 패딩 등 지정 가능
                 contentScale = ContentScale.Crop // 이미지 크기 조절 방식
             )
-            Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
                 text = item.likeCountEntity.likeCount.toString()
             )
         }
