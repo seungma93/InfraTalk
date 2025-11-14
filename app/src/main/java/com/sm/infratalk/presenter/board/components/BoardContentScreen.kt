@@ -388,12 +388,16 @@ fun BoardContent(
 
         // TODO("제목, 내용")
         Text(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
             text = item.boardMetaEntity.title,
             fontSize = 20.sp
         )
         Text(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
             text = item.boardMetaEntity.content,
             fontSize = 15.sp
         )
