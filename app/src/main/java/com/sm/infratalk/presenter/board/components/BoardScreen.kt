@@ -378,6 +378,7 @@ fun BoardItemRow(
 
         Row(
             modifier = Modifier
+                .padding(top = 11.dp, start = 8.dp)
                 .width(width = 50.dp)
                 .height(height = 50.dp)
         )
