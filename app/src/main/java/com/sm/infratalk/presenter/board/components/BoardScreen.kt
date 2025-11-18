@@ -71,6 +71,45 @@ import java.util.Date
 
 
 @Composable
+fun BoardAuthor(
+    state: BoardEntity,
+    modifier: Modifier
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 11.dp, start = 8.dp)
+            .width(width = 50.dp)
+            .height(height = 50.dp)
+    )
+    {
+        Image(
+            painter = state.boardMetaEntity.images?.let {
+                rememberAsyncImagePainter(it.successUris)
+            } ?: run {
+                painterResource(id = R.drawable.ic_avatar)
+            },
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Column {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = state.boardMetaEntity.author.nickname
+            )
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = state.boardMetaEntity.createTime.toString()
+            )
+        }
+    }
+}
+
+@Composable
 fun BoardScreen(
     viewModel: BoardViewModel
 ) {
@@ -376,38 +415,7 @@ fun BoardItemRow(
             }
     ) {
 
-        Row(
-            modifier = Modifier
-                .padding(top = 11.dp, start = 8.dp)
-                .width(width = 50.dp)
-                .height(height = 50.dp)
-        )
-        {
-            Image(
-                painter = item.boardMetaEntity.images?.let {
-                    rememberAsyncImagePainter(it.successUris)
-                } ?: run {
-                    painterResource(id = R.drawable.ic_avatar)
-                },
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-            Column {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp),
-                    text = item.boardMetaEntity.author.nickname
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp),
-                    text = item.boardMetaEntity.createTime.toString()
-                )
-            }
-        }
+
 
 
         Text(
