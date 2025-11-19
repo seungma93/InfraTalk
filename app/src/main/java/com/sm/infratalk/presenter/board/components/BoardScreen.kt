@@ -71,7 +71,7 @@ import java.util.Date
 
 
 @Composable
-fun BoardAuthor(
+fun BoardAuthorSection(
     state: BoardEntity,
     modifier: Modifier
 ) {
@@ -108,6 +108,43 @@ fun BoardAuthor(
         }
     }
 }
+
+@Composable
+fun BoardContentSection(
+    state: BoardEntity
+) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        fontSize = 20.sp,
+        text = state.boardMetaEntity.title
+    )
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        fontSize = 15.sp,
+        text = state.boardMetaEntity.content
+    )
+
+
+
+    state.boardMetaEntity.images?.successUris?.takeIf { it.isNotEmpty() }?.let { items ->
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+        ) {
+            items(items) { item ->
+                ImageItemRow(item = item)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun BoardScreen(
@@ -418,36 +455,7 @@ fun BoardItemRow(
 
 
 
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 10.dp),
-            fontSize = 20.sp,
-            text = item.boardMetaEntity.title
-        )
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            fontSize = 15.sp,
-            text = item.boardMetaEntity.content
-        )
 
-
-
-        item.boardMetaEntity.images?.successUris?.takeIf { it.isNotEmpty() }?.let { items ->
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-            ) {
-                items(items) { item ->
-                    ImageItemRow(item = item)
-                }
-            }
-        }
 
         Row(
             modifier = Modifier
