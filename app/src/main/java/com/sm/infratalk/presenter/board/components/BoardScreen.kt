@@ -145,6 +145,58 @@ fun BoardContentSection(
     }
 }
 
+@Composable
+fun BoardButtonSection(
+    state: BoardEntity,
+    onChatClick: (BoardEntity) -> Unit,
+    onBookmarkClick: (BoardEntity) -> Unit,
+    onLikeClick: (BoardEntity) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp, horizontal = 10.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_chat),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onChatClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Image(
+            painter = painterResource(
+                id = if (state.bookmarkEntity.isBookmark) {
+                    R.drawable.btn_star_pressed  // 북마크된 상태
+                } else {
+                    R.drawable.btn_star_default   // 북마크 안된 상태
+                }
+            ),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onBookmarkClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Image(
+            painter = painterResource(
+                id = if (state.likeEntity.isLike) {
+                    R.drawable.btn_like_pressed  // 좋아요된 상태
+                } else {
+                    R.drawable.btn_like_default   // 좋아요 안된 상태
+                }
+            ),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onLikeClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+    }
+}
+
 
 @Composable
 fun BoardScreen(
@@ -457,49 +509,7 @@ fun BoardItemRow(
 
 
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 10.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_chat),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable {
-                    onChatClick(item)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-            Image(
-                painter = painterResource(
-                    id = if (item.bookmarkEntity.isBookmark) {
-                        R.drawable.btn_star_pressed  // 북마크된 상태
-                    } else {
-                        R.drawable.btn_star_default   // 북마크 안된 상태
-                    }
-                ),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable {
-                    onBookmarkClick(item)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-            Image(
-                painter = painterResource(
-                    id = if (item.likeEntity.isLike) {
-                        R.drawable.btn_like_pressed  // 좋아요된 상태
-                    } else {
-                        R.drawable.btn_like_default   // 좋아요 안된 상태
-                    }
-                ),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable {
-                    onLikeClick(item)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-            )
-        }
+
 
     }
 }
