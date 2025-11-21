@@ -452,7 +452,7 @@ fun BoardItemList(
         state = listState  // 스크롤 상태 연결
     ) {
         items(items) { item ->
-            BoardItemRow(
+            BoardItemSection(
                 item = item,
                 onClick = onItemClick,
                 onBookmarkClick = onBookmarkClick,
@@ -481,7 +481,7 @@ fun BoardItemList(
 
 // 아이템
 @Composable
-fun BoardItemRow(
+fun BoardItemSection(
     item: BoardEntity,
     onClick: (BoardEntity) -> Unit,
     onBookmarkClick: (BoardEntity) -> Unit,
@@ -504,7 +504,21 @@ fun BoardItemRow(
             }
     ) {
 
+        BoardAuthorSection(
+            state = item,
+            modifier = Modifier
+        )
 
+        BoardContentSection(
+            state = item
+        )
+
+        BoardButtonSection(
+            state = item,
+            onChatClick = onChatClick,
+            onBookmarkClick = onBookmarkClick,
+            onLikeClick
+        )
 
 
 
