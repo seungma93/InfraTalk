@@ -73,6 +73,7 @@ import java.util.Date
 @Composable
 fun BoardAuthorSection(
     state: BoardEntity,
+    userState: UserEntity,
     modifier: Modifier
 ) {
     Row(
@@ -106,6 +107,13 @@ fun BoardAuthorSection(
                 text = state.boardMetaEntity.createTime.toString()
             )
         }
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_clear),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식)
+         )
     }
 }
 
@@ -407,7 +415,8 @@ fun BoardScreen(
                             }
                         }
                     }
-                }, isLoadingMore = isLoadingMore
+                }, isLoadingMore = isLoadingMore,
+                userState = TODO()
             )
         }
     }
@@ -417,6 +426,7 @@ fun BoardScreen(
 @Composable
 fun BoardItemList(
     items: List<BoardEntity>,
+    userState: UserEntity,
     onItemClick: (BoardEntity) -> Unit,
     onBookmarkClick: (BoardEntity) -> Unit,
     onLikeClick: (BoardEntity) -> Unit,
@@ -454,6 +464,7 @@ fun BoardItemList(
         items(items) { item ->
             BoardItemSection(
                 item = item,
+                userState = userState,
                 onClick = onItemClick,
                 onBookmarkClick = onBookmarkClick,
                 onLikeClick = onLikeClick,
@@ -483,6 +494,7 @@ fun BoardItemList(
 @Composable
 fun BoardItemSection(
     item: BoardEntity,
+    userState: UserEntity,
     onClick: (BoardEntity) -> Unit,
     onBookmarkClick: (BoardEntity) -> Unit,
     onLikeClick: (BoardEntity) -> Unit,
@@ -506,6 +518,7 @@ fun BoardItemSection(
 
         BoardAuthorSection(
             state = item,
+            userState = userState, 
             modifier = Modifier
         )
 
@@ -517,12 +530,8 @@ fun BoardItemSection(
             state = item,
             onChatClick = onChatClick,
             onBookmarkClick = onBookmarkClick,
-            onLikeClick
+            onLikeClick = onLikeClick
         )
-
-
-
-
 
 
     }
@@ -566,6 +575,11 @@ fun PreviewBoardItemList() {
 
     BoardItemList(
         items = dummyItems,
+        userState = UserEntity(
+            email = TODO(),
+            nickname = TODO(),
+            image = TODO()
+        ),
         onItemClick = {},
         onRemove = {},
         onBookmarkClick = {},
