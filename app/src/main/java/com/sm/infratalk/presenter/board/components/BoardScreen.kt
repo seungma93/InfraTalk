@@ -208,11 +208,13 @@ fun BoardButtonSection(
 
 @Composable
 fun BoardScreen(
-    viewModel: BoardViewModel
+    viewModel: BoardViewModel,
+    
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var isLoadingMore by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
+    var userState by remember { mutableStateOf<UserEntity?>(null) }
     val context = LocalContext.current
 
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -230,10 +232,11 @@ fun BoardScreen(
         )
     }
 
-    // 초기 데이터 로
+    // 초기 데이터 로드
     LaunchedEffect(Unit) {
         isLoading = true
         try {
+            userState = viewModel.getUserMe()
             viewModel.loadBoardList(BoardListLoadForm(reload = true))
         } catch (e: Exception) {
             Log.d("BoardScreen", "게시글 로드 실패", e)
@@ -416,7 +419,7 @@ fun BoardScreen(
                         }
                     }
                 }, isLoadingMore = isLoadingMore,
-                userState = TODO()
+                userState = userState ?: UserEntity(email = "", nickname = "", image = null)
             )
         }
     }
