@@ -84,8 +84,8 @@ fun BoardAuthorSection(
     )
     {
         Image(
-            painter = state.boardMetaEntity.images?.let {
-                rememberAsyncImagePainter(it.successUris)
+            painter = userState.image?.let {
+                rememberAsyncImagePainter(it)
             } ?: run {
                 painterResource(id = R.drawable.ic_avatar)
             },
