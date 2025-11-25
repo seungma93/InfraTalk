@@ -108,12 +108,14 @@ fun BoardAuthorSection(
             )
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.ic_clear),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier, // 크기, 패딩 등 지정 가능
-            contentScale = ContentScale.Crop // 이미지 크기 조절 방식)
-         )
+        if(userState.email == state.boardMetaEntity.author.email) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_clear),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop // 이미지 크기 조절 방식)
+            )
+        }
     }
 }
 
