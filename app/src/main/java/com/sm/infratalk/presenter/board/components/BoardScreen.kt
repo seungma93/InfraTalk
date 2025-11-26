@@ -74,7 +74,8 @@ import java.util.Date
 fun BoardAuthorSection(
     state: BoardEntity,
     userState: UserEntity,
-    modifier: Modifier
+    modifier: Modifier,
+    onRemove: (BoardEntity) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -112,8 +113,10 @@ fun BoardAuthorSection(
             Image(
                 painter = painterResource(id = R.drawable.ic_clear),
                 contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop // 이미지 크기 조절 방식)
+                modifier = Modifier.clickable{
+                    onRemove(state)
+                }, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop, // 이미지 크기 조절 방식)
             )
         }
     }
@@ -211,7 +214,6 @@ fun BoardButtonSection(
 @Composable
 fun BoardScreen(
     viewModel: BoardViewModel,
-    
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var isLoadingMore by remember { mutableStateOf(false) }
@@ -473,7 +475,8 @@ fun BoardItemList(
                 onClick = onItemClick,
                 onBookmarkClick = onBookmarkClick,
                 onLikeClick = onLikeClick,
-                onChatClick = onChatClick
+                onChatClick = onChatClick,
+                onRemove = onRemove
             )
         }
 
@@ -503,7 +506,8 @@ fun BoardItemSection(
     onClick: (BoardEntity) -> Unit,
     onBookmarkClick: (BoardEntity) -> Unit,
     onLikeClick: (BoardEntity) -> Unit,
-    onChatClick: (BoardEntity) -> Unit
+    onChatClick: (BoardEntity) -> Unit,
+    onRemove: (BoardEntity) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -524,7 +528,8 @@ fun BoardItemSection(
         BoardAuthorSection(
             state = item,
             userState = userState, 
-            modifier = Modifier
+            modifier = Modifier,
+            onRemove = onRemove
         )
 
         BoardContentSection(
