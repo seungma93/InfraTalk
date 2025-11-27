@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -68,147 +68,6 @@ import com.sm.infratalk.presenter.main.activity.EndPoint
 import com.sm.infratalk.presenter.main.activity.Navigable
 import kotlinx.coroutines.launch
 import java.util.Date
-
-
-@Composable
-fun BoardAuthorSection(
-    state: BoardEntity,
-    userState: UserEntity,
-    modifier: Modifier,
-    onRemove: (BoardEntity) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(top = 11.dp, start = 8.dp)
-            .width(width = 50.dp)
-            .height(height = 50.dp)
-    )
-    {
-        Image(
-            painter = userState.image?.let {
-                rememberAsyncImagePainter(it)
-            } ?: run {
-                painterResource(id = R.drawable.ic_avatar)
-            },
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier, // 크기, 패딩 등 지정 가능
-            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-        )
-        Column {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                text = state.boardMetaEntity.author.nickname
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                text = state.boardMetaEntity.createTime.toString()
-            )
-        }
-
-        if(userState.email == state.boardMetaEntity.author.email) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_clear),
-                contentDescription = stringResource(R.string.app_name),
-                modifier = Modifier.clickable{
-                    onRemove(state)
-                }, // 크기, 패딩 등 지정 가능
-                contentScale = ContentScale.Crop, // 이미지 크기 조절 방식)
-            )
-        }
-    }
-}
-
-@Composable
-fun BoardContentSection(
-    state: BoardEntity
-) {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 10.dp),
-        fontSize = 20.sp,
-        text = state.boardMetaEntity.title
-    )
-    Text(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        fontSize = 15.sp,
-        text = state.boardMetaEntity.content
-    )
-
-
-
-    state.boardMetaEntity.images?.successUris?.takeIf { it.isNotEmpty() }?.let { items ->
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-        ) {
-            items(items) { item ->
-                ImageItemRow(item = item)
-            }
-        }
-    }
-}
-
-@Composable
-fun BoardButtonSection(
-    state: BoardEntity,
-    onChatClick: (BoardEntity) -> Unit,
-    onBookmarkClick: (BoardEntity) -> Unit,
-    onLikeClick: (BoardEntity) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 10.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_chat),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier.clickable {
-                onChatClick(state)
-            }, // 크기, 패딩 등 지정 가능
-            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-        )
-        Image(
-            painter = painterResource(
-                id = if (state.bookmarkEntity.isBookmark) {
-                    R.drawable.btn_star_pressed  // 북마크된 상태
-                } else {
-                    R.drawable.btn_star_default   // 북마크 안된 상태
-                }
-            ),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier.clickable {
-                onBookmarkClick(state)
-            }, // 크기, 패딩 등 지정 가능
-            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-        )
-        Image(
-            painter = painterResource(
-                id = if (state.likeEntity.isLike) {
-                    R.drawable.btn_like_pressed  // 좋아요된 상태
-                } else {
-                    R.drawable.btn_like_default   // 좋아요 안된 상태
-                }
-            ),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier.clickable {
-                onLikeClick(state)
-            }, // 크기, 패딩 등 지정 가능
-            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
-        )
-    }
-}
 
 
 @Composable
@@ -527,7 +386,7 @@ fun BoardItemSection(
 
         BoardAuthorSection(
             state = item,
-            userState = userState, 
+            userState = userState,
             modifier = Modifier,
             onRemove = onRemove
         )
@@ -546,6 +405,148 @@ fun BoardItemSection(
 
     }
 }
+
+
+@Composable
+fun BoardAuthorSection(
+    state: BoardEntity,
+    userState: UserEntity,
+    modifier: Modifier,
+    onRemove: (BoardEntity) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 11.dp, start = 8.dp)
+            .fillMaxWidth()
+            .fillMaxHeight()
+    )
+    {
+        Image(
+            painter = state.boardMetaEntity.author.image?.let {
+                rememberAsyncImagePainter(it)
+            } ?: run {
+                painterResource(id = R.drawable.ic_avatar)
+            },
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Column {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = state.boardMetaEntity.author.nickname
+            )
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                text = state.boardMetaEntity.createTime.toString()
+            )
+        }
+
+        if (userState.email == state.boardMetaEntity.author.email) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_clear),
+                contentDescription = stringResource(R.string.app_name),
+                modifier = Modifier.clickable {
+                    onRemove(state)
+                }, // 크기, 패딩 등 지정 가능
+                contentScale = ContentScale.Crop, // 이미지 크기 조절 방식)
+            )
+        }
+    }
+}
+
+@Composable
+fun BoardContentSection(
+    state: BoardEntity
+) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        fontSize = 20.sp,
+        text = state.boardMetaEntity.title
+    )
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        fontSize = 15.sp,
+        text = state.boardMetaEntity.content
+    )
+
+
+
+    state.boardMetaEntity.images?.successUris?.takeIf { it.isNotEmpty() }?.let { items ->
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+        ) {
+            items(items) { item ->
+                ImageItemRow(item = item)
+            }
+        }
+    }
+}
+
+@Composable
+fun BoardButtonSection(
+    state: BoardEntity,
+    onChatClick: (BoardEntity) -> Unit,
+    onBookmarkClick: (BoardEntity) -> Unit,
+    onLikeClick: (BoardEntity) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp, horizontal = 10.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_chat),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onChatClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Image(
+            painter = painterResource(
+                id = if (state.bookmarkEntity.isBookmark) {
+                    R.drawable.btn_star_pressed  // 북마크된 상태
+                } else {
+                    R.drawable.btn_star_default   // 북마크 안된 상태
+                }
+            ),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onBookmarkClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+        Image(
+            painter = painterResource(
+                id = if (state.likeEntity.isLike) {
+                    R.drawable.btn_like_pressed  // 좋아요된 상태
+                } else {
+                    R.drawable.btn_like_default   // 좋아요 안된 상태
+                }
+            ),
+            contentDescription = stringResource(R.string.app_name),
+            modifier = Modifier.clickable {
+                onLikeClick(state)
+            }, // 크기, 패딩 등 지정 가능
+            contentScale = ContentScale.Crop // 이미지 크기 조절 방식
+        )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
