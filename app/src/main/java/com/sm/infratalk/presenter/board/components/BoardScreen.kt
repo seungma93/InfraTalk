@@ -437,12 +437,14 @@ fun BoardAuthorSection(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .padding(horizontal = 10.dp),
                 text = state.boardMetaEntity.author.nickname
             )
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .padding(horizontal = 10.dp),
                 text = modifiedDate(date = state.boardMetaEntity.createTime)
             )
