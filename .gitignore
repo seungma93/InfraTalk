@@ -1,15 +1,94 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# ============================
+# Android / Kotlin .gitignore
+# ============================
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
 local.properties
+.gradle/
+gradle-app.setting
+
+# IDE Settings
+.idea/**
+!.idea/codeStyles/
+!.idea/runConfigurations/
+!.idea/vcs.xml
+!.idea/gradle.xml
+.DS_Store
+
+# Android Studio
+*.iml
+/.android/build-cache/
+
+# Kotlin/Java
+*.class
+*.jar
+*.war
+*.ear
+*.hprof
+
+# Log files
+*.log
+
+# Generated files
+captures/
+outputs/
+generated/
+
+# Signing
+*.keystore
+*.jks
+**/release/*.keystore
+**/release/*.jks
+*.pem
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Cache
+.cache/
+*.lock
+node_modules/
+
+# Firebase / Google services
+# (역으로 필요한 JSON은 제외하면 안되므로 주석처리)
+# google-services.json
+# GoogleService-Info.plist
+
+# Android Gradle Plugin / Google Services Plugin temp
+**/intermediates/**
+**/incremental/**
+**/tmp/**
+
+# Jetpack Compose
+compose-cache/
+
+# Kotlin Symbol Processing (KSP)
+ksp/
+
+# NDK / CMake
+.externalNativeBuild/
+.cxx/
+
+# Lint
+lint/intermediates/
+lint/generated/
+lint/tmp/
+lint/reports/
+
+# Test
+test-results/
+reports/
+
+# Optional: Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/readme.md
+
+# Optional: If you use MacOS
+*.plist
