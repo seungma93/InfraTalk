@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace 'com.sm.infratalk'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.sm.infratalk"
         minSdk 23
-        targetSdk 35
+        targetSdk 36
         versionCode 6
         versionName "1.0.6" // 프로덕트 배포 버전 1.0.6
 
@@ -114,7 +114,7 @@ dependencies {
 
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
-    implementation "androidx.activity:activity-ktx:1.1.0"
+    implementation "androidx.activity:activity-ktx:1.9.3"
     implementation 'androidx.fragment:fragment-ktx:1.5.3'
 
     // SwipeRefreshLayout
@@ -135,7 +135,7 @@ dependencies {
     implementation "androidx.compose.material3:material3:1.3.1" // 최신 안정 버전
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
-    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     // If using coroutines for Compose
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")

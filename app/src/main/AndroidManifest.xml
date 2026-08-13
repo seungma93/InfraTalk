@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
@@ -18,7 +20,8 @@
         android:roundIcon="@mipmap/ic_main_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FreeTalk"
-        tools:targetApi="31" >
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="36" >
 
         <activity android:name=".presenter.main.activity.SplashActivity"
             android:theme="@style/SplashTheme"
@@ -28,7 +31,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".presenter.main.activity.MainActivity"></activity>
+        <activity
+            android:name=".presenter.main.activity.MainActivity"
+            android:exported="false" />
         <service
             android:name=".presenter.service.ForegroundService"
             android:foregroundServiceType="remoteMessaging"
