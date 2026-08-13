@@ -15,8 +15,8 @@ android {
         applicationId "com.sm.infratalk"
         minSdk 23
         targetSdk 36
-        versionCode 6
-        versionName "1.0.6" // 프로덕트 배포 버전 1.0.6
+        versionCode 7
+        versionName "1.0.7" // 프로덕트 배포 버전 1.0.7
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
